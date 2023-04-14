@@ -19,10 +19,15 @@ export class BlogRepository {
     blogId: string,
     blogUpdateDTO: IBlogApiCreateUpdateDTO,
   ): Promise<boolean> {
-    const updateStatus = await this.BlogModel.updateOne(
+    const updateBlogResult = await this.BlogModel.updateOne(
       { id: blogId },
       blogUpdateDTO,
     );
-    return updateStatus.matchedCount > 0;
+    return updateBlogResult.matchedCount > 0;
+  }
+
+  async deleteBlog(blogId: string): Promise<boolean> {
+    const deleteBlogResult = await this.BlogModel.deleteOne({ id: blogId });
+    return deleteBlogResult.deletedCount > 0;
   }
 }

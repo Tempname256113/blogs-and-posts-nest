@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -69,11 +70,18 @@ export class BlogController {
     @Param('blogId') blogId: string,
     @Body() blogUpdateDTO: IBlogApiCreateUpdateDTO,
   ) {
-    const blogUpdateStatus: boolean = await this.blogService.updateBlogById(
+    const blogUpdateStatus: boolean = await this.blogService.updateBlog(
       blogId,
       blogUpdateDTO,
     );
     if (!blogUpdateStatus) throw new NotFoundException();
+  }
+
+  @Delete(':blogId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlogById(@Param('blogId') blogId: string) {
+    const deleteBlogStatus: boolean = await this.blogService.deleteBlog(blogId);
+    if (!deleteBlogStatus) throw new NotFoundException();
   }
 
   @Get('config')

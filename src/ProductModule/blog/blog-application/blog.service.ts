@@ -7,7 +7,6 @@ import { IBlogDBModel } from '../blog-infrastructure/repositories/models/blog.db
 import { v4 as uuidv4 } from 'uuid';
 import { BlogRepository } from '../blog-infrastructure/repositories/blog.repository';
 import { IBlogApiModel } from '../blog-api/models/blog-api.model';
-import { BlogModule } from '../blog.module';
 
 @Injectable()
 export class BlogService {
@@ -32,10 +31,14 @@ export class BlogService {
     return newBlog;
   }
 
-  async updateBlogById(
+  async updateBlog(
     blogId: string,
     updateBlogDTO: IBlogApiCreateUpdateDTO,
   ): Promise<boolean> {
     return this.blogRepository.updateBlog(blogId, updateBlogDTO);
+  }
+
+  async deleteBlog(blogId: string): Promise<boolean> {
+    return this.blogRepository.deleteBlog(blogId);
   }
 }
