@@ -11,12 +11,9 @@ import { IBlogApiModel } from '../blog-api/models/blog-api.model';
 @Injectable()
 export class BlogService {
   constructor(
-    @InjectModel(Blog.name) private blogModel: Model<Blog>,
+    @InjectModel(Blog.name) private BlogModel: Model<Blog>,
     private blogRepository: BlogRepository,
   ) {}
-  getHello(): string {
-    return 'Hello World!';
-  }
 
   async createBlog(
     createBlogDTO: BlogApiCreateUpdateDTO,
@@ -29,7 +26,7 @@ export class BlogService {
       createdAt: new Date().toISOString(),
       isMembership: true,
     };
-    const newBlogModel: BlogDocument = new this.blogModel(newBlog);
+    const newBlogModel: BlogDocument = new this.BlogModel(newBlog);
     await this.blogRepository.saveBlog(newBlogModel);
     return newBlog;
   }
