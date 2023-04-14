@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BlogApiCreateUpdateDTO } from '../blog-api/dto/blog-api.dto';
+import { IBlogApiCreateUpdateDTO } from '../blog-api/dto/blog-api.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from './blog-domain/blog.schema';
@@ -7,6 +7,7 @@ import { IBlogDBModel } from '../blog-infrastructure/repositories/models/blog.db
 import { v4 as uuidv4 } from 'uuid';
 import { BlogRepository } from '../blog-infrastructure/repositories/blog.repository';
 import { IBlogApiModel } from '../blog-api/models/blog-api.model';
+import { BlogModule } from '../blog.module';
 
 @Injectable()
 export class BlogService {
@@ -16,7 +17,7 @@ export class BlogService {
   ) {}
 
   async createBlog(
-    createBlogDTO: BlogApiCreateUpdateDTO,
+    createBlogDTO: IBlogApiCreateUpdateDTO,
   ): Promise<IBlogApiModel> {
     const newBlog: IBlogDBModel = {
       id: uuidv4(),
@@ -29,5 +30,12 @@ export class BlogService {
     const newBlogModel: BlogDocument = new this.BlogModel(newBlog);
     await this.blogRepository.saveBlog(newBlogModel);
     return newBlog;
+  }
+
+  async updateBlogById(
+    blogId: string,
+    updateBlogDTO: IBlogApiCreateUpdateDTO,
+  ): Promise<boolean> {
+    return this.blogRepository.updateBlog(blogId, updateBlogDTO);
   }
 }

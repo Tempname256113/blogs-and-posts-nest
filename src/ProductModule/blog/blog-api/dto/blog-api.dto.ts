@@ -1,6 +1,6 @@
 import { IsString, IsUrl, MaxLength } from 'class-validator';
 
-export class BlogApiCreateUpdateDTO {
+export class IBlogApiCreateUpdateDTO {
   @IsString()
   @MaxLength(15)
   name: string;

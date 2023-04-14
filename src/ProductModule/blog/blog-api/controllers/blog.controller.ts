@@ -3,15 +3,16 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
+  NotFoundException,
   Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { BlogService } from '../../blog-application/blog.service';
 import { envVariables } from '../../../../config/app.env-variables';
-import { BlogApiCreateUpdateDTO } from '../dto/blog-api.dto';
+import { IBlogApiCreateUpdateDTO } from '../dto/blog-api.dto';
 import { IBlogApiModel } from '../models/blog-api.model';
 import { IPaginationQuery } from '../../../product-models/pagination.query';
 import { IBlogPaginationModel } from '../models/blog-api.pagination.model';
@@ -27,10 +28,10 @@ export class BlogController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBlog(
-    @Body() blogCreateUpdateDTO: BlogApiCreateUpdateDTO,
+    @Body() blogCreateDTO: IBlogApiCreateUpdateDTO,
   ): Promise<IBlogApiModel> {
     const createdBlog: IBlogApiModel = await this.blogService.createBlog(
-      blogCreateUpdateDTO,
+      blogCreateDTO,
     );
     return createdBlog;
   }
@@ -55,12 +56,24 @@ export class BlogController {
 
   @Get(':blogId')
   @HttpCode(HttpStatus.OK)
-  async getBlogById(@Param('blogId') blogId): Promise<IBlogApiModel> {
+  async getBlogById(@Param('blogId') blogId: string): Promise<IBlogApiModel> {
     const foundedBlog: IBlogApiModel | null =
       await this.blogQueryRepository.getBlogById(blogId);
-    if (!foundedBlog)
-      throw new HttpException('blog not found', HttpStatus.NOT_FOUND);
+    if (!foundedBlog) throw new NotFoundException();
     return foundedBlog;
+  }
+
+  @Put(':blogId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateBlogById(
+    @Param('blogId') blogId: string,
+    @Body() blogUpdateDTO: IBlogApiCreateUpdateDTO,
+  ) {
+    const blogUpdateStatus: boolean = await this.blogService.updateBlogById(
+      blogId,
+      blogUpdateDTO,
+    );
+    if (!blogUpdateStatus) throw new NotFoundException();
   }
 
   @Get('config')
