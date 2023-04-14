@@ -3,7 +3,9 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
@@ -49,6 +51,16 @@ export class BlogController {
     const blogsWithPagination: IBlogPaginationModel =
       await this.blogQueryRepository.getBlogsWithPagination(queries);
     return blogsWithPagination;
+  }
+
+  @Get(':blogId')
+  @HttpCode(HttpStatus.OK)
+  async getBlogById(@Param('blogId') blogId): Promise<IBlogApiModel> {
+    const foundedBlog: IBlogApiModel | null =
+      await this.blogQueryRepository.getBlogById(blogId);
+    if (!foundedBlog)
+      throw new HttpException('blog not found', HttpStatus.NOT_FOUND);
+    return foundedBlog;
   }
 
   @Get('config')

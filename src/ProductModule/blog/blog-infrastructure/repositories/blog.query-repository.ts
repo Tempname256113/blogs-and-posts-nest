@@ -5,6 +5,7 @@ import { Blog } from '../../blog-application/blog-domain/blog.schema';
 import { Model } from 'mongoose';
 import { IBlogDBModel } from './models/blog.db-model';
 import { IBlogPaginationModel } from '../../blog-api/models/blog-api.pagination.model';
+import { IBlogApiModel } from '../../blog-api/models/blog-api.model';
 
 @Injectable()
 export class BlogQueryRepository {
@@ -34,5 +35,9 @@ export class BlogQueryRepository {
       items: blogsWithPagination,
     };
     return resultOfBlogsPagination;
+  }
+
+  async getBlogById(blogId: string): Promise<IBlogApiModel | null> {
+    return this.BlogModel.findOne({ id: blogId }, { _id: false }).lean();
   }
 }
