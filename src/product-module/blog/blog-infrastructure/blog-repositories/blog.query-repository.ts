@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { IPaginationQuery } from '../../../product-models/pagination.query';
 import { InjectModel } from '@nestjs/mongoose';
-import { Blog } from '../../blog-application/blog-domain/blog.schema';
+import {
+  Blog,
+  BlogSchema,
+} from '../../blog-application/blog-domain/blog.entity';
 import { Model } from 'mongoose';
-import { IBlogDBModel } from './models/blog.db-model';
-import { IBlogPaginationModel } from '../../blog-api/models/blog-api.pagination.model';
-import { IBlogApiModel } from '../../blog-api/models/blog-api.model';
+import { IBlogPaginationModel } from '../../blog-api/blog-api-models/blog-api.pagination.model';
+import { IBlogApiModel } from '../../blog-api/blog-api-models/blog-api.model';
 
 @Injectable()
 export class BlogQueryRepository {
-  constructor(@InjectModel(Blog.name) private BlogModel: Model<Blog>) {}
+  constructor(
+    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
+  ) {}
   async getBlogsWithPagination(
     query: IPaginationQuery,
   ): Promise<IBlogPaginationModel> {
@@ -21,7 +25,7 @@ export class BlogQueryRepository {
       filter = { name: { $regex: query.searchNameTerm, $options: 'i' } };
     const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
     const blogsTotalCount: number = await this.BlogModel.countDocuments(filter);
-    const blogsWithPagination: IBlogDBModel[] = await this.BlogModel.find(
+    const blogsWithPagination: Blog[] = await this.BlogModel.find(
       filter,
       { _id: false },
       { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },

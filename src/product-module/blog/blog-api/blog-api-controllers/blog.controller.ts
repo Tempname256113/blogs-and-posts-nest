@@ -12,12 +12,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { BlogService } from '../../blog-application/blog.service';
-import { envVariables } from '../../../../config/app.env-variables';
-import { IBlogApiCreateUpdateDTO } from '../dto/blog-api.dto';
-import { IBlogApiModel } from '../models/blog-api.model';
+import { IBlogApiCreateUpdateDTO } from '../blog-api-dto/blog-api.dto';
+import { IBlogApiModel } from '../blog-api-models/blog-api.model';
 import { IPaginationQuery } from '../../../product-models/pagination.query';
-import { IBlogPaginationModel } from '../models/blog-api.pagination.model';
-import { BlogQueryRepository } from '../../blog-infrastructure/repositories/blog.query-repository';
+import { IBlogPaginationModel } from '../blog-api-models/blog-api.pagination.model';
+import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
 
 @Controller('blogs')
 export class BlogController {
@@ -82,10 +81,5 @@ export class BlogController {
   async deleteBlogById(@Param('blogId') blogId: string) {
     const deleteBlogStatus: boolean = await this.blogService.deleteBlog(blogId);
     if (!deleteBlogStatus) throw new NotFoundException();
-  }
-
-  @Get('config')
-  getConfig(): string {
-    return envVariables.MONGO_LOCAL;
   }
 }

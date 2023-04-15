@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BlogModule } from './ProductModule/blog/blog.module';
-import { envVariables } from './config/app.env-variables';
+import { envVariables } from './config/env-variables';
+import { ProductModule } from './product-module/product.module';
 
 @Module({
-  imports: [MongooseModule.forRoot(envVariables.MONGO_LOCAL), BlogModule],
+  imports: [MongooseModule.forRoot(envVariables.MONGO_LOCAL), ProductModule],
   controllers: [],
   providers: [],
 })

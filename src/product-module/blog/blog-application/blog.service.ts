@@ -1,24 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { IBlogApiCreateUpdateDTO } from '../blog-api/dto/blog-api.dto';
+import { IBlogApiCreateUpdateDTO } from '../blog-api/blog-api-dto/blog-api.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Blog, BlogDocument } from './blog-domain/blog.schema';
-import { IBlogDBModel } from '../blog-infrastructure/repositories/models/blog.db-model';
+import { BlogSchema, BlogDocument, Blog } from './blog-domain/blog.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { BlogRepository } from '../blog-infrastructure/repositories/blog.repository';
-import { IBlogApiModel } from '../blog-api/models/blog-api.model';
+import { BlogRepository } from '../blog-infrastructure/blog-repositories/blog.repository';
+import { IBlogApiModel } from '../blog-api/blog-api-models/blog-api.model';
 
 @Injectable()
 export class BlogService {
   constructor(
-    @InjectModel(Blog.name) private BlogModel: Model<Blog>,
+    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     private blogRepository: BlogRepository,
   ) {}
 
   async createBlog(
     createBlogDTO: IBlogApiCreateUpdateDTO,
   ): Promise<IBlogApiModel> {
-    const newBlog: IBlogDBModel = {
+    const newBlog: Blog = {
       id: uuidv4(),
       name: createBlogDTO.name,
       description: createBlogDTO.description,

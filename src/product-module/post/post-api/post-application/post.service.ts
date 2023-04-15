@@ -1,0 +1,33 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { PostDocument, PostSchema } from './post-domain/post.entity';
+import { IPostApiCreateUpdateDTO } from '../post-api-dto/post-api.dto';
+import {
+  BlogDocument,
+  BlogSchema,
+} from '../../../blog/blog-application/blog-domain/blog.entity';
+import { PostRepository } from '../../post-infrastructure/post-repositories/post.repository';
+
+@Injectable()
+export class PostService {
+  constructor(
+    @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
+    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
+    private postRepository: PostRepository,
+  ) {}
+  async createNewPost(
+    createPostDTO: IPostApiCreateUpdateDTO,
+  ): Promise<PostDocument | null> {
+    const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
+      id: createPostDTO.blogId,
+    });
+    if (!foundedBlog) return null;
+    const newCreatedPost: PostDocument = foundedBlog.createPost(
+      createPostDTO,
+      this.PostModel,
+    );
+    await this.postRepository.savePost(newCreatedPost);
+    return newCreatedPost;
+  }
+}
