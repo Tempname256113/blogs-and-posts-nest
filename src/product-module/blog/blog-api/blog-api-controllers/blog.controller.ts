@@ -14,9 +14,10 @@ import {
 import { BlogService } from '../../blog-application/blog.service';
 import { IBlogApiCreateUpdateDTO } from '../blog-api-dto/blog-api.dto';
 import { IBlogApiModel } from '../blog-api-models/blog-api.model';
-import { IPaginationQuery } from '../../../product-models/pagination.query';
+import { IPaginationQuery } from '../../../product-models/pagination.query.model';
 import { IBlogPaginationModel } from '../blog-api-models/blog-api.pagination.model';
 import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
+import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
 
 @Controller('blogs')
 export class BlogController {
@@ -39,18 +40,11 @@ export class BlogController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
-    @Query()
-    query: IPaginationQuery,
+    @Query(new PaginationQueryTransformerPipe())
+    paginationQuery: IPaginationQuery,
   ): Promise<IBlogPaginationModel> {
-    const queries: IPaginationQuery = {
-      searchNameTerm: query.searchNameTerm ?? null,
-      sortBy: query.sortBy ?? 'createdAt',
-      sortDirection: query.sortDirection ?? 'desc',
-      pageNumber: query.pageNumber ?? 1,
-      pageSize: query.pageSize ?? 10,
-    };
     const blogsWithPagination: IBlogPaginationModel =
-      await this.blogQueryRepository.getBlogsWithPagination(queries);
+      await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
 

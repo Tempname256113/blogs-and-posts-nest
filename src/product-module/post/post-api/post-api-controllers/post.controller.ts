@@ -1,16 +1,20 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Post,
+  Query,
 } from '@nestjs/common';
 import { IPostApiCreateUpdateDTO } from '../post-api-dto/post-api.dto';
 import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
 import { PostDocument } from '../post-application/post-domain/post.entity';
 import { IPostApiModel } from '../post-api-models/post-api.model';
+import { IPaginationQuery } from '../../../product-models/pagination.query.model';
+import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
 
 @Controller('posts')
 export class PostController {
@@ -44,4 +48,10 @@ export class PostController {
     };
     return postApiModel;
   }
+
+  @Get()
+  async getPostsWithPagination(
+    @Query(new PaginationQueryTransformerPipe())
+    paginationQuery: IPaginationQuery,
+  ) {}
 }
