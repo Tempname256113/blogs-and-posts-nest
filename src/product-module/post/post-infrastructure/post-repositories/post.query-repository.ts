@@ -7,7 +7,7 @@ import {
 import { Model } from 'mongoose';
 import { IPostApiPaginationModel } from '../../post-api/post-api-models/post-api.pagination.model';
 import { IPostRepositoryPaginationModel } from './post-repositories-models/post-repository.pagination.model';
-import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-paging.func';
+import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-pagination.func';
 import { IPaginationQuery } from '../../../product-models/pagination.query.model';
 import { IPostApiModel } from '../../post-api/post-api-models/post-api.model';
 
@@ -16,8 +16,26 @@ export class PostQueryRepository {
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
   ) {}
-  async getPostById(postId: string): Promise<PostDocument | null> {
-    return this.PostModel.findOne({ id: postId });
+  async getPostById(postId: string): Promise<IPostApiModel | null> {
+    const foundedPost: PostDocument | null = await this.PostModel.findOne({
+      id: postId,
+    });
+    const postToClient: IPostApiModel = {
+      id: foundedPost.id,
+      title: foundedPost.title,
+      shortDescription: foundedPost.shortDescription,
+      content: foundedPost.content,
+      blogId: foundedPost.blogId,
+      blogName: foundedPost.blogName,
+      createdAt: foundedPost.createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      },
+    };
+    return postToClient;
   }
 
   async getPostsWithPagination(

@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
@@ -51,6 +52,7 @@ export class PostController {
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   async getPostsWithPagination(
     @Query(new PaginationQueryTransformerPipe())
     paginationQuery: IPaginationQuery,
@@ -58,5 +60,14 @@ export class PostController {
     const postsWithPagination: IPostApiPaginationModel =
       await this.postQueryRepository.getPostsWithPagination(paginationQuery);
     return postsWithPagination;
+  }
+
+  @Get(':postId')
+  @HttpCode(HttpStatus.OK)
+  async getPostById(@Param('postId') postId: string): Promise<IPostApiModel> {
+    const foundedPost: IPostApiModel | null =
+      await this.postQueryRepository.getPostById(postId);
+    if (!foundedPost) throw new NotFoundException();
+    return foundedPost;
   }
 }

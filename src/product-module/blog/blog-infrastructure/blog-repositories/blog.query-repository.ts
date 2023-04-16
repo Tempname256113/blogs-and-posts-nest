@@ -5,7 +5,7 @@ import { BlogSchema } from '../../blog-application/blog-domain/blog.entity';
 import { Model } from 'mongoose';
 import { IBlogPaginationModel } from '../../blog-api/blog-api-models/blog-api.pagination.model';
 import { IBlogApiModel } from '../../blog-api/blog-api-models/blog-api.model';
-import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-paging.func';
+import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-pagination.func';
 
 @Injectable()
 export class BlogQueryRepository {
