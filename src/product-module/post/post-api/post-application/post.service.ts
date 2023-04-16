@@ -30,4 +30,8 @@ export class PostService {
     await this.postRepository.savePost(newCreatedPost);
     return newCreatedPost;
   }
+
+  async updatePost(postId: string, postUpdateDTO): Promise<boolean> {
+    return this.postRepository.updatePost(postId, postUpdateDTO);
+  }
 }

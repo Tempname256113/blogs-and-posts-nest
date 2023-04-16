@@ -62,7 +62,7 @@ export class BlogController {
   async updateBlogById(
     @Param('blogId') blogId: string,
     @Body() blogUpdateDTO: IBlogApiCreateUpdateDTO,
-  ) {
+  ): Promise<void> {
     const blogUpdateStatus: boolean = await this.blogService.updateBlog(
       blogId,
       blogUpdateDTO,

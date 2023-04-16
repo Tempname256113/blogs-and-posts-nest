@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { IPostApiCreateUpdateDTO } from '../post-api-dto/post-api.dto';
@@ -69,5 +70,18 @@ export class PostController {
       await this.postQueryRepository.getPostById(postId);
     if (!foundedPost) throw new NotFoundException();
     return foundedPost;
+  }
+
+  @Put(':postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePostById(
+    @Param('postId') postId: string,
+    @Body() postUpdateDTO: IPostApiCreateUpdateDTO,
+  ): Promise<void> {
+    const postUpdateStatus: boolean = await this.postService.updatePost(
+      postId,
+      postUpdateDTO,
+    );
+    if (!postUpdateStatus) throw new NotFoundException();
   }
 }
