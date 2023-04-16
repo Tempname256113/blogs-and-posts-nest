@@ -34,7 +34,7 @@ class BlogMethods extends Blog {
     createPostDTO: IPostApiCreateUpdateDTO,
     PostModel: Model<PostSchema>,
   ): PostDocument {
-    const newPost: PostDocument = new PostModel({
+    const newPostDocument: PostDocument = new PostModel({
       id: uuidv4(),
       title: createPostDTO.title,
       shortDescription: createPostDTO.shortDescription,
@@ -43,7 +43,7 @@ class BlogMethods extends Blog {
       blogName: this.name,
       createdAt: new Date().toISOString(),
     });
-    return newPost;
+    return newPostDocument;
   }
 }
 

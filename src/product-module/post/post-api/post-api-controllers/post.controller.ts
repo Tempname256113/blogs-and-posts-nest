@@ -10,6 +10,7 @@ import { IPostApiCreateUpdateDTO } from '../post-api-dto/post-api.dto';
 import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
 import { PostDocument } from '../post-application/post-domain/post.entity';
+import { IPostApiModel } from '../post-api-models/post-api.model';
 
 @Controller('posts')
 export class PostController {
@@ -21,11 +22,26 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   async createPost(
     @Body() postCreateDTO: IPostApiCreateUpdateDTO,
-  ): Promise<PostDocument> {
+  ): Promise<IPostApiModel> {
     const newPost: PostDocument | null = await this.postService.createNewPost(
       postCreateDTO,
     );
     if (!newPost) throw new NotFoundException();
-    return newPost;
+    const postApiModel: IPostApiModel = {
+      id: newPost.id,
+      title: newPost.title,
+      shortDescription: newPost.shortDescription,
+      content: newPost.content,
+      blogId: newPost.blogId,
+      blogName: newPost.blogName,
+      createdAt: newPost.createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      },
+    };
+    return postApiModel;
   }
 }
