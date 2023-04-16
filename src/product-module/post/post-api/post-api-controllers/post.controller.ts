@@ -15,6 +15,7 @@ import { PostDocument } from '../post-application/post-domain/post.entity';
 import { IPostApiModel } from '../post-api-models/post-api.model';
 import { IPaginationQuery } from '../../../product-models/pagination.query.model';
 import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
+import { IPostApiPaginationModel } from '../post-api-models/post-api.pagination.model';
 
 @Controller('posts')
 export class PostController {
@@ -53,5 +54,9 @@ export class PostController {
   async getPostsWithPagination(
     @Query(new PaginationQueryTransformerPipe())
     paginationQuery: IPaginationQuery,
-  ) {}
+  ): Promise<IPostApiPaginationModel> {
+    const postsWithPagination: IPostApiPaginationModel =
+      await this.postQueryRepository.getPostsWithPagination(paginationQuery);
+    return postsWithPagination;
+  }
 }

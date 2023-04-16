@@ -15,11 +15,12 @@ export class BlogQueryRepository {
   async getBlogsWithPagination(
     query: IPaginationQuery,
   ): Promise<IBlogPaginationModel> {
-    const test: IBlogPaginationModel = await getDocumentsWithPagination<
-      IBlogApiModel,
-      BlogSchema
-    >(query, this.BlogModel);
-    return test;
+    const blogsWithPagination: IBlogPaginationModel =
+      await getDocumentsWithPagination<IBlogApiModel, BlogSchema>(
+        query,
+        this.BlogModel,
+      );
+    return blogsWithPagination;
   }
 
   async getBlogById(blogId: string): Promise<IBlogApiModel | null> {
