@@ -1,14 +1,14 @@
 import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
-import { IPaginationQuery } from '../product-models/pagination.query.model';
+import { IPaginationQueryApiDTO } from '../product-dto/pagination.query.dto';
 
 export class PaginationQueryTransformerPipe
-  implements PipeTransform<IPaginationQuery, IPaginationQuery>
+  implements PipeTransform<IPaginationQueryApiDTO, IPaginationQueryApiDTO>
 {
   transform(
-    value: IPaginationQuery,
+    value: IPaginationQueryApiDTO,
     metadata: ArgumentMetadata,
-  ): IPaginationQuery {
-    const paginationQuery: IPaginationQuery = {
+  ): IPaginationQueryApiDTO {
+    const paginationQuery: IPaginationQueryApiDTO = {
       searchNameTerm: value.searchNameTerm ?? null,
       sortBy: value.sortBy ?? 'createdAt',
       sortDirection: value.sortDirection ?? 'desc',

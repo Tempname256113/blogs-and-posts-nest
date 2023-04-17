@@ -1,4 +1,4 @@
-import { IPaginationQuery } from '../product-models/pagination.query.model';
+import { IPaginationQueryApiDTO } from '../product-dto/pagination.query.dto';
 import { Model } from 'mongoose';
 
 interface IDocumentPaginationModel<T> {
@@ -16,15 +16,16 @@ interface IDocumentPaginationModel<T> {
  первый generic<T> отвечает за тип возвращаемых сущностей (нужно передать тип документов. например BlogDocument)
  второй generic<R> отвечает за тип передаваемой модели с помощью которой будет проводиться поиск*/
 export const getDocumentsWithPagination = async <T, R>(
-  query: IPaginationQuery,
+  query: IPaginationQueryApiDTO,
   model: Model<R>,
+  findField = 'name',
 ): Promise<IDocumentPaginationModel<T>> => {
   let filter = {};
   let sortDirection: 1 | -1 = -1;
   if (query.sortDirection === 'asc') sortDirection = 1;
   const sortQuery = { [query.sortBy]: sortDirection };
   if (query.searchNameTerm)
-    filter = { name: { $regex: query.searchNameTerm, $options: 'i' } };
+    filter = { [findField]: { $regex: query.searchNameTerm, $options: 'i' } };
   const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
   const documentsTotalCount: number = await model.countDocuments(filter);
   const documentsWithPagination: T[] = await model.find(

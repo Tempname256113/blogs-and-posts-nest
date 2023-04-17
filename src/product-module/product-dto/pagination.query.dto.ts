@@ -1,4 +1,4 @@
-export interface IPaginationQuery {
+export interface IPaginationQueryApiDTO {
   searchNameTerm: string | null;
   sortBy: string;
   sortDirection: string;

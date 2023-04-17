@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import { IPostApiPaginationModel } from '../../post-api/post-api-models/post-api.pagination.model';
 import { IPostRepositoryPaginationModel } from './post-repositories-models/post-repository.pagination.model';
 import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-pagination.func';
-import { IPaginationQuery } from '../../../product-models/pagination.query.model';
+import { IPaginationQueryApiDTO } from '../../../product-dto/pagination.query.dto';
 import { IPostApiModel } from '../../post-api/post-api-models/post-api.model';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class PostQueryRepository {
   }
 
   async getPostsWithPagination(
-    queryPagination: IPaginationQuery,
+    queryPagination: IPaginationQueryApiDTO,
   ): Promise<IPostApiPaginationModel> {
     const postsWithPagination: IPostRepositoryPaginationModel =
       await getDocumentsWithPagination<PostDocument, PostSchema>(

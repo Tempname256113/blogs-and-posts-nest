@@ -16,7 +16,7 @@ import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
 import { PostDocument } from '../post-application/post-domain/post.entity';
 import { IPostApiModel } from '../post-api-models/post-api.model';
-import { IPaginationQuery } from '../../../product-models/pagination.query.model';
+import { IPaginationQueryApiDTO } from '../../../product-dto/pagination.query.dto';
 import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
 import { IPostApiPaginationModel } from '../post-api-models/post-api.pagination.model';
 
@@ -57,7 +57,7 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   async getPostsWithPagination(
     @Query(new PaginationQueryTransformerPipe())
-    paginationQuery: IPaginationQuery,
+    paginationQuery: IPaginationQueryApiDTO,
   ): Promise<IPostApiPaginationModel> {
     const postsWithPagination: IPostApiPaginationModel =
       await this.postQueryRepository.getPostsWithPagination(paginationQuery);
