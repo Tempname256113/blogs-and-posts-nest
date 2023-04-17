@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IPaginationQueryApiDTO } from '../../../product-dto/pagination.query.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogSchema } from '../../blog-application/blog-domain/blog.entity';
+import { BlogSchema } from '../../../product-domain/blog-domain/blog.entity';
 import { Model } from 'mongoose';
 import { IBlogPaginationModel } from '../../blog-api/blog-api-models/blog-api.pagination.model';
 import { IBlogApiModel } from '../../blog-api/blog-api-models/blog-api.model';
@@ -9,7 +9,7 @@ import { getDocumentsWithPagination } from '../../../product-additional/get-enti
 import {
   PostDocument,
   PostSchema,
-} from '../../../post/post-api/post-application/post-domain/post.entity';
+} from '../../../product-domain/post-domain/post.entity';
 import { IPostRepositoryPaginationModel } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.pagination.model';
 import { IPostApiModel } from '../../../post/post-api/post-api-models/post-api.model';
 import { IPostApiPaginationModel } from '../../../post/post-api/post-api-models/post-api.pagination.model';

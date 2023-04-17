@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   PostDocument,
   PostSchema,
-} from '../../post-api/post-application/post-domain/post.entity';
+} from '../../../product-domain/post-domain/post.entity';
 import { Model } from 'mongoose';
 import { IPostApiPaginationModel } from '../../post-api/post-api-models/post-api.pagination.model';
 import { IPostRepositoryPaginationModel } from './post-repositories-models/post-repository.pagination.model';

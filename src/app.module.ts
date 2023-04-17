@@ -5,11 +5,11 @@ import { ProductModule } from './product-module/product.module';
 import {
   postSchema,
   PostSchema,
-} from './product-module/post/post-api/post-application/post-domain/post.entity';
+} from './product-module/product-domain/post-domain/post.entity';
 import {
   blogSchema,
   BlogSchema,
-} from './product-module/blog/blog-application/blog-domain/blog.entity';
+} from './product-module/product-domain/blog-domain/blog.entity';
 
 @Module({
   imports: [

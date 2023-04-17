@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PostDocument, PostSchema } from './post-domain/post.entity';
+import {
+  PostDocument,
+  PostSchema,
+} from '../../../product-domain/post-domain/post.entity';
 import { IPostApiCreateUpdateDTO } from '../post-api-dto/post-api.dto';
 import {
   BlogDocument,
   BlogSchema,
-} from '../../../blog/blog-application/blog-domain/blog.entity';
+} from '../../../product-domain/blog-domain/blog.entity';
 import { PostRepository } from '../../post-infrastructure/post-repositories/post.repository';
 
 @Injectable()

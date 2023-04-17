@@ -1,11 +1,8 @@
 import { HydratedDocument, Model } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  PostDocument,
-  PostSchema,
-} from '../../../post/post-api/post-application/post-domain/post.entity';
-import { IPostApiCreateUpdateDTO } from '../../../post/post-api/post-api-dto/post-api.dto';
+import { PostDocument, PostSchema } from '../post-domain/post.entity';
+import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-dto/post-api.dto';
 
 export class Blog {
   id: string;

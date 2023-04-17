@@ -23,10 +23,6 @@ import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories
 import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
 import { IPostApiModel } from '../../../post/post-api/post-api-models/post-api.model';
 import { IPostApiPaginationModel } from '../../../post/post-api/post-api-models/post-api.pagination.model';
-import {
-  Blog,
-  BlogDocument,
-} from '../../blog-application/blog-domain/blog.entity';
 
 @Controller('blogs')
 export class BlogController {

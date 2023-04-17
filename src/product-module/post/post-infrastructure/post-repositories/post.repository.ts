@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import {
   PostDocument,
   PostSchema,
-} from '../../post-api/post-application/post-domain/post.entity';
+} from '../../../product-domain/post-domain/post.entity';
 import { IPostApiCreateUpdateDTO } from '../../post-api/post-api-dto/post-api.dto';
 
 @Injectable()

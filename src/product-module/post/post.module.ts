@@ -6,11 +6,11 @@ import { PostRepository } from './post-infrastructure/post-repositories/post.rep
 import {
   PostSchema,
   postSchema,
-} from './post-api/post-application/post-domain/post.entity';
+} from '../product-domain/post-domain/post.entity';
 import {
   blogSchema,
   BlogSchema,
-} from '../blog/blog-application/blog-domain/blog.entity';
+} from '../product-domain/blog-domain/blog.entity';
 import { PostQueryRepository } from './post-infrastructure/post-repositories/post.query-repository';
 
 @Module({
