@@ -26,4 +26,9 @@ export class PostRepository {
     );
     return postUpdateResult.matchedCount > 0;
   }
+
+  async deletePost(postId: string): Promise<boolean> {
+    const postDeleteResult = await this.PostModel.deleteOne({ id: postId });
+    return postDeleteResult.deletedCount > 0;
+  }
 }

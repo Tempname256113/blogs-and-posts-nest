@@ -34,4 +34,8 @@ export class PostService {
   async updatePost(postId: string, postUpdateDTO): Promise<boolean> {
     return this.postRepository.updatePost(postId, postUpdateDTO);
   }
+
+  async deletePost(postId: string): Promise<boolean> {
+    return this.postRepository.deletePost(postId);
+  }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -74,7 +75,7 @@ export class PostController {
 
   @Put(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updatePostById(
+  async updatePost(
     @Param('postId') postId: string,
     @Body() postUpdateDTO: IPostApiCreateUpdateDTO,
   ): Promise<void> {
@@ -83,5 +84,13 @@ export class PostController {
       postUpdateDTO,
     );
     if (!postUpdateStatus) throw new NotFoundException();
+  }
+
+  @Delete(':postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePost(@Param('postId') postId: string): Promise<void> {
+    console.log(postId);
+    const postDeleteStatus: boolean = await this.postService.deletePost(postId);
+    if (!postDeleteStatus) throw new NotFoundException();
   }
 }
