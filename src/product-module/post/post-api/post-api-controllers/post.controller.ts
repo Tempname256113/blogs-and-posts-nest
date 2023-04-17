@@ -64,6 +64,25 @@ export class PostController {
     return postsWithPagination;
   }
 
+  @Get(':postId/comments')
+  @HttpCode(HttpStatus.OK)
+  async getCommentsWithPaginationByPostId(
+    @Param('postId') postId: string,
+    @Query(new PaginationQueryTransformerPipe())
+    paginationQuery: IPaginationQueryApiDTO,
+  ) {
+    const foundedPost: IPostApiModel | null =
+      await this.postQueryRepository.getPostById(postId);
+    if (!foundedPost) throw new NotFoundException();
+    return {
+      pagesCount: 1,
+      page: Number(paginationQuery.pageNumber),
+      pageSize: Number(paginationQuery.pageSize),
+      totalCount: 0,
+      items: [],
+    };
+  }
+
   @Get(':postId')
   @HttpCode(HttpStatus.OK)
   async getPostById(@Param('postId') postId: string): Promise<IPostApiModel> {

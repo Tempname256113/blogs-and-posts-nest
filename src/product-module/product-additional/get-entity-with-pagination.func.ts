@@ -36,9 +36,9 @@ export const getDocumentsWithPagination = async <T, R>(
   const pagesCount: number = Math.ceil(documentsTotalCount / query.pageSize);
   const paginationResult: IDocumentPaginationModel<T> = {
     pagesCount,
-    page: query.pageNumber,
-    pageSize: query.pageSize,
-    totalCount: documentsTotalCount,
+    page: Number(query.pageNumber),
+    pageSize: Number(query.pageSize),
+    totalCount: Number(documentsTotalCount),
     items: documentsWithPagination,
   };
   return paginationResult;
