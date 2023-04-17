@@ -12,12 +12,16 @@ import {
   Query,
 } from '@nestjs/common';
 import { BlogService } from '../../blog-application/blog.service';
-import { IBlogApiCreateUpdateDTO } from '../blog-api-dto/blog-api.dto';
+import {
+  IBlogApiCreatePostDTO,
+  IBlogApiCreateUpdateDTO,
+} from '../blog-api-dto/blog-api.dto';
 import { IBlogApiModel } from '../blog-api-models/blog-api.model';
 import { IPaginationQuery } from '../../../product-models/pagination.query.model';
 import { IBlogPaginationModel } from '../blog-api-models/blog-api.pagination.model';
 import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
 import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
+import { IPostApiModel } from '../../../post/post-api/post-api-models/post-api.model';
 
 @Controller('blogs')
 export class BlogController {
@@ -35,6 +39,20 @@ export class BlogController {
       blogCreateDTO,
     );
     return createdBlog;
+  }
+
+  @Post(':blogId/posts')
+  @HttpCode(HttpStatus.CREATED)
+  async createPostForSpecificBlog(
+    @Param('blogId') blogId: string,
+    @Body() postCreateDTO: IBlogApiCreatePostDTO,
+  ): Promise<IPostApiModel> {
+    const createdPost: IPostApiModel | null = await this.blogService.createPost(
+      blogId,
+      postCreateDTO,
+    );
+    if (!createdPost) throw new NotFoundException();
+    return createdPost;
   }
 
   @Get()

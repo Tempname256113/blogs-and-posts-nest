@@ -8,10 +8,17 @@ import {
 } from './blog-application/blog-domain/blog.entity';
 import { BlogRepository } from './blog-infrastructure/blog-repositories/blog.repository';
 import { BlogQueryRepository } from './blog-infrastructure/blog-repositories/blog.query-repository';
+import {
+  postSchema,
+  PostSchema,
+} from '../post/post-api/post-application/post-domain/post.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: BlogSchema.name, schema: blogSchema }]),
+    MongooseModule.forFeature([
+      { name: BlogSchema.name, schema: blogSchema },
+      { name: PostSchema.name, schema: postSchema },
+    ]),
   ],
   controllers: [BlogController],
   providers: [BlogService, BlogRepository, BlogQueryRepository],

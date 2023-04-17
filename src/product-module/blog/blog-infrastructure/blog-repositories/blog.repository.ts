@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IBlogApiCreateUpdateDTO } from '../../blog-api/blog-api-dto/blog-api.dto';
+import { PostDocument } from '../../../post/post-api/post-application/post-domain/post.entity';
 
 @Injectable()
 export class BlogRepository {
@@ -13,8 +14,10 @@ export class BlogRepository {
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
   ) {}
 
-  async saveBlog(newBlog: BlogDocument): Promise<void> {
-    await newBlog.save();
+  async saveBlogOrPost(
+    newBlogOrPost: BlogDocument | PostDocument,
+  ): Promise<void> {
+    await newBlogOrPost.save();
   }
 
   async updateBlog(
