@@ -2,23 +2,23 @@ import { Injectable } from '@nestjs/common';
 import {
   IBlogApiCreatePostDTO,
   IBlogApiCreateUpdateDTO,
-} from '../blog-api/blog-api-dto/blog-api.dto';
+} from '../blog-api/blog-api-models/blog-api.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
   BlogSchema,
   BlogDocument,
   Blog,
-} from '../../product-domain/blog-domain/blog.entity';
+} from '../../product-domain/blog/blog.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { BlogRepository } from '../blog-infrastructure/blog-repositories/blog.repository';
-import { IBlogApiModel } from '../blog-api/blog-api-models/blog-api.model';
+import { IBlogApiModel } from '../blog-api/blog-api-models/blog-api.models';
 import {
   PostDocument,
   PostSchema,
-} from '../../product-domain/post-domain/post.entity';
-import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-dto/post-api.dto';
-import { IPostApiModel } from '../../post/post-api/post-api-models/post-api.model';
+} from '../../product-domain/post/post.entity';
+import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
+import { IPostApiModel } from '../../post/post-api/post-api-models/post-api.models';
 
 @Injectable()
 export class BlogService {

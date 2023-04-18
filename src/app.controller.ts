@@ -1,8 +1,8 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostSchema } from './product-module/product-domain/post-domain/post.entity';
+import { PostSchema } from './product-module/product-domain/post/post.entity';
 import { Model } from 'mongoose';
-import { BlogSchema } from './product-module/product-domain/blog-domain/blog.entity';
+import { BlogSchema } from './product-module/product-domain/blog/blog.entity';
 
 @Controller('testing')
 export class AppController {

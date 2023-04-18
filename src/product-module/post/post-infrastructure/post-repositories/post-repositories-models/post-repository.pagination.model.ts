@@ -1,4 +1,4 @@
-import { PostDocument } from '../../../../product-domain/post-domain/post.entity';
+import { PostDocument } from '../../../../product-domain/post/post.entity';
 
 export interface IPostRepositoryPaginationModel {
   pagesCount: number;

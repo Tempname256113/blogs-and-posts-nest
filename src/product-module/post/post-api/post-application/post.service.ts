@@ -4,12 +4,12 @@ import { Model } from 'mongoose';
 import {
   PostDocument,
   PostSchema,
-} from '../../../product-domain/post-domain/post.entity';
-import { IPostApiCreateUpdateDTO } from '../post-api-dto/post-api.dto';
+} from '../../../product-domain/post/post.entity';
+import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
 import {
   BlogDocument,
   BlogSchema,
-} from '../../../product-domain/blog-domain/blog.entity';
+} from '../../../product-domain/blog/blog.entity';
 import { PostRepository } from '../../post-infrastructure/post-repositories/post.repository';
 
 @Injectable()

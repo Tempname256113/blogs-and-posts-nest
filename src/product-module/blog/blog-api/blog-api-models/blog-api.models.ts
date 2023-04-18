@@ -6,3 +6,11 @@ export interface IBlogApiModel {
   createdAt: string;
   isMembership: boolean;
 }
+
+export interface IBlogApiPaginationModel {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: IBlogApiModel[];
+}

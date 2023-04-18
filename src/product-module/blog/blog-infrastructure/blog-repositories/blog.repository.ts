@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import {
   BlogSchema,
   BlogDocument,
-} from '../../../product-domain/blog-domain/blog.entity';
+} from '../../../product-domain/blog/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IBlogApiCreateUpdateDTO } from '../../blog-api/blog-api-dto/blog-api.dto';
-import { PostDocument } from '../../../product-domain/post-domain/post.entity';
+import { IBlogApiCreateUpdateDTO } from '../../blog-api/blog-api-models/blog-api.dto';
+import { PostDocument } from '../../../product-domain/post/post.entity';
 
 @Injectable()
 export class BlogRepository {

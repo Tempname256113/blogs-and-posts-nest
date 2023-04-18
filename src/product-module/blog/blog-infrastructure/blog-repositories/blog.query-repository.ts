@@ -1,18 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { IPaginationQueryApiDTO } from '../../../product-dto/pagination.query.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogSchema } from '../../../product-domain/blog-domain/blog.entity';
+import { BlogSchema } from '../../../product-domain/blog/blog.entity';
 import { Model } from 'mongoose';
-import { IBlogPaginationModel } from '../../blog-api/blog-api-models/blog-api.pagination.model';
-import { IBlogApiModel } from '../../blog-api/blog-api-models/blog-api.model';
+import {
+  IBlogApiModel,
+  IBlogApiPaginationModel,
+} from '../../blog-api/blog-api-models/blog-api.models';
 import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-pagination.func';
 import {
   PostDocument,
   PostSchema,
-} from '../../../product-domain/post-domain/post.entity';
+} from '../../../product-domain/post/post.entity';
 import { IPostRepositoryPaginationModel } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.pagination.model';
-import { IPostApiModel } from '../../../post/post-api/post-api-models/post-api.model';
-import { IPostApiPaginationModel } from '../../../post/post-api/post-api-models/post-api.pagination.model';
+import {
+  IPostApiModel,
+  IPostApiPaginationModel,
+} from '../../../post/post-api/post-api-models/post-api.models';
+import { IBlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
+import { IPostApiPaginationQueryDTO } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
 export class BlogQueryRepository {
@@ -21,32 +26,32 @@ export class BlogQueryRepository {
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
   ) {}
   async getBlogsWithPagination(
-    query: IPaginationQueryApiDTO,
-  ): Promise<IBlogPaginationModel> {
-    const blogsWithPagination: IBlogPaginationModel =
+    rawPaginationQuery: IBlogApiPaginationQueryDTO,
+  ): Promise<IBlogApiPaginationModel> {
+    const paginationQuery: IBlogApiPaginationQueryDTO = {
+      searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
+    const blogsWithPagination: IBlogApiPaginationModel =
       await getDocumentsWithPagination<IBlogApiModel, BlogSchema>(
-        query,
+        paginationQuery,
         this.BlogModel,
       );
     return blogsWithPagination;
   }
 
   async getPostsWithPaginationByBlogId(
-    query: IPaginationQueryApiDTO,
+    rawPaginationQuery: IPostApiPaginationQueryDTO,
     blogId: string,
   ): Promise<IPostApiPaginationModel> {
-    const mappedQuery: IPaginationQueryApiDTO = {
-      searchNameTerm: blogId,
-      sortBy: query.sortBy,
-      sortDirection: query.sortDirection,
-      pageNumber: query.pageNumber,
-      pageSize: query.pageSize,
-    };
     const postsWithPagination: IPostRepositoryPaginationModel =
       await getDocumentsWithPagination<PostDocument, PostSchema>(
-        mappedQuery,
+        rawPaginationQuery,
         this.PostModel,
-        'blogId',
+        { blogId },
       );
     const mappedPosts: IPostApiModel[] = [];
     for (const postDocument of postsWithPagination.items) {

@@ -3,13 +3,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   PostDocument,
   PostSchema,
-} from '../../../product-domain/post-domain/post.entity';
+} from '../../../product-domain/post/post.entity';
 import { Model } from 'mongoose';
-import { IPostApiPaginationModel } from '../../post-api/post-api-models/post-api.pagination.model';
 import { IPostRepositoryPaginationModel } from './post-repositories-models/post-repository.pagination.model';
 import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-pagination.func';
-import { IPaginationQueryApiDTO } from '../../../product-dto/pagination.query.dto';
-import { IPostApiModel } from '../../post-api/post-api-models/post-api.model';
+import {
+  IPostApiModel,
+  IPostApiPaginationModel,
+} from '../../post-api/post-api-models/post-api.models';
+import { IPostApiPaginationQueryDTO } from '../../post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
 export class PostQueryRepository {
@@ -39,11 +41,11 @@ export class PostQueryRepository {
   }
 
   async getPostsWithPagination(
-    queryPagination: IPaginationQueryApiDTO,
+    rawQueryPaginationDTO: IPostApiPaginationQueryDTO,
   ): Promise<IPostApiPaginationModel> {
     const postsWithPagination: IPostRepositoryPaginationModel =
       await getDocumentsWithPagination<PostDocument, PostSchema>(
-        queryPagination,
+        rawQueryPaginationDTO,
         this.PostModel,
       );
     const apiPosts: IPostApiModel[] = [];

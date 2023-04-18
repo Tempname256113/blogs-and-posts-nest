@@ -1,5 +1,5 @@
 import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
-import { IPaginationQueryApiDTO } from '../product-dto/pagination.query.dto';
+import { IPaginationQueryApiDTO } from '../product-models/pagination.query.dto';
 
 export class PaginationQueryTransformerPipe
   implements PipeTransform<IPaginationQueryApiDTO, IPaginationQueryApiDTO>

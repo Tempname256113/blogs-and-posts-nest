@@ -15,14 +15,19 @@ import { BlogService } from '../../blog-application/blog.service';
 import {
   IBlogApiCreatePostDTO,
   IBlogApiCreateUpdateDTO,
-} from '../blog-api-dto/blog-api.dto';
-import { IBlogApiModel } from '../blog-api-models/blog-api.model';
-import { IPaginationQueryApiDTO } from '../../../product-dto/pagination.query.dto';
-import { IBlogPaginationModel } from '../blog-api-models/blog-api.pagination.model';
+} from '../blog-api-models/blog-api.dto';
+import {
+  IBlogApiModel,
+  IBlogApiPaginationModel,
+} from '../blog-api-models/blog-api.models';
+import { IPaginationQueryApiDTO } from '../../../product-models/pagination.query.dto';
 import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
 import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
-import { IPostApiModel } from '../../../post/post-api/post-api-models/post-api.model';
-import { IPostApiPaginationModel } from '../../../post/post-api/post-api-models/post-api.pagination.model';
+import {
+  IPostApiModel,
+  IPostApiPaginationModel,
+} from '../../../post/post-api/post-api-models/post-api.models';
+import { IBlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
 
 @Controller('blogs')
 export class BlogController {
@@ -59,10 +64,17 @@ export class BlogController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
-    @Query(new PaginationQueryTransformerPipe())
-    paginationQuery: IPaginationQueryApiDTO,
-  ): Promise<IBlogPaginationModel> {
-    const blogsWithPagination: IBlogPaginationModel =
+    @Query()
+    rawPaginationQuery: IBlogApiPaginationQueryDTO,
+  ): Promise<IBlogApiPaginationModel> {
+    const paginationQuery: IBlogApiPaginationQueryDTO = {
+      searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
+    const blogsWithPagination: IBlogApiPaginationModel =
       await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
@@ -70,10 +82,17 @@ export class BlogController {
   @Get(':blogId/posts')
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaginationByBlogId(
-    @Query(new PaginationQueryTransformerPipe())
-    paginationQuery: IPaginationQueryApiDTO,
+    @Query()
+    rawPaginationQuery: IPaginationQueryApiDTO,
     @Param('blogId') blogId: string,
   ): Promise<IPostApiPaginationModel> {
+    const paginationQuery: IPaginationQueryApiDTO = {
+      searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
     const foundedBlog: IBlogApiModel | null =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();

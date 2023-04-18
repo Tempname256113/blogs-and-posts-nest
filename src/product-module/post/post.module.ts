@@ -3,14 +3,8 @@ import { PostController } from './post-api/post-api-controllers/post.controller'
 import { PostService } from './post-api/post-application/post.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PostRepository } from './post-infrastructure/post-repositories/post.repository';
-import {
-  PostSchema,
-  postSchema,
-} from '../product-domain/post-domain/post.entity';
-import {
-  blogSchema,
-  BlogSchema,
-} from '../product-domain/blog-domain/blog.entity';
+import { PostSchema, postSchema } from '../product-domain/post/post.entity';
+import { blogSchema, BlogSchema } from '../product-domain/blog/blog.entity';
 import { PostQueryRepository } from './post-infrastructure/post-repositories/post.query-repository';
 
 @Module({

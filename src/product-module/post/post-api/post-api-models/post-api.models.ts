@@ -17,3 +17,11 @@ export interface IPostApiModel {
     }[];
   };
 }
+
+export interface IPostApiPaginationModel {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: IPostApiModel[];
+}

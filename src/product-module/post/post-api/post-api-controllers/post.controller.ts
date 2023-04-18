@@ -11,14 +11,16 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { IPostApiCreateUpdateDTO } from '../post-api-dto/post-api.dto';
+import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
 import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
-import { PostDocument } from '../../../product-domain/post-domain/post.entity';
-import { IPostApiModel } from '../post-api-models/post-api.model';
-import { IPaginationQueryApiDTO } from '../../../product-dto/pagination.query.dto';
+import { PostDocument } from '../../../product-domain/post/post.entity';
+import {
+  IPostApiModel,
+  IPostApiPaginationModel,
+} from '../post-api-models/post-api.models';
+import { IPaginationQueryApiDTO } from '../../../product-models/pagination.query.dto';
 import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
-import { IPostApiPaginationModel } from '../post-api-models/post-api.pagination.model';
 
 @Controller('posts')
 export class PostController {
