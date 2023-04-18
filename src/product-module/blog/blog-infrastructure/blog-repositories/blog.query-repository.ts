@@ -6,7 +6,10 @@ import {
   IBlogApiModel,
   IBlogApiPaginationModel,
 } from '../../blog-api/blog-api-models/blog-api.models';
-import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-pagination.func';
+import {
+  getDocumentsWithPagination,
+  IPaginationQuery,
+} from '../../../product-additional/get-entity-with-pagination.func';
 import {
   PostDocument,
   PostSchema,
@@ -28,17 +31,20 @@ export class BlogQueryRepository {
   async getBlogsWithPagination(
     rawPaginationQuery: IBlogApiPaginationQueryDTO,
   ): Promise<IBlogApiPaginationModel> {
-    const paginationQuery: IBlogApiPaginationQueryDTO = {
-      searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
+    const filter: { [prop: string]: string } = {};
+    const paginationQuery: IPaginationQuery = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
+    if (rawPaginationQuery.searchNameTerm)
+      filter.name = rawPaginationQuery.searchNameTerm;
     const blogsWithPagination: IBlogApiPaginationModel =
       await getDocumentsWithPagination<IBlogApiModel, BlogSchema>(
         paginationQuery,
         this.BlogModel,
+        filter,
       );
     return blogsWithPagination;
   }
