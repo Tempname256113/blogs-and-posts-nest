@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
@@ -49,5 +52,12 @@ export class UserController {
     const usersWithPagination: IUserApiPaginationModel =
       await this.userQueryRepository.getUsersWithPagination(paginationQuery);
     return usersWithPagination;
+  }
+
+  @Delete('userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUserById(@Param('userId') userId: string) {
+    const deletedUserStatus = await this.userService.deleteUserById(userId);
+    if (!deletedUserStatus) throw new NotFoundException();
   }
 }

@@ -37,4 +37,8 @@ export class UserService {
     await this.userRepository.createUser(newUserModel);
     return userApiModel;
   }
+
+  async deleteUserById(userId: string): Promise<boolean> {
+    return this.userRepository.deleteUserById(userId);
+  }
 }
