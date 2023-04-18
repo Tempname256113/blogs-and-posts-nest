@@ -60,8 +60,14 @@ export class PostController {
     @Query()
     rawPaginationQuery: IPostApiPaginationQueryDTO,
   ): Promise<IPostApiPaginationModel> {
+    const paginationQuery: IPostApiPaginationQueryDTO = {
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
     const postsWithPagination: IPostApiPaginationModel =
-      await this.postQueryRepository.getPostsWithPagination(rawPaginationQuery);
+      await this.postQueryRepository.getPostsWithPagination(paginationQuery);
     return postsWithPagination;
   }
 

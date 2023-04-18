@@ -48,16 +48,17 @@ export class PostQueryRepository {
         rawQueryPaginationDTO,
         this.PostModel,
       );
+    console.log(postsWithPagination);
     const apiPosts: IPostApiModel[] = [];
-    postsWithPagination.items.forEach((post) => {
+    for (const postDocument of postsWithPagination.items) {
       const mappedPost: IPostApiModel = {
-        id: post.id,
-        title: post.title,
-        shortDescription: post.shortDescription,
-        content: post.content,
-        blogId: post.blogId,
-        blogName: post.blogName,
-        createdAt: post.createdAt,
+        id: postDocument.id,
+        title: postDocument.title,
+        shortDescription: postDocument.shortDescription,
+        content: postDocument.content,
+        blogId: postDocument.blogId,
+        blogName: postDocument.blogName,
+        createdAt: postDocument.createdAt,
         extendedLikesInfo: {
           likesCount: 0,
           dislikesCount: 0,
@@ -66,7 +67,7 @@ export class PostQueryRepository {
         },
       };
       apiPosts.push(mappedPost);
-    });
+    }
     const paginationResult: IPostApiPaginationModel = {
       pagesCount: postsWithPagination.pagesCount,
       page: postsWithPagination.page,
