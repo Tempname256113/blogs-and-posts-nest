@@ -10,7 +10,7 @@ import { UserRepository } from '../user-infrastructure/user-repositories/user.re
 import { IUserApiCreateDto } from '../user-api/user-api-models/user-api.dto';
 import { hashSync } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import { IUserApiModel } from '../user-api/user-api-models/user-api.model';
+import { IUserApiModel } from '../user-api/user-api-models/user-api.models';
 
 @Injectable()
 export class UserService {

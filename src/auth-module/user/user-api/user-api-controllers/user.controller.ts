@@ -1,11 +1,27 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { UserService } from '../../user-application/user.service';
 import { IUserApiCreateDto } from '../user-api-models/user-api.dto';
-import { IUserApiModel } from '../user-api-models/user-api.model';
+import {
+  IUserApiModel,
+  IUserApiPaginationModel,
+} from '../user-api-models/user-api.models';
+import { UserQueryRepository } from '../../user-infrastructure/user-repositories/user.query-repository';
+import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dto';
 
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private userQueryRepository: UserQueryRepository,
+  ) {}
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createUser(
@@ -15,5 +31,23 @@ export class UserController {
       createUserDTO,
     );
     return createdUser;
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getUsersWithPagination(
+    @Query() rawPaginationQuery: IUserApiPaginationQueryDto,
+  ): Promise<IUserApiPaginationModel> {
+    const paginationQuery: IUserApiPaginationQueryDto = {
+      searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
+      searchEmailTerm: rawPaginationQuery.searchEmailTerm ?? null,
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
+    const usersWithPagination: IUserApiPaginationModel =
+      await this.userQueryRepository.getUsersWithPagination(paginationQuery);
+    return usersWithPagination;
   }
 }

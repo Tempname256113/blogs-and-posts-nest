@@ -28,7 +28,8 @@ type MultipleFilterWithRegexType = {
  вторым параметром передается модель в которой нужно что то найти
  содержит также два generic.
  первый generic<T> отвечает за тип возвращаемых сущностей (нужно передать тип документов. например BlogDocument)
- второй generic<R> отвечает за тип передаваемой модели с помощью которой будет проводиться поиск*/
+ второй generic<R> отвечает за тип передаваемой модели с помощью которой будет проводиться поиск, нужно передать
+ например BlogSchema (тип модели)*/
 export const getDocumentsWithPagination = async <T, R>(
   query: IPaginationQuery,
   model: Model<R>,

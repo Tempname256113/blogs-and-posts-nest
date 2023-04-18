@@ -20,14 +20,13 @@ import {
   IBlogApiModel,
   IBlogApiPaginationModel,
 } from '../blog-api-models/blog-api.models';
-import { IPaginationQueryApiDTO } from '../../../product-models/pagination.query.dto';
 import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
-import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
 import {
   IPostApiModel,
   IPostApiPaginationModel,
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { IBlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
+import { IPostApiPaginationQueryDTO } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Controller('blogs')
 export class BlogController {
@@ -83,11 +82,10 @@ export class BlogController {
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaginationByBlogId(
     @Query()
-    rawPaginationQuery: IPaginationQueryApiDTO,
+    rawPaginationQuery: IPostApiPaginationQueryDTO,
     @Param('blogId') blogId: string,
   ): Promise<IPostApiPaginationModel> {
-    const paginationQuery: IPaginationQueryApiDTO = {
-      searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
+    const paginationQuery: IPostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',

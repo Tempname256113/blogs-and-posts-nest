@@ -19,8 +19,7 @@ import {
   IPostApiModel,
   IPostApiPaginationModel,
 } from '../post-api-models/post-api.models';
-import { IPaginationQueryApiDTO } from '../../../product-models/pagination.query.dto';
-import { PaginationQueryTransformerPipe } from '../../../product-pipes/pagination.query.transformer-pipe';
+import { IPostApiPaginationQueryDTO } from '../post-api-models/post-api.query-dto';
 
 @Controller('posts')
 export class PostController {
@@ -58,11 +57,11 @@ export class PostController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async getPostsWithPagination(
-    @Query(new PaginationQueryTransformerPipe())
-    paginationQuery: IPaginationQueryApiDTO,
+    @Query()
+    rawPaginationQuery: IPostApiPaginationQueryDTO,
   ): Promise<IPostApiPaginationModel> {
     const postsWithPagination: IPostApiPaginationModel =
-      await this.postQueryRepository.getPostsWithPagination(paginationQuery);
+      await this.postQueryRepository.getPostsWithPagination(rawPaginationQuery);
     return postsWithPagination;
   }
 
@@ -70,16 +69,16 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   async getCommentsWithPaginationByPostId(
     @Param('postId') postId: string,
-    @Query(new PaginationQueryTransformerPipe())
-    paginationQuery: IPaginationQueryApiDTO,
+    @Query()
+    rawPaginationQuery: IPostApiPaginationQueryDTO,
   ) {
     const foundedPost: IPostApiModel | null =
       await this.postQueryRepository.getPostById(postId);
     if (!foundedPost) throw new NotFoundException();
     return {
       pagesCount: 1,
-      page: Number(paginationQuery.pageNumber),
-      pageSize: Number(paginationQuery.pageSize),
+      page: Number(rawPaginationQuery.pageNumber),
+      pageSize: Number(rawPaginationQuery.pageSize),
       totalCount: 0,
       items: [],
     };
