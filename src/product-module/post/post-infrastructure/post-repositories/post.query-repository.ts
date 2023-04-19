@@ -22,6 +22,7 @@ export class PostQueryRepository {
     const foundedPost: PostDocument | null = await this.PostModel.findOne({
       id: postId,
     });
+    if (!foundedPost) return null;
     const postToClient: IPostApiModel = {
       id: foundedPost.id,
       title: foundedPost.title,
@@ -48,7 +49,6 @@ export class PostQueryRepository {
         rawQueryPaginationDTO,
         this.PostModel,
       );
-    console.log(postsWithPagination);
     const apiPosts: IPostApiModel[] = [];
     for (const postDocument of postsWithPagination.items) {
       const mappedPost: IPostApiModel = {

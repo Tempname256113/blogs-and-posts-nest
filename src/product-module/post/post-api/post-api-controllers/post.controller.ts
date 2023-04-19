@@ -115,7 +115,6 @@ export class PostController {
   @Delete(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(@Param('postId') postId: string): Promise<void> {
-    console.log(postId);
     const postDeleteStatus: boolean = await this.postService.deletePost(postId);
     if (!postDeleteStatus) throw new NotFoundException();
   }
