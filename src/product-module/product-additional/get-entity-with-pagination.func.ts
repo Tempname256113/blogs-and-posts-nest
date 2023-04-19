@@ -60,7 +60,9 @@ export const getDocumentsWithPagination = async <T, R>(
     }
   }
   const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
-  const documentsTotalCount: number = await model.countDocuments();
+  const documentsTotalCount: number = await model.countDocuments(
+    mappedRegexFilter,
+  );
   const documentsWithPagination: T[] = await model.find(
     mappedRegexFilter,
     { _id: false },
