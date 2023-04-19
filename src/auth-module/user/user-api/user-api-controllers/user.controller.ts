@@ -54,7 +54,7 @@ export class UserController {
     return usersWithPagination;
   }
 
-  @Delete('userId')
+  @Delete(':userId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserById(@Param('userId') userId: string) {
     const deletedUserStatus = await this.userService.deleteUserById(userId);
