@@ -37,7 +37,7 @@ export class BlogService {
       description: createBlogDTO.description,
       websiteUrl: createBlogDTO.websiteUrl,
       createdAt: new Date().toISOString(),
-      isMembership: true,
+      isMembership: false,
     };
     const newBlogModel: BlogDocument = new this.BlogModel(newBlog);
     await this.blogRepository.saveBlogOrPost(newBlogModel);
