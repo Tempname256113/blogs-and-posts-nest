@@ -34,10 +34,8 @@ export const getDocumentsWithPagination = async <T, R>(
   query: IPaginationQuery,
   model: Model<R>,
   regexFilter: { [entityProp: string]: string } = {},
-  hardFilter: { [entityProp: string]: string } = {},
 ): Promise<IDocumentPaginationModel<T>> => {
   const regexFilterEntries: [string, string][] = Object.entries(regexFilter);
-  const hardFilterEntries: [string, string][] = Object.entries(hardFilter);
   let mappedRegexFilter: FilterWithRegexType | MultipleFilterWithRegexType;
   let sortDirection: 1 | -1 = -1;
   if (query.sortDirection === 'asc') sortDirection = 1;
@@ -60,20 +58,9 @@ export const getDocumentsWithPagination = async <T, R>(
         [currentProperty]: { $regex: currentValue, $options: 'i' },
       });
     }
-  } else if (hardFilterEntries.length > 0) {
-    mappedRegexFilter = { $or: [] };
-    for (const keyAndValue of hardFilterEntries) {
-      const currentProperty = keyAndValue[0];
-      const currentValue = keyAndValue[1];
-      mappedRegexFilter.$or.push({
-        [currentProperty]: [currentValue],
-      });
-    }
   }
   const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
-  const documentsTotalCount: number = await model.countDocuments(
-    mappedRegexFilter,
-  );
+  const documentsTotalCount: number = await model.countDocuments();
   const documentsWithPagination: T[] = await model.find(
     mappedRegexFilter,
     { _id: false },

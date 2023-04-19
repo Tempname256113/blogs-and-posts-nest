@@ -57,7 +57,6 @@ export class BlogQueryRepository {
       await getDocumentsWithPagination<PostDocument, PostSchema>(
         rawPaginationQuery,
         this.PostModel,
-        {},
         { blogId },
       );
     const mappedPosts: IPostApiModel[] = [];
