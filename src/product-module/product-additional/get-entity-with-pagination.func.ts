@@ -20,7 +20,7 @@ type FilterWithRegexType = {
 } & FilterQuery<any>;
 
 type MultipleFilterWithRegexType = {
-  $and: { [entityProp: string]: { $regex: string; $options: string } }[];
+  $or: { [entityProp: string]: { $regex: string; $options: string } }[];
 } & FilterQuery<any>;
 
 /*функция для возвращения документов из базы данных с пагинацией.
@@ -51,11 +51,11 @@ export const getDocumentsWithPagination = async <T, R>(
       },
     };
   } else if (countRegexFilterValues > 1) {
-    mappedRegexFilter = { $and: [] };
+    mappedRegexFilter = { $or: [] };
     for (const keyAndValue of regexFilterEntries) {
       const currentProperty = keyAndValue[0];
       const currentValue = keyAndValue[1];
-      mappedRegexFilter.$and.push({
+      mappedRegexFilter.$or.push({
         [currentProperty]: { $regex: currentValue, $options: 'i' },
       });
     }
