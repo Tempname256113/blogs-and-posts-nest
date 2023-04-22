@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IBlogApiCreateUpdateDTO } from '../../blog-api/blog-api-models/blog-api.dto';
-import { PostDocument } from '../../../product-domain/post/post.entity';
+import { PostDocumentType } from '../../../product-domain/post/post.entity';
 
 @Injectable()
 export class BlogRepository {
@@ -15,7 +15,7 @@ export class BlogRepository {
   ) {}
 
   async saveBlogOrPost(
-    newBlogOrPost: BlogDocument | PostDocument,
+    newBlogOrPost: BlogDocument | PostDocumentType,
   ): Promise<void> {
     await newBlogOrPost.save();
   }

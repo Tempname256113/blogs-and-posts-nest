@@ -22,16 +22,16 @@ import {
 } from '../blog-api-models/blog-api.models';
 import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
 import {
-  IPostApiModel,
-  IPostApiPaginationModel,
+  PostApiModelType,
+  PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { IBlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
-import { IPostApiPaginationQueryDTO } from '../../../post/post-api/post-api-models/post-api.query-dto';
+import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Controller('blogs')
 export class BlogController {
   constructor(
-    private readonly blogService: BlogService,
+    private blogService: BlogService,
     private blogQueryRepository: BlogQueryRepository,
   ) {}
 
@@ -51,11 +51,9 @@ export class BlogController {
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: IBlogApiCreatePostDTO,
-  ): Promise<IPostApiModel> {
-    const createdPost: IPostApiModel | null = await this.blogService.createPost(
-      blogId,
-      postCreateDTO,
-    );
+  ): Promise<PostApiModelType> {
+    const createdPost: PostApiModelType | null =
+      await this.blogService.createPost(blogId, postCreateDTO);
     if (!createdPost) throw new NotFoundException();
     return createdPost;
   }
@@ -82,10 +80,10 @@ export class BlogController {
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaginationByBlogId(
     @Query()
-    rawPaginationQuery: IPostApiPaginationQueryDTO,
+    rawPaginationQuery: PostApiPaginationQueryDTOType,
     @Param('blogId') blogId: string,
-  ): Promise<IPostApiPaginationModel> {
-    const paginationQuery: IPostApiPaginationQueryDTO = {
+  ): Promise<PostApiPaginationModelType> {
+    const paginationQuery: PostApiPaginationQueryDTOType = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
@@ -94,7 +92,7 @@ export class BlogController {
     const foundedBlog: IBlogApiModel | null =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
-    const foundedPostsByBlogId: IPostApiPaginationModel =
+    const foundedPostsByBlogId: PostApiPaginationModelType =
       await this.blogQueryRepository.getPostsWithPaginationByBlogId(
         paginationQuery,
         blogId,

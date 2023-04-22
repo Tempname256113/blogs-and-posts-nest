@@ -11,16 +11,16 @@ import {
   IPaginationQuery,
 } from '../../../product-additional/get-entity-with-pagination.func';
 import {
-  PostDocument,
+  PostDocumentType,
   PostSchema,
 } from '../../../product-domain/post/post.entity';
 import { IPostRepositoryPaginationModel } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.pagination.model';
 import {
-  IPostApiModel,
-  IPostApiPaginationModel,
+  PostApiModelType,
+  PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { IBlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
-import { IPostApiPaginationQueryDTO } from '../../../post/post-api/post-api-models/post-api.query-dto';
+import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
 export class BlogQueryRepository {
@@ -50,18 +50,18 @@ export class BlogQueryRepository {
   }
 
   async getPostsWithPaginationByBlogId(
-    rawPaginationQuery: IPostApiPaginationQueryDTO,
+    rawPaginationQuery: PostApiPaginationQueryDTOType,
     blogId: string,
-  ): Promise<IPostApiPaginationModel> {
+  ): Promise<PostApiPaginationModelType> {
     const postsWithPagination: IPostRepositoryPaginationModel =
-      await getDocumentsWithPagination<PostDocument, PostSchema>(
+      await getDocumentsWithPagination<PostDocumentType, PostSchema>(
         rawPaginationQuery,
         this.PostModel,
         { blogId },
       );
-    const mappedPosts: IPostApiModel[] = [];
+    const mappedPosts: PostApiModelType[] = [];
     for (const postDocument of postsWithPagination.items) {
-      const resultPost: IPostApiModel = {
+      const resultPost: PostApiModelType = {
         id: postDocument.id,
         title: postDocument.title,
         shortDescription: postDocument.shortDescription,
@@ -78,7 +78,7 @@ export class BlogQueryRepository {
       };
       mappedPosts.push(resultPost);
     }
-    const resultPostsPagination: IPostApiPaginationModel = {
+    const resultPostsPagination: PostApiPaginationModelType = {
       pagesCount: postsWithPagination.pagesCount,
       page: postsWithPagination.page,
       pageSize: postsWithPagination.pageSize,

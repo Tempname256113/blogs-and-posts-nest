@@ -60,4 +60,4 @@ export class PostSchema extends PostMethods {
 export const postSchema = SchemaFactory.createForClass(PostSchema);
 postSchema.loadClass(PostSchema);
 
-export type PostDocument = HydratedDocument<PostSchema>;
+export type PostDocumentType = HydratedDocument<PostSchema>;

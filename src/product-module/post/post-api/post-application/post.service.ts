@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
-  PostDocument,
+  PostDocumentType,
   PostSchema,
 } from '../../../product-domain/post/post.entity';
 import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
@@ -21,12 +21,12 @@ export class PostService {
   ) {}
   async createNewPost(
     createPostDTO: IPostApiCreateUpdateDTO,
-  ): Promise<PostDocument | null> {
+  ): Promise<PostDocumentType | null> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: createPostDTO.blogId,
     });
     if (!foundedBlog) return null;
-    const newCreatedPost: PostDocument = foundedBlog.createPost(
+    const newCreatedPost: PostDocumentType = foundedBlog.createPost(
       createPostDTO,
       this.PostModel,
     );

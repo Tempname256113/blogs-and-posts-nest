@@ -14,11 +14,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { BlogRepository } from '../blog-infrastructure/blog-repositories/blog.repository';
 import { IBlogApiModel } from '../blog-api/blog-api-models/blog-api.models';
 import {
-  PostDocument,
+  PostDocumentType,
   PostSchema,
 } from '../../product-domain/post/post.entity';
 import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
-import { IPostApiModel } from '../../post/post-api/post-api-models/post-api.models';
+import { PostApiModelType } from '../../post/post-api/post-api-models/post-api.models';
 
 @Injectable()
 export class BlogService {
@@ -47,7 +47,7 @@ export class BlogService {
   async createPost(
     blogId: string,
     createPostDTO: IBlogApiCreatePostDTO,
-  ): Promise<IPostApiModel | null> {
+  ): Promise<PostApiModelType | null> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: blogId,
     });
@@ -58,12 +58,12 @@ export class BlogService {
       content: createPostDTO.content,
       blogId: blogId,
     };
-    const newCreatedPost: PostDocument = await foundedBlog.createPost(
+    const newCreatedPost: PostDocumentType = await foundedBlog.createPost(
       mappedCreatePostDTO,
       this.PostModel,
     );
     await this.blogRepository.saveBlogOrPost(newCreatedPost);
-    const mappedNewPost: IPostApiModel = {
+    const mappedNewPost: PostApiModelType = {
       id: newCreatedPost.id,
       title: newCreatedPost.title,
       shortDescription: newCreatedPost.shortDescription,

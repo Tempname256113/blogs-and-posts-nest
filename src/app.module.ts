@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { envVariables } from './app-config/env-variables';
+import { EnvConfiguration } from './app-configuration/env-configuration';
 import { ProductModule } from './product-module/product.module';
 import {
   postSchema,
@@ -19,7 +19,7 @@ import {
 
 @Module({
   imports: [
-    MongooseModule.forRoot(envVariables.MONGO_URL),
+    MongooseModule.forRoot(new EnvConfiguration().MONGO_LOCAL),
     ProductModule,
     AuthModule,
     MongooseModule.forFeature([

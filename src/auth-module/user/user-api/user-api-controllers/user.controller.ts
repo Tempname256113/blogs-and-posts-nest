@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../../user-application/user.service';
 import { IUserApiCreateDto } from '../user-api-models/user-api.dto';
@@ -18,6 +19,7 @@ import {
 } from '../user-api-models/user-api.models';
 import { UserQueryRepository } from '../../user-infrastructure/user-repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UserController {
@@ -26,6 +28,7 @@ export class UserController {
     private userQueryRepository: UserQueryRepository,
   ) {}
   @Post()
+  @UseGuards(AuthGuard('basic'))
   @HttpCode(HttpStatus.CREATED)
   async createUser(
     @Body() createUserDTO: IUserApiCreateDto,
@@ -37,6 +40,7 @@ export class UserController {
   }
 
   @Get()
+  @UseGuards(AuthGuard('basic'))
   @HttpCode(HttpStatus.OK)
   async getUsersWithPagination(
     @Query() rawPaginationQuery: IUserApiPaginationQueryDto,
@@ -55,6 +59,7 @@ export class UserController {
   }
 
   @Delete(':userId')
+  @UseGuards(AuthGuard('basic'))
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserById(@Param('userId') userId: string) {
     const deletedUserStatus = await this.userService.deleteUserById(userId);

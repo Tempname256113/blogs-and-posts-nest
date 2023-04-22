@@ -1,29 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  PostDocument,
+  PostDocumentType,
   PostSchema,
 } from '../../../product-domain/post/post.entity';
 import { Model } from 'mongoose';
 import { IPostRepositoryPaginationModel } from './post-repositories-models/post-repository.pagination.model';
 import { getDocumentsWithPagination } from '../../../product-additional/get-entity-with-pagination.func';
 import {
-  IPostApiModel,
-  IPostApiPaginationModel,
+  PostApiModelType,
+  PostApiPaginationModelType,
 } from '../../post-api/post-api-models/post-api.models';
-import { IPostApiPaginationQueryDTO } from '../../post-api/post-api-models/post-api.query-dto';
+import { PostApiPaginationQueryDTOType } from '../../post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
 export class PostQueryRepository {
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
   ) {}
-  async getPostById(postId: string): Promise<IPostApiModel | null> {
-    const foundedPost: PostDocument | null = await this.PostModel.findOne({
+  async getPostById(postId: string): Promise<PostApiModelType | null> {
+    const foundedPost: PostDocumentType | null = await this.PostModel.findOne({
       id: postId,
     });
     if (!foundedPost) return null;
-    const postToClient: IPostApiModel = {
+    const postToClient: PostApiModelType = {
       id: foundedPost.id,
       title: foundedPost.title,
       shortDescription: foundedPost.shortDescription,
@@ -42,16 +42,16 @@ export class PostQueryRepository {
   }
 
   async getPostsWithPagination(
-    rawQueryPaginationDTO: IPostApiPaginationQueryDTO,
-  ): Promise<IPostApiPaginationModel> {
+    rawQueryPaginationDTO: PostApiPaginationQueryDTOType,
+  ): Promise<PostApiPaginationModelType> {
     const postsWithPagination: IPostRepositoryPaginationModel =
-      await getDocumentsWithPagination<PostDocument, PostSchema>(
+      await getDocumentsWithPagination<PostDocumentType, PostSchema>(
         rawQueryPaginationDTO,
         this.PostModel,
       );
-    const apiPosts: IPostApiModel[] = [];
+    const apiPosts: PostApiModelType[] = [];
     for (const postDocument of postsWithPagination.items) {
-      const mappedPost: IPostApiModel = {
+      const mappedPost: PostApiModelType = {
         id: postDocument.id,
         title: postDocument.title,
         shortDescription: postDocument.shortDescription,
@@ -68,7 +68,7 @@ export class PostQueryRepository {
       };
       apiPosts.push(mappedPost);
     }
-    const paginationResult: IPostApiPaginationModel = {
+    const paginationResult: PostApiPaginationModelType = {
       pagesCount: postsWithPagination.pagesCount,
       page: postsWithPagination.page,
       pageSize: postsWithPagination.pageSize,

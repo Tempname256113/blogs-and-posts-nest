@@ -1,4 +1,4 @@
-export interface IPostApiModel {
+export type PostApiModelType = {
   id: string;
   title: string;
   shortDescription: string;
@@ -16,12 +16,12 @@ export interface IPostApiModel {
       login: string;
     }[];
   };
-}
+};
 
-export interface IPostApiPaginationModel {
+export type PostApiPaginationModelType = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: IPostApiModel[];
-}
+  items: PostApiModelType[];
+};
