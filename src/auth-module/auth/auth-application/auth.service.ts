@@ -11,11 +11,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { hashSync } from 'bcrypt';
 import { add } from 'date-fns';
 import { AuthEmailAdapterService } from '../auth-infrastructure/auth-adapters/auth.email-adapter.service';
+import { AuthRepository } from '../auth-infrastructure/auth-repositories/auth.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
+    private authRepository: AuthRepository,
     private emailService: AuthEmailAdapterService,
   ) {}
   async registrationNewUser(createNewUserDTO: UserApiCreateDto) {
@@ -49,7 +51,7 @@ export class AuthService {
       },
       emailConfirmation: {
         confirmationCode: emailConfirmationCode,
-        expirationDate: add(new Date(), { days: 2 }).toISOString(),
+        expirationDate: add(new Date(), { days: 3 }).toISOString(),
         isConfirmed: false,
       },
       passwordRecovery: {
@@ -61,5 +63,6 @@ export class AuthService {
       createNewUserDTO.email,
       emailConfirmationCode,
     );
+    await this.authRepository.saveUser(newUserModel);
   }
 }

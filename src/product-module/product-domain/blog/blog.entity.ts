@@ -11,19 +11,6 @@ export class Blog {
   websiteUrl: string;
   createdAt: string;
   isMembership: boolean;
-  constructor(createBlogDTO: {
-    name: string;
-    description: string;
-    websiteUrl: string;
-    isMembership: boolean;
-  }) {
-    this.id = uuidv4();
-    this.name = createBlogDTO.name;
-    this.description = createBlogDTO.description;
-    this.websiteUrl = createBlogDTO.websiteUrl;
-    this.createdAt = new Date().toISOString();
-    this.isMembership = createBlogDTO.isMembership;
-  }
 }
 
 class BlogMethods extends Blog {

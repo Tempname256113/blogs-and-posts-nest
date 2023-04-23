@@ -5,6 +5,7 @@ import { AuthService } from './auth/auth-application/auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { userSchema, UserSchema } from './auth-module-domain/user/user.entity';
 import { AuthEmailAdapterModule } from './auth/auth-infrastructure/auth-adapters/auth.email-adapter.module';
+import { AuthRepository } from './auth/auth-infrastructure/auth-repositories/auth.repository';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { AuthEmailAdapterModule } from './auth/auth-infrastructure/auth-adapters
     AuthEmailAdapterModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AuthRepository],
 })
 export class AuthModule {}
