@@ -32,22 +32,23 @@ export class UserQueryRepository {
     };
     const filter: { [prop: string]: string } = {};
     if (rawPaginationQuery.searchLoginTerm)
-      filter.login = rawPaginationQuery.searchLoginTerm;
+      filter['accountData.login'] = rawPaginationQuery.searchLoginTerm;
     if (rawPaginationQuery.searchEmailTerm)
-      filter.email = rawPaginationQuery.searchEmailTerm;
+      filter['accountData.email'] = rawPaginationQuery.searchEmailTerm;
     const usersWithPagination: UserRepositoryPaginationModelType =
       await getDocumentsWithPagination<UserDocument, UserSchema>(
         paginationQuery,
         this.UserModel,
         filter,
       );
+    console.log(usersWithPagination);
     const mappedUsersArray: IUserApiModel[] = [];
     for (const userDocument of usersWithPagination.items) {
       const mappedUser: IUserApiModel = {
         id: userDocument.id,
-        login: userDocument.accountData.login,
-        email: userDocument.accountData.email,
-        createdAt: userDocument.accountData.createdAt,
+        login: userDocument.accountData?.login,
+        email: userDocument.accountData?.email,
+        createdAt: userDocument.accountData?.createdAt,
       };
       mappedUsersArray.push(mappedUser);
     }

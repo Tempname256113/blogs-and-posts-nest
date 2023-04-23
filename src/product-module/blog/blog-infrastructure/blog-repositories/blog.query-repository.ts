@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { BlogSchema } from '../../../product-domain/blog/blog.entity';
 import { Model } from 'mongoose';
 import {
-  IBlogApiModel,
-  IBlogApiPaginationModel,
+  BlogApiModelType,
+  BlogApiPaginationModelType,
 } from '../../blog-api/blog-api-models/blog-api.models';
 import {
   getDocumentsWithPagination,
@@ -14,13 +14,13 @@ import {
   PostDocumentType,
   PostSchema,
 } from '../../../product-domain/post/post.entity';
-import { IPostRepositoryPaginationModel } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.pagination.model';
+import { PostRepositoryPaginationModelType } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.pagination.model';
 import {
   PostApiModelType,
   PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
-import { IBlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
-import { PostApiPaginationQueryDTO } from '../../../post/post-api/post-api-models/post-api.query-dto';
+import { BlogApiPaginationQueryDTOType } from '../../blog-api/blog-api-models/blog-api.query-dto';
+import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
 export class BlogQueryRepository {
@@ -29,8 +29,8 @@ export class BlogQueryRepository {
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
   ) {}
   async getBlogsWithPagination(
-    rawPaginationQuery: IBlogApiPaginationQueryDTO,
-  ): Promise<IBlogApiPaginationModel> {
+    rawPaginationQuery: BlogApiPaginationQueryDTOType,
+  ): Promise<BlogApiPaginationModelType> {
     const filter: { [prop: string]: string } = {};
     const paginationQuery: IPaginationQuery = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -40,8 +40,8 @@ export class BlogQueryRepository {
     };
     if (rawPaginationQuery.searchNameTerm)
       filter.name = rawPaginationQuery.searchNameTerm;
-    const blogsWithPagination: IBlogApiPaginationModel =
-      await getDocumentsWithPagination<IBlogApiModel, BlogSchema>(
+    const blogsWithPagination: BlogApiPaginationModelType =
+      await getDocumentsWithPagination<BlogApiModelType, BlogSchema>(
         paginationQuery,
         this.BlogModel,
         filter,
@@ -50,10 +50,10 @@ export class BlogQueryRepository {
   }
 
   async getPostsWithPaginationByBlogId(
-    rawPaginationQuery: PostApiPaginationQueryDTO,
+    rawPaginationQuery: PostApiPaginationQueryDTOType,
     blogId: string,
   ): Promise<PostApiPaginationModelType> {
-    const postsWithPagination: IPostRepositoryPaginationModel =
+    const postsWithPagination: PostRepositoryPaginationModelType =
       await getDocumentsWithPagination<PostDocumentType, PostSchema>(
         rawPaginationQuery,
         this.PostModel,
@@ -88,7 +88,7 @@ export class BlogQueryRepository {
     return resultPostsPagination;
   }
 
-  async getBlogById(blogId: string): Promise<IBlogApiModel | null> {
+  async getBlogById(blogId: string): Promise<BlogApiModelType | null> {
     return this.BlogModel.findOne({ id: blogId }, { _id: false }).lean();
   }
 }

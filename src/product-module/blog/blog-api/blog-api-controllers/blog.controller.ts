@@ -17,16 +17,16 @@ import {
   IBlogApiCreateUpdateDTO,
 } from '../blog-api-models/blog-api.dto';
 import {
-  IBlogApiModel,
-  IBlogApiPaginationModel,
+  BlogApiModelType,
+  BlogApiPaginationModelType,
 } from '../blog-api-models/blog-api.models';
 import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
 import {
   PostApiModelType,
   PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
-import { IBlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
-import { PostApiPaginationQueryDTO } from '../../../post/post-api/post-api-models/post-api.query-dto';
+import { BlogApiPaginationQueryDTOType } from '../blog-api-models/blog-api.query-dto';
+import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Controller('blogs')
 export class BlogController {
@@ -39,8 +39,8 @@ export class BlogController {
   @HttpCode(HttpStatus.CREATED)
   async createBlog(
     @Body() blogCreateDTO: IBlogApiCreateUpdateDTO,
-  ): Promise<IBlogApiModel> {
-    const createdBlog: IBlogApiModel = await this.blogService.createBlog(
+  ): Promise<BlogApiModelType> {
+    const createdBlog: BlogApiModelType = await this.blogService.createBlog(
       blogCreateDTO,
     );
     return createdBlog;
@@ -52,9 +52,10 @@ export class BlogController {
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: IBlogApiCreatePostDTO,
   ): Promise<PostApiModelType> {
-    const createdPost: PostApiModelType | null =
-      await this.blogService.createPost(blogId, postCreateDTO);
-    if (!createdPost) throw new NotFoundException();
+    const createdPost: PostApiModelType = await this.blogService.createPost(
+      blogId,
+      postCreateDTO,
+    );
     return createdPost;
   }
 
@@ -62,16 +63,16 @@ export class BlogController {
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
     @Query()
-    rawPaginationQuery: IBlogApiPaginationQueryDTO,
-  ): Promise<IBlogApiPaginationModel> {
-    const paginationQuery: IBlogApiPaginationQueryDTO = {
+    rawPaginationQuery: BlogApiPaginationQueryDTOType,
+  ): Promise<BlogApiPaginationModelType> {
+    const paginationQuery: BlogApiPaginationQueryDTOType = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const blogsWithPagination: IBlogApiPaginationModel =
+    const blogsWithPagination: BlogApiPaginationModelType =
       await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
@@ -80,16 +81,16 @@ export class BlogController {
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaginationByBlogId(
     @Query()
-    rawPaginationQuery: PostApiPaginationQueryDTO,
+    rawPaginationQuery: PostApiPaginationQueryDTOType,
     @Param('blogId') blogId: string,
   ): Promise<PostApiPaginationModelType> {
-    const paginationQuery: PostApiPaginationQueryDTO = {
+    const paginationQuery: PostApiPaginationQueryDTOType = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const foundedBlog: IBlogApiModel | null =
+    const foundedBlog: BlogApiModelType | null =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     const foundedPostsByBlogId: PostApiPaginationModelType =
@@ -102,8 +103,10 @@ export class BlogController {
 
   @Get(':blogId')
   @HttpCode(HttpStatus.OK)
-  async getBlogById(@Param('blogId') blogId: string): Promise<IBlogApiModel> {
-    const foundedBlog: IBlogApiModel | null =
+  async getBlogById(
+    @Param('blogId') blogId: string,
+  ): Promise<BlogApiModelType> {
+    const foundedBlog: BlogApiModelType | null =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     return foundedBlog;
@@ -115,17 +118,12 @@ export class BlogController {
     @Param('blogId') blogId: string,
     @Body() blogUpdateDTO: IBlogApiCreateUpdateDTO,
   ): Promise<void> {
-    const blogUpdateStatus: boolean = await this.blogService.updateBlog(
-      blogId,
-      blogUpdateDTO,
-    );
-    if (!blogUpdateStatus) throw new NotFoundException();
+    await this.blogService.updateBlog(blogId, blogUpdateDTO);
   }
 
   @Delete(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlogById(@Param('blogId') blogId: string) {
-    const deleteBlogStatus: boolean = await this.blogService.deleteBlog(blogId);
-    if (!deleteBlogStatus) throw new NotFoundException();
+    await this.blogService.deleteBlog(blogId);
   }
 }

@@ -1,9 +1,9 @@
 import { PostDocumentType } from '../../../../product-domain/post/post.entity';
 
-export interface IPostRepositoryPaginationModel {
+export type PostRepositoryPaginationModelType = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
   items: PostDocumentType[];
-}
+};

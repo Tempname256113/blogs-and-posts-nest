@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   IBlogApiCreatePostDTO,
   IBlogApiCreateUpdateDTO,
@@ -12,12 +12,12 @@ import {
 } from '../../product-domain/blog/blog.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { BlogRepository } from '../blog-infrastructure/blog-repositories/blog.repository';
-import { IBlogApiModel } from '../blog-api/blog-api-models/blog-api.models';
+import { BlogApiModelType } from '../blog-api/blog-api-models/blog-api.models';
 import {
   PostDocumentType,
   PostSchema,
 } from '../../product-domain/post/post.entity';
-import { PostApiCreateUpdateDTOType } from '../../post/post-api/post-api-models/post-api.dto';
+import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
 import { PostApiModelType } from '../../post/post-api/post-api-models/post-api.models';
 
 @Injectable()
@@ -30,7 +30,7 @@ export class BlogService {
 
   async createBlog(
     createBlogDTO: IBlogApiCreateUpdateDTO,
-  ): Promise<IBlogApiModel> {
+  ): Promise<BlogApiModelType> {
     const newBlog: Blog = {
       id: uuidv4(),
       name: createBlogDTO.name,
@@ -47,12 +47,12 @@ export class BlogService {
   async createPost(
     blogId: string,
     createPostDTO: IBlogApiCreatePostDTO,
-  ): Promise<PostApiModelType | null> {
+  ): Promise<PostApiModelType> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: blogId,
     });
-    if (!foundedBlog) return null;
-    const mappedCreatePostDTO: PostApiCreateUpdateDTOType = {
+    if (!foundedBlog) throw new NotFoundException();
+    const mappedCreatePostDTO: IPostApiCreateUpdateDTO = {
       title: createPostDTO.title,
       shortDescription: createPostDTO.shortDescription,
       content: createPostDTO.content,
@@ -84,11 +84,18 @@ export class BlogService {
   async updateBlog(
     blogId: string,
     updateBlogDTO: IBlogApiCreateUpdateDTO,
-  ): Promise<boolean> {
-    return this.blogRepository.updateBlog(blogId, updateBlogDTO);
+  ): Promise<void> {
+    const blogUpdateStatus: boolean = await this.blogRepository.updateBlog(
+      blogId,
+      updateBlogDTO,
+    );
+    if (!blogUpdateStatus) throw new NotFoundException();
   }
 
-  async deleteBlog(blogId: string): Promise<boolean> {
-    return this.blogRepository.deleteBlog(blogId);
+  async deleteBlog(blogId: string): Promise<void> {
+    const deleteBlogStatus: boolean = await this.blogRepository.deleteBlog(
+      blogId,
+    );
+    if (!deleteBlogStatus) throw new NotFoundException();
   }
 }

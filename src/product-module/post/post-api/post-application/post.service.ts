@@ -5,7 +5,7 @@ import {
   PostDocumentType,
   PostSchema,
 } from '../../../product-domain/post/post.entity';
-import { PostApiCreateUpdateDTOType } from '../post-api-models/post-api.dto';
+import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
 import {
   BlogDocument,
   BlogSchema,
@@ -20,7 +20,7 @@ export class PostService {
     private postRepository: PostRepository,
   ) {}
   async createNewPost(
-    createPostDTO: PostApiCreateUpdateDTOType,
+    createPostDTO: IPostApiCreateUpdateDTO,
   ): Promise<PostDocumentType> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: createPostDTO.blogId,
@@ -36,7 +36,7 @@ export class PostService {
 
   async updatePost(
     postId: string,
-    postUpdateDTO: PostApiCreateUpdateDTOType,
+    postUpdateDTO: IPostApiCreateUpdateDTO,
   ): Promise<void> {
     const postUpdateStatus: boolean = await this.postRepository.updatePost(
       postId,
