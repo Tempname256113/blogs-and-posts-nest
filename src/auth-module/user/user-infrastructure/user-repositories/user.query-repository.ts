@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   UserDocument,
   UserSchema,
-} from '../../../auth-domain/user/user.entity';
+} from '../../../auth-module-domain/user/user.entity';
 import { Model } from 'mongoose';
 import { IUserApiPaginationQueryDto } from '../../user-api/user-api-models/user-api.query-dto';
 import {
@@ -14,7 +14,7 @@ import {
   getDocumentsWithPagination,
   IPaginationQuery,
 } from '../../../../product-module/product-additional/get-entity-with-pagination.func';
-import { IUserRepositoryPaginationModel } from './user-repositories-models/user-repository.model';
+import { UserRepositoryPaginationModelType } from './user-repositories-models/user-repository.model';
 
 @Injectable()
 export class UserQueryRepository {
@@ -35,7 +35,7 @@ export class UserQueryRepository {
       filter.login = rawPaginationQuery.searchLoginTerm;
     if (rawPaginationQuery.searchEmailTerm)
       filter.email = rawPaginationQuery.searchEmailTerm;
-    const usersWithPagination: IUserRepositoryPaginationModel =
+    const usersWithPagination: UserRepositoryPaginationModelType =
       await getDocumentsWithPagination<UserDocument, UserSchema>(
         paginationQuery,
         this.UserModel,
@@ -45,9 +45,9 @@ export class UserQueryRepository {
     for (const userDocument of usersWithPagination.items) {
       const mappedUser: IUserApiModel = {
         id: userDocument.id,
-        login: userDocument.login,
-        email: userDocument.email,
-        createdAt: userDocument.createdAt,
+        login: userDocument.accountData.login,
+        email: userDocument.accountData.email,
+        createdAt: userDocument.accountData.createdAt,
       };
       mappedUsersArray.push(mappedUser);
     }

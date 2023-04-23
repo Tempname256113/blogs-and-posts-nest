@@ -2,7 +2,7 @@ import { HydratedDocument, Model } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PostDocumentType, PostSchema } from '../post/post.entity';
-import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTOType } from '../../post/post-api/post-api-models/post-api.dto';
 
 export class Blog {
   id: string;
@@ -28,7 +28,7 @@ export class Blog {
 
 class BlogMethods extends Blog {
   createPost(
-    createPostDTO: IPostApiCreateUpdateDTO,
+    createPostDTO: PostApiCreateUpdateDTOType,
     PostModel: Model<PostSchema>,
   ): PostDocumentType {
     const newPostDocument: PostDocumentType = new PostModel({
@@ -45,7 +45,7 @@ class BlogMethods extends Blog {
 }
 
 @Schema({ versionKey: false, collection: 'blogs' })
-export class BlogSchema extends BlogMethods {
+export class BlogSchema extends BlogMethods implements Blog {
   @Prop({ required: true })
   id: string;
 

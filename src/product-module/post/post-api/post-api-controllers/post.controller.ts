@@ -11,7 +11,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTOType } from '../post-api-models/post-api.dto';
 import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
 import { PostDocumentType } from '../../../product-domain/post/post.entity';
@@ -19,7 +19,7 @@ import {
   PostApiModelType,
   PostApiPaginationModelType,
 } from '../post-api-models/post-api.models';
-import { PostApiPaginationQueryDTOType } from '../post-api-models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from '../post-api-models/post-api.query-dto';
 
 @Controller('posts')
 export class PostController {
@@ -30,11 +30,11 @@ export class PostController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createPost(
-    @Body() postCreateDTO: IPostApiCreateUpdateDTO,
+    @Body() postCreateDTO: PostApiCreateUpdateDTOType,
   ): Promise<PostApiModelType> {
-    const newPost: PostDocumentType | null =
-      await this.postService.createNewPost(postCreateDTO);
-    if (!newPost) throw new NotFoundException();
+    const newPost: PostDocumentType = await this.postService.createNewPost(
+      postCreateDTO,
+    );
     const postApiModel: PostApiModelType = {
       id: newPost.id,
       title: newPost.title,
@@ -57,9 +57,9 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   async getPostsWithPagination(
     @Query()
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
+    rawPaginationQuery: PostApiPaginationQueryDTO,
   ): Promise<PostApiPaginationModelType> {
-    const paginationQuery: PostApiPaginationQueryDTOType = {
+    const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
@@ -75,7 +75,7 @@ export class PostController {
   async getCommentsWithPaginationByPostId(
     @Param('postId') postId: string,
     @Query()
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
+    rawPaginationQuery: PostApiPaginationQueryDTO,
   ) {
     const foundedPost: PostApiModelType | null =
       await this.postQueryRepository.getPostById(postId);
@@ -104,19 +104,14 @@ export class PostController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
     @Param('postId') postId: string,
-    @Body() postUpdateDTO: IPostApiCreateUpdateDTO,
+    @Body() postUpdateDTO: PostApiCreateUpdateDTOType,
   ): Promise<void> {
-    const postUpdateStatus: boolean = await this.postService.updatePost(
-      postId,
-      postUpdateDTO,
-    );
-    if (!postUpdateStatus) throw new NotFoundException();
+    await this.postService.updatePost(postId, postUpdateDTO);
   }
 
   @Delete(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(@Param('postId') postId: string): Promise<void> {
-    const postDeleteStatus: boolean = await this.postService.deletePost(postId);
-    if (!postDeleteStatus) throw new NotFoundException();
+    await this.postService.deletePost(postId);
   }
 }

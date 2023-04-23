@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../../user-application/user.service';
-import { IUserApiCreateDto } from '../user-api-models/user-api.dto';
+import { UserApiCreateDto } from '../user-api-models/user-api.dto';
 import {
   IUserApiModel,
   IUserApiPaginationModel,
@@ -31,7 +31,7 @@ export class UserController {
   @UseGuards(AuthGuard('basic'))
   @HttpCode(HttpStatus.CREATED)
   async createUser(
-    @Body() createUserDTO: IUserApiCreateDto,
+    @Body() createUserDTO: UserApiCreateDto,
   ): Promise<IUserApiModel> {
     const createdUser: IUserApiModel = await this.userService.createUser(
       createUserDTO,

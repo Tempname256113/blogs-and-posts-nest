@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
   PostDocumentType,
   PostSchema,
 } from '../../../product-domain/post/post.entity';
-import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTOType } from '../post-api-models/post-api.dto';
 import {
   BlogDocument,
   BlogSchema,
@@ -20,12 +20,12 @@ export class PostService {
     private postRepository: PostRepository,
   ) {}
   async createNewPost(
-    createPostDTO: IPostApiCreateUpdateDTO,
-  ): Promise<PostDocumentType | null> {
+    createPostDTO: PostApiCreateUpdateDTOType,
+  ): Promise<PostDocumentType> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: createPostDTO.blogId,
     });
-    if (!foundedBlog) return null;
+    if (!foundedBlog) throw new NotFoundException();
     const newCreatedPost: PostDocumentType = foundedBlog.createPost(
       createPostDTO,
       this.PostModel,
@@ -34,11 +34,21 @@ export class PostService {
     return newCreatedPost;
   }
 
-  async updatePost(postId: string, postUpdateDTO): Promise<boolean> {
-    return this.postRepository.updatePost(postId, postUpdateDTO);
+  async updatePost(
+    postId: string,
+    postUpdateDTO: PostApiCreateUpdateDTOType,
+  ): Promise<void> {
+    const postUpdateStatus: boolean = await this.postRepository.updatePost(
+      postId,
+      postUpdateDTO,
+    );
+    if (!postUpdateStatus) throw new NotFoundException();
   }
 
-  async deletePost(postId: string): Promise<boolean> {
-    return this.postRepository.deletePost(postId);
+  async deletePost(postId: string): Promise<void> {
+    const postDeleteStatus: boolean = await this.postRepository.deletePost(
+      postId,
+    );
+    if (!postDeleteStatus) throw new NotFoundException();
   }
 }

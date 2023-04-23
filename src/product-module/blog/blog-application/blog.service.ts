@@ -17,7 +17,7 @@ import {
   PostDocumentType,
   PostSchema,
 } from '../../product-domain/post/post.entity';
-import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTOType } from '../../post/post-api/post-api-models/post-api.dto';
 import { PostApiModelType } from '../../post/post-api/post-api-models/post-api.models';
 
 @Injectable()
@@ -52,7 +52,7 @@ export class BlogService {
       id: blogId,
     });
     if (!foundedBlog) return null;
-    const mappedCreatePostDTO: IPostApiCreateUpdateDTO = {
+    const mappedCreatePostDTO: PostApiCreateUpdateDTOType = {
       title: createPostDTO.title,
       shortDescription: createPostDTO.shortDescription,
       content: createPostDTO.content,

@@ -5,7 +5,7 @@ import {
   PostDocumentType,
   PostSchema,
 } from '../../../product-domain/post/post.entity';
-import { IPostApiCreateUpdateDTO } from '../../post-api/post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTOType } from '../../post-api/post-api-models/post-api.dto';
 
 @Injectable()
 export class PostRepository {
@@ -18,7 +18,7 @@ export class PostRepository {
 
   async updatePost(
     postId: string,
-    postUpdateDTO: IPostApiCreateUpdateDTO,
+    postUpdateDTO: PostApiCreateUpdateDTOType,
   ): Promise<boolean> {
     const postUpdateResult = await this.PostModel.updateOne(
       { id: postId },

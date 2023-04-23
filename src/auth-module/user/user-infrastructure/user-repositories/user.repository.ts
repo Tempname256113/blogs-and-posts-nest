@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import {
   UserDocument,
   UserSchema,
-} from '../../../auth-domain/user/user.entity';
+} from '../../../auth-module-domain/user/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class UserRepository {
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
   ) {}
 
-  async createUser(userDocument: UserDocument): Promise<void> {
+  async saveUser(userDocument: UserDocument): Promise<void> {
     await userDocument.save();
   }
 

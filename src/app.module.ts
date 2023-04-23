@@ -15,7 +15,7 @@ import { AppController } from './app.controller';
 import {
   userSchema,
   UserSchema,
-} from './auth-module/auth-domain/user/user.entity';
+} from './auth-module/auth-module-domain/user/user.entity';
 
 @Module({
   imports: [

@@ -11,7 +11,7 @@ import {
   PostApiModelType,
   PostApiPaginationModelType,
 } from '../../post-api/post-api-models/post-api.models';
-import { PostApiPaginationQueryDTOType } from '../../post-api/post-api-models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from '../../post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
 export class PostQueryRepository {
@@ -42,7 +42,7 @@ export class PostQueryRepository {
   }
 
   async getPostsWithPagination(
-    rawQueryPaginationDTO: PostApiPaginationQueryDTOType,
+    rawQueryPaginationDTO: PostApiPaginationQueryDTO,
   ): Promise<PostApiPaginationModelType> {
     const postsWithPagination: IPostRepositoryPaginationModel =
       await getDocumentsWithPagination<PostDocumentType, PostSchema>(

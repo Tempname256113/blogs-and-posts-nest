@@ -1,6 +1,6 @@
 import { IsString, MaxLength } from 'class-validator';
 
-export class IPostApiCreateUpdateDTO {
+export class PostApiCreateUpdateDTOType {
   @IsString()
   @MaxLength(30)
   title: string;

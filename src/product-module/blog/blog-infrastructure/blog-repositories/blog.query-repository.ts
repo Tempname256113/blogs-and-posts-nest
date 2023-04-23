@@ -20,7 +20,7 @@ import {
   PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { IBlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
-import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
 export class BlogQueryRepository {
@@ -50,7 +50,7 @@ export class BlogQueryRepository {
   }
 
   async getPostsWithPaginationByBlogId(
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
+    rawPaginationQuery: PostApiPaginationQueryDTO,
     blogId: string,
   ): Promise<PostApiPaginationModelType> {
     const postsWithPagination: IPostRepositoryPaginationModel =

@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class IUserApiCreateDto {
+export class UserApiCreateDto {
   @IsString()
   @MaxLength(10)
   @MinLength(3)
