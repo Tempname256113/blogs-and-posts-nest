@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   User,
@@ -10,7 +10,7 @@ import { UserRepository } from '../user-infrastructure/user-repositories/user.re
 import { UserApiCreateDto } from '../user-api/user-api-models/user-api.dto';
 import { hashSync } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import { IUserApiModel } from '../user-api/user-api-models/user-api.models';
+import { UserApiModelType } from '../user-api/user-api-models/user-api.models';
 
 @Injectable()
 export class UserService {
@@ -18,7 +18,7 @@ export class UserService {
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     private userRepository: UserRepository,
   ) {}
-  async createUser(createUserDTO: UserApiCreateDto): Promise<IUserApiModel> {
+  async createUser(createUserDTO: UserApiCreateDto): Promise<UserApiModelType> {
     const passwordHash: string = hashSync(createUserDTO.password, 10);
     const newUser: User = {
       id: uuidv4(),
@@ -37,7 +37,7 @@ export class UserService {
         recoveryCode: null,
       },
     };
-    const userApiModel: IUserApiModel = {
+    const userApiModel: UserApiModelType = {
       id: newUser.id,
       login: newUser.accountData.login,
       email: newUser.accountData.email,
@@ -48,7 +48,10 @@ export class UserService {
     return userApiModel;
   }
 
-  async deleteUserById(userId: string): Promise<boolean> {
-    return this.userRepository.deleteUserById(userId);
+  async deleteUserById(userId: string): Promise<void> {
+    const deleteUserStatus: boolean = await this.userRepository.deleteUserById(
+      userId,
+    );
+    if (!deleteUserStatus) throw new NotFoundException();
   }
 }

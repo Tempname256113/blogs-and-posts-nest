@@ -14,8 +14,8 @@ import {
 import { UserService } from '../../user-application/user.service';
 import { UserApiCreateDto } from '../user-api-models/user-api.dto';
 import {
-  IUserApiModel,
-  IUserApiPaginationModel,
+  UserApiModelType,
+  UserApiPaginationModelType,
 } from '../user-api-models/user-api.models';
 import { UserQueryRepository } from '../../user-infrastructure/user-repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dto';
@@ -32,8 +32,8 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   async createUser(
     @Body() createUserDTO: UserApiCreateDto,
-  ): Promise<IUserApiModel> {
-    const createdUser: IUserApiModel = await this.userService.createUser(
+  ): Promise<UserApiModelType> {
+    const createdUser: UserApiModelType = await this.userService.createUser(
       createUserDTO,
     );
     return createdUser;
@@ -44,7 +44,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async getUsersWithPagination(
     @Query() rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<IUserApiPaginationModel> {
+  ): Promise<UserApiPaginationModelType> {
     const paginationQuery: IUserApiPaginationQueryDto = {
       searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
       searchEmailTerm: rawPaginationQuery.searchEmailTerm ?? null,
@@ -53,7 +53,7 @@ export class UserController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const usersWithPagination: IUserApiPaginationModel =
+    const usersWithPagination: UserApiPaginationModelType =
       await this.userQueryRepository.getUsersWithPagination(paginationQuery);
     return usersWithPagination;
   }
@@ -62,7 +62,6 @@ export class UserController {
   @UseGuards(AuthGuard('basic'))
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserById(@Param('userId') userId: string) {
-    const deletedUserStatus = await this.userService.deleteUserById(userId);
-    if (!deletedUserStatus) throw new NotFoundException();
+    await this.userService.deleteUserById(userId);
   }
 }

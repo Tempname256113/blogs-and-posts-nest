@@ -7,8 +7,8 @@ import {
 import { Model } from 'mongoose';
 import { IUserApiPaginationQueryDto } from '../../user-api/user-api-models/user-api.query-dto';
 import {
-  IUserApiModel,
-  IUserApiPaginationModel,
+  UserApiModelType,
+  UserApiPaginationModelType,
 } from '../../user-api/user-api-models/user-api.models';
 import {
   getDocumentsWithPagination,
@@ -23,7 +23,7 @@ export class UserQueryRepository {
   ) {}
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<IUserApiPaginationModel> {
+  ): Promise<UserApiPaginationModelType> {
     const paginationQuery: IPaginationQuery = {
       pageNumber: rawPaginationQuery.pageNumber,
       pageSize: rawPaginationQuery.pageSize,
@@ -42,9 +42,9 @@ export class UserQueryRepository {
         filter,
       );
     console.log(usersWithPagination);
-    const mappedUsersArray: IUserApiModel[] = [];
+    const mappedUsersArray: UserApiModelType[] = [];
     for (const userDocument of usersWithPagination.items) {
-      const mappedUser: IUserApiModel = {
+      const mappedUser: UserApiModelType = {
         id: userDocument.id,
         login: userDocument.accountData?.login,
         email: userDocument.accountData?.email,
@@ -52,7 +52,7 @@ export class UserQueryRepository {
       };
       mappedUsersArray.push(mappedUser);
     }
-    const usersPaginationResult: IUserApiPaginationModel = {
+    const usersPaginationResult: UserApiPaginationModelType = {
       pagesCount: usersWithPagination.pagesCount,
       page: usersWithPagination.page,
       pageSize: usersWithPagination.pageSize,
