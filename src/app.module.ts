@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EnvConfiguration } from './app-configuration/env-configuration';
+import { EnvConfiguration } from './app-configuration/environment/env-configuration';
 import { ProductModule } from './product-module/product.module';
 import {
   postSchema,

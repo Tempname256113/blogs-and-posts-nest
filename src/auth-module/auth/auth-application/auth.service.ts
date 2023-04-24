@@ -18,7 +18,7 @@ import {
   JwtRefreshTokenPayloadType,
 } from '../../../app-models/jwt.payload.model';
 import { JwtService } from '@nestjs/jwt';
-import { EnvConfiguration } from '../../../app-configuration/env-configuration';
+import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import {
   Session,
   SessionDocument,
@@ -26,6 +26,7 @@ import {
 } from '../../auth-module-domain/auth/session.entity';
 import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
 import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
+import { badRequestErrorFactoryFunction } from '../../../app-configuration/factory-functions/bad-request.error-factory-function';
 
 @Injectable()
 export class AuthService {
@@ -48,14 +49,7 @@ export class AuthService {
     const foundedUserWithSimilarEmail: boolean =
       await findUserWithSimilarEmail();
     if (foundedUserWithSimilarEmail) {
-      throw new BadRequestException({
-        errorsMessages: [
-          {
-            message: 'invalid data',
-            field: 'email',
-          },
-        ],
-      });
+      throw new BadRequestException(badRequestErrorFactoryFunction(['email']));
     }
     const passwordHash: string = hashSync(createNewUserDTO.password, 10);
     const emailConfirmationCode: string = uuidv4();
@@ -164,15 +158,22 @@ export class AuthService {
     };
   }
 
-  async confirmRegistration(confirmationCode: string): Promise<void> {
+  async confirmRegistration(
+    confirmationCode: string,
+    errorField: string,
+  ): Promise<void> {
     const foundedUserByConfirmationCode: UserDocument | null =
       await this.UserModel.findOne({
         'emailConfirmation.confirmationCode': confirmationCode,
       });
     if (!foundedUserByConfirmationCode) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        badRequestErrorFactoryFunction([errorField]),
+      );
     } else if (!foundedUserByConfirmationCode.confirmRegistration()) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        badRequestErrorFactoryFunction([errorField]),
+      );
     }
     const modifiedProperties: string[] =
       foundedUserByConfirmationCode.getPossibleModifiedProperties();

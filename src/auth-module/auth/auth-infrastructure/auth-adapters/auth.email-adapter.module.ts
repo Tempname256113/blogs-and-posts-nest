@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { EnvConfiguration } from '../../../../app-configuration/env-configuration';
+import { EnvConfiguration } from '../../../../app-configuration/environment/env-configuration';
 import { AuthEmailAdapterService } from './auth.email-adapter.service';
 
 const envVariables = new EnvConfiguration();

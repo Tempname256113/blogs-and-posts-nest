@@ -7,7 +7,7 @@ import { userSchema, UserSchema } from './auth-module-domain/user/user.entity';
 import { AuthEmailAdapterModule } from './auth/auth-infrastructure/auth-adapters/auth.email-adapter.module';
 import { AuthRepository } from './auth/auth-infrastructure/auth-repositories/auth.repository';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { EnvConfiguration } from '../app-configuration/env-configuration';
+import { EnvConfiguration } from '../app-configuration/environment/env-configuration';
 import { AuthJwtStrategy } from '../app-configuration/passport-strategy/auth-jwt.strategy';
 import { AuthLocalStrategy } from '../app-configuration/passport-strategy/auth-local.strategy';
 import {

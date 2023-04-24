@@ -1,6 +1,6 @@
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { BasicStrategy as Strategy } from 'passport-http';
-import { EnvConfiguration } from '../env-configuration';
+import { EnvConfiguration } from '../environment/env-configuration';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()

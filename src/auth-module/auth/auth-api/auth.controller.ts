@@ -14,6 +14,7 @@ import { AdditionalReqDataDecorator } from '../../../app-configuration/decorator
 import { User } from '../../auth-module-domain/user/user.entity';
 import { Response } from 'express';
 import { CookiesEnum } from '../../../app-configuration/enums/cookies.enum';
+import { AuthApiConfirmRegistrationDTO } from './auth-api-models/auth-api.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,10 +30,14 @@ export class AuthController {
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmRegistration(
-    @Body('code') confirmationCode: string,
+    @Body() { code }: AuthApiConfirmRegistrationDTO,
   ): Promise<void> {
-    await this.authService.confirmRegistration(confirmationCode);
+    await this.authService.confirmRegistration(code, 'code');
   }
+
+  @Post('registration-email-resending')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async emailResending() {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
