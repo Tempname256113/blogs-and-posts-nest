@@ -4,13 +4,16 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { AuthService } from '../auth-application/auth.service';
-import { Request } from 'express';
 import { LocalAuthGuard } from '../../../app-configuration/passport-strategy/auth-local.strategy';
+import { AdditionalReqDataDecorator } from '../../../app-configuration/decorators/additional-req-data.decorator';
+import { User } from '../../auth-module-domain/user/user.entity';
+import { Response } from 'express';
+import { CookiesEnum } from '../../../app-configuration/enums/cookies.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -26,7 +29,12 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  async login(@Req() req: Request) {
-    return req.user;
+  async login(
+    @AdditionalReqDataDecorator<User>() reqUser: User,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { accessToken, refreshToken } = await this.authService.login(reqUser);
+    response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, refreshToken);
+    return { accessToken };
   }
 }

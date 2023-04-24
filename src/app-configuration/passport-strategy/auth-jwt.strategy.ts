@@ -2,7 +2,7 @@ import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
 import { EnvConfiguration } from '../env-configuration';
-import { JwtPayloadModelType } from '../../app-models/jwt.payload.model';
+import { JwtAccessTokenPayloadType } from '../../app-models/jwt.payload.model';
 
 const accessTokenSecret = new EnvConfiguration().JWT_SECRET_ACCESS_TOKEN;
 
@@ -16,8 +16,10 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayloadModelType): Promise<JwtPayloadModelType> {
-    return payload;
+  async validate(
+    accessTokenPayload: JwtAccessTokenPayloadType,
+  ): Promise<JwtAccessTokenPayloadType> {
+    return accessTokenPayload;
   }
 }
 

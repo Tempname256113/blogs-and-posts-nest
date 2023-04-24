@@ -6,14 +6,21 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { userSchema, UserSchema } from './auth-module-domain/user/user.entity';
 import { AuthEmailAdapterModule } from './auth/auth-infrastructure/auth-adapters/auth.email-adapter.module';
 import { AuthRepository } from './auth/auth-infrastructure/auth-repositories/auth.repository';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { EnvConfiguration } from '../app-configuration/env-configuration';
 import { AuthJwtStrategy } from '../app-configuration/passport-strategy/auth-jwt.strategy';
 import { AuthLocalStrategy } from '../app-configuration/passport-strategy/auth-local.strategy';
+import {
+  sessionSchema,
+  SessionSchema,
+} from './auth-module-domain/auth/session.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: UserSchema.name, schema: userSchema }]),
+    MongooseModule.forFeature([
+      { name: UserSchema.name, schema: userSchema },
+      { name: SessionSchema.name, schema: sessionSchema },
+    ]),
     UserModule,
     AuthEmailAdapterModule,
     JwtModule.register({
@@ -22,6 +29,13 @@ import { AuthLocalStrategy } from '../app-configuration/passport-strategy/auth-l
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, AuthJwtStrategy, AuthLocalStrategy],
+  providers: [
+    AuthService,
+    AuthRepository,
+    AuthJwtStrategy,
+    AuthLocalStrategy,
+    JwtService,
+    EnvConfiguration,
+  ],
 })
 export class AuthModule {}
