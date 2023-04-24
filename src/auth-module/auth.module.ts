@@ -9,6 +9,7 @@ import { AuthRepository } from './auth/auth-infrastructure/auth-repositories/aut
 import { JwtModule } from '@nestjs/jwt';
 import { EnvConfiguration } from '../app-configuration/env-configuration';
 import { AuthJwtStrategy } from '../app-configuration/passport-strategy/auth-jwt.strategy';
+import { AuthLocalStrategy } from '../app-configuration/passport-strategy/auth-local.strategy';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { AuthJwtStrategy } from '../app-configuration/passport-strategy/auth-jwt
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, AuthJwtStrategy],
+  providers: [AuthService, AuthRepository, AuthJwtStrategy, AuthLocalStrategy],
 })
 export class AuthModule {}

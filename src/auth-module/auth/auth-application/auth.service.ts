@@ -8,10 +8,11 @@ import {
 import { Model } from 'mongoose';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { hashSync } from 'bcrypt';
+import { compare, compareSync, hashSync } from 'bcrypt';
 import { add } from 'date-fns';
 import { AuthEmailAdapterService } from '../auth-infrastructure/auth-adapters/auth.email-adapter.service';
 import { AuthRepository } from '../auth-infrastructure/auth-repositories/auth.repository';
+import { AuthApiLoginDtoType } from '../auth-api/auth-api-models/auth-api.dto';
 
 @Injectable()
 export class AuthService {
@@ -65,4 +66,26 @@ export class AuthService {
     );
     await this.authRepository.saveUser(newUserModel);
   }
+
+  async validateUser(loginDTO: AuthApiLoginDtoType) {
+    const foundedUser: User | null = await this.UserModel.findOne(
+      {
+        $or: [
+          { 'accountData.login': loginDTO.loginOrEmail },
+          { 'accountData.email': loginDTO.loginOrEmail },
+        ],
+      },
+      { _id: false },
+    );
+    if (foundedUser !== null) {
+      const comparePassword = await compare(
+        loginDTO.password,
+        foundedUser.accountData.password,
+      );
+      if (comparePassword) return foundedUser;
+    }
+    return null;
+  }
+
+  // async login() {}
 }

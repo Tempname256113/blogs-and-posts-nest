@@ -16,7 +16,7 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayloadModelType) {
+  async validate(payload: JwtPayloadModelType): Promise<JwtPayloadModelType> {
     return payload;
   }
 }

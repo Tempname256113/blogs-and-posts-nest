@@ -1,6 +1,16 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { AuthService } from '../auth-application/auth.service';
+import { Request } from 'express';
+import { LocalAuthGuard } from '../../../app-configuration/passport-strategy/auth-local.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -15,5 +25,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login() {}
+  @UseGuards(LocalAuthGuard)
+  async login(@Req() req: Request) {
+    return req.user;
+  }
 }
