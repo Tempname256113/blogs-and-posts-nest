@@ -41,7 +41,6 @@ export class UserQueryRepository {
         this.UserModel,
         filter,
       );
-    console.log(usersWithPagination);
     const mappedUsersArray: UserApiModelType[] = [];
     for (const userDocument of usersWithPagination.items) {
       const mappedUser: UserApiModelType = {

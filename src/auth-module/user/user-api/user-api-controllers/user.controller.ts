@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Query,
@@ -19,7 +18,7 @@ import {
 } from '../user-api-models/user-api.models';
 import { UserQueryRepository } from '../../user-infrastructure/user-repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dto';
-import { AuthGuard } from '@nestjs/passport';
+import { BasicAuthGuard } from '../../../../app-configuration/passport-strategy/auth-basic.strategy';
 
 @Controller('users')
 export class UserController {
@@ -28,7 +27,7 @@ export class UserController {
     private userQueryRepository: UserQueryRepository,
   ) {}
   @Post()
-  @UseGuards(AuthGuard('basic'))
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createUser(
     @Body() createUserDTO: UserApiCreateDto,
@@ -40,7 +39,7 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(AuthGuard('basic'))
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getUsersWithPagination(
     @Query() rawPaginationQuery: IUserApiPaginationQueryDto,
@@ -59,7 +58,7 @@ export class UserController {
   }
 
   @Delete(':userId')
-  @UseGuards(AuthGuard('basic'))
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserById(@Param('userId') userId: string): Promise<void> {
     await this.userService.deleteUserById(userId);

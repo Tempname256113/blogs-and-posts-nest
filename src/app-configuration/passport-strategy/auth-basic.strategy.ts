@@ -1,10 +1,10 @@
-import { PassportStrategy } from '@nestjs/passport';
+import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { BasicStrategy as Strategy } from 'passport-http';
 import { EnvConfiguration } from '../env-configuration';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
-export class BasicStrategy extends PassportStrategy(Strategy, 'basic') {
+export class AuthBasicStrategy extends PassportStrategy(Strategy, 'basic') {
   constructor(private envConfiguration: EnvConfiguration) {
     super();
   }
@@ -19,3 +19,5 @@ export class BasicStrategy extends PassportStrategy(Strategy, 'basic') {
     throw new UnauthorizedException();
   }
 }
+
+export class BasicAuthGuard extends AuthGuard('basic') {}
