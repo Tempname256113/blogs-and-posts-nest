@@ -25,6 +25,7 @@ import {
   SessionSchema,
 } from '../../auth-module-domain/auth/session.entity';
 import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
+import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,7 @@ export class AuthService {
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
     private authRepository: AuthRepository,
+    private usersRepository: UserRepository,
     private emailService: AuthEmailAdapterService,
     private jwtService: JwtService,
     private envConfig: EnvConfiguration,
@@ -79,7 +81,7 @@ export class AuthService {
       createNewUserDTO.email,
       emailConfirmationCode,
     );
-    await this.authRepository.saveUser(newUserModel);
+    await this.usersRepository.saveUser(newUserModel);
   }
 
   async validateUser(loginDTO: AuthApiLoginDtoType): Promise<User | null> {
@@ -134,7 +136,7 @@ export class AuthService {
         const checkSessionExistenceAndUpdate: boolean =
           await this.authRepository.updateSession(user.id, sessionUpdateData);
         if (!checkSessionExistenceAndUpdate) {
-          await this.authRepository.saveSession(newSessionModel);
+          this.authRepository.saveSession(newSessionModel);
         }
       };
       sessionHandler();
@@ -160,5 +162,23 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async confirmRegistration(confirmationCode: string): Promise<void> {
+    const foundedUserByConfirmationCode: UserDocument | null =
+      await this.UserModel.findOne({
+        'emailConfirmation.confirmationCode': confirmationCode,
+      });
+    if (!foundedUserByConfirmationCode) {
+      throw new BadRequestException();
+    } else if (!foundedUserByConfirmationCode.confirmRegistration()) {
+      throw new BadRequestException();
+    }
+    const modifiedProperties: string[] =
+      foundedUserByConfirmationCode.getPossibleModifiedProperties();
+    modifiedProperties.forEach((modifiedProperty) => {
+      foundedUserByConfirmationCode.markModified(modifiedProperty);
+    });
+    await this.usersRepository.saveUser(foundedUserByConfirmationCode);
   }
 }

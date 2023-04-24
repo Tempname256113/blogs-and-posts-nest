@@ -25,7 +25,30 @@ export class User {
   passwordRecovery: UserPasswordRecovery;
 }
 
-class UserMethods extends User {}
+class UserMethods extends User {
+  confirmRegistration(): boolean {
+    if (new Date().toISOString() > this.emailConfirmation.expirationDate) {
+      return false;
+    }
+    this.emailConfirmation.isConfirmed = true;
+    this.emailConfirmation.confirmationCode = null;
+    this.emailConfirmation.expirationDate = null;
+    return true;
+  }
+
+  getPossibleModifiedProperties(): string[] {
+    const userProperties: string[] = [
+      'accountData.login',
+      'accountData.email',
+      'accountData.password',
+      'emailConfirmation.confirmationCode',
+      'emailConfirmation.expirationDate',
+      'emailConfirmation.isConfirmed',
+      'passwordRecovery.recoveryCode',
+    ];
+    return userProperties;
+  }
+}
 
 @Schema({ versionKey: false, collection: 'users' })
 export class UserSchema extends UserMethods implements User {

@@ -26,13 +26,21 @@ export class AuthController {
     await this.authService.registrationNewUser(createNewUserDTO);
   }
 
+  @Post('registration-confirmation')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async confirmRegistration(
+    @Body('code') confirmationCode: string,
+  ): Promise<void> {
+    await this.authService.confirmRegistration(confirmationCode);
+  }
+
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   async login(
     @AdditionalReqDataDecorator<User>() reqUser: User,
     @Res({ passthrough: true }) response: Response,
-  ) {
+  ): Promise<{ accessToken: string }> {
     const { accessToken, refreshToken } = await this.authService.login(reqUser);
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, refreshToken);
     return { accessToken };

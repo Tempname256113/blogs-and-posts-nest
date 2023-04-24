@@ -17,9 +17,6 @@ export class AuthRepository {
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
   ) {}
-  async saveUser(newUser: UserDocument): Promise<void> {
-    await newUser.save();
-  }
 
   async saveSession(newSession: SessionDocument): Promise<void> {
     await newSession.save();

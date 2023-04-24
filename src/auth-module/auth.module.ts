@@ -14,6 +14,7 @@ import {
   sessionSchema,
   SessionSchema,
 } from './auth-module-domain/auth/session.entity';
+import { UserRepository } from './user/user-infrastructure/user-repositories/user.repository';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import {
     AuthLocalStrategy,
     JwtService,
     EnvConfiguration,
+    UserRepository,
   ],
 })
 export class AuthModule {}
