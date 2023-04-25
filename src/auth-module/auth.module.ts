@@ -6,10 +6,11 @@ import { AuthEmailAdapterModule } from './auth/auth-infrastructure/auth-adapters
 import { AuthRepository } from './auth/auth-infrastructure/auth-repositories/auth.repository';
 import { JwtService } from '@nestjs/jwt';
 import { EnvConfiguration } from '../app-configuration/environment/env-configuration';
-import { AuthJwtStrategy } from '../app-configuration/passport-strategy/auth-jwt.strategy';
-import { AuthLocalStrategy } from '../app-configuration/passport-strategy/auth-local.strategy';
+import { AuthJwtStrategy } from '../app-helpers/passport-strategy/auth-jwt.strategy';
+import { AuthLocalStrategy } from '../app-helpers/passport-strategy/auth-local.strategy';
 import { UserRepository } from './user/user-infrastructure/user-repositories/user.repository';
 import { MongooseSchemesModule } from '../app-configuration/db/mongoose.schemes-module';
+import { JwtHelpers } from '../app-helpers/jwt/jwt.helpers';
 
 @Module({
   imports: [MongooseSchemesModule, UserModule, AuthEmailAdapterModule],
@@ -22,6 +23,7 @@ import { MongooseSchemesModule } from '../app-configuration/db/mongoose.schemes-
     JwtService,
     EnvConfiguration,
     UserRepository,
+    JwtHelpers,
   ],
 })
 export class AuthModule {}

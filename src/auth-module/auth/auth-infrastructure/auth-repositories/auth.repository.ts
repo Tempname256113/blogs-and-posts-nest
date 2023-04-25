@@ -18,15 +18,4 @@ export class AuthRepository {
   async saveSession(newSession: SessionDocument): Promise<void> {
     await newSession.save();
   }
-
-  async updateSession(
-    sessionId: string,
-    updateSessionData: SessionUpdateDTO,
-  ): Promise<boolean> {
-    const updateSession = await this.SessionModel.updateOne(
-      { userId: sessionId },
-      updateSessionData,
-    );
-    return updateSession.matchedCount > 0;
-  }
 }

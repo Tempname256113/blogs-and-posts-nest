@@ -13,10 +13,6 @@ import { add, getUnixTime } from 'date-fns';
 import { AuthEmailAdapterService } from '../auth-infrastructure/auth-adapters/auth.email-adapter.service';
 import { AuthRepository } from '../auth-infrastructure/auth-repositories/auth.repository';
 import { AuthApiLoginDtoType } from '../auth-api/auth-api-models/auth-api.dto';
-import {
-  JwtAccessTokenPayloadType,
-  JwtRefreshTokenPayloadType,
-} from '../../../app-models/jwt.payload.model';
 import { JwtService } from '@nestjs/jwt';
 import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import {
@@ -26,7 +22,8 @@ import {
 } from '../../auth-module-domain/auth/session.entity';
 import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
 import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
-import { badRequestErrorFactoryFunction } from '../../../app-configuration/factory-functions/bad-request.error-factory-function';
+import { badRequestErrorFactoryFunction } from '../../../app-helpers/factory-functions/bad-request.error-factory-function';
+import { JwtHelpers } from '../../../app-helpers/jwt/jwt.helpers';
 
 @Injectable()
 export class AuthService {
@@ -36,8 +33,7 @@ export class AuthService {
     private authRepository: AuthRepository,
     private usersRepository: UserRepository,
     private emailService: AuthEmailAdapterService,
-    private jwtService: JwtService,
-    private envConfig: EnvConfiguration,
+    private jwtHelpers: JwtHelpers,
   ) {}
   async registrationNewUser(createNewUserDTO: UserApiCreateDto) {
     const findUserWithSimilarEmail = async (): Promise<boolean> => {
@@ -101,57 +97,35 @@ export class AuthService {
   async login(
     user: User,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const createRefreshToken = async (): Promise<string> => {
-      const currentTimeInSeconds: number = getUnixTime(new Date());
-      const refreshTokenExpiresIn: number = getUnixTime(
-        add(new Date(), { months: 3 }),
-      );
-      const refreshTokenSecret: string =
-        this.envConfig.JWT_SECRET_REFRESH_TOKEN;
-      const refreshTokenPayload: JwtRefreshTokenPayloadType = {
+    const { refreshToken, accessToken, refreshTokenIat } =
+      this.jwtHelpers.createPairOfTokens({ userId: user.id });
+    const createNewSession = (): SessionDocument => {
+      const newSessionData: Session = {
         userId: user.id,
-        iat: currentTimeInSeconds,
+        iat: refreshTokenIat,
       };
-      const refreshToken: string = this.jwtService.sign(refreshTokenPayload, {
-        secret: refreshTokenSecret,
-        expiresIn: refreshTokenExpiresIn,
-      });
-      const createOrUpdateExistingSession = async (): Promise<void> => {
-        const newSession: Session = {
+      const newSessionModel: SessionDocument = new this.SessionModel(
+        newSessionData,
+      );
+      return newSessionModel;
+    };
+    const handleSession = async (): Promise<void> => {
+      const foundedSession: SessionDocument | null =
+        await this.SessionModel.findOne({
           userId: user.id,
-          iat: currentTimeInSeconds,
-        };
-        const newSessionModel: SessionDocument = new this.SessionModel(
-          newSession,
-        );
+        });
+      if (foundedSession) {
         const sessionUpdateData: SessionUpdateDTO = {
-          iat: currentTimeInSeconds,
+          refreshTokenIat,
         };
-        const checkSessionExistenceAndUpdate: boolean =
-          await this.authRepository.updateSession(user.id, sessionUpdateData);
-        if (!checkSessionExistenceAndUpdate) {
-          this.authRepository.saveSession(newSessionModel);
-        }
-      };
-      createOrUpdateExistingSession();
-      return refreshToken;
+        foundedSession.updateSession(sessionUpdateData);
+        await this.authRepository.saveSession(foundedSession);
+      } else {
+        const newSession: SessionDocument = createNewSession();
+        await this.authRepository.saveSession(newSession);
+      }
     };
-    const createAccessToken = (): string => {
-      const accessTokenExpiresIn: number = getUnixTime(
-        add(new Date(), { minutes: 15 }),
-      );
-      const accessTokenSecret: string = this.envConfig.JWT_SECRET_ACCESS_TOKEN;
-      const accessTokenPayload: JwtAccessTokenPayloadType = {
-        userId: user.id,
-      };
-      const accessToken = this.jwtService.sign(accessTokenPayload, {
-        secret: accessTokenSecret,
-        expiresIn: accessTokenExpiresIn,
-      });
-      return accessToken;
-    };
-    const accessToken = createAccessToken();
-    const refreshToken = await createRefreshToken();
+    handleSession();
     return {
       accessToken,
       refreshToken,

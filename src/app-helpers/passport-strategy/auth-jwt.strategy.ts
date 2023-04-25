@@ -1,7 +1,7 @@
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
-import { EnvConfiguration } from '../environment/env-configuration';
+import { EnvConfiguration } from '../../app-configuration/environment/env-configuration';
 import { JwtAccessTokenPayloadType } from '../../app-models/jwt.payload.model';
 
 const accessTokenSecret = new EnvConfiguration().JWT_SECRET_ACCESS_TOKEN;

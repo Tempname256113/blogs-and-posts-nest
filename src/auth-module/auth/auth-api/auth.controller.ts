@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { AuthService } from '../auth-application/auth.service';
-import { LocalAuthGuard } from '../../../app-configuration/passport-strategy/auth-local.strategy';
-import { AdditionalReqDataDecorator } from '../../../app-configuration/decorators/additional-req-data.decorator';
+import { LocalAuthGuard } from '../../../app-helpers/passport-strategy/auth-local.strategy';
+import { AdditionalReqDataDecorator } from '../../../app-helpers/decorators/additional-req-data.decorator';
 import { User } from '../../auth-module-domain/user/user.entity';
 import { Response } from 'express';
-import { CookiesEnum } from '../../../app-configuration/enums/cookies.enum';
+import { CookiesEnum } from '../../../app-helpers/enums/cookies.enum';
 import {
   AuthApiConfirmRegistrationDTO,
   AuthApiEmailResendingDTO,

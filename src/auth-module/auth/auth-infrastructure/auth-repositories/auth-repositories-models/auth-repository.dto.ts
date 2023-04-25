@@ -1,3 +1,3 @@
 export type SessionUpdateDTO = {
-  iat: number;
+  refreshTokenIat: number;
 };

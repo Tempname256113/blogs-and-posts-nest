@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { validationPipeExceptionFactory } from './app-configuration/pipes/validation-pipe.exception-factory';
+import { validationPipeExceptionFactoryFunction } from './app-helpers/pipes/validation-pipe.exception-factory-function';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -10,7 +10,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
-      exceptionFactory: validationPipeExceptionFactory,
+      exceptionFactory: validationPipeExceptionFactoryFunction,
     }),
   );
   await app.listen(3000);

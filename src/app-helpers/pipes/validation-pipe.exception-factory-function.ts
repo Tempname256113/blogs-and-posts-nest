@@ -1,6 +1,8 @@
 import { BadRequestException, ValidationError } from '@nestjs/common';
 
-export function validationPipeExceptionFactory(errors: ValidationError[]) {
+export function validationPipeExceptionFactoryFunction(
+  errors: ValidationError[],
+) {
   const mappedErrors: { message: string; field: string }[] = errors.map(
     (validationError) => {
       const field: string = validationError.property;
