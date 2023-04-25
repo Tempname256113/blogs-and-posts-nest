@@ -116,7 +116,7 @@ export class AuthService {
         secret: refreshTokenSecret,
         expiresIn: refreshTokenExpiresIn,
       });
-      const sessionHandler = async (): Promise<void> => {
+      const createOrUpdateExistingSession = async (): Promise<void> => {
         const newSession: Session = {
           userId: user.id,
           iat: currentTimeInSeconds,
@@ -133,7 +133,7 @@ export class AuthService {
           this.authRepository.saveSession(newSessionModel);
         }
       };
-      sessionHandler();
+      createOrUpdateExistingSession();
       return refreshToken;
     };
     const createAccessToken = (): string => {
@@ -175,11 +175,6 @@ export class AuthService {
         badRequestErrorFactoryFunction([errorField]),
       );
     }
-    const modifiedProperties: string[] =
-      foundedUserByConfirmationCode.getPossibleModifiedProperties();
-    modifiedProperties.forEach((modifiedProperty) => {
-      foundedUserByConfirmationCode.markModified(modifiedProperty);
-    });
     await this.usersRepository.saveUser(foundedUserByConfirmationCode);
   }
 
@@ -195,11 +190,6 @@ export class AuthService {
           badRequestErrorFactoryFunction([errorField]),
         );
       }
-      // const modifiedProperties: string[] =
-      //   foundedUserByEmail.getPossibleModifiedProperties();
-      // modifiedProperties.forEach((modifiedProperty) => {
-      //   foundedUserByEmail.markModified(modifiedProperty);
-      // });
       await this.usersRepository.saveUser(foundedUserByEmail);
       this.emailService.sendUserConfirmation(email, confirmationCode);
     }

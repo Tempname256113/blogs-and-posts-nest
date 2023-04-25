@@ -1,5 +1,5 @@
 export type BadRequestErrorModelType = {
-  errorMessages: {
+  errorsMessages: {
     message: string;
     field: string;
   }[];

@@ -16,6 +16,6 @@ export const badRequestErrorFactoryFunction = (
     return errorObj;
   });
   return {
-    errorMessages: mappedErrorsArray,
+    errorsMessages: mappedErrorsArray,
   };
 };
