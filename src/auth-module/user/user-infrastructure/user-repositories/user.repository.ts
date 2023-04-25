@@ -13,6 +13,11 @@ export class UserRepository {
   ) {}
 
   async saveUser(userDocument: UserDocument): Promise<void> {
+    const modifiedProperties: string[] =
+      userDocument.getPossibleModifiedProperties();
+    modifiedProperties.forEach((modifiedProperty) => {
+      userDocument.markModified(modifiedProperty);
+    });
     await userDocument.save();
   }
 

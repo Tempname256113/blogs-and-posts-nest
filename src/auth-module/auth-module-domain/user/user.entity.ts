@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { add } from 'date-fns';
 
 class UserAccountData {
   login: string;
@@ -34,6 +35,18 @@ class UserMethods extends User {
     this.emailConfirmation.confirmationCode = null;
     this.emailConfirmation.expirationDate = null;
     return true;
+  }
+
+  changeEmailConfirmationCode(newEmailConfirmationCode: string): boolean {
+    if (this.emailConfirmation.isConfirmed) {
+      return false;
+    } else {
+      this.emailConfirmation.confirmationCode = newEmailConfirmationCode;
+      this.emailConfirmation.expirationDate = add(new Date(), {
+        days: 3,
+      }).toISOString();
+      return true;
+    }
   }
 
   getPossibleModifiedProperties(): string[] {

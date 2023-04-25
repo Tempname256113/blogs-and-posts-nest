@@ -182,4 +182,26 @@ export class AuthService {
     });
     await this.usersRepository.saveUser(foundedUserByConfirmationCode);
   }
+
+  async emailResending(email: string, errorField: string): Promise<void> {
+    const foundedUserByEmail: UserDocument | null =
+      await this.UserModel.findOne({ 'accountData.email': email });
+    if (foundedUserByEmail) {
+      const confirmationCode: string = uuidv4();
+      const changeConfirmationEmailCodeStatus: boolean =
+        foundedUserByEmail.changeEmailConfirmationCode(confirmationCode);
+      if (!changeConfirmationEmailCodeStatus) {
+        throw new BadRequestException(
+          badRequestErrorFactoryFunction([errorField]),
+        );
+      }
+      // const modifiedProperties: string[] =
+      //   foundedUserByEmail.getPossibleModifiedProperties();
+      // modifiedProperties.forEach((modifiedProperty) => {
+      //   foundedUserByEmail.markModified(modifiedProperty);
+      // });
+      await this.usersRepository.saveUser(foundedUserByEmail);
+      this.emailService.sendUserConfirmation(email, confirmationCode);
+    }
+  }
 }

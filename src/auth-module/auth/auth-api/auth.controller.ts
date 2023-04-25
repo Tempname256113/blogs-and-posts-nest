@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   HttpCode,
@@ -14,7 +15,10 @@ import { AdditionalReqDataDecorator } from '../../../app-configuration/decorator
 import { User } from '../../auth-module-domain/user/user.entity';
 import { Response } from 'express';
 import { CookiesEnum } from '../../../app-configuration/enums/cookies.enum';
-import { AuthApiConfirmRegistrationDTO } from './auth-api-models/auth-api.dto';
+import {
+  AuthApiConfirmRegistrationDTO,
+  AuthApiEmailResendingDTO,
+} from './auth-api-models/auth-api.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,7 +41,11 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async emailResending() {}
+  async emailResending(
+    @Body() { email }: AuthApiEmailResendingDTO,
+  ): Promise<void> {
+    await this.authService.emailResending(email, 'email');
+  }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
