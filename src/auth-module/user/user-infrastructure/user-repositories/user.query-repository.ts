@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+  User,
   UserDocument,
   UserSchema,
 } from '../../../auth-module-domain/user/user.entity';
@@ -15,6 +16,7 @@ import {
   IPaginationQuery,
 } from '../../../../product-module/product-additional/get-entity-with-pagination.func';
 import { UserRepositoryPaginationModelType } from './user-repositories-models/user-repository.model';
+import { AuthApiUserInfoModelType } from '../../../auth/auth-api/auth-api-models/auth-api.models';
 
 @Injectable()
 export class UserQueryRepository {
@@ -59,5 +61,20 @@ export class UserQueryRepository {
       items: mappedUsersArray,
     };
     return usersPaginationResult;
+  }
+
+  async getInfoAboutUser(
+    userId: string,
+  ): Promise<AuthApiUserInfoModelType | null> {
+    const foundedUser: User | null = await this.UserModel.findOne({
+      id: userId,
+    });
+    if (!foundedUser) return null;
+    const mappedUser: AuthApiUserInfoModelType = {
+      userId: foundedUser.id,
+      login: foundedUser.accountData.login,
+      email: foundedUser.accountData.email,
+    };
+    return mappedUser;
   }
 }

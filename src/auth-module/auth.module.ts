@@ -11,6 +11,7 @@ import { AuthLocalStrategy } from '../app-helpers/passport-strategy/auth-local.s
 import { UserRepository } from './user/user-infrastructure/user-repositories/user.repository';
 import { MongooseSchemesModule } from '../app-configuration/db/mongoose.schemes-module';
 import { JwtHelpers } from '../app-helpers/jwt/jwt.helpers';
+import { UserQueryRepository } from './user/user-infrastructure/user-repositories/user.query-repository';
 
 @Module({
   imports: [MongooseSchemesModule, UserModule, AuthEmailAdapterModule],
@@ -24,6 +25,7 @@ import { JwtHelpers } from '../app-helpers/jwt/jwt.helpers';
     EnvConfiguration,
     UserRepository,
     JwtHelpers,
+    UserQueryRepository,
   ],
 })
 export class AuthModule {}

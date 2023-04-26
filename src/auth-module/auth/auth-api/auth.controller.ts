@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -21,10 +22,17 @@ import {
   NewPasswordDTO,
 } from './auth-api-models/auth-api.dto';
 import { Cookies } from '../../../app-helpers/decorators/cookies.decorator';
+import { JwtAuthGuard } from '../../../app-helpers/passport-strategy/auth-jwt.strategy';
+import { JwtAccessTokenPayloadType } from '../../../app-models/jwt.payload.model';
+import { AuthApiUserInfoModelType } from './auth-api-models/auth-api.models';
+import { UserQueryRepository } from '../../user/user-infrastructure/user-repositories/user.query-repository';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private usersQueryRepository: UserQueryRepository,
+  ) {}
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registrationNewUser(
@@ -118,5 +126,20 @@ export class AuthController {
       recoveryCode,
       errorField: 'recoveryCode',
     });
+  }
+
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async getInfoAboutUser(
+    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    accessTokenPayload: JwtAccessTokenPayloadType,
+  ): Promise<AuthApiUserInfoModelType> {
+    const foundedUser: AuthApiUserInfoModelType | null =
+      await this.usersQueryRepository.getInfoAboutUser(
+        accessTokenPayload.userId,
+      );
+    if (!foundedUser) throw new UnauthorizedException();
+    return foundedUser;
   }
 }
