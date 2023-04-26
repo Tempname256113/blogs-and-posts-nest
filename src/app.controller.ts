@@ -4,6 +4,7 @@ import { PostSchema } from './product-module/product-domain/post/post.entity';
 import { Model } from 'mongoose';
 import { BlogSchema } from './product-module/product-domain/blog/blog.entity';
 import { UserSchema } from './auth-module/auth-module-domain/user/user.entity';
+import { SessionSchema } from './auth-module/auth-module-domain/auth/session.entity';
 
 @Controller('testing')
 export class AppController {
@@ -11,6 +12,7 @@ export class AppController {
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
+    @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
   ) {}
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -19,6 +21,7 @@ export class AppController {
       this.PostModel.deleteMany(),
       this.BlogModel.deleteMany(),
       this.UserModel.deleteMany(),
+      this.SessionModel.deleteMany(),
     ]);
   }
 }
