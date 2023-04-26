@@ -6,7 +6,7 @@ class UserAccountData {
   login: string;
   email: string;
   password: string;
-  createdAt: number;
+  createdAt: string;
 }
 
 class UserEmailConfirmation {

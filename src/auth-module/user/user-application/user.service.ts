@@ -26,7 +26,7 @@ export class UserService {
         login: createUserDTO.login,
         email: createUserDTO.email,
         password: passwordHash,
-        createdAt: new Date().getTime(),
+        createdAt: new Date().toISOString(),
       },
       emailConfirmation: {
         confirmationCode: null,

@@ -26,10 +26,25 @@ export class UserQueryRepository {
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
   ): Promise<UserApiPaginationModelType> {
+    let correctSortBy: string;
+    switch (rawPaginationQuery.sortBy) {
+      case 'login':
+        correctSortBy = 'accountData.login';
+        break;
+      case 'email':
+        correctSortBy = 'accountData.email';
+        break;
+      case 'password':
+        correctSortBy = 'accountData.password';
+        break;
+      case 'createdAt':
+        correctSortBy = 'accountData.createdAt';
+        break;
+    }
     const paginationQuery: IPaginationQuery = {
       pageNumber: rawPaginationQuery.pageNumber,
       pageSize: rawPaginationQuery.pageSize,
-      sortBy: rawPaginationQuery.sortBy,
+      sortBy: correctSortBy,
       sortDirection: rawPaginationQuery.sortDirection,
     };
     const filter: { [prop: string]: string } = {};
@@ -49,7 +64,7 @@ export class UserQueryRepository {
         id: userDocument.id,
         login: userDocument.accountData?.login,
         email: userDocument.accountData?.email,
-        createdAt: new Date(userDocument.accountData?.createdAt).toISOString(),
+        createdAt: userDocument.accountData?.createdAt,
       };
       mappedUsersArray.push(mappedUser);
     }
