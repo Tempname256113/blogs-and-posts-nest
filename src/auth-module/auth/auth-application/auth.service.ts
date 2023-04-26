@@ -39,22 +39,35 @@ export class AuthService {
     private jwtHelpers: JwtHelpers,
   ) {}
   async registrationNewUser(createNewUserDTO: UserApiCreateDto) {
-    const findUserWithSimilarEmailOrLogin = async (): Promise<boolean> => {
+    const findUserWithSimilarEmailOrLogin = async (): Promise<
+      string | null
+    > => {
       const filter: FilterQuery<UserSchema> = {
         $or: [
           { 'accountData.email': createNewUserDTO.email },
           { 'accountData.login': createNewUserDTO.login },
         ],
       };
-      const foundedUser: UserDocument | null = await this.UserModel.findOne(
+      const foundedUser: User | null = await this.UserModel.findOne(
         filter,
-      );
-      return !!foundedUser;
+      ).lean();
+      let errorField: string;
+      if (foundedUser) {
+        if (foundedUser.accountData.email === createNewUserDTO.email) {
+          errorField = 'email';
+        }
+        if (foundedUser.accountData.email === createNewUserDTO.login) {
+          errorField = 'login';
+        }
+      }
+      return errorField ? errorField : null;
     };
-    const foundedUserWithSimilarEmail: boolean =
+    const foundedExistingField: string | null =
       await findUserWithSimilarEmailOrLogin();
-    if (foundedUserWithSimilarEmail) {
-      throw new BadRequestException(badRequestErrorFactoryFunction(['email']));
+    if (foundedExistingField) {
+      throw new BadRequestException(
+        badRequestErrorFactoryFunction([foundedExistingField]),
+      );
     }
     const passwordHash: string = hashSync(createNewUserDTO.password, 10);
     const emailConfirmationCode: string = uuidv4();
