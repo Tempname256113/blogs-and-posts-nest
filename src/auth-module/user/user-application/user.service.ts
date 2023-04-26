@@ -26,7 +26,7 @@ export class UserService {
         login: createUserDTO.login,
         email: createUserDTO.email,
         password: passwordHash,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date().getTime(),
       },
       emailConfirmation: {
         confirmationCode: null,
@@ -42,7 +42,7 @@ export class UserService {
       id: newUser.id,
       login: newUser.accountData.login,
       email: newUser.accountData.email,
-      createdAt: newUser.accountData.createdAt,
+      createdAt: new Date(newUser.accountData.createdAt).toISOString(),
     };
     const newUserModel: UserDocument = new this.UserModel(newUser);
     await this.userRepository.saveUser(newUserModel);

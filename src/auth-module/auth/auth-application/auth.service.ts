@@ -77,7 +77,7 @@ export class AuthService {
         login: createNewUserDTO.login,
         email: createNewUserDTO.email,
         password: passwordHash,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date().getTime(),
       },
       emailConfirmation: {
         confirmationCode: emailConfirmationCode,

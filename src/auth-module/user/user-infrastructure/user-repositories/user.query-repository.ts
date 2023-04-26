@@ -49,7 +49,7 @@ export class UserQueryRepository {
         id: userDocument.id,
         login: userDocument.accountData?.login,
         email: userDocument.accountData?.email,
-        createdAt: userDocument.accountData?.createdAt,
+        createdAt: new Date(userDocument.accountData?.createdAt).toISOString(),
       };
       mappedUsersArray.push(mappedUser);
     }
