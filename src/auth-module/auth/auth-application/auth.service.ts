@@ -99,13 +99,13 @@ export class AuthService {
 
   async login(
     user: User,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const { refreshToken, accessToken, refreshTokenIat } =
+  ): Promise<{ newAccessToken: string; newRefreshToken: string }> {
+    const { newRefreshToken, newAccessToken, newRefreshTokenIat } =
       this.jwtHelpers.createPairOfTokens({ userId: user.id });
     const createNewSession = (): SessionDocument => {
       const newSessionData: Session = {
         userId: user.id,
-        iat: refreshTokenIat,
+        iat: newRefreshTokenIat,
       };
       const newSessionModel: SessionDocument = new this.SessionModel(
         newSessionData,
@@ -119,7 +119,7 @@ export class AuthService {
         });
       if (foundedSession) {
         const sessionUpdateData: SessionUpdateDTO = {
-          refreshTokenIat,
+          refreshTokenIat: newRefreshTokenIat,
         };
         foundedSession.updateSession(sessionUpdateData);
         this.authRepository.saveSession(foundedSession);
@@ -130,8 +130,8 @@ export class AuthService {
     };
     await handleSession();
     return {
-      accessToken,
-      refreshToken,
+      newAccessToken,
+      newRefreshToken,
     };
   }
 
@@ -189,5 +189,36 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     this.authRepository.deleteSession(refreshTokenPayload.userId);
+  }
+
+  async updatePairOfTokens(refreshToken: string): Promise<{
+    newAccessToken: string;
+    newRefreshToken: string;
+  }> {
+    const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
+      this.jwtHelpers.verifyRefreshToken(refreshToken);
+    if (!refreshTokenPayload) {
+      throw new UnauthorizedException();
+    }
+    const foundedSession: SessionDocument | null =
+      await this.SessionModel.findOne({
+        userId: refreshTokenPayload.userId,
+      });
+    if (!foundedSession) {
+      throw new UnauthorizedException();
+    }
+    if (refreshTokenPayload.iat !== foundedSession.iat) {
+      throw new UnauthorizedException();
+    }
+    const { newAccessToken, newRefreshToken, newRefreshTokenIat } =
+      this.jwtHelpers.createPairOfTokens({
+        userId: refreshTokenPayload.userId,
+      });
+    foundedSession.updateSession({ refreshTokenIat: newRefreshTokenIat });
+    this.authRepository.saveSession(foundedSession);
+    return {
+      newAccessToken,
+      newRefreshToken,
+    };
   }
 }

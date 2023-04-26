@@ -57,17 +57,17 @@ export class JwtHelpers {
   }
 
   createPairOfTokens(tokensData: { userId: string }): {
-    accessToken: string;
-    refreshToken: string;
-    refreshTokenIat: number;
+    newAccessToken: string;
+    newRefreshToken: string;
+    newRefreshTokenIat: number;
   } {
     const { refreshToken, refreshTokenIat } = this.createRefreshToken(
       tokensData.userId,
     );
     return {
-      accessToken: this.createAccessToken(tokensData.userId),
-      refreshToken,
-      refreshTokenIat,
+      newAccessToken: this.createAccessToken(tokensData.userId),
+      newRefreshToken: refreshToken,
+      newRefreshTokenIat: refreshTokenIat,
     };
   }
 

@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Post,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
@@ -54,16 +55,47 @@ export class AuthController {
     @AdditionalReqDataDecorator<User>() reqUser: User,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ accessToken: string }> {
-    const { accessToken, refreshToken } = await this.authService.login(reqUser);
-    response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, refreshToken);
-    return { accessToken };
+    const { newAccessToken, newRefreshToken } = await this.authService.login(
+      reqUser,
+    );
+    response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
+      httpOnly: true,
+      secure: false,
+    });
+    return { accessToken: newAccessToken };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY) refreshToken: string,
+    @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY)
+    refreshToken: string | undefined,
   ): Promise<void> {
+    if (!refreshToken) {
+      throw new UnauthorizedException();
+    }
     await this.authService.logout(refreshToken);
+  }
+
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  async updatePairOfTokens(
+    @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY)
+    refreshToken: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ accessToken: string }> {
+    if (!refreshToken) {
+      throw new UnauthorizedException();
+    }
+    const {
+      newAccessToken,
+      newRefreshToken,
+    }: { newAccessToken: string; newRefreshToken: string } =
+      await this.authService.updatePairOfTokens(refreshToken);
+    response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
+      httpOnly: true,
+      secure: false,
+    });
+    return { accessToken: newAccessToken };
   }
 }
