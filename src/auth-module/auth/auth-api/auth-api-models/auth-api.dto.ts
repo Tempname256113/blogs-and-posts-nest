@@ -13,7 +13,7 @@ export class AuthApiConfirmRegistrationDTO {
   code: string;
 }
 
-export class AuthApiEmailResendingDTO {
+export class AuthApiEmailPropertyDTO {
   @IsEmail()
   email: string;
 }

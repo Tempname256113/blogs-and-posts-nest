@@ -35,6 +35,7 @@ export class UserService {
       },
       passwordRecovery: {
         recoveryCode: null,
+        recoveryStatus: false,
       },
     };
     const userApiModel: UserApiModelType = {

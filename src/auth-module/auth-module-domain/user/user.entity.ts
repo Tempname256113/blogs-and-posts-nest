@@ -17,6 +17,7 @@ class UserEmailConfirmation {
 
 class UserPasswordRecovery {
   recoveryCode: string | null;
+  recoveryStatus: boolean;
 }
 
 export class User {
@@ -49,6 +50,11 @@ class UserMethods extends User {
     }
   }
 
+  setPasswordRecoveryCode(newPasswordRecoveryCode: string) {
+    this.passwordRecovery.recoveryCode = newPasswordRecoveryCode;
+    this.passwordRecovery.recoveryStatus = true;
+  }
+
   getPossibleModifiedProperties(): string[] {
     const userProperties: string[] = [
       'accountData.login',
@@ -58,6 +64,7 @@ class UserMethods extends User {
       'emailConfirmation.expirationDate',
       'emailConfirmation.isConfirmed',
       'passwordRecovery.recoveryCode',
+      'passwordRecovery.recoveryStatus',
     ];
     return userProperties;
   }

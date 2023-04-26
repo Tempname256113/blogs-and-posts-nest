@@ -67,6 +67,7 @@ export class AuthService {
       },
       passwordRecovery: {
         recoveryCode: null,
+        recoveryStatus: false,
       },
     };
     const newUserModel: UserDocument = new this.UserModel(newUser);
@@ -88,6 +89,7 @@ export class AuthService {
       { _id: false },
     );
     if (foundedUser !== null) {
+      if (foundedUser.passwordRecovery.recoveryStatus) return null;
       const comparePassword = await compare(
         loginDTO.password,
         foundedUser.accountData.password,
@@ -220,5 +222,18 @@ export class AuthService {
       newAccessToken,
       newRefreshToken,
     };
+  }
+
+  async sendPasswordRecoveryCode(email: string): Promise<void> {
+    const foundedUserByEmail: UserDocument | null =
+      await this.UserModel.findOne({ 'accountData.email': email });
+    if (!foundedUserByEmail) {
+      return;
+    } else {
+      const newPasswordRecoveryCode: string = uuidv4();
+      foundedUserByEmail.setPasswordRecoveryCode(newPasswordRecoveryCode);
+      this.usersRepository.saveUser(foundedUserByEmail);
+      this.emailService.sendPasswordRecovery(email, newPasswordRecoveryCode);
+    }
   }
 }

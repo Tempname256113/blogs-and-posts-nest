@@ -17,7 +17,7 @@ import { Response } from 'express';
 import { CookiesEnum } from '../../../app-helpers/enums/cookies.enum';
 import {
   AuthApiConfirmRegistrationDTO,
-  AuthApiEmailResendingDTO,
+  AuthApiEmailPropertyDTO,
 } from './auth-api-models/auth-api.dto';
 import { Cookies } from '../../../app-helpers/decorators/cookies.decorator';
 
@@ -43,7 +43,7 @@ export class AuthController {
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
   async emailResending(
-    @Body() { email }: AuthApiEmailResendingDTO,
+    @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
     await this.authService.emailResending(email, 'email');
   }
@@ -97,5 +97,13 @@ export class AuthController {
       secure: false,
     });
     return { accessToken: newAccessToken };
+  }
+
+  @Post('password-recovery')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async passwordRecovery(
+    @Body() { email }: AuthApiEmailPropertyDTO,
+  ): Promise<void> {
+    this.authService.sendPasswordRecoveryCode(email);
   }
 }
