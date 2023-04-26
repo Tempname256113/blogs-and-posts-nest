@@ -56,7 +56,7 @@ export class AuthService {
         if (foundedUser.accountData.email === createNewUserDTO.email) {
           errorField = 'email';
         }
-        if (foundedUser.accountData.email === createNewUserDTO.login) {
+        if (foundedUser.accountData.login === createNewUserDTO.login) {
           errorField = 'login';
         }
       }
