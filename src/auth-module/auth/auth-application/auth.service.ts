@@ -9,7 +9,7 @@ import {
   UserDocument,
   UserSchema,
 } from '../../auth-module-domain/user/user.entity';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { compare, hashSync } from 'bcrypt';
@@ -39,14 +39,20 @@ export class AuthService {
     private jwtHelpers: JwtHelpers,
   ) {}
   async registrationNewUser(createNewUserDTO: UserApiCreateDto) {
-    const findUserWithSimilarEmail = async (): Promise<boolean> => {
-      const foundedUser: UserDocument | null = await this.UserModel.findOne({
-        'accountData.email': createNewUserDTO.email,
-      });
+    const findUserWithSimilarEmailOrLogin = async (): Promise<boolean> => {
+      const filter: FilterQuery<UserSchema> = {
+        $or: [
+          { 'accountData.email': createNewUserDTO.email },
+          { 'accountData.login': createNewUserDTO.login },
+        ],
+      };
+      const foundedUser: UserDocument | null = await this.UserModel.findOne(
+        filter,
+      );
       return !!foundedUser;
     };
     const foundedUserWithSimilarEmail: boolean =
-      await findUserWithSimilarEmail();
+      await findUserWithSimilarEmailOrLogin();
     if (foundedUserWithSimilarEmail) {
       throw new BadRequestException(badRequestErrorFactoryFunction(['email']));
     }
@@ -160,18 +166,21 @@ export class AuthService {
   async emailResending(email: string, errorField: string): Promise<void> {
     const foundedUserByEmail: UserDocument | null =
       await this.UserModel.findOne({ 'accountData.email': email });
-    if (foundedUserByEmail) {
-      const confirmationCode: string = uuidv4();
-      const changeConfirmationEmailCodeStatus: boolean =
-        foundedUserByEmail.changeEmailConfirmationCode(confirmationCode);
-      if (!changeConfirmationEmailCodeStatus) {
-        throw new BadRequestException(
-          badRequestErrorFactoryFunction([errorField]),
-        );
-      }
-      await this.usersRepository.saveUser(foundedUserByEmail);
-      this.emailService.sendUserConfirmation(email, confirmationCode);
+    if (!foundedUserByEmail) {
+      throw new BadRequestException(
+        badRequestErrorFactoryFunction([errorField]),
+      );
     }
+    const confirmationCode: string = uuidv4();
+    const changeConfirmationEmailCodeStatus: boolean =
+      foundedUserByEmail.changeEmailConfirmationCode(confirmationCode);
+    if (!changeConfirmationEmailCodeStatus) {
+      throw new BadRequestException(
+        badRequestErrorFactoryFunction([errorField]),
+      );
+    }
+    await this.usersRepository.saveUser(foundedUserByEmail);
+    this.emailService.sendUserConfirmation(email, confirmationCode);
   }
 
   async logout(refreshToken: string): Promise<void> {
