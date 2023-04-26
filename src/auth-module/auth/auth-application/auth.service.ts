@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   User,
@@ -9,12 +13,10 @@ import { Model } from 'mongoose';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { compare, hashSync } from 'bcrypt';
-import { add, getUnixTime } from 'date-fns';
+import { add } from 'date-fns';
 import { AuthEmailAdapterService } from '../auth-infrastructure/auth-adapters/auth.email-adapter.service';
 import { AuthRepository } from '../auth-infrastructure/auth-repositories/auth.repository';
 import { AuthApiLoginDtoType } from '../auth-api/auth-api-models/auth-api.dto';
-import { JwtService } from '@nestjs/jwt';
-import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import {
   Session,
   SessionDocument,
@@ -24,6 +26,7 @@ import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-
 import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
 import { badRequestErrorFactoryFunction } from '../../../app-helpers/factory-functions/bad-request.error-factory-function';
 import { JwtHelpers } from '../../../app-helpers/jwt/jwt.helpers';
+import { JwtRefreshTokenPayloadType } from '../../../app-models/jwt.payload.model';
 
 @Injectable()
 export class AuthService {
@@ -119,13 +122,13 @@ export class AuthService {
           refreshTokenIat,
         };
         foundedSession.updateSession(sessionUpdateData);
-        await this.authRepository.saveSession(foundedSession);
+        this.authRepository.saveSession(foundedSession);
       } else {
         const newSession: SessionDocument = createNewSession();
-        await this.authRepository.saveSession(newSession);
+        this.authRepository.saveSession(newSession);
       }
     };
-    handleSession();
+    await handleSession();
     return {
       accessToken,
       refreshToken,
@@ -167,5 +170,24 @@ export class AuthService {
       await this.usersRepository.saveUser(foundedUserByEmail);
       this.emailService.sendUserConfirmation(email, confirmationCode);
     }
+  }
+
+  async logout(refreshToken: string): Promise<void> {
+    const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
+      this.jwtHelpers.verifyRefreshToken(refreshToken);
+    if (!refreshTokenPayload) {
+      throw new UnauthorizedException();
+    }
+    const foundedSession: SessionDocument | null =
+      await this.SessionModel.findOne({
+        userId: refreshTokenPayload.userId,
+      });
+    if (!foundedSession) {
+      throw new UnauthorizedException();
+    }
+    if (foundedSession.iat !== refreshTokenPayload.iat) {
+      throw new UnauthorizedException();
+    }
+    this.authRepository.deleteSession(refreshTokenPayload.userId);
   }
 }

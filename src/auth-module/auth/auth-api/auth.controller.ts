@@ -18,6 +18,7 @@ import {
   AuthApiConfirmRegistrationDTO,
   AuthApiEmailResendingDTO,
 } from './auth-api-models/auth-api.dto';
+import { Cookies } from '../../../app-helpers/decorators/cookies.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -56,5 +57,13 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.login(reqUser);
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, refreshToken);
     return { accessToken };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY) refreshToken: string,
+  ): Promise<void> {
+    await this.authService.logout(refreshToken);
   }
 }

@@ -70,4 +70,16 @@ export class JwtHelpers {
       refreshTokenIat,
     };
   }
+
+  verifyRefreshToken(refreshToken: string): JwtRefreshTokenPayloadType | null {
+    try {
+      const refreshTokenPayload: JwtRefreshTokenPayloadType =
+        this.jwtService.verify(refreshToken, {
+          secret: this.refreshTokenSecret,
+        });
+      return refreshTokenPayload;
+    } catch (error) {
+      return null;
+    }
+  }
 }

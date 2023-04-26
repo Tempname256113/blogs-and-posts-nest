@@ -6,7 +6,6 @@ import {
   SessionDocument,
   SessionSchema,
 } from '../../../auth-module-domain/auth/session.entity';
-import { SessionUpdateDTO } from './auth-repositories-models/auth-repository.dto';
 
 @Injectable()
 export class AuthRepository {
@@ -17,5 +16,10 @@ export class AuthRepository {
 
   async saveSession(newSession: SessionDocument): Promise<void> {
     await newSession.save();
+  }
+
+  async deleteSession(userId: string): Promise<boolean> {
+    const deleteSessionResult = await this.SessionModel.deleteOne({ userId });
+    return deleteSessionResult.deletedCount > 0;
   }
 }
