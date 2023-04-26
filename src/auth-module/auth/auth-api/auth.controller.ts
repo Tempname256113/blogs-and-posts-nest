@@ -135,11 +135,11 @@ export class AuthController {
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<AuthApiUserInfoModelType> {
-    const foundedUser: AuthApiUserInfoModelType | null =
+    const foundedUserInfo: AuthApiUserInfoModelType | null =
       await this.usersQueryRepository.getInfoAboutUser(
         accessTokenPayload.userId,
       );
-    if (!foundedUser) throw new UnauthorizedException();
-    return foundedUser;
+    if (!foundedUserInfo) throw new UnauthorizedException();
+    return foundedUserInfo;
   }
 }
