@@ -6,9 +6,9 @@ type errorObject = {
 };
 
 export const badRequestErrorFactoryFunction = (
-  fields: string[],
+  errorFields: string[],
 ): BadRequestErrorModelType => {
-  const mappedErrorsArray: errorObject[] = fields.map((field) => {
+  const mappedErrorsArray: errorObject[] = errorFields.map((field) => {
     const errorObj: errorObject = {
       message: 'invalid data',
       field,

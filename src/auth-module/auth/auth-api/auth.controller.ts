@@ -18,6 +18,7 @@ import { CookiesEnum } from '../../../app-helpers/enums/cookies.enum';
 import {
   AuthApiConfirmRegistrationDTO,
   AuthApiEmailPropertyDTO,
+  NewPasswordDTO,
 } from './auth-api-models/auth-api.dto';
 import { Cookies } from '../../../app-helpers/decorators/cookies.decorator';
 
@@ -104,6 +105,18 @@ export class AuthController {
   async passwordRecovery(
     @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
-    this.authService.sendPasswordRecoveryCode(email);
+    await this.authService.sendPasswordRecoveryCode(email);
+  }
+
+  @Post('new-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async confirmPasswordRecovery(
+    @Body() { newPassword, recoveryCode }: NewPasswordDTO,
+  ): Promise<void> {
+    await this.authService.setNewUserPassword({
+      newPassword,
+      recoveryCode,
+      errorField: 'recoveryCode',
+    });
   }
 }

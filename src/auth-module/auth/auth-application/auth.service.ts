@@ -236,4 +236,22 @@ export class AuthService {
       this.emailService.sendPasswordRecovery(email, newPasswordRecoveryCode);
     }
   }
+
+  async setNewUserPassword(data: {
+    newPassword: string;
+    recoveryCode: string;
+    errorField: string;
+  }): Promise<void> {
+    const foundedUser: UserDocument | null = await this.UserModel.findOne({
+      'passwordRecovery.recoveryCode': data.recoveryCode,
+    });
+    if (!foundedUser) {
+      throw new BadRequestException(
+        badRequestErrorFactoryFunction([data.errorField]),
+      );
+    }
+    const newPasswordHash: string = hashSync(data.newPassword, 10);
+    foundedUser.setNewPassword(newPasswordHash);
+    this.usersRepository.saveUser(foundedUser);
+  }
 }

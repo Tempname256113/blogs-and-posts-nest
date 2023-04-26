@@ -55,6 +55,12 @@ class UserMethods extends User {
     this.passwordRecovery.recoveryStatus = true;
   }
 
+  setNewPassword(newPassword: string) {
+    this.passwordRecovery.recoveryStatus = false;
+    this.passwordRecovery.recoveryCode = null;
+    this.accountData.password = newPassword;
+  }
+
   getPossibleModifiedProperties(): string[] {
     const userProperties: string[] = [
       'accountData.login',
