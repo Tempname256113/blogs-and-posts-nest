@@ -9,23 +9,23 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
-import { AuthService } from '../auth-application/auth.service';
-import { LocalAuthGuard } from '../../../app-helpers/passport-strategy/auth-local.strategy';
-import { AdditionalReqDataDecorator } from '../../../app-helpers/decorators/additional-req-data.decorator';
-import { User } from '../../auth-module-domain/user/user.entity';
+import { UserApiCreateDto } from '../../../user/user-api/user-api-models/user-api.dto';
+import { AuthService } from '../../auth-application/auth.service';
+import { LocalAuthGuard } from '../../../../app-helpers/passport-strategy/auth-local.strategy';
+import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/additional-req-data.decorator';
+import { User } from '../../../auth-module-domain/user/user.entity';
 import { Response } from 'express';
-import { CookiesEnum } from '../../../app-helpers/enums/cookies.enum';
+import { CookiesEnum } from '../../../../app-helpers/enums/cookies.enum';
 import {
   AuthApiConfirmRegistrationDTO,
   AuthApiEmailPropertyDTO,
   NewPasswordDTO,
-} from './auth-api-models/auth-api.dto';
-import { Cookies } from '../../../app-helpers/decorators/cookies.decorator';
-import { JwtAuthGuard } from '../../../app-helpers/passport-strategy/auth-jwt.strategy';
-import { JwtAccessTokenPayloadType } from '../../../app-models/jwt.payload.model';
-import { AuthApiUserInfoModelType } from './auth-api-models/auth-api.models';
-import { UserQueryRepository } from '../../user/user-infrastructure/user-repositories/user.query-repository';
+} from '../auth-api-models/auth-api.dto';
+import { Cookies } from '../../../../app-helpers/decorators/cookies.decorator';
+import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
+import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
+import { AuthApiUserInfoModelType } from '../auth-api-models/auth-api.models';
+import { UserQueryRepository } from '../../../user/user-infrastructure/user-repositories/user.query-repository';
 
 @Controller('auth')
 export class AuthController {

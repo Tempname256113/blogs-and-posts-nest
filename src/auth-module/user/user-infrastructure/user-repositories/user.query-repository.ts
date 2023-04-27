@@ -12,9 +12,10 @@ import {
   UserApiPaginationModelType,
 } from '../../user-api/user-api-models/user-api.models';
 import {
+  FilterType,
   getDocumentsWithPagination,
-  IPaginationQuery,
-} from '../../../../product-module/product-additional/get-entity-with-pagination.func';
+  PaginationQueryType,
+} from '../../../../product-module/product-additional/get-documents-with-pagination.func';
 import { UserRepositoryPaginationModelType } from './user-repositories-models/user-repository.model';
 import { AuthApiUserInfoModelType } from '../../../auth/auth-api/auth-api-models/auth-api.models';
 
@@ -41,23 +42,31 @@ export class UserQueryRepository {
         correctSortBy = 'accountData.createdAt';
         break;
     }
-    const paginationQuery: IPaginationQuery = {
+    const paginationQuery: PaginationQueryType = {
       pageNumber: rawPaginationQuery.pageNumber,
       pageSize: rawPaginationQuery.pageSize,
       sortBy: correctSortBy,
       sortDirection: rawPaginationQuery.sortDirection,
     };
-    const filter: { [prop: string]: string } = {};
-    if (rawPaginationQuery.searchLoginTerm)
-      filter['accountData.login'] = rawPaginationQuery.searchLoginTerm;
-    if (rawPaginationQuery.searchEmailTerm)
-      filter['accountData.email'] = rawPaginationQuery.searchEmailTerm;
+    const filter: FilterType = [];
+    if (rawPaginationQuery.searchLoginTerm) {
+      filter.push({
+        property: 'accountData.login',
+        value: rawPaginationQuery.searchLoginTerm,
+      });
+    }
+    if (rawPaginationQuery.searchEmailTerm) {
+      filter.push({
+        property: 'accountData.email',
+        value: rawPaginationQuery.searchEmailTerm,
+      });
+    }
     const usersWithPagination: UserRepositoryPaginationModelType =
-      await getDocumentsWithPagination<UserDocument, UserSchema>(
-        paginationQuery,
-        this.UserModel,
-        filter,
-      );
+      await getDocumentsWithPagination<UserDocument, UserSchema>({
+        query: paginationQuery,
+        model: this.UserModel,
+        rawFilter: filter,
+      });
     const mappedUsersArray: UserApiModelType[] = [];
     for (const userDocument of usersWithPagination.items) {
       const mappedUser: UserApiModelType = {

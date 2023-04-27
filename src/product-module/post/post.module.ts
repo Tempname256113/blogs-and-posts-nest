@@ -5,6 +5,7 @@ import { PostRepository } from './post-infrastructure/post-repositories/post.rep
 import { PostQueryRepository } from './post-infrastructure/post-repositories/post.query-repository';
 import { MongooseSchemesModule } from '../../app-configuration/db/mongoose.schemes-module';
 import { CommentRepository } from '../comment/comment-infrastructure/comment-repositories/comment.repository';
+import { CommentQueryRepository } from '../comment/comment-infrastructure/comment-repositories/comment.query-repository';
 
 @Module({
   imports: [MongooseSchemesModule],
@@ -14,6 +15,7 @@ import { CommentRepository } from '../comment/comment-infrastructure/comment-rep
     PostRepository,
     PostQueryRepository,
     CommentRepository,
+    CommentQueryRepository,
   ],
 })
 export class PostModule {}

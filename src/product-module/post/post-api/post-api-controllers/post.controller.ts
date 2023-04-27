@@ -25,7 +25,11 @@ import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/a
 import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
 import { Post as PostType } from '../../../product-domain/post.entity';
 import { CommentApiCreateDto } from '../../../comment/comment-api/comment-api-models/comment-api.dto';
-import { CommentApiModel } from '../../../comment/comment-api/comment-api-models/comment-api.models';
+import {
+  CommentApiModel,
+  CommentApiPaginationModel,
+} from '../../../comment/comment-api/comment-api-models/comment-api.models';
+import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comment-api-models/comment-api.query-dto';
 
 @Controller('posts')
 export class PostController {
@@ -85,7 +89,6 @@ export class PostController {
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
   ): Promise<CommentApiModel> {
-    console.log(accessTokenPayload);
     const newComment: CommentApiModel = await this.postService.createNewComment(
       {
         postId,
@@ -102,8 +105,8 @@ export class PostController {
   async getCommentsWithPaginationByPostId(
     @Param('postId') postId: string,
     @Query()
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
-  ) {
+    rawPaginationQuery: CommentApiPaginationQueryDto,
+  ): Promise<CommentApiPaginationModel> {
     const foundedPost: PostApiModelType | null =
       await this.postQueryRepository.getPostById(postId);
     if (!foundedPost) throw new NotFoundException();

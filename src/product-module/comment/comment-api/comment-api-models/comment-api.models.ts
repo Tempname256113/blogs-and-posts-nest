@@ -12,3 +12,11 @@ export type CommentApiModel = {
     myStatus: 'None' | 'Like' | 'Dislike';
   };
 };
+
+export type CommentApiPaginationModel = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: CommentApiModel[];
+};

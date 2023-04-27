@@ -3,5 +3,5 @@ export type BlogApiPaginationQueryDTO = {
   pageNumber: number;
   pageSize: number;
   sortBy: string;
-  sortDirection: string;
+  sortDirection: 'asc' | 'desc';
 };

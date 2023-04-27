@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
-import { AuthController } from './auth/auth-api/auth.controller';
+import { AuthController } from './auth/auth-api/auth-api-controllers/auth.controller';
 import { AuthService } from './auth/auth-application/auth.service';
 import { AuthEmailAdapterModule } from './auth/auth-infrastructure/auth-adapters/auth.email-adapter.module';
 import { AuthRepository } from './auth/auth-infrastructure/auth-repositories/auth.repository';
