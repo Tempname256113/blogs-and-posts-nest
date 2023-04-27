@@ -10,16 +10,22 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
 import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
-import { PostDocumentType } from '../../../product-domain/post/post.entity';
 import {
   PostApiModelType,
   PostApiPaginationModelType,
 } from '../post-api-models/post-api.models';
 import { PostApiPaginationQueryDTOType } from '../post-api-models/post-api.query-dto';
+import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
+import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/additional-req-data.decorator';
+import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
+import { Post as PostType } from '../../../product-domain/post.entity';
+import { CommentApiCreateDto } from '../../../comment/comment-api/comment-api-models/comment-api.dto';
+import { CommentApiModel } from '../../../comment/comment-api/comment-api-models/comment-api.models';
 
 @Controller('posts')
 export class PostController {
@@ -32,7 +38,7 @@ export class PostController {
   async createPost(
     @Body() postCreateDTO: IPostApiCreateUpdateDTO,
   ): Promise<PostApiModelType> {
-    const newPost: PostDocumentType = await this.postService.createNewPost(
+    const newPost: PostType = await this.postService.createNewPost(
       postCreateDTO,
     );
     const postApiModel: PostApiModelType = {
@@ -68,6 +74,27 @@ export class PostController {
     const postsWithPagination: PostApiPaginationModelType =
       await this.postQueryRepository.getPostsWithPagination(paginationQuery);
     return postsWithPagination;
+  }
+
+  @Post(':postId/comments')
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard)
+  async createNewComment(
+    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    accessTokenPayload: JwtAccessTokenPayloadType,
+    @Param('postId') postId: string,
+    @Body() { content }: CommentApiCreateDto,
+  ): Promise<CommentApiModel> {
+    console.log(accessTokenPayload);
+    const newComment: CommentApiModel = await this.postService.createNewComment(
+      {
+        postId,
+        content,
+        userId: accessTokenPayload.userId,
+        userLogin: accessTokenPayload.userLogin,
+      },
+    );
+    return newComment;
   }
 
   @Get(':postId/comments')

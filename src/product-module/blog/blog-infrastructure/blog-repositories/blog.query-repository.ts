@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogSchema } from '../../../product-domain/blog/blog.entity';
+import { BlogSchema } from '../../../product-domain/blog.entity';
 import { Model } from 'mongoose';
 import {
   BlogApiModelType,
@@ -10,16 +10,13 @@ import {
   getDocumentsWithPagination,
   IPaginationQuery,
 } from '../../../product-additional/get-entity-with-pagination.func';
-import {
-  PostDocumentType,
-  PostSchema,
-} from '../../../product-domain/post/post.entity';
+import { PostDocument, PostSchema } from '../../../product-domain/post.entity';
 import { PostRepositoryPaginationModelType } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.pagination.model';
 import {
   PostApiModelType,
   PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
-import { BlogApiPaginationQueryDTOType } from '../../blog-api/blog-api-models/blog-api.query-dto';
+import { BlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 
 @Injectable()
@@ -29,7 +26,7 @@ export class BlogQueryRepository {
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
   ) {}
   async getBlogsWithPagination(
-    rawPaginationQuery: BlogApiPaginationQueryDTOType,
+    rawPaginationQuery: BlogApiPaginationQueryDTO,
   ): Promise<BlogApiPaginationModelType> {
     const filter: { [prop: string]: string } = {};
     const paginationQuery: IPaginationQuery = {
@@ -54,7 +51,7 @@ export class BlogQueryRepository {
     blogId: string,
   ): Promise<PostApiPaginationModelType> {
     const postsWithPagination: PostRepositoryPaginationModelType =
-      await getDocumentsWithPagination<PostDocumentType, PostSchema>(
+      await getDocumentsWithPagination<PostDocument, PostSchema>(
         rawPaginationQuery,
         this.PostModel,
         { blogId },

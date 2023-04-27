@@ -1,9 +1,9 @@
-import { PostDocumentType } from '../../../../product-domain/post/post.entity';
+import { PostDocument } from '../../../../product-domain/post.entity';
 
 export type PostRepositoryPaginationModelType = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: PostDocumentType[];
+  items: PostDocument[];
 };

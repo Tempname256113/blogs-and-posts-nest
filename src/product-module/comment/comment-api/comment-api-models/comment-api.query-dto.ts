@@ -1,5 +1,4 @@
-export type BlogApiPaginationQueryDTO = {
-  searchNameTerm: string | null;
+export type CommentApiPaginationQueryDto = {
   pageNumber: number;
   pageSize: number;
   sortBy: string;

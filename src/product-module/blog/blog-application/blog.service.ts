@@ -9,14 +9,15 @@ import {
   BlogSchema,
   BlogDocument,
   Blog,
-} from '../../product-domain/blog/blog.entity';
+} from '../../product-domain/blog.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { BlogRepository } from '../blog-infrastructure/blog-repositories/blog.repository';
 import { BlogApiModelType } from '../blog-api/blog-api-models/blog-api.models';
 import {
-  PostDocumentType,
+  Post,
+  PostDocument,
   PostSchema,
-} from '../../product-domain/post/post.entity';
+} from '../../product-domain/post.entity';
 import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
 import { PostApiModelType } from '../../post/post-api/post-api-models/post-api.models';
 
@@ -46,23 +47,15 @@ export class BlogService {
 
   async createPost(
     blogId: string,
-    createPostDTO: IBlogApiCreatePostDTO,
+    createPostDTO: IPostApiCreateUpdateDTO,
   ): Promise<PostApiModelType> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: blogId,
     });
     if (!foundedBlog) throw new NotFoundException();
-    const mappedCreatePostDTO: IPostApiCreateUpdateDTO = {
-      title: createPostDTO.title,
-      shortDescription: createPostDTO.shortDescription,
-      content: createPostDTO.content,
-      blogId: blogId,
-    };
-    const newCreatedPost: PostDocumentType = await foundedBlog.createPost(
-      mappedCreatePostDTO,
-      this.PostModel,
-    );
-    await this.blogRepository.saveBlogOrPost(newCreatedPost);
+    const newCreatedPost: Post = await foundedBlog.createPost(createPostDTO);
+    const newPostModel: PostDocument = new this.PostModel(newCreatedPost);
+    await this.blogRepository.saveBlogOrPost(newPostModel);
     const mappedNewPost: PostApiModelType = {
       id: newCreatedPost.id,
       title: newCreatedPost.title,

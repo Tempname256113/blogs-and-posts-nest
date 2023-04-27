@@ -25,8 +25,9 @@ import {
   PostApiModelType,
   PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
-import { BlogApiPaginationQueryDTOType } from '../blog-api-models/blog-api.query-dto';
+import { BlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
+import { IPostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
 
 @Controller('blogs')
 export class BlogController {
@@ -52,9 +53,15 @@ export class BlogController {
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: IBlogApiCreatePostDTO,
   ): Promise<PostApiModelType> {
+    const mappedCreatePostDTO: IPostApiCreateUpdateDTO = {
+      title: postCreateDTO.title,
+      shortDescription: postCreateDTO.shortDescription,
+      content: postCreateDTO.content,
+      blogId,
+    };
     const createdPost: PostApiModelType = await this.blogService.createPost(
       blogId,
-      postCreateDTO,
+      mappedCreatePostDTO,
     );
     return createdPost;
   }
@@ -63,9 +70,9 @@ export class BlogController {
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
     @Query()
-    rawPaginationQuery: BlogApiPaginationQueryDTOType,
+    rawPaginationQuery: BlogApiPaginationQueryDTO,
   ): Promise<BlogApiPaginationModelType> {
-    const paginationQuery: BlogApiPaginationQueryDTOType = {
+    const paginationQuery: BlogApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,

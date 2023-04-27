@@ -122,7 +122,10 @@ export class AuthService {
     user: User,
   ): Promise<{ newAccessToken: string; newRefreshToken: string }> {
     const { newRefreshToken, newAccessToken, newRefreshTokenIat } =
-      this.jwtHelpers.createPairOfTokens({ userId: user.id });
+      this.jwtHelpers.createPairOfTokens({
+        userId: user.id,
+        userLogin: user.accountData.login,
+      });
     const createNewSession = (): SessionDocument => {
       const newSessionData: Session = {
         userId: user.id,
@@ -237,6 +240,7 @@ export class AuthService {
     const { newAccessToken, newRefreshToken, newRefreshTokenIat } =
       this.jwtHelpers.createPairOfTokens({
         userId: refreshTokenPayload.userId,
+        userLogin: refreshTokenPayload.userLogin,
       });
     foundedSession.updateSession({ refreshTokenIat: newRefreshTokenIat });
     this.authRepository.saveSession(foundedSession);

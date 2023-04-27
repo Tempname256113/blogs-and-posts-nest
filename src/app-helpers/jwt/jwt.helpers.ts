@@ -23,7 +23,13 @@ export class JwtHelpers {
     this.accessTokenSecret = this.envConfig.JWT_SECRET_ACCESS_TOKEN;
   }
 
-  createRefreshToken(userId: string): {
+  createRefreshToken({
+    userId,
+    userLogin,
+  }: {
+    userId: string;
+    userLogin: string;
+  }): {
     refreshToken: string;
     refreshTokenIat: number;
   } {
@@ -32,7 +38,8 @@ export class JwtHelpers {
       add(new Date(), this.refreshTokenExpiresIn),
     );
     const refreshTokenPayload: JwtRefreshTokenPayloadType = {
-      userId: userId,
+      userId,
+      userLogin,
       iat: refreshTokenIat,
     };
     const refreshToken: string = this.jwtService.sign(refreshTokenPayload, {
@@ -42,12 +49,19 @@ export class JwtHelpers {
     return { refreshToken, refreshTokenIat };
   }
 
-  createAccessToken(userId: string): string {
+  createAccessToken({
+    userId,
+    userLogin,
+  }: {
+    userId: string;
+    userLogin: string;
+  }): string {
     const accessTokenExpiresIn: number = getUnixTime(
       add(new Date(), this.accessTokenExpiresIn),
     );
     const accessTokenPayload: JwtAccessTokenPayloadType = {
-      userId: userId,
+      userId,
+      userLogin,
     };
     const accessToken = this.jwtService.sign(accessTokenPayload, {
       secret: this.accessTokenSecret,
@@ -56,16 +70,23 @@ export class JwtHelpers {
     return accessToken;
   }
 
-  createPairOfTokens(tokensData: { userId: string }): {
+  createPairOfTokens({
+    userId,
+    userLogin,
+  }: {
+    userId: string;
+    userLogin: string;
+  }): {
     newAccessToken: string;
     newRefreshToken: string;
     newRefreshTokenIat: number;
   } {
-    const { refreshToken, refreshTokenIat } = this.createRefreshToken(
-      tokensData.userId,
-    );
+    const { refreshToken, refreshTokenIat } = this.createRefreshToken({
+      userId,
+      userLogin,
+    });
     return {
-      newAccessToken: this.createAccessToken(tokensData.userId),
+      newAccessToken: this.createAccessToken({ userId, userLogin }),
       newRefreshToken: refreshToken,
       newRefreshTokenIat: refreshTokenIat,
     };

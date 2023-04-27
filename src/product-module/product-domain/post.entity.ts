@@ -1,6 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
 import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Comment } from './comment.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 export class Post {
   id: string;
@@ -10,26 +11,28 @@ export class Post {
   blogId: string;
   blogName: string;
   createdAt: string;
-  constructor(createPostDTO: {
-    title: string;
-    shortDescription: string;
-    content: string;
-    blogId: string;
-    blogName: string;
-  }) {
-    this.id = uuidv4();
-    this.title = createPostDTO.title;
-    this.shortDescription = createPostDTO.shortDescription;
-    this.content = createPostDTO.content;
-    this.blogId = createPostDTO.blogId;
-    this.blogName = createPostDTO.blogName;
-    this.createdAt = new Date().toISOString();
-  }
+  constructor() {}
 }
 
 class PostMethods extends Post {
-  async testMethod(): Promise<string> {
-    return this.id;
+  createComment({
+    userId,
+    userLogin,
+    content,
+  }: {
+    userId: string;
+    userLogin: string;
+    content: string;
+  }): Comment {
+    const newComment: Comment = {
+      id: uuidv4(),
+      postId: this.id,
+      userId,
+      userLogin,
+      content,
+      createdAt: new Date().toISOString(),
+    };
+    return newComment;
   }
 }
 
@@ -60,4 +63,4 @@ export class PostSchema extends PostMethods {
 export const postSchema = SchemaFactory.createForClass(PostSchema);
 postSchema.loadClass(PostSchema);
 
-export type PostDocumentType = HydratedDocument<PostSchema>;
+export type PostDocument = HydratedDocument<PostSchema>;

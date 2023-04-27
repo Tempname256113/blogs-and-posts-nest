@@ -1,8 +1,8 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostSchema } from './product-module/product-domain/post/post.entity';
+import { PostSchema } from './product-module/product-domain/post.entity';
 import { Model } from 'mongoose';
-import { BlogSchema } from './product-module/product-domain/blog/blog.entity';
+import { BlogSchema } from './product-module/product-domain/blog.entity';
 import { UserSchema } from './auth-module/auth-module-domain/user/user.entity';
 import { SessionSchema } from './auth-module/auth-module-domain/auth/session.entity';
 
