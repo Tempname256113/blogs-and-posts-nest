@@ -30,12 +30,14 @@ import {
   CommentApiPaginationModel,
 } from '../../../comment/comment-api/comment-api-models/comment-api.models';
 import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comment-api-models/comment-api.query-dto';
+import { CommentQueryRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.query-repository';
 
 @Controller('posts')
 export class PostController {
   constructor(
     private postService: PostService,
     private postQueryRepository: PostQueryRepository,
+    private commentQueryRepository: CommentQueryRepository,
   ) {}
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -107,16 +109,21 @@ export class PostController {
     @Query()
     rawPaginationQuery: CommentApiPaginationQueryDto,
   ): Promise<CommentApiPaginationModel> {
+    const paginationQuery: CommentApiPaginationQueryDto = {
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
     const foundedPost: PostApiModelType | null =
       await this.postQueryRepository.getPostById(postId);
     if (!foundedPost) throw new NotFoundException();
-    return {
-      pagesCount: 1,
-      page: Number(rawPaginationQuery.pageNumber),
-      pageSize: Number(rawPaginationQuery.pageSize),
-      totalCount: 0,
-      items: [],
-    };
+    const commentsWithPagination: CommentApiPaginationModel =
+      await this.commentQueryRepository.getCommentsWithPagination({
+        paginationQuery,
+        postId,
+      });
+    return commentsWithPagination;
   }
 
   @Get(':postId')

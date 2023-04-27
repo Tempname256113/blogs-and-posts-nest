@@ -62,10 +62,11 @@ export class UserQueryRepository {
       });
     }
     const usersWithPagination: UserRepositoryPaginationModelType =
-      await getDocumentsWithPagination<UserDocument, UserSchema>({
+      await getDocumentsWithPagination<UserDocument>({
         query: paginationQuery,
         model: this.UserModel,
         rawFilter: filter,
+        lean: true,
       });
     const mappedUsersArray: UserApiModelType[] = [];
     for (const userDocument of usersWithPagination.items) {

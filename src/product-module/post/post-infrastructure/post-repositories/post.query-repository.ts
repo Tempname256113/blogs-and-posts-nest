@@ -42,7 +42,7 @@ export class PostQueryRepository {
     rawQueryPaginationDTO: PostApiPaginationQueryDTOType,
   ): Promise<PostApiPaginationModelType> {
     const postsWithPagination: PostRepositoryPaginationModelType =
-      await getDocumentsWithPagination<PostDocument, PostSchema>({
+      await getDocumentsWithPagination<PostDocument>({
         query: rawQueryPaginationDTO,
         model: this.PostModel,
       });

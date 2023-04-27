@@ -30,11 +30,10 @@ type FilterOptionsType = {
  вторым параметром передается модель в которой нужно что то найти
  третьим массив объектов со свойствами и значениями которые нужно подставить в запрос
  четвертым опции. если не передано ничего, то дефолтом подставится $or и regex: 'i' если фильтров 2 или больше
- содержит также два generic.
- первый generic<T> отвечает за тип возвращаемых сущностей (нужно передать тип документов. например BlogDocument)
- второй generic<R> отвечает за тип передаваемой модели с помощью которой будет проводиться поиск, нужно передать
- например BlogSchema (тип модели)*/
-export const getDocumentsWithPagination = async <T, R>({
+ содержит также generic.
+ generic<T> отвечает за тип возвращаемых сущностей (нужно передать тип документов. например BlogDocument)
+*/
+export const getDocumentsWithPagination = async <T>({
   query,
   model,
   rawFilter = [],
@@ -42,11 +41,13 @@ export const getDocumentsWithPagination = async <T, R>({
     multipleFieldsOption: '$or',
     regexOption: 'i',
   },
+  lean = false,
 }: {
   query: PaginationQueryType;
-  model: Model<R>;
+  model: Model<any>;
   rawFilter?: FilterType;
   filterOptions?: FilterOptionsType;
+  lean?: boolean;
 }): Promise<DocumentPaginationModel<T>> => {
   const getCorrectSortQuery = (): { [sortByProp: string]: number } => {
     let sortDirection: 1 | -1 = -1;
@@ -86,11 +87,22 @@ export const getDocumentsWithPagination = async <T, R>({
   const documentsTotalCount: number = await model.countDocuments(
     mappedRegexFilter,
   );
-  const documentsWithPagination: T[] = await model.find(
-    mappedRegexFilter,
-    { _id: false },
-    { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },
-  );
+  let documentsWithPagination: T[];
+  if (lean) {
+    documentsWithPagination = await model
+      .find(
+        mappedRegexFilter,
+        { _id: false },
+        { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },
+      )
+      .lean();
+  } else {
+    documentsWithPagination = await model.find(
+      mappedRegexFilter,
+      { _id: false },
+      { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },
+    );
+  }
   const pagesCount: number = Math.ceil(documentsTotalCount / query.pageSize);
   const paginationResult: DocumentPaginationModel<T> = {
     pagesCount,

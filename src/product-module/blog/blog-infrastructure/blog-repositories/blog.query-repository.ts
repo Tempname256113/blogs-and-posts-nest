@@ -43,10 +43,11 @@ export class BlogQueryRepository {
       });
     }
     const blogsWithPagination: BlogApiPaginationModelType =
-      await getDocumentsWithPagination<BlogApiModelType, BlogSchema>({
+      await getDocumentsWithPagination<BlogApiModelType>({
         query: paginationQuery,
         model: this.BlogModel,
         rawFilter: filter,
+        lean: true,
       });
     return blogsWithPagination;
   }
@@ -56,10 +57,11 @@ export class BlogQueryRepository {
     blogId: string,
   ): Promise<PostApiPaginationModelType> {
     const postsWithPagination: PostRepositoryPaginationModelType =
-      await getDocumentsWithPagination<PostDocument, PostSchema>({
+      await getDocumentsWithPagination<PostDocument>({
         query: rawPaginationQuery,
         model: this.PostModel,
         rawFilter: [{ property: 'id', value: blogId }],
+        lean: true,
       });
     const mappedPosts: PostApiModelType[] = [];
     for (const postDocument of postsWithPagination.items) {
