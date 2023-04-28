@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+  Comment,
   CommentDocument,
   CommentSchema,
 } from '../../../product-domain/comment.entity';
@@ -14,7 +15,7 @@ import {
 } from '../../comment-api/comment-api-models/comment-api.models';
 import { JwtHelpers } from '../../../../app-helpers/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
-import { LikeService } from '../../../like/like.service';
+import { EntityLikesCountType, LikeService } from '../../../like/like.service';
 
 @Injectable()
 export class CommentQueryRepository {
@@ -24,7 +25,7 @@ export class CommentQueryRepository {
     private likeService: LikeService,
   ) {}
 
-  async getCommentsWithPagination({
+  async getCommentsWithPaginationByPostId({
     paginationQuery,
     postId,
     accessToken,
@@ -88,5 +89,54 @@ export class CommentQueryRepository {
       items: arrayWithMappedComments,
     };
     return paginationResult;
+  }
+
+  async getCommentById({
+    commentId,
+    accessToken,
+  }: {
+    commentId: string;
+    accessToken: string | null;
+  }): Promise<CommentApiModel> {
+    const getUserId = (): string => {
+      if (accessToken) {
+        const accessTokenPayload: JwtAccessTokenPayloadType | null =
+          this.jwtHelpers.verifyAccessToken(accessToken);
+        if (accessTokenPayload) {
+          return accessTokenPayload.userId;
+        } else {
+          return '';
+        }
+      } else {
+        return '';
+      }
+    };
+    const userId: string = getUserId();
+    const foundedComment: Comment | null = await this.CommentModel.findOne({
+      id: commentId,
+    }).lean();
+    if (!foundedComment) throw new NotFoundException();
+    const commentReactionsCount: EntityLikesCountType =
+      await this.likeService.getEntityLikesCount(commentId);
+    const userLikeInfo: 'Like' | 'Dislike' | 'None' =
+      await this.likeService.getUserLikeStatus({
+        userId,
+        entityId: commentId,
+      });
+    const mappedComment: CommentApiModel = {
+      id: foundedComment.id,
+      content: foundedComment.content,
+      commentatorInfo: {
+        userId: foundedComment.userId,
+        userLogin: foundedComment.userLogin,
+      },
+      createdAt: foundedComment.createdAt,
+      likesInfo: {
+        likesCount: commentReactionsCount.likesCount,
+        dislikesCount: commentReactionsCount.dislikesCount,
+        myStatus: userLikeInfo,
+      },
+    };
+    return mappedComment;
   }
 }

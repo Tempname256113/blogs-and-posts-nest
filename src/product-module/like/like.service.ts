@@ -3,6 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Like, LikeDocument, LikeSchema } from '../product-domain/like.entity';
 import { FilterQuery, Model } from 'mongoose';
 
+export type EntityLikesCountType = {
+  likesCount: number;
+  dislikesCount: number;
+};
+
 @Injectable()
 export class LikeService {
   constructor(
@@ -50,9 +55,7 @@ export class LikeService {
     }
   }
 
-  async getEntityLikesCount(
-    entityId: string,
-  ): Promise<{ likesCount: number; dislikesCount: number }> {
+  async getEntityLikesCount(entityId: string): Promise<EntityLikesCountType> {
     const likesCount: number = await this.LikeModel.countDocuments({
       entityId,
       likeStatus: 'Like',

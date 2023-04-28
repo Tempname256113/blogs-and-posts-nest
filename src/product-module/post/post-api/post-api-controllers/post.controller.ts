@@ -138,7 +138,7 @@ export class PostController {
       await this.postQueryRepository.getPostById(postId, null);
     if (!foundedPost) throw new NotFoundException();
     const commentsWithPagination: CommentApiPaginationModel =
-      await this.commentQueryRepository.getCommentsWithPagination({
+      await this.commentQueryRepository.getCommentsWithPaginationByPostId({
         paginationQuery,
         postId,
         accessToken,

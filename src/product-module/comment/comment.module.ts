@@ -10,5 +10,6 @@ import { JwtModule } from '../../app-helpers/jwt/jwt.module';
   imports: [MongooseSchemesModule, LikeModule, JwtModule],
   controllers: [CommentController],
   providers: [CommentRepository, CommentQueryRepository],
+  exports: [CommentRepository, CommentQueryRepository],
 })
 export class CommentModule {}
