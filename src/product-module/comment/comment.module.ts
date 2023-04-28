@@ -4,9 +4,10 @@ import { CommentRepository } from './comment-infrastructure/comment-repositories
 import { CommentQueryRepository } from './comment-infrastructure/comment-repositories/comment.query-repository';
 import { MongooseSchemesModule } from '../../app-configuration/db/mongoose.schemes-module';
 import { LikeModule } from '../like/like.module';
+import { JwtModule } from '../../app-helpers/jwt/jwt.module';
 
 @Module({
-  imports: [MongooseSchemesModule, LikeModule],
+  imports: [MongooseSchemesModule, LikeModule, JwtModule],
   controllers: [CommentController],
   providers: [CommentRepository, CommentQueryRepository],
 })

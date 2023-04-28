@@ -12,20 +12,41 @@ import {
   CommentApiModel,
   CommentApiPaginationModel,
 } from '../../comment-api/comment-api-models/comment-api.models';
+import { JwtHelpers } from '../../../../app-helpers/jwt/jwt-helpers.service';
+import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
+import { LikeService } from '../../../like/like.service';
 
 @Injectable()
 export class CommentQueryRepository {
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
+    private jwtHelpers: JwtHelpers,
+    private likeService: LikeService,
   ) {}
 
   async getCommentsWithPagination({
     paginationQuery,
     postId,
+    accessToken,
   }: {
     paginationQuery: CommentApiPaginationQueryDto;
     postId: string;
+    accessToken: string | null;
   }): Promise<CommentApiPaginationModel> {
+    const getUserId = (): string => {
+      if (accessToken) {
+        const accessTokenPayload: JwtAccessTokenPayloadType | null =
+          this.jwtHelpers.verifyAccessToken(accessToken);
+        if (accessTokenPayload) {
+          return accessTokenPayload.userId;
+        } else {
+          return '';
+        }
+      } else {
+        return '';
+      }
+    };
+    const userId: string = getUserId();
     const commentsWithPagination: CommentRepositoryPaginationModel =
       await getDocumentsWithPagination<CommentDocument>({
         query: paginationQuery,
@@ -33,19 +54,28 @@ export class CommentQueryRepository {
         rawFilter: [{ property: 'postId', value: postId }],
       });
     const arrayWithMappedComments: CommentApiModel[] = [];
-    for (const commentFromDB of commentsWithPagination.items) {
+    for (const commentDocument of commentsWithPagination.items) {
+      const commentReactionsCount: {
+        likesCount: number;
+        dislikesCount: number;
+      } = await this.likeService.getEntityLikesCount(commentDocument.id);
+      const userLikeStatus: 'None' | 'Like' | 'Dislike' =
+        await this.likeService.getUserLikeStatus({
+          userId,
+          entityId: commentDocument.id,
+        });
       const mappedComment: CommentApiModel = {
-        id: commentFromDB.id,
-        content: commentFromDB.content,
+        id: commentDocument.id,
+        content: commentDocument.content,
         commentatorInfo: {
-          userId: commentFromDB.userId,
-          userLogin: commentFromDB.userLogin,
+          userId: commentDocument.userId,
+          userLogin: commentDocument.userLogin,
         },
-        createdAt: commentFromDB.createdAt,
+        createdAt: commentDocument.createdAt,
         likesInfo: {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: 'None',
+          likesCount: commentReactionsCount.likesCount,
+          dislikesCount: commentReactionsCount.dislikesCount,
+          myStatus: userLikeStatus,
         },
       };
       arrayWithMappedComments.push(mappedComment);

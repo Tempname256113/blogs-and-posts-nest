@@ -21,7 +21,7 @@ import {
 import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
 import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
 import { badRequestErrorFactoryFunction } from '../../../app-helpers/factory-functions/bad-request.error-factory-function';
-import { JwtHelpers } from '../../../app-helpers/jwt/jwt.helpers';
+import { JwtHelpers } from '../../../app-helpers/jwt/jwt-helpers.service';
 import { JwtRefreshTokenPayloadType } from '../../../app-models/jwt.payload.model';
 
 @Injectable()

@@ -33,7 +33,7 @@ import {
 import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comment-api-models/comment-api.query-dto';
 import { CommentQueryRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.query-repository';
 import { LikeDto } from '../../../product-models/like.dto';
-import { HeadersEnum } from '../../../../app-helpers/enums/headers.enum';
+import { AccessToken } from '../../../../app-helpers/decorators/access-token.decorator';
 
 @Controller('posts')
 export class PostController {
@@ -73,7 +73,7 @@ export class PostController {
   async getPostsWithPagination(
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTOType,
-    @Headers(HeadersEnum.AUTHORIZATION_PROPERTY) accessToken: string | null,
+    @AccessToken() accessToken: string | null,
   ): Promise<PostApiPaginationModelType> {
     const paginationQuery: PostApiPaginationQueryDTOType = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -81,14 +81,6 @@ export class PostController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    if (accessToken) {
-      accessToken = accessToken.split(' ')[1];
-      if (!accessToken) {
-        accessToken = null;
-      }
-    } else {
-      accessToken = null;
-    }
     const postsWithPagination: PostApiPaginationModelType =
       await this.postQueryRepository.getPostsWithPagination(
         paginationQuery,
@@ -101,16 +93,8 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   async getPostById(
     @Param('postId') postId: string,
-    @Headers(HeadersEnum.AUTHORIZATION_PROPERTY) accessToken: string | null,
+    @AccessToken() accessToken: string | null,
   ): Promise<PostApiModel> {
-    if (accessToken) {
-      accessToken = accessToken.split(' ')[1];
-      if (!accessToken) {
-        accessToken = null;
-      }
-    } else {
-      accessToken = null;
-    }
     const foundedPost: PostApiModel | null =
       await this.postQueryRepository.getPostById(postId, accessToken);
     return foundedPost;
@@ -142,6 +126,7 @@ export class PostController {
     @Param('postId') postId: string,
     @Query()
     rawPaginationQuery: CommentApiPaginationQueryDto,
+    @AccessToken() accessToken: string | null,
   ): Promise<CommentApiPaginationModel> {
     const paginationQuery: CommentApiPaginationQueryDto = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -156,6 +141,7 @@ export class PostController {
       await this.commentQueryRepository.getCommentsWithPagination({
         paginationQuery,
         postId,
+        accessToken,
       });
     return commentsWithPagination;
   }

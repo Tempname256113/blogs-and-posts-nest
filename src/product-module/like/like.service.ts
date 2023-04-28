@@ -67,58 +67,34 @@ export class LikeService {
     };
   }
 
-  async getEntityLastLikesAndUserLikeStatus({
-    entityId,
+  async getEntityLastLikes(entityId: string): Promise<Like[]> {
+    const fewLastLikes: Like[] = await this.LikeModel.find(
+      {
+        $and: [{ entityId }, { likeStatus: 'Like' }],
+      },
+      { _id: false },
+      { sort: { addedAt: -1 }, limit: 3 },
+    ).lean();
+    return fewLastLikes;
+  }
+
+  async getUserLikeStatus({
     userId,
-    getLastLikes,
+    entityId,
   }: {
-    entityId: string;
     userId: string;
-    getLastLikes: boolean;
-  }): Promise<{
-    userLikeStatus: 'Like' | 'Dislike' | 'None';
-    lastLikes: Like[] | null;
-  }> {
+    entityId: string;
+  }): Promise<'Like' | 'Dislike' | 'None'> {
     const filter: FilterQuery<any> = { $and: [{ userId }, { entityId }] };
-    const getCurrentUserLikeStatus = async (): Promise<
-      'Like' | 'Dislike' | 'None'
-    > => {
-      const foundedReaction: Like | null = await this.LikeModel.findOne(
-        filter,
-      ).lean();
-      let currentUserLikeStatus: 'Like' | 'Dislike' | 'None';
-      if (!foundedReaction) {
-        currentUserLikeStatus = 'None';
-      } else {
-        currentUserLikeStatus = foundedReaction.likeStatus;
-      }
-      return currentUserLikeStatus;
-    };
-    const getFewLastLikes = async (): Promise<Like[]> => {
-      const fewLastLikes: Like[] = await this.LikeModel.find(
-        {
-          $and: [{ entityId }, { likeStatus: 'Like' }],
-        },
-        { _id: false },
-        { sort: { addedAt: -1 }, limit: 3 },
-      ).lean();
-      return fewLastLikes;
-    };
-    if (getLastLikes) {
-      const currentUserLikeStatus: 'Like' | 'Dislike' | 'None' =
-        await getCurrentUserLikeStatus();
-      const lastLikes: Like[] = await getFewLastLikes();
-      return {
-        userLikeStatus: currentUserLikeStatus,
-        lastLikes,
-      };
+    const foundedReaction: Like | null = await this.LikeModel.findOne(
+      filter,
+    ).lean();
+    let currentUserLikeStatus: 'Like' | 'Dislike' | 'None';
+    if (!foundedReaction) {
+      currentUserLikeStatus = 'None';
     } else {
-      const currentUserLikeStatus: 'Like' | 'Dislike' | 'None' =
-        await getCurrentUserLikeStatus();
-      return {
-        userLikeStatus: currentUserLikeStatus,
-        lastLikes: null,
-      };
+      currentUserLikeStatus = foundedReaction.likeStatus;
     }
+    return currentUserLikeStatus;
   }
 }

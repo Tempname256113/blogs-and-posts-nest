@@ -11,7 +11,7 @@ import {
 } from '../../post-api/post-api-models/post-api.models';
 import { PostApiPaginationQueryDTOType } from '../../post-api/post-api-models/post-api.query-dto';
 import { LikeService } from '../../../like/like.service';
-import { JwtHelpers } from '../../../../app-helpers/jwt/jwt.helpers';
+import { JwtHelpers } from '../../../../app-helpers/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
 import { Like } from '../../../product-domain/like.entity';
 
@@ -42,20 +42,20 @@ export class PostQueryRepository {
     const userId: string = getUserId();
     const postReactionsCount: { likesCount: number; dislikesCount: number } =
       await this.likeService.getEntityLikesCount(postId);
-    const postLastLikesAndUserLikeStatus: {
-      userLikeStatus: 'None' | 'Like' | 'Dislike';
-      lastLikes: Like[];
-    } = await this.likeService.getEntityLastLikesAndUserLikeStatus({
-      userId,
-      entityId: postId,
-      getLastLikes: true,
-    });
     const foundedPost: PostDocument | null = await this.PostModel.findOne({
       id: postId,
     });
     if (!foundedPost) throw new NotFoundException();
+    const userLikeStatus: 'None' | 'Like' | 'Dislike' =
+      await this.likeService.getUserLikeStatus({
+        userId,
+        entityId: foundedPost.id,
+      });
+    const lastLikes: Like[] = await this.likeService.getEntityLastLikes(
+      foundedPost.id,
+    );
     const newestLikesArray: PostNewestLikeType[] = [];
-    for (const rawLike of postLastLikesAndUserLikeStatus.lastLikes) {
+    for (const rawLike of lastLikes) {
       const mappedLike: PostNewestLikeType = {
         addedAt: rawLike.addedAt,
         userId: rawLike.userId,
@@ -74,7 +74,7 @@ export class PostQueryRepository {
       extendedLikesInfo: {
         likesCount: postReactionsCount.likesCount,
         dislikesCount: postReactionsCount.dislikesCount,
-        myStatus: postLastLikesAndUserLikeStatus.userLikeStatus,
+        myStatus: userLikeStatus,
         newestLikes: newestLikesArray,
       },
     };
@@ -108,16 +108,16 @@ export class PostQueryRepository {
     for (const postDocument of postsWithPagination.items) {
       const postReactionsCount: { likesCount: number; dislikesCount: number } =
         await this.likeService.getEntityLikesCount(postDocument.id);
-      const postLastLikesAndUserLikeStatus: {
-        userLikeStatus: 'None' | 'Like' | 'Dislike';
-        lastLikes: Like[];
-      } = await this.likeService.getEntityLastLikesAndUserLikeStatus({
-        userId,
-        entityId: postDocument.id,
-        getLastLikes: true,
-      });
+      const userLikeStatus: 'None' | 'Like' | 'Dislike' =
+        await this.likeService.getUserLikeStatus({
+          userId,
+          entityId: postDocument.id,
+        });
+      const lastLikes: Like[] = await this.likeService.getEntityLastLikes(
+        postDocument.id,
+      );
       const newestLikesArray: PostNewestLikeType[] = [];
-      for (const rawLike of postLastLikesAndUserLikeStatus.lastLikes) {
+      for (const rawLike of lastLikes) {
         const mappedLike: PostNewestLikeType = {
           addedAt: rawLike.addedAt,
           userId: rawLike.userId,
@@ -136,7 +136,7 @@ export class PostQueryRepository {
         extendedLikesInfo: {
           likesCount: postReactionsCount.likesCount,
           dislikesCount: postReactionsCount.dislikesCount,
-          myStatus: postLastLikesAndUserLikeStatus.userLikeStatus,
+          myStatus: userLikeStatus,
           newestLikes: newestLikesArray,
         },
       };
