@@ -97,6 +97,25 @@ export class PostController {
     return postsWithPagination;
   }
 
+  @Get(':postId')
+  @HttpCode(HttpStatus.OK)
+  async getPostById(
+    @Param('postId') postId: string,
+    @Headers(HeadersEnum.AUTHORIZATION_PROPERTY) accessToken: string | null,
+  ): Promise<PostApiModel> {
+    if (accessToken) {
+      accessToken = accessToken.split(' ')[1];
+      if (!accessToken) {
+        accessToken = null;
+      }
+    } else {
+      accessToken = null;
+    }
+    const foundedPost: PostApiModel | null =
+      await this.postQueryRepository.getPostById(postId, accessToken);
+    return foundedPost;
+  }
+
   @Post(':postId/comments')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard)
@@ -131,7 +150,7 @@ export class PostController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const foundedPost: PostApiModel | null =
-      await this.postQueryRepository.getPostById(postId);
+      await this.postQueryRepository.getPostById(postId, null);
     if (!foundedPost) throw new NotFoundException();
     const commentsWithPagination: CommentApiPaginationModel =
       await this.commentQueryRepository.getCommentsWithPagination({
@@ -156,15 +175,6 @@ export class PostController {
       userId: accessTokenPayload.userId,
       userLogin: accessTokenPayload.userLogin,
     });
-  }
-
-  @Get(':postId')
-  @HttpCode(HttpStatus.OK)
-  async getPostById(@Param('postId') postId: string): Promise<PostApiModel> {
-    const foundedPost: PostApiModel | null =
-      await this.postQueryRepository.getPostById(postId);
-    if (!foundedPost) throw new NotFoundException();
-    return foundedPost;
   }
 
   @Put(':postId')

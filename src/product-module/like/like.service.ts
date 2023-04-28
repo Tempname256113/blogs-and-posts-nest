@@ -50,7 +50,7 @@ export class LikeService {
     }
   }
 
-  async getLikesCount(
+  async getEntityLikesCount(
     entityId: string,
   ): Promise<{ likesCount: number; dislikesCount: number }> {
     const likesCount: number = await this.LikeModel.countDocuments({
@@ -67,7 +67,7 @@ export class LikeService {
     };
   }
 
-  async getLastLikesAndUserLikeStatus({
+  async getEntityLastLikesAndUserLikeStatus({
     entityId,
     userId,
     getLastLikes,
