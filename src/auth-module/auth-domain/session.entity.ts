@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { SessionUpdateDTO } from '../../auth/auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
+import { SessionUpdateDTO } from '../auth/auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
 
 export class Session {
   userId: string;

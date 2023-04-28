@@ -6,9 +6,10 @@ import { PostQueryRepository } from './post-infrastructure/post-repositories/pos
 import { MongooseSchemesModule } from '../../app-configuration/db/mongoose.schemes-module';
 import { CommentRepository } from '../comment/comment-infrastructure/comment-repositories/comment.repository';
 import { CommentQueryRepository } from '../comment/comment-infrastructure/comment-repositories/comment.query-repository';
+import { LikeModule } from '../like/like.module';
 
 @Module({
-  imports: [MongooseSchemesModule],
+  imports: [MongooseSchemesModule, LikeModule],
   controllers: [PostController],
   providers: [
     PostService,

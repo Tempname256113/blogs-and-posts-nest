@@ -1,4 +1,4 @@
-import { UserDocument } from '../../../../auth-module-domain/user/user.entity';
+import { UserDocument } from '../../../../auth-domain/user.entity';
 
 export type UserRepositoryPaginationModelType = {
   pagesCount: number;

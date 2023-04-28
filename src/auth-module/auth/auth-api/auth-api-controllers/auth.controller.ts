@@ -13,7 +13,7 @@ import { UserApiCreateDto } from '../../../user/user-api/user-api-models/user-ap
 import { AuthService } from '../../auth-application/auth.service';
 import { LocalAuthGuard } from '../../../../app-helpers/passport-strategy/auth-local.strategy';
 import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/additional-req-data.decorator';
-import { User } from '../../../auth-module-domain/user/user.entity';
+import { User } from '../../../auth-domain/user.entity';
 import { Response } from 'express';
 import { CookiesEnum } from '../../../../app-helpers/enums/cookies.enum';
 import {

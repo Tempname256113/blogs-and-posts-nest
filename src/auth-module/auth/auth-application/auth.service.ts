@@ -4,11 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  User,
-  UserDocument,
-  UserSchema,
-} from '../../auth-module-domain/user/user.entity';
+import { User, UserDocument, UserSchema } from '../../auth-domain/user.entity';
 import { FilterQuery, Model } from 'mongoose';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,7 +17,7 @@ import {
   Session,
   SessionDocument,
   SessionSchema,
-} from '../../auth-module-domain/auth/session.entity';
+} from '../../auth-domain/session.entity';
 import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
 import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
 import { badRequestErrorFactoryFunction } from '../../../app-helpers/factory-functions/bad-request.error-factory-function';

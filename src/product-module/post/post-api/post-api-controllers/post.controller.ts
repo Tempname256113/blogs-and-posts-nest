@@ -31,6 +31,7 @@ import {
 } from '../../../comment/comment-api/comment-api-models/comment-api.models';
 import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comment-api-models/comment-api.query-dto';
 import { CommentQueryRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.query-repository';
+import { LikeDto } from '../../../product-models/like.dto';
 
 @Controller('posts')
 export class PostController {
@@ -124,6 +125,23 @@ export class PostController {
         postId,
       });
     return commentsWithPagination;
+  }
+
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async changeLikeStatus(
+    @Param('postId') postId: string,
+    @Body() { likeStatus }: LikeDto,
+    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    accessTokenPayload: JwtAccessTokenPayloadType,
+  ): Promise<void> {
+    await this.postService.changeLikeStatus({
+      postId,
+      likeStatus,
+      userId: accessTokenPayload.userId,
+      userLogin: accessTokenPayload.userLogin,
+    });
   }
 
   @Get(':postId')

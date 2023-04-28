@@ -16,6 +16,7 @@ import {
 } from '../../../product-domain/comment.entity';
 import { CommentRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.repository';
 import { CommentApiModel } from '../../../comment/comment-api/comment-api-models/comment-api.models';
+import { LikeService } from '../../../like/like.service';
 
 @Injectable()
 export class PostService {
@@ -25,6 +26,7 @@ export class PostService {
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private postRepository: PostRepository,
     private commentRepository: CommentRepository,
+    private likeService: LikeService,
   ) {}
   async createNewPost(createPostDTO: IPostApiCreateUpdateDTO): Promise<Post> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
@@ -92,5 +94,31 @@ export class PostService {
       postId,
     );
     if (!postDeleteStatus) throw new NotFoundException();
+  }
+
+  async changeLikeStatus({
+    postId,
+    likeStatus,
+    userId,
+    userLogin,
+  }: {
+    postId: string;
+    likeStatus: 'Like' | 'Dislike' | 'None';
+    userId: string;
+    userLogin: string;
+  }): Promise<void> {
+    const foundedPost: Post | null = await this.PostModel.findOne({
+      id: postId,
+    }).lean();
+    if (!foundedPost) {
+      throw new NotFoundException();
+    }
+    this.likeService.changeEntityLikeStatus({
+      likeStatus,
+      entity: 'post',
+      entityId: postId,
+      userId,
+      userLogin,
+    });
   }
 }

@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import {
-  UserDocument,
-  UserSchema,
-} from '../../../auth-module-domain/user/user.entity';
+import { UserDocument, UserSchema } from '../../../auth-domain/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
