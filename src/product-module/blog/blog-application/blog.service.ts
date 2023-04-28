@@ -19,7 +19,7 @@ import {
   PostSchema,
 } from '../../product-domain/post.entity';
 import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
-import { PostApiModelType } from '../../post/post-api/post-api-models/post-api.models';
+import { PostApiModel } from '../../post/post-api/post-api-models/post-api.models';
 
 @Injectable()
 export class BlogService {
@@ -48,7 +48,7 @@ export class BlogService {
   async createPost(
     blogId: string,
     createPostDTO: IPostApiCreateUpdateDTO,
-  ): Promise<PostApiModelType> {
+  ): Promise<PostApiModel> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: blogId,
     });
@@ -56,7 +56,7 @@ export class BlogService {
     const newCreatedPost: Post = await foundedBlog.createPost(createPostDTO);
     const newPostModel: PostDocument = new this.PostModel(newCreatedPost);
     await this.blogRepository.saveBlogOrPost(newPostModel);
-    const mappedNewPost: PostApiModelType = {
+    const mappedNewPost: PostApiModel = {
       id: newCreatedPost.id,
       title: newCreatedPost.title,
       shortDescription: newCreatedPost.shortDescription,

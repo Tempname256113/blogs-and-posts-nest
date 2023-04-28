@@ -7,6 +7,9 @@ import { MongooseSchemesModule } from '../../app-configuration/db/mongoose.schem
 import { CommentRepository } from '../comment/comment-infrastructure/comment-repositories/comment.repository';
 import { CommentQueryRepository } from '../comment/comment-infrastructure/comment-repositories/comment.query-repository';
 import { LikeModule } from '../like/like.module';
+import { JwtHelpers } from '../../app-helpers/jwt/jwt.helpers';
+import { EnvConfiguration } from '../../app-configuration/environment/env-configuration';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule],
@@ -17,6 +20,9 @@ import { LikeModule } from '../like/like.module';
     PostQueryRepository,
     CommentRepository,
     CommentQueryRepository,
+    EnvConfiguration,
+    JwtService,
+    JwtHelpers,
   ],
 })
 export class PostModule {}

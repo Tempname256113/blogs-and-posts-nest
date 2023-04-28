@@ -1,4 +1,4 @@
-export type PostApiModelType = {
+export type PostApiModel = {
   id: string;
   title: string;
   shortDescription: string;
@@ -10,12 +10,14 @@ export type PostApiModelType = {
     likesCount: number;
     dislikesCount: number;
     myStatus: 'None' | 'Like' | 'Dislike';
-    newestLikes: {
-      addedAt: string;
-      userId: string;
-      login: string;
-    }[];
+    newestLikes: PostNewestLikeType[];
   };
+};
+
+export type PostNewestLikeType = {
+  addedAt: string;
+  userId: string;
+  login: string;
 };
 
 export type PostApiPaginationModelType = {
@@ -23,5 +25,5 @@ export type PostApiPaginationModelType = {
   page: number;
   pageSize: number;
   totalCount: number;
-  items: PostApiModelType[];
+  items: PostApiModel[];
 };

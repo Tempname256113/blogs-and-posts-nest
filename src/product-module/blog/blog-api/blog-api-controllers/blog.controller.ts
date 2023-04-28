@@ -22,7 +22,7 @@ import {
 } from '../blog-api-models/blog-api.models';
 import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
 import {
-  PostApiModelType,
+  PostApiModel,
   PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
@@ -52,14 +52,14 @@ export class BlogController {
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: IBlogApiCreatePostDTO,
-  ): Promise<PostApiModelType> {
+  ): Promise<PostApiModel> {
     const mappedCreatePostDTO: IPostApiCreateUpdateDTO = {
       title: postCreateDTO.title,
       shortDescription: postCreateDTO.shortDescription,
       content: postCreateDTO.content,
       blogId,
     };
-    const createdPost: PostApiModelType = await this.blogService.createPost(
+    const createdPost: PostApiModel = await this.blogService.createPost(
       blogId,
       mappedCreatePostDTO,
     );

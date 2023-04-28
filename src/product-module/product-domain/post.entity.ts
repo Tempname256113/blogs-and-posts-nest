@@ -11,7 +11,6 @@ export class Post {
   blogId: string;
   blogName: string;
   createdAt: string;
-  constructor() {}
 }
 
 class PostMethods extends Post {

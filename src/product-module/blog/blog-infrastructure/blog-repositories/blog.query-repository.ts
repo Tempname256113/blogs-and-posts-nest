@@ -14,7 +14,7 @@ import {
 import { PostDocument, PostSchema } from '../../../product-domain/post.entity';
 import { PostRepositoryPaginationModelType } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.models';
 import {
-  PostApiModelType,
+  PostApiModel,
   PostApiPaginationModelType,
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
@@ -63,9 +63,9 @@ export class BlogQueryRepository {
         rawFilter: [{ property: 'id', value: blogId }],
         lean: true,
       });
-    const mappedPosts: PostApiModelType[] = [];
+    const mappedPosts: PostApiModel[] = [];
     for (const postDocument of postsWithPagination.items) {
-      const resultPost: PostApiModelType = {
+      const resultPost: PostApiModel = {
         id: postDocument.id,
         title: postDocument.title,
         shortDescription: postDocument.shortDescription,

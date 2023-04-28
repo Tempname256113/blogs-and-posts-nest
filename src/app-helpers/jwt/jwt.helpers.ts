@@ -103,4 +103,16 @@ export class JwtHelpers {
       return null;
     }
   }
+
+  verifyAccessToken(accessToken: string): JwtAccessTokenPayloadType | null {
+    try {
+      const accessTokenPayload: JwtAccessTokenPayloadType =
+        this.jwtService.verify(accessToken, {
+          secret: this.accessTokenSecret,
+        });
+      return accessTokenPayload;
+    } catch (error) {
+      return null;
+    }
+  }
 }

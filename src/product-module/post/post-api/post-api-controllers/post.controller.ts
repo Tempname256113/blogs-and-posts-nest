@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   NotFoundException,
@@ -16,7 +17,7 @@ import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
 import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
 import {
-  PostApiModelType,
+  PostApiModel,
   PostApiPaginationModelType,
 } from '../post-api-models/post-api.models';
 import { PostApiPaginationQueryDTOType } from '../post-api-models/post-api.query-dto';
@@ -32,6 +33,7 @@ import {
 import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comment-api-models/comment-api.query-dto';
 import { CommentQueryRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.query-repository';
 import { LikeDto } from '../../../product-models/like.dto';
+import { HeadersEnum } from '../../../../app-helpers/enums/headers.enum';
 
 @Controller('posts')
 export class PostController {
@@ -44,11 +46,11 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   async createPost(
     @Body() postCreateDTO: IPostApiCreateUpdateDTO,
-  ): Promise<PostApiModelType> {
+  ): Promise<PostApiModel> {
     const newPost: PostType = await this.postService.createNewPost(
       postCreateDTO,
     );
-    const postApiModel: PostApiModelType = {
+    const postApiModel: PostApiModel = {
       id: newPost.id,
       title: newPost.title,
       shortDescription: newPost.shortDescription,
@@ -71,6 +73,7 @@ export class PostController {
   async getPostsWithPagination(
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTOType,
+    @Headers(HeadersEnum.AUTHORIZATION_PROPERTY) accessToken: string | null,
   ): Promise<PostApiPaginationModelType> {
     const paginationQuery: PostApiPaginationQueryDTOType = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -78,8 +81,19 @@ export class PostController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
+    if (accessToken) {
+      accessToken = accessToken.split(' ')[1];
+      if (!accessToken) {
+        accessToken = null;
+      }
+    } else {
+      accessToken = null;
+    }
     const postsWithPagination: PostApiPaginationModelType =
-      await this.postQueryRepository.getPostsWithPagination(paginationQuery);
+      await this.postQueryRepository.getPostsWithPagination(
+        paginationQuery,
+        accessToken,
+      );
     return postsWithPagination;
   }
 
@@ -116,7 +130,7 @@ export class PostController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const foundedPost: PostApiModelType | null =
+    const foundedPost: PostApiModel | null =
       await this.postQueryRepository.getPostById(postId);
     if (!foundedPost) throw new NotFoundException();
     const commentsWithPagination: CommentApiPaginationModel =
@@ -146,10 +160,8 @@ export class PostController {
 
   @Get(':postId')
   @HttpCode(HttpStatus.OK)
-  async getPostById(
-    @Param('postId') postId: string,
-  ): Promise<PostApiModelType> {
-    const foundedPost: PostApiModelType | null =
+  async getPostById(@Param('postId') postId: string): Promise<PostApiModel> {
+    const foundedPost: PostApiModel | null =
       await this.postQueryRepository.getPostById(postId);
     if (!foundedPost) throw new NotFoundException();
     return foundedPost;
