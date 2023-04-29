@@ -11,12 +11,14 @@ import {
 } from '../../product-domain/comment.entity';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../comment-infrastructure/comment-repositories/comment.repository';
+import { LikeService } from '../../like/like.service';
 
 @Injectable()
 export class CommentService {
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private commentRepository: CommentRepository,
+    private likeService: LikeService,
   ) {}
   async deleteComment({
     commentId,
@@ -58,5 +60,31 @@ export class CommentService {
     }
     foundedComment.content = content;
     this.commentRepository.saveComment(foundedComment);
+  }
+
+  async changeLikeStatus({
+    commentId,
+    reaction,
+    userId,
+    userLogin,
+  }: {
+    commentId: string;
+    reaction: 'Like' | 'Dislike' | 'None';
+    userId: string;
+    userLogin: string;
+  }) {
+    const foundedComment: Comment | null = await this.CommentModel.findOne({
+      id: commentId,
+    });
+    if (!foundedComment) {
+      throw new NotFoundException();
+    }
+    this.likeService.changeEntityLikeStatus({
+      likeStatus: reaction,
+      userId,
+      userLogin,
+      entityId: commentId,
+      entity: 'comment',
+    });
   }
 }

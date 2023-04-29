@@ -17,6 +17,7 @@ import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.mo
 import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
 import { CommentService } from '../../comment-application/comment.service';
 import { CommentApiUpdateDTO } from '../comment-api-models/comment-api.dto';
+import { LikeDto } from '../../../product-models/like.dto';
 
 @Controller('comments')
 export class CommentController {
@@ -65,6 +66,23 @@ export class CommentController {
       userId: accessTokenPayload.userId,
       commentId,
       content: commentUpdateDTO.content,
+    });
+  }
+
+  @Put(':commentId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async changeLikeStatus(
+    @Param('commentId') commentId: string,
+    @Body() { likeStatus }: LikeDto,
+    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    accessTokenPayload: JwtAccessTokenPayloadType,
+  ): Promise<void> {
+    await this.commentService.changeLikeStatus({
+      commentId,
+      reaction: likeStatus,
+      userLogin: accessTokenPayload.userLogin,
+      userId: accessTokenPayload.userId,
     });
   }
 }
