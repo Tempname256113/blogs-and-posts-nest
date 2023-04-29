@@ -5,11 +5,12 @@ import { CommentQueryRepository } from './comment-infrastructure/comment-reposit
 import { MongooseSchemesModule } from '../../app-configuration/db/mongoose.schemes-module';
 import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../app-helpers/jwt/jwt.module';
+import { CommentService } from './comment-application/comment.service';
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule],
   controllers: [CommentController],
-  providers: [CommentRepository, CommentQueryRepository],
+  providers: [CommentRepository, CommentQueryRepository, CommentService],
   exports: [CommentRepository, CommentQueryRepository],
 })
 export class CommentModule {}
