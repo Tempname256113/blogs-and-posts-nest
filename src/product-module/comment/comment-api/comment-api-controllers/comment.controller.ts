@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { CommentApiModel } from '../comment-api-models/comment-api.models';
@@ -14,6 +16,7 @@ import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/a
 import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
 import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
 import { CommentService } from '../../comment-application/comment.service';
+import { CommentApiUpdateDTO } from '../comment-api-models/comment-api.dto';
 
 @Controller('comments')
 export class CommentController {
@@ -46,6 +49,22 @@ export class CommentController {
     await this.commentService.deleteComment({
       userId: accessTokenPayload.userId,
       commentId,
+    });
+  }
+
+  @Put(':commentId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async updateComment(
+    @Body() commentUpdateDTO: CommentApiUpdateDTO,
+    @Param('commentId') commentId: string,
+    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    accessTokenPayload: JwtAccessTokenPayloadType,
+  ): Promise<void> {
+    await this.commentService.updateComment({
+      userId: accessTokenPayload.userId,
+      commentId,
+      content: commentUpdateDTO.content,
     });
   }
 }

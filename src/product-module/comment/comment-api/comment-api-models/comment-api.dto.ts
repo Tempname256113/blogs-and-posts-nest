@@ -6,3 +6,10 @@ export class CommentApiCreateDto {
   @MaxLength(300)
   content: string;
 }
+
+export class CommentApiUpdateDTO {
+  @IsString()
+  @MinLength(20)
+  @MaxLength(300)
+  content: string;
+}

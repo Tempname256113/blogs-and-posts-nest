@@ -4,7 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Comment, CommentSchema } from '../../product-domain/comment.entity';
+import {
+  Comment,
+  CommentDocument,
+  CommentSchema,
+} from '../../product-domain/comment.entity';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../comment-infrastructure/comment-repositories/comment.repository';
 
@@ -31,5 +35,28 @@ export class CommentService {
       throw new ForbiddenException();
     }
     this.commentRepository.deleteComment(commentId);
+  }
+
+  async updateComment({
+    commentId,
+    content,
+    userId,
+  }: {
+    commentId: string;
+    content: string;
+    userId: string;
+  }): Promise<void> {
+    const foundedComment: CommentDocument | null =
+      await this.CommentModel.findOne({
+        id: commentId,
+      });
+    if (!foundedComment) {
+      throw new NotFoundException();
+    }
+    if (foundedComment.userId !== userId) {
+      throw new ForbiddenException();
+    }
+    foundedComment.content = content;
+    this.commentRepository.saveComment(foundedComment);
   }
 }
