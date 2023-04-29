@@ -63,7 +63,7 @@ export class AuthController {
   async login(
     @AdditionalReqDataDecorator<User>() reqUser: User,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<string> {
     const { newAccessToken, newRefreshToken } = await this.authService.login(
       reqUser,
     );
@@ -71,7 +71,7 @@ export class AuthController {
       httpOnly: true,
       secure: false,
     });
-    return { accessToken: newAccessToken };
+    return newAccessToken;
   }
 
   @Post('logout')

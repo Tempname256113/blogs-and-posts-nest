@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from '../../blog-application/blog.service';
 import {
@@ -28,6 +29,7 @@ import {
 import { BlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 import { IPostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
+import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
 
 @Controller('blogs')
 export class BlogController {
@@ -38,6 +40,7 @@ export class BlogController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(BasicAuthGuard)
   async createBlog(
     @Body() blogCreateDTO: IBlogApiCreateUpdateDTO,
   ): Promise<BlogApiModelType> {
@@ -121,6 +124,7 @@ export class BlogController {
 
   @Put(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async updateBlogById(
     @Param('blogId') blogId: string,
     @Body() blogUpdateDTO: IBlogApiCreateUpdateDTO,
@@ -130,6 +134,7 @@ export class BlogController {
 
   @Delete(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async deleteBlogById(@Param('blogId') blogId: string) {
     await this.blogService.deleteBlog(blogId);
   }
