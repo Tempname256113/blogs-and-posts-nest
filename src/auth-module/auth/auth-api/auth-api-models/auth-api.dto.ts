@@ -1,24 +1,16 @@
-import {
-  IsEmail,
-  IsEmpty,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, Length } from 'class-validator';
+import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
 
 export class AuthApiLoginDtoType {
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   loginOrEmail: string;
 
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   password: string;
 }
 
 export class AuthApiConfirmRegistrationDTO {
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   code: string;
 }
 
@@ -28,12 +20,10 @@ export class AuthApiEmailPropertyDTO {
 }
 
 export class NewPasswordDTO {
-  @IsString()
-  @MinLength(6)
-  @MaxLength(20)
+  @IsStringWithTrim()
+  @Length(6, 20)
   newPassword: string;
 
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   recoveryCode: string;
 }

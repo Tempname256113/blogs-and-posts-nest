@@ -1,15 +1,14 @@
-import { IsString, MaxLength, MinLength } from 'class-validator';
+import { Length } from 'class-validator';
+import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
 
 export class CommentApiCreateDto {
-  @IsString()
-  @MinLength(20)
-  @MaxLength(300)
+  @IsStringWithTrim()
+  @Length(20, 300)
   content: string;
 }
 
 export class CommentApiUpdateDTO {
-  @IsString()
-  @MinLength(20)
-  @MaxLength(300)
+  @IsStringWithTrim()
+  @Length(20, 300)
   content: string;
 }

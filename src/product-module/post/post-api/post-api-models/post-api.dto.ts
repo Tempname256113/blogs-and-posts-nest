@@ -1,22 +1,19 @@
-import { IsEmpty, IsString, MaxLength } from 'class-validator';
+import { IsString, MaxLength } from 'class-validator';
+import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
 
 export class IPostApiCreateUpdateDTO {
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   @MaxLength(30)
   title: string;
 
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   @MaxLength(100)
   shortDescription: string;
 
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   @MaxLength(1000)
   content: string;
 
   @IsString()
-  @IsEmpty()
   blogId: string;
 }

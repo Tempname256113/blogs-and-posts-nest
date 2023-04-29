@@ -1,7 +1,6 @@
-import { IsEmpty, IsString } from 'class-validator';
+import { IsStringWithTrim } from '../../app-helpers/class-validator/string-with-trim.validation-decorator';
 
 export class LikeDto {
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
   likeStatus: 'None' | 'Like' | 'Dislike';
 }

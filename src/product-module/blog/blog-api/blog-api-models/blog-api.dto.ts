@@ -1,13 +1,14 @@
-import { IsEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
+import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
 
 export class IBlogApiCreateUpdateDTO {
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
+  @IsNotEmpty()
   @MaxLength(15)
   name: string;
 
-  @IsString()
-  @IsEmpty()
+  @IsStringWithTrim()
+  @IsNotEmpty()
   @MaxLength(500)
   description: string;
 
@@ -18,17 +19,17 @@ export class IBlogApiCreateUpdateDTO {
 
 export class IBlogApiCreatePostDTO {
   @IsString()
-  @IsEmpty()
+  @IsNotEmpty()
   @MaxLength(30)
   title: string;
 
   @IsString()
-  @IsEmpty()
+  @IsNotEmpty()
   @MaxLength(100)
   shortDescription: string;
 
   @IsString()
-  @IsEmpty()
+  @IsNotEmpty()
   @MaxLength(1000)
   content: string;
 }
