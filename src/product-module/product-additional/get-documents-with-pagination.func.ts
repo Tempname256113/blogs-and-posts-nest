@@ -61,7 +61,12 @@ export const getDocumentsWithPagination = async <T>({
     if (rawFilter.length === 1) {
       const filterProperty: string = rawFilter[0].property;
       const filterValue: string = rawFilter[0].value;
-      filter = { [filterProperty]: filterValue };
+      filter = {
+        [filterProperty]: {
+          $regex: filterValue,
+          $options: filterOptions.regexOption,
+        },
+      };
     } else if (rawFilter.length > 1) {
       const chosenFindWay: '$or' | '$and' = filterOptions.multipleFieldsOption;
       filter = { [chosenFindWay]: [] };
@@ -82,6 +87,7 @@ export const getDocumentsWithPagination = async <T>({
     return filter;
   };
   const mappedRegexFilter: FilterQuery<any> = getCorrectFilter();
+  console.log(mappedRegexFilter);
   const sortQuery = getCorrectSortQuery();
   const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
   const documentsTotalCount: number = await model.countDocuments(

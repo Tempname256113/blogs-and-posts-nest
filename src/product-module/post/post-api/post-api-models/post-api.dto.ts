@@ -14,6 +14,6 @@ export class IPostApiCreateUpdateDTO {
   @MaxLength(1000)
   content: string;
 
-  @IsString()
+  @IsStringWithTrim()
   blogId: string;
 }

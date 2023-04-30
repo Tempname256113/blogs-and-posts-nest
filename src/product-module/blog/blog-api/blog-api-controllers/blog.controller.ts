@@ -30,6 +30,7 @@ import { BlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 import { IPostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
 import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
+import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
 
 @Controller('blogs')
 export class BlogController {
@@ -52,6 +53,7 @@ export class BlogController {
 
   @Post(':blogId/posts')
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(BasicAuthGuard)
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: IBlogApiCreatePostDTO,
@@ -89,6 +91,7 @@ export class BlogController {
 
   @Get(':blogId/posts')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(BasicAuthGuard)
   async getPostsWithPaginationByBlogId(
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTOType,

@@ -69,7 +69,7 @@ export class AuthController {
     );
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
     });
     return { accessToken: newAccessToken };
   }

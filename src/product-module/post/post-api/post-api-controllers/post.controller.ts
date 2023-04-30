@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   HttpCode,
   HttpStatus,
   NotFoundException,
@@ -34,6 +33,7 @@ import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comme
 import { CommentQueryRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.query-repository';
 import { LikeDto } from '../../../product-models/like.dto';
 import { AccessToken } from '../../../../app-helpers/decorators/access-token.decorator';
+import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
 
 @Controller('posts')
 export class PostController {
@@ -44,6 +44,7 @@ export class PostController {
   ) {}
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(BasicAuthGuard)
   async createPost(
     @Body() postCreateDTO: IPostApiCreateUpdateDTO,
   ): Promise<PostApiModel> {
@@ -165,6 +166,7 @@ export class PostController {
 
   @Put(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async updatePost(
     @Param('postId') postId: string,
     @Body() postUpdateDTO: IPostApiCreateUpdateDTO,
@@ -174,6 +176,7 @@ export class PostController {
 
   @Delete(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async deletePost(@Param('postId') postId: string): Promise<void> {
     await this.postService.deletePost(postId);
   }

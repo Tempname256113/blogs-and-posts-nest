@@ -31,15 +31,15 @@ export class BlogQueryRepository {
   ): Promise<BlogApiPaginationModelType> {
     const filter: FilterType = [];
     const paginationQuery: PaginationQueryType = {
-      pageNumber: rawPaginationQuery.pageNumber ?? 1,
-      pageSize: rawPaginationQuery.pageSize ?? 10,
-      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
-      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+      pageNumber: rawPaginationQuery.pageNumber,
+      pageSize: rawPaginationQuery.pageSize,
+      sortBy: rawPaginationQuery.sortBy,
+      sortDirection: rawPaginationQuery.sortDirection,
     };
     if (rawPaginationQuery.searchNameTerm) {
       filter.push({
         value: rawPaginationQuery.searchNameTerm,
-        property: 'name',
+        property: rawPaginationQuery.sortBy,
       });
     }
     const blogsWithPagination: BlogApiPaginationModelType =
