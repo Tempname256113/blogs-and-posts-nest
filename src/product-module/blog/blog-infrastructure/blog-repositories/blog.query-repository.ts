@@ -56,11 +56,15 @@ export class BlogQueryRepository {
     rawPaginationQuery: PostApiPaginationQueryDTOType,
     blogId: string,
   ): Promise<PostApiPaginationModelType> {
+    const test = await this.PostModel.find({
+      blogName: '123',
+    });
+    console.log(test);
     const postsWithPagination: PostRepositoryPaginationModelType =
       await getDocumentsWithPagination<PostDocument>({
         query: rawPaginationQuery,
         model: this.PostModel,
-        rawFilter: [{ property: 'id', value: blogId }],
+        rawFilter: [{ property: 'blogId', value: blogId }],
         lean: true,
       });
     const mappedPosts: PostApiModel[] = [];

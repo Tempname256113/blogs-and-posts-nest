@@ -68,8 +68,9 @@ export const getDocumentsWithPagination = async <T>({
         },
       };
     } else if (rawFilter.length > 1) {
-      const chosenFindWay: '$or' | '$and' = filterOptions.multipleFieldsOption;
-      filter = { [chosenFindWay]: [] };
+      const chosenMultipleFindOption: '$or' | '$and' =
+        filterOptions.multipleFieldsOption;
+      filter = { [chosenMultipleFindOption]: [] };
       const arrayWithQuery: {
         [prop: string]: { $regex: string; $options: 'i' | 'm' | 'x' | 's' };
       }[] = rawFilter.map((propAndValue) => {
@@ -82,11 +83,12 @@ export const getDocumentsWithPagination = async <T>({
           },
         };
       });
-      filter[chosenFindWay] = arrayWithQuery;
+      filter[chosenMultipleFindOption] = arrayWithQuery;
     }
     return filter;
   };
   const mappedRegexFilter: FilterQuery<any> = getCorrectFilter();
+  // console.log(mappedRegexFilter);
   const sortQuery = getCorrectSortQuery();
   const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
   const documentsTotalCount: number = await model.countDocuments(
@@ -103,11 +105,12 @@ export const getDocumentsWithPagination = async <T>({
       .lean();
   } else {
     documentsWithPagination = await model.find(
-      mappedRegexFilter,
-      { _id: false },
-      { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },
+      { id: '8e0d51e0-87c1-4bee-84eb-ce2e5d9c3e95' },
+      // { _id: false },
+      // { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },
     );
   }
+  console.log(documentsWithPagination);
   const pagesCount: number = Math.ceil(documentsTotalCount / query.pageSize);
   const paginationResult: DocumentPaginationModel<T> = {
     pagesCount,
