@@ -88,7 +88,6 @@ export const getDocumentsWithPagination = async <T>({
     return filter;
   };
   const mappedRegexFilter: FilterQuery<any> = getCorrectFilter();
-  // console.log(mappedRegexFilter);
   const sortQuery = getCorrectSortQuery();
   const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
   const documentsTotalCount: number = await model.countDocuments(
@@ -105,12 +104,11 @@ export const getDocumentsWithPagination = async <T>({
       .lean();
   } else {
     documentsWithPagination = await model.find(
-      { id: '8e0d51e0-87c1-4bee-84eb-ce2e5d9c3e95' },
-      // { _id: false },
-      // { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },
+      mappedRegexFilter,
+      { _id: false },
+      { limit: query.pageSize, skip: howMuchToSkip, sort: sortQuery },
     );
   }
-  console.log(documentsWithPagination);
   const pagesCount: number = Math.ceil(documentsTotalCount / query.pageSize);
   const paginationResult: DocumentPaginationModel<T> = {
     pagesCount,
