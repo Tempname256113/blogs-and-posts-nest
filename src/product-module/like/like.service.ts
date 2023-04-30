@@ -48,7 +48,7 @@ export class LikeService {
         updateReactionResult.matchedCount > 0;
       if (!updateReactionStatus) {
         const newReaction: LikeDocument = createReaction();
-        newReaction.save();
+        await newReaction.save();
       }
     } else if (likeStatus === 'None') {
       await this.LikeModel.deleteOne(filter);

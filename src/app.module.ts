@@ -8,7 +8,7 @@ import { MongooseSchemesModule } from './app-configuration/db/mongoose.schemes-m
 
 @Module({
   imports: [
-    MongooseModule.forRoot(new EnvConfiguration().MONGO_URL),
+    MongooseModule.forRoot(new EnvConfiguration().MONGO_LOCAL),
     MongooseSchemesModule,
     ProductModule,
     AuthModule,

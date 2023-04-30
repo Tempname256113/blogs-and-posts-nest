@@ -16,9 +16,9 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(
+  validate(
     accessTokenPayload: JwtAccessTokenPayloadType,
-  ): Promise<JwtAccessTokenPayloadType> {
+  ): JwtAccessTokenPayloadType {
     return accessTokenPayload;
   }
 }
