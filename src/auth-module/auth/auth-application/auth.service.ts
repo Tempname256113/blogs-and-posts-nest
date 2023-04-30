@@ -142,10 +142,10 @@ export class AuthService {
           refreshTokenIat: newRefreshTokenIat,
         };
         foundedSession.updateSession(sessionUpdateData);
-        this.authRepository.saveSession(foundedSession);
+        await this.authRepository.saveSession(foundedSession);
       } else {
         const newSession: SessionDocument = createNewSession();
-        this.authRepository.saveSession(newSession);
+        await this.authRepository.saveSession(newSession);
       }
     };
     await handleSession();

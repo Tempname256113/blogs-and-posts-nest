@@ -91,7 +91,6 @@ export class BlogController {
 
   @Get(':blogId/posts')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(BasicAuthGuard)
   async getPostsWithPaginationByBlogId(
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTOType,
