@@ -113,7 +113,7 @@ export class PostService {
     if (!foundedPost) {
       throw new NotFoundException();
     }
-    this.likeService.changeEntityLikeStatus({
+    await this.likeService.changeEntityLikeStatus({
       likeStatus,
       entity: 'post',
       entityId: postId,

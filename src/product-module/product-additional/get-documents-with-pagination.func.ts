@@ -87,7 +87,6 @@ export const getDocumentsWithPagination = async <T>({
     return filter;
   };
   const mappedRegexFilter: FilterQuery<any> = getCorrectFilter();
-  console.log(mappedRegexFilter);
   const sortQuery = getCorrectSortQuery();
   const howMuchToSkip: number = query.pageSize * (query.pageNumber - 1);
   const documentsTotalCount: number = await model.countDocuments(

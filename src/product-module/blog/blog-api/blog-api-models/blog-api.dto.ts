@@ -18,17 +18,17 @@ export class IBlogApiCreateUpdateDTO {
 }
 
 export class IBlogApiCreatePostDTO {
-  @IsString()
+  @IsStringWithTrim()
   @IsNotEmpty()
   @MaxLength(30)
   title: string;
 
-  @IsString()
+  @IsStringWithTrim()
   @IsNotEmpty()
   @MaxLength(100)
   shortDescription: string;
 
-  @IsString()
+  @IsStringWithTrim()
   @IsNotEmpty()
   @MaxLength(1000)
   content: string;
