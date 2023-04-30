@@ -16,15 +16,22 @@ import { PostRepositoryPaginationModelType } from '../../../post/post-infrastruc
 import {
   PostApiModel,
   PostApiPaginationModelType,
+  PostNewestLikeType,
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
+import { EntityLikesCountType, LikeService } from '../../../like/like.service';
+import { JwtHelpers } from '../../../../app-helpers/jwt/jwt-helpers.service';
+import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
+import { Like } from '../../../product-domain/like.entity';
 
 @Injectable()
 export class BlogQueryRepository {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
+    private likeService: LikeService,
+    private jwtHelpers: JwtHelpers,
   ) {}
   async getBlogsWithPagination(
     rawPaginationQuery: BlogApiPaginationQueryDTO,
@@ -52,10 +59,15 @@ export class BlogQueryRepository {
     return blogsWithPagination;
   }
 
-  async getPostsWithPaginationByBlogId(
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
-    blogId: string,
-  ): Promise<PostApiPaginationModelType> {
+  async getPostsWithPaginationByBlogId({
+    rawPaginationQuery,
+    blogId,
+    accessToken,
+  }: {
+    rawPaginationQuery: PostApiPaginationQueryDTOType;
+    blogId: string;
+    accessToken: string | null;
+  }): Promise<PostApiPaginationModelType> {
     const postsWithPagination: PostRepositoryPaginationModelType =
       await getDocumentsWithPagination<PostDocument>({
         query: rawPaginationQuery,
@@ -63,8 +75,41 @@ export class BlogQueryRepository {
         rawFilter: [{ property: 'blogId', value: blogId }],
         lean: true,
       });
+    const getUserId = (): string | null => {
+      if (!accessToken) {
+        return null;
+      } else {
+        const accessTokenPayload: JwtAccessTokenPayloadType | null =
+          this.jwtHelpers.verifyAccessToken(accessToken);
+        if (!accessToken) {
+          return null;
+        } else {
+          return accessTokenPayload.userId;
+        }
+      }
+    };
+    const userId: string = getUserId();
     const mappedPosts: PostApiModel[] = [];
     for (const postDocument of postsWithPagination.items) {
+      const countOfReactions: EntityLikesCountType =
+        await this.likeService.getEntityLikesCount(postDocument.id);
+      const userLikeStatus: 'Like' | 'Dislike' | 'None' =
+        await this.likeService.getUserLikeStatus({
+          userId,
+          entityId: postDocument.id,
+        });
+      const newestLikes: Like[] = await this.likeService.getEntityLastLikes(
+        postDocument.id,
+      );
+      const mappedNewestLikes: PostNewestLikeType[] = [];
+      for (const rawLike of newestLikes) {
+        const mappedLike: PostNewestLikeType = {
+          userId: rawLike.userId,
+          login: rawLike.userLogin,
+          addedAt: rawLike.addedAt,
+        };
+        mappedNewestLikes.push(mappedLike);
+      }
       const resultPost: PostApiModel = {
         id: postDocument.id,
         title: postDocument.title,
@@ -74,10 +119,10 @@ export class BlogQueryRepository {
         blogName: postDocument.blogName,
         createdAt: postDocument.createdAt,
         extendedLikesInfo: {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: 'None',
-          newestLikes: [],
+          likesCount: countOfReactions.likesCount,
+          dislikesCount: countOfReactions.dislikesCount,
+          myStatus: userLikeStatus,
+          newestLikes: mappedNewestLikes,
         },
       };
       mappedPosts.push(resultPost);

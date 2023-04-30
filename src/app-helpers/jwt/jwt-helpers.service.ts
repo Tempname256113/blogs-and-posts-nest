@@ -104,6 +104,8 @@ export class JwtHelpers {
     }
   }
 
+  /* расшифровывает access token и в случае успеха возвращает payload of access token
+   * в случае ошибки возвращает null */
   verifyAccessToken(accessToken: string): JwtAccessTokenPayloadType | null {
     try {
       const accessTokenPayload: JwtAccessTokenPayloadType =

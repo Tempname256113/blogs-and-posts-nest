@@ -31,6 +31,7 @@ import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-m
 import { IPostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
 import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
 import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
+import { AccessToken } from '../../../../app-helpers/decorators/access-token.decorator';
 
 @Controller('blogs')
 export class BlogController {
@@ -95,6 +96,7 @@ export class BlogController {
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTOType,
     @Param('blogId') blogId: string,
+    @AccessToken() accessToken: string | null,
   ): Promise<PostApiPaginationModelType> {
     const paginationQuery: PostApiPaginationQueryDTOType = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -106,10 +108,11 @@ export class BlogController {
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     const foundedPostsByBlogId: PostApiPaginationModelType =
-      await this.blogQueryRepository.getPostsWithPaginationByBlogId(
-        paginationQuery,
+      await this.blogQueryRepository.getPostsWithPaginationByBlogId({
+        rawPaginationQuery: paginationQuery,
         blogId,
-      );
+        accessToken,
+      });
     return foundedPostsByBlogId;
   }
 
