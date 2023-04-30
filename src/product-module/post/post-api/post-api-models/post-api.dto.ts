@@ -1,4 +1,4 @@
-import { IsString, MaxLength } from 'class-validator';
+import { MaxLength } from 'class-validator';
 import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
 
 export class IPostApiCreateUpdateDTO {
