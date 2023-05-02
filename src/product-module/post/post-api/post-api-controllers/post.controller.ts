@@ -11,7 +11,6 @@ import {
   Put,
   Query,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
 import { PostService } from '../post-application/post.service';
@@ -35,7 +34,6 @@ import { CommentQueryRepository } from '../../../comment/comment-infrastructure/
 import { LikeDto } from '../../../product-models/like.dto';
 import { AccessToken } from '../../../../app-helpers/decorators/access-token.decorator';
 import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
-import { BlogIdValidateInterceptor } from '../../../../app-helpers/interceptors/blog-id-validate.interceptor';
 
 @Controller('posts')
 export class PostController {
@@ -47,7 +45,6 @@ export class PostController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(BasicAuthGuard)
-  @UseInterceptors(BlogIdValidateInterceptor)
   async createPost(
     @Body() postCreateDTO: IPostApiCreateUpdateDTO,
   ): Promise<PostApiModel> {
@@ -170,7 +167,6 @@ export class PostController {
   @Put(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
-  @UseInterceptors(BlogIdValidateInterceptor)
   async updatePost(
     @Param('postId') postId: string,
     @Body() postUpdateDTO: IPostApiCreateUpdateDTO,

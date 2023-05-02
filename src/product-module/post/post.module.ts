@@ -7,10 +7,16 @@ import { MongooseSchemesModule } from '../../app-configuration/db/mongoose.schem
 import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../app-helpers/jwt/jwt.module';
 import { CommentModule } from '../comment/comment.module';
+import { IsValidBlogIdConstraint } from '../../app-helpers/class-validator/is-valid-blogid.validation-decorator';
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule, CommentModule],
   controllers: [PostController],
-  providers: [PostService, PostRepository, PostQueryRepository],
+  providers: [
+    PostService,
+    PostRepository,
+    PostQueryRepository,
+    IsValidBlogIdConstraint,
+  ],
 })
 export class PostModule {}
