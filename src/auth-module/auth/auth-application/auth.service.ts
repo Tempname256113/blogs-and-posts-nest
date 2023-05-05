@@ -4,25 +4,29 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument, UserSchema } from '../../auth-domain/user.entity';
+import {
+  User,
+  UserDocument,
+  UserSchema,
+} from '../../../../libs/db/mongoose/schemes/user.entity';
 import { FilterQuery, Model } from 'mongoose';
 import { UserApiCreateDto } from '../../user/user-api/user-api-models/user-api.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { compare, hashSync } from 'bcrypt';
 import { add } from 'date-fns';
-import { AuthEmailAdapterService } from '../auth-infrastructure/auth-adapters/auth.email-adapter.service';
+import { NodemailerService } from '../../../../libs/email/nodemailer/nodemailer.service';
 import { AuthRepository } from '../auth-infrastructure/auth-repositories/auth.repository';
 import { AuthApiLoginDtoType } from '../auth-api/auth-api-models/auth-api.dto';
 import {
   Session,
   SessionDocument,
   SessionSchema,
-} from '../../auth-domain/session.entity';
+} from '../../../../libs/db/mongoose/schemes/session.entity';
 import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
 import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
-import { badRequestErrorFactoryFunction } from '../../../app-helpers/factory-functions/bad-request.error-factory-function';
-import { JwtHelpers } from '../../../app-helpers/jwt/jwt-helpers.service';
-import { JwtRefreshTokenPayloadType } from '../../../app-models/jwt.payload.model';
+import { badRequestErrorFactoryFunction } from '../../../../generic-factory-functions/bad-request.error-factory-function';
+import { JwtHelpers } from '../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 
 @Injectable()
 export class AuthService {
@@ -31,23 +35,26 @@ export class AuthService {
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
     private authRepository: AuthRepository,
     private usersRepository: UserRepository,
-    private emailService: AuthEmailAdapterService,
+    private emailService: NodemailerService,
     private jwtHelpers: JwtHelpers,
   ) {}
-  async registrationNewUser(createNewUserDTO: UserApiCreateDto) {
-    const findUserWithSimilarEmailOrLogin = async (): Promise<
-      string | null
-    > => {
-      const filter: FilterQuery<UserSchema> = {
-        $or: [
-          { 'accountData.email': createNewUserDTO.email },
-          { 'accountData.login': createNewUserDTO.login },
-        ],
-      };
-      const foundedUser: User | null = await this.UserModel.findOne(
-        filter,
-      ).lean();
-      let errorField: string;
+  async registrationNewUser(createNewUserDTO: UserApiCreateDto): Promise<void> {
+    const checkUserExistence = async (): Promise<void> => {
+      const findUserWithSimilarEmailOrLogin =
+        async (): Promise<User | null> => {
+          const filter: FilterQuery<UserSchema> = {
+            $or: [
+              { 'accountData.email': createNewUserDTO.email },
+              { 'accountData.login': createNewUserDTO.login },
+            ],
+          };
+          const foundedUser: User | null = await this.UserModel.findOne(
+            filter,
+          ).lean();
+          return foundedUser;
+        };
+      const foundedUser: User | null = await findUserWithSimilarEmailOrLogin();
+      let errorField: string | undefined;
       if (foundedUser) {
         if (foundedUser.accountData.email === createNewUserDTO.email) {
           errorField = 'email';
@@ -56,15 +63,13 @@ export class AuthService {
           errorField = 'login';
         }
       }
-      return errorField ? errorField : null;
+      if (errorField) {
+        throw new BadRequestException(
+          badRequestErrorFactoryFunction([errorField]),
+        );
+      }
     };
-    const foundedExistingField: string | null =
-      await findUserWithSimilarEmailOrLogin();
-    if (foundedExistingField) {
-      throw new BadRequestException(
-        badRequestErrorFactoryFunction([foundedExistingField]),
-      );
-    }
+    await checkUserExistence();
     const passwordHash: string = hashSync(createNewUserDTO.password, 10);
     const emailConfirmationCode: string = uuidv4();
     const newUser: User = {
@@ -103,55 +108,53 @@ export class AuthService {
       },
       { _id: false },
     );
-    if (foundedUser !== null) {
-      if (foundedUser.passwordRecovery.recoveryStatus) return null;
-      const comparePassword = await compare(
-        loginDTO.password,
-        foundedUser.accountData.password,
-      );
-      if (comparePassword) return foundedUser;
+    if (!foundedUser) {
+      return null;
     }
-    return null;
+    if (foundedUser.passwordRecovery.recoveryStatus) return null;
+    const comparePasswords: boolean = await compare(
+      loginDTO.password,
+      foundedUser.accountData.password,
+    );
+    if (!comparePasswords) {
+      return null;
+    }
+    return foundedUser;
   }
 
-  async login(
-    user: User,
-  ): Promise<{ newAccessToken: string; newRefreshToken: string }> {
-    const { newRefreshToken, newAccessToken, newRefreshTokenIat } =
-      this.jwtHelpers.createPairOfTokens({
+  async login({
+    user,
+    clientIpAddress,
+    clientDeviceTitle,
+  }: {
+    user: User;
+    clientIpAddress: string;
+    clientDeviceTitle: string;
+  }): Promise<{ newAccessToken: string; newRefreshToken: string }> {
+    const { newRefreshToken, newAccessToken } =
+      this.jwtHelpers.createNewTokenPair({
         userId: user.id,
         userLogin: user.accountData.login,
       });
     const createNewSession = (): SessionDocument => {
       const newSessionData: Session = {
         userId: user.id,
-        iat: newRefreshTokenIat,
+        deviceId: newRefreshToken.refreshToken,
+        iat: newRefreshToken.iat,
+        userIpAddress: clientIpAddress,
+        userDeviceTitle: clientDeviceTitle,
+        lastActiveDate: newRefreshToken.activeDate,
       };
       const newSessionModel: SessionDocument = new this.SessionModel(
         newSessionData,
       );
       return newSessionModel;
     };
-    const handleSession = async (): Promise<void> => {
-      const foundedSession: SessionDocument | null =
-        await this.SessionModel.findOne({
-          userId: user.id,
-        });
-      if (foundedSession) {
-        const sessionUpdateData: SessionUpdateDTO = {
-          refreshTokenIat: newRefreshTokenIat,
-        };
-        foundedSession.updateSession(sessionUpdateData);
-        await this.authRepository.saveSession(foundedSession);
-      } else {
-        const newSession: SessionDocument = createNewSession();
-        await this.authRepository.saveSession(newSession);
-      }
-    };
-    await handleSession();
+    const newCreatedSession: SessionDocument = createNewSession();
+    await this.authRepository.saveSession(newCreatedSession);
     return {
       newAccessToken,
-      newRefreshToken,
+      newRefreshToken: newRefreshToken.refreshToken,
     };
   }
 
@@ -196,53 +199,89 @@ export class AuthService {
   }
 
   async logout(refreshToken: string): Promise<void> {
-    const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
+    const requestRefreshTokenPayload: JwtRefreshTokenPayloadType | null =
       this.jwtHelpers.verifyRefreshToken(refreshToken);
-    if (!refreshTokenPayload) {
+    if (!requestRefreshTokenPayload) {
       throw new UnauthorizedException();
     }
-    const foundedSession: SessionDocument | null =
+    const foundedSessionFromDB: SessionDocument | null =
       await this.SessionModel.findOne({
-        userId: refreshTokenPayload.userId,
+        deviceId: requestRefreshTokenPayload.deviceId,
       });
-    if (!foundedSession) {
+    if (!foundedSessionFromDB) {
       throw new UnauthorizedException();
     }
-    if (foundedSession.iat !== refreshTokenPayload.iat) {
+    if (foundedSessionFromDB.iat !== requestRefreshTokenPayload.iat) {
       throw new UnauthorizedException();
     }
-    this.authRepository.deleteSession(refreshTokenPayload.userId);
+    await this.authRepository.deleteSession(
+      requestRefreshTokenPayload.deviceId,
+    );
   }
 
-  async updatePairOfTokens(refreshToken: string): Promise<{
+  async updatePairOfTokens({
+    refreshToken,
+    userDeviceTitle,
+    userIpAddress,
+  }: {
+    refreshToken: string;
+    userIpAddress: string;
+    userDeviceTitle: string;
+  }): Promise<{
     newAccessToken: string;
     newRefreshToken: string;
   }> {
-    const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
-      this.jwtHelpers.verifyRefreshToken(refreshToken);
-    if (!refreshTokenPayload) {
-      throw new UnauthorizedException();
-    }
-    const foundedSession: SessionDocument | null =
-      await this.SessionModel.findOne({
-        userId: refreshTokenPayload.userId,
-      });
-    if (!foundedSession) {
-      throw new UnauthorizedException();
-    }
-    if (refreshTokenPayload.iat !== foundedSession.iat) {
-      throw new UnauthorizedException();
-    }
-    const { newAccessToken, newRefreshToken, newRefreshTokenIat } =
-      this.jwtHelpers.createPairOfTokens({
-        userId: refreshTokenPayload.userId,
-        userLogin: refreshTokenPayload.userLogin,
-      });
-    foundedSession.updateSession({ refreshTokenIat: newRefreshTokenIat });
-    this.authRepository.saveSession(foundedSession);
+    const getRequestRefreshTokenPayload = (): JwtRefreshTokenPayloadType => {
+      const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
+        this.jwtHelpers.verifyRefreshToken(refreshToken);
+      if (!refreshTokenPayload) {
+        throw new UnauthorizedException();
+      }
+      return refreshTokenPayload;
+    };
+    const requestRefreshTokenPayload: JwtRefreshTokenPayloadType =
+      getRequestRefreshTokenPayload();
+    const findSessionInDB = async (): Promise<SessionDocument> => {
+      const foundedSession: SessionDocument | null =
+        await this.SessionModel.findOne({
+          deviceId: requestRefreshTokenPayload.deviceId,
+        });
+      if (!foundedSession) {
+        throw new UnauthorizedException();
+      }
+      return foundedSession;
+    };
+    const foundedSessionFromDB: SessionDocument = await findSessionInDB();
+    const compareSessionVersions = async (): Promise<void> => {
+      if (requestRefreshTokenPayload.iat !== foundedSessionFromDB.iat) {
+        throw new UnauthorizedException();
+      }
+    };
+    await compareSessionVersions();
+    const createNewTokenPairData = {
+      userId: requestRefreshTokenPayload.userId,
+      userLogin: requestRefreshTokenPayload.userLogin,
+    };
+    const newTokenPair: {
+      newAccessToken: string;
+      newRefreshToken: {
+        refreshToken: string;
+        iat: number;
+        deviceId: string;
+        activeDate: string;
+      };
+    } = this.jwtHelpers.createNewTokenPair(createNewTokenPairData);
+    const updateSessionData: SessionUpdateDTO = {
+      refreshTokenIat: newTokenPair.newRefreshToken.iat,
+      userIpAddress,
+      userDeviceTitle,
+      lastActiveDate: newTokenPair.newRefreshToken.activeDate,
+    };
+    foundedSessionFromDB.updateSession(updateSessionData);
+    await this.authRepository.saveSession(foundedSessionFromDB);
     return {
-      newAccessToken,
-      newRefreshToken,
+      newAccessToken: newTokenPair.newAccessToken,
+      newRefreshToken: newTokenPair.newRefreshToken.refreshToken,
     };
   }
 

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserSchema } from '../../../auth-domain/user.entity';
+import { UserSchema } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { Model } from 'mongoose';
 import {
   SessionDocument,
   SessionSchema,
-} from '../../../auth-domain/session.entity';
+} from '../../../../../libs/db/mongoose/schemes/session.entity';
 
 @Injectable()
 export class AuthRepository {
@@ -18,8 +18,8 @@ export class AuthRepository {
     await newSession.save();
   }
 
-  async deleteSession(userId: string): Promise<boolean> {
-    const deleteSessionResult = await this.SessionModel.deleteOne({ userId });
+  async deleteSession(deviceId: string): Promise<boolean> {
+    const deleteSessionResult = await this.SessionModel.deleteOne({ deviceId });
     return deleteSessionResult.deletedCount > 0;
   }
 }

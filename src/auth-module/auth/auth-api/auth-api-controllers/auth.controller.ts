@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Ip,
   Post,
   Res,
   UnauthorizedException,
@@ -11,21 +12,22 @@ import {
 } from '@nestjs/common';
 import { UserApiCreateDto } from '../../../user/user-api/user-api-models/user-api.dto';
 import { AuthService } from '../../auth-application/auth.service';
-import { LocalAuthGuard } from '../../../../app-helpers/passport-strategy/auth-local.strategy';
-import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/additional-req-data.decorator';
-import { User } from '../../../auth-domain/user.entity';
+import { LocalAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-local.strategy';
+import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
+import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { Response } from 'express';
-import { CookiesEnum } from '../../../../app-helpers/enums/cookies.enum';
+import { CookiesEnum } from '../../../../../generic-enums/cookies.enum';
 import {
   AuthApiConfirmRegistrationDTO,
   AuthApiEmailPropertyDTO,
   NewPasswordDTO,
 } from '../auth-api-models/auth-api.dto';
-import { Cookies } from '../../../../app-helpers/decorators/cookies.decorator';
-import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
-import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
+import { Cookies } from '../../../../../generic-decorators/cookies.decorator';
+import { JwtAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt.strategy';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { AuthApiUserInfoModelType } from '../auth-api-models/auth-api.models';
 import { UserQueryRepository } from '../../../user/user-infrastructure/user-repositories/user.query-repository';
+import { ClientDeviceTitle } from '../../../../../generic-decorators/client-device-title.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -63,10 +65,14 @@ export class AuthController {
   async login(
     @AdditionalReqDataDecorator<User>() reqUser: User,
     @Res({ passthrough: true }) response: Response,
+    @Ip() clientIp: string,
+    @ClientDeviceTitle() clientDeviceTitle: string,
   ): Promise<{ accessToken: string }> {
-    const { newAccessToken, newRefreshToken } = await this.authService.login(
-      reqUser,
-    );
+    const { newAccessToken, newRefreshToken } = await this.authService.login({
+      user: reqUser,
+      clientIpAddress: clientIp,
+      clientDeviceTitle,
+    });
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
       secure: true,
@@ -91,6 +97,8 @@ export class AuthController {
   async updatePairOfTokens(
     @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY)
     refreshToken: string | undefined,
+    @Ip() clientIp: string,
+    @ClientDeviceTitle() clientDeviceTitle: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ accessToken: string }> {
     if (!refreshToken) {
@@ -100,7 +108,11 @@ export class AuthController {
       newAccessToken,
       newRefreshToken,
     }: { newAccessToken: string; newRefreshToken: string } =
-      await this.authService.updatePairOfTokens(refreshToken);
+      await this.authService.updatePairOfTokens({
+        refreshToken,
+        userIpAddress: clientIp,
+        userDeviceTitle: clientDeviceTitle,
+      });
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
       secure: false,
