@@ -1,4 +1,4 @@
-import { PostDocument } from '../../../../product-domain/post.entity';
+import { PostDocument } from '../../../../../../libs/db/mongoose/schemes/post.entity';
 
 export type PostRepositoryPaginationModelType = {
   pagesCount: number;

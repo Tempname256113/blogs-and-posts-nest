@@ -14,8 +14,8 @@ import {
 } from '@nestjs/common';
 import { BlogService } from '../../blog-application/blog.service';
 import {
-  IBlogApiCreatePostDTO,
-  IBlogApiCreateUpdateDTO,
+  BlogApiCreatePostDTO,
+  BlogApiCreateUpdateDTO,
 } from '../blog-api-models/blog-api.dto';
 import {
   BlogApiModelType,
@@ -28,10 +28,9 @@ import {
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
-import { IPostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
-import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
-import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
-import { AccessToken } from '../../../../app-helpers/decorators/access-token.decorator';
+import { PostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
+import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
+import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 
 @Controller('blogs')
 export class BlogController {
@@ -44,7 +43,7 @@ export class BlogController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(BasicAuthGuard)
   async createBlog(
-    @Body() blogCreateDTO: IBlogApiCreateUpdateDTO,
+    @Body() blogCreateDTO: BlogApiCreateUpdateDTO,
   ): Promise<BlogApiModelType> {
     const createdBlog: BlogApiModelType = await this.blogService.createBlog(
       blogCreateDTO,
@@ -57,9 +56,9 @@ export class BlogController {
   @UseGuards(BasicAuthGuard)
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
-    @Body() postCreateDTO: IBlogApiCreatePostDTO,
+    @Body() postCreateDTO: BlogApiCreatePostDTO,
   ): Promise<PostApiModel> {
-    const mappedCreatePostDTO: IPostApiCreateUpdateDTO = {
+    const mappedCreatePostDTO: PostApiCreateUpdateDTO = {
       title: postCreateDTO.title,
       shortDescription: postCreateDTO.shortDescription,
       content: postCreateDTO.content,
@@ -132,7 +131,7 @@ export class BlogController {
   @UseGuards(BasicAuthGuard)
   async updateBlogById(
     @Param('blogId') blogId: string,
-    @Body() blogUpdateDTO: IBlogApiCreateUpdateDTO,
+    @Body() blogUpdateDTO: BlogApiCreateUpdateDTO,
   ): Promise<void> {
     await this.blogService.updateBlog(blogId, blogUpdateDTO);
   }

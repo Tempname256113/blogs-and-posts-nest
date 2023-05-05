@@ -5,15 +5,18 @@ import {
   Post,
   PostDocument,
   PostSchema,
-} from '../../../product-domain/post.entity';
-import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
-import { BlogDocument, BlogSchema } from '../../../product-domain/blog.entity';
+} from '../../../../../libs/db/mongoose/schemes/post.entity';
+import { PostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
+import {
+  BlogDocument,
+  BlogSchema,
+} from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { PostRepository } from '../../post-infrastructure/post-repositories/post.repository';
 import {
   Comment,
   CommentDocument,
   CommentSchema,
-} from '../../../product-domain/comment.entity';
+} from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { CommentRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.repository';
 import { CommentApiModel } from '../../../comment/comment-api/comment-api-models/comment-api.models';
 import { LikeService } from '../../../like/like.service';
@@ -28,7 +31,7 @@ export class PostService {
     private commentRepository: CommentRepository,
     private likeService: LikeService,
   ) {}
-  async createNewPost(createPostDTO: IPostApiCreateUpdateDTO): Promise<Post> {
+  async createNewPost(createPostDTO: PostApiCreateUpdateDTO): Promise<Post> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: createPostDTO.blogId,
     });
@@ -80,7 +83,7 @@ export class PostService {
 
   async updatePost(
     postId: string,
-    postUpdateDTO: IPostApiCreateUpdateDTO,
+    postUpdateDTO: PostApiCreateUpdateDTO,
   ): Promise<void> {
     const postUpdateStatus: boolean = await this.postRepository.updatePost(
       postId,

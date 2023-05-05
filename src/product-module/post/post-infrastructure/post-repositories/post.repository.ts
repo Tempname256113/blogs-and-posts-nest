@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PostDocument, PostSchema } from '../../../product-domain/post.entity';
-import { IPostApiCreateUpdateDTO } from '../../post-api/post-api-models/post-api.dto';
+import {
+  PostDocument,
+  PostSchema,
+} from '../../../../../libs/db/mongoose/schemes/post.entity';
+import { PostApiCreateUpdateDTO } from '../../post-api/post-api-models/post-api.dto';
 
 @Injectable()
 export class PostRepository {
@@ -15,7 +18,7 @@ export class PostRepository {
 
   async updatePost(
     postId: string,
-    postUpdateDTO: IPostApiCreateUpdateDTO,
+    postUpdateDTO: PostApiCreateUpdateDTO,
   ): Promise<boolean> {
     const postUpdateResult = await this.PostModel.updateOne(
       { id: postId },

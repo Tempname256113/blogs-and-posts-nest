@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
-export class AuthEmailAdapterService {
+export class NodemailerService {
   constructor(private mailerService: MailerService) {}
 
   async sendUserConfirmation(

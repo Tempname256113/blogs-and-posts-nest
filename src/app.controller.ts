@@ -1,12 +1,12 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostSchema } from './product-module/product-domain/post.entity';
+import { PostSchema } from '../libs/db/mongoose/schemes/post.entity';
 import { Model } from 'mongoose';
-import { BlogSchema } from './product-module/product-domain/blog.entity';
-import { UserSchema } from './auth-module/auth-domain/user.entity';
-import { SessionSchema } from './auth-module/auth-domain/session.entity';
-import { CommentSchema } from './product-module/product-domain/comment.entity';
-import { LikeSchema } from './product-module/product-domain/like.entity';
+import { BlogSchema } from '../libs/db/mongoose/schemes/blog.entity';
+import { UserSchema } from '../libs/db/mongoose/schemes/user.entity';
+import { SessionSchema } from '../libs/db/mongoose/schemes/session.entity';
+import { CommentSchema } from '../libs/db/mongoose/schemes/comment.entity';
+import { LikeSchema } from '../libs/db/mongoose/schemes/like.entity';
 
 @Controller('testing')
 export class AppController {

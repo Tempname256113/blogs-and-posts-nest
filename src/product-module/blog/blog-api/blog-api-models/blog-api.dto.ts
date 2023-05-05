@@ -1,7 +1,7 @@
 import { IsUrl, MaxLength } from 'class-validator';
-import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
+import { IsStringWithTrim } from '../../../../../libs/validation/class-validator/string-with-trim.validation-decorator';
 
-export class IBlogApiCreateUpdateDTO {
+export class BlogApiCreateUpdateDTO {
   @IsStringWithTrim()
   @MaxLength(15)
   name: string;
@@ -15,7 +15,7 @@ export class IBlogApiCreateUpdateDTO {
   websiteUrl: string;
 }
 
-export class IBlogApiCreatePostDTO {
+export class BlogApiCreatePostDTO {
   @IsStringWithTrim()
   @MaxLength(30)
   title: string;

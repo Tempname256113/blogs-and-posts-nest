@@ -1,4 +1,4 @@
-import { CommentDocument } from '../../../../product-domain/comment.entity';
+import { CommentDocument } from '../../../../../../libs/db/mongoose/schemes/comment.entity';
 
 export type CommentRepositoryPaginationModel = {
   pagesCount: number;

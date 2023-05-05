@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { EnvConfiguration } from '../../../../app-configuration/environment/env-configuration';
-import { AuthEmailAdapterService } from './auth.email-adapter.service';
+import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
+import { NodemailerService } from './nodemailer.service';
 
 const envVariables = new EnvConfiguration();
 
@@ -22,7 +22,7 @@ const envVariables = new EnvConfiguration();
       },
     }),
   ],
-  providers: [AuthEmailAdapterService],
-  exports: [AuthEmailAdapterService],
+  providers: [NodemailerService],
+  exports: [NodemailerService],
 })
-export class AuthEmailAdapterModule {}
+export class NodemailerModule {}

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogSchema } from '../../../product-domain/blog.entity';
+import { BlogSchema } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { Model } from 'mongoose';
 import {
   BlogApiModelType,
@@ -11,7 +11,10 @@ import {
   getDocumentsWithPagination,
   PaginationQueryType,
 } from '../../../product-additional/get-documents-with-pagination.func';
-import { PostDocument, PostSchema } from '../../../product-domain/post.entity';
+import {
+  PostDocument,
+  PostSchema,
+} from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { PostRepositoryPaginationModelType } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.models';
 import {
   PostApiModel,
@@ -21,9 +24,9 @@ import {
 import { BlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
 import { EntityLikesCountType, LikeService } from '../../../like/like.service';
-import { JwtHelpers } from '../../../../app-helpers/jwt/jwt-helpers.service';
-import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
-import { Like } from '../../../product-domain/like.entity';
+import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
 
 @Injectable()
 export class BlogQueryRepository {

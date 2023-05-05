@@ -4,7 +4,7 @@ import {
   Comment,
   CommentDocument,
   CommentSchema,
-} from '../../../product-domain/comment.entity';
+} from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { Model } from 'mongoose';
 import { CommentApiPaginationQueryDto } from '../../comment-api/comment-api-models/comment-api.query-dto';
 import { getDocumentsWithPagination } from '../../../product-additional/get-documents-with-pagination.func';
@@ -13,8 +13,8 @@ import {
   CommentApiModel,
   CommentApiPaginationModel,
 } from '../../comment-api/comment-api-models/comment-api.models';
-import { JwtHelpers } from '../../../../app-helpers/jwt/jwt-helpers.service';
-import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
+import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { EntityLikesCountType, LikeService } from '../../../like/like.service';
 
 @Injectable()

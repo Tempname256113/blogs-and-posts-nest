@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { BlogSchema, BlogDocument } from '../../../product-domain/blog.entity';
+import {
+  BlogSchema,
+  BlogDocument,
+} from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IBlogApiCreateUpdateDTO } from '../../blog-api/blog-api-models/blog-api.dto';
-import { PostDocument } from '../../../product-domain/post.entity';
+import { BlogApiCreateUpdateDTO } from '../../blog-api/blog-api-models/blog-api.dto';
+import { PostDocument } from '../../../../../libs/db/mongoose/schemes/post.entity';
 
 @Injectable()
 export class BlogRepository {
@@ -19,7 +22,7 @@ export class BlogRepository {
 
   async updateBlog(
     blogId: string,
-    blogUpdateDTO: IBlogApiCreateUpdateDTO,
+    blogUpdateDTO: BlogApiCreateUpdateDTO,
   ): Promise<boolean> {
     const updateBlogResult = await this.BlogModel.updateOne(
       { id: blogId },

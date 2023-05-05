@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   CommentDocument,
   CommentSchema,
-} from '../../../product-domain/comment.entity';
+} from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 

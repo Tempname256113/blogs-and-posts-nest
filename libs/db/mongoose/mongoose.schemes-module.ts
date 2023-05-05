@@ -3,27 +3,21 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   postSchema,
   PostSchema,
-} from '../../product-module/product-domain/post.entity';
+} from './schemes/post.entity';
 import {
   blogSchema,
   BlogSchema,
-} from '../../product-module/product-domain/blog.entity';
-import {
-  userSchema,
-  UserSchema,
-} from '../../auth-module/auth-domain/user.entity';
-import {
-  sessionSchema,
-  SessionSchema,
-} from '../../auth-module/auth-domain/session.entity';
+} from './schemes/blog.entity';
+import { userSchema, UserSchema } from './schemes/user.entity';
+import { sessionSchema, SessionSchema } from './schemes/session.entity';
 import {
   commentSchema,
   CommentSchema,
-} from '../../product-module/product-domain/comment.entity';
+} from './schemes/comment.entity';
 import {
   likeSchema,
   LikeSchema,
-} from '../../product-module/product-domain/like.entity';
+} from './schemes/like.entity';
 
 @Module({
   imports: [

@@ -1,11 +1,12 @@
 import { add, getUnixTime } from 'date-fns';
 import { Injectable } from '@nestjs/common';
-import { EnvConfiguration } from '../../app-configuration/environment/env-configuration';
+import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import { JwtService } from '@nestjs/jwt';
 import {
   JwtAccessTokenPayloadType,
   JwtRefreshTokenPayloadType,
-} from '../../app-models/jwt.payload.model';
+} from '../../../generic-models/jwt.payload.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class JwtHelpers {
@@ -32,13 +33,19 @@ export class JwtHelpers {
   }): {
     refreshToken: string;
     refreshTokenIat: number;
+    refreshTokenDeviceId: string;
+    refreshTokenActiveDate: string;
   } {
-    const refreshTokenIat: number = getUnixTime(new Date());
+    const dateNow: Date = new Date();
+    const refreshTokenIat: number = getUnixTime(dateNow);
     const refreshTokenExpiresIn: number = getUnixTime(
-      add(new Date(), this.refreshTokenExpiresIn),
+      add(dateNow, this.refreshTokenExpiresIn),
     );
+    const refreshTokenActiveDate: string = dateNow.toISOString();
+    const refreshTokenDeviceId: string = uuidv4();
     const refreshTokenPayload: JwtRefreshTokenPayloadType = {
       userId,
+      deviceId: refreshTokenDeviceId,
       userLogin,
       iat: refreshTokenIat,
     };
@@ -46,7 +53,12 @@ export class JwtHelpers {
       secret: this.refreshTokenSecret,
       expiresIn: refreshTokenExpiresIn,
     });
-    return { refreshToken, refreshTokenIat };
+    return {
+      refreshToken,
+      refreshTokenIat,
+      refreshTokenDeviceId,
+      refreshTokenActiveDate,
+    };
   }
 
   createAccessToken({
@@ -70,7 +82,7 @@ export class JwtHelpers {
     return accessToken;
   }
 
-  createPairOfTokens({
+  createNewTokenPair({
     userId,
     userLogin,
   }: {
@@ -78,17 +90,30 @@ export class JwtHelpers {
     userLogin: string;
   }): {
     newAccessToken: string;
-    newRefreshToken: string;
-    newRefreshTokenIat: number;
+    newRefreshToken: {
+      refreshToken: string;
+      iat: number;
+      deviceId: string;
+      activeDate: string;
+    };
   } {
-    const { refreshToken, refreshTokenIat } = this.createRefreshToken({
+    const {
+      refreshToken,
+      refreshTokenIat,
+      refreshTokenDeviceId,
+      refreshTokenActiveDate,
+    } = this.createRefreshToken({
       userId,
       userLogin,
     });
     return {
       newAccessToken: this.createAccessToken({ userId, userLogin }),
-      newRefreshToken: refreshToken,
-      newRefreshTokenIat: refreshTokenIat,
+      newRefreshToken: {
+        refreshToken,
+        deviceId: refreshTokenDeviceId,
+        iat: refreshTokenIat,
+        activeDate: refreshTokenActiveDate,
+      },
     };
   }
 

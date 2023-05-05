@@ -36,7 +36,7 @@ class PostMethods extends Post {
 }
 
 @Schema({ versionKey: false, collection: 'posts' })
-export class PostSchema extends PostMethods {
+export class PostSchema extends PostMethods implements Post {
   @Prop({ required: true })
   id: string;
 

@@ -1,5 +1,5 @@
 import { Length } from 'class-validator';
-import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
+import { IsStringWithTrim } from '../../../../../libs/validation/class-validator/string-with-trim.validation-decorator';
 
 export class CommentApiCreateDto {
   @IsStringWithTrim()

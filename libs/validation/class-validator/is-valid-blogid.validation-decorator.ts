@@ -6,10 +6,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  Blog,
-  BlogSchema,
-} from '../../product-module/product-domain/blog.entity';
+import { Blog, BlogSchema } from '../../db/mongoose/schemes/blog.entity';
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 

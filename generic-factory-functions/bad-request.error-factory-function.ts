@@ -1,4 +1,4 @@
-import { BadRequestErrorModelType } from '../../app-models/bad-request.error-model';
+import { BadRequestErrorModelType } from '../generic-models/bad-request.error-model';
 
 type errorObject = {
   message: string;

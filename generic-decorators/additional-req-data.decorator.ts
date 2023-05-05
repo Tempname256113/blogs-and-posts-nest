@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IExtendedExpressRequest } from '../../app-models/extended-request.model';
+import { IExtendedExpressRequest } from '../generic-models/extended-request.model';
 
 /*декоратор для использования мета информации прикрепленной к объекту запроса библиотекой passportjs (req.user)
  * принимает дженерик - ожидаемый тип данных прикрепленный к объекту запроса passportjs.

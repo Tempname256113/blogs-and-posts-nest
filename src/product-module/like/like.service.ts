@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Like, LikeDocument, LikeSchema } from '../product-domain/like.entity';
+import { Like, LikeDocument, LikeSchema } from '../../../libs/db/mongoose/schemes/like.entity';
 import { FilterQuery, Model } from 'mongoose';
 
 export type EntityLikesCountType = {

@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument, UserSchema } from '../../auth-domain/user.entity';
+import {
+  User,
+  UserDocument,
+  UserSchema,
+} from '../../../../libs/db/mongoose/schemes/user.entity';
 import { Model } from 'mongoose';
 import { UserRepository } from '../user-infrastructure/user-repositories/user.repository';
 import { UserApiCreateDto } from '../user-api/user-api-models/user-api.dto';

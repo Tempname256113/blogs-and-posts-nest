@@ -1,8 +1,8 @@
 import { MaxLength } from 'class-validator';
-import { IsStringWithTrim } from '../../../../app-helpers/class-validator/string-with-trim.validation-decorator';
-import { IsValidBlogId } from '../../../../app-helpers/class-validator/is-valid-blogid.validation-decorator';
+import { IsStringWithTrim } from '../../../../../libs/validation/class-validator/string-with-trim.validation-decorator';
+import { IsValidBlogId } from '../../../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';
 
-export class IPostApiCreateUpdateDTO {
+export class PostApiCreateUpdateDTO {
   @IsStringWithTrim()
   @MaxLength(30)
   title: string;

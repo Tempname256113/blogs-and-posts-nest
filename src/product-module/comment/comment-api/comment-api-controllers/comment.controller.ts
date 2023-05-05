@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { CommentApiModel } from '../comment-api-models/comment-api.models';
 import { CommentQueryRepository } from '../../comment-infrastructure/comment-repositories/comment.query-repository';
-import { AccessToken } from '../../../../app-helpers/decorators/access-token.decorator';
-import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/additional-req-data.decorator';
-import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
-import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
+import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
+import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { JwtAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt.strategy';
 import { CommentService } from '../../comment-application/comment.service';
 import { CommentApiUpdateDTO } from '../comment-api-models/comment-api.dto';
 import { LikeDto } from '../../../product-models/like.dto';

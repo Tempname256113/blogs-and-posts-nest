@@ -1,4 +1,4 @@
-import { IsLike } from '../../app-helpers/class-validator/is-like.validation-decorator';
+import { IsLike } from '../../../libs/validation/class-validator/is-like.validation-decorator';
 
 export class LikeDto {
   @IsLike()

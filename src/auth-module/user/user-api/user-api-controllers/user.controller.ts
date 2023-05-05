@@ -18,7 +18,7 @@ import {
 } from '../user-api-models/user-api.models';
 import { UserQueryRepository } from '../../user-infrastructure/user-repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dto';
-import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
+import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
 
 @Controller('users')
 export class UserController {

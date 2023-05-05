@@ -4,7 +4,7 @@ import {
   User,
   UserDocument,
   UserSchema,
-} from '../../../auth-domain/user.entity';
+} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { Model } from 'mongoose';
 import { IUserApiPaginationQueryDto } from '../../user-api/user-api-models/user-api.query-dto';
 import {

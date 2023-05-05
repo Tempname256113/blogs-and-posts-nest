@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { IPostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
 import { PostService } from '../post-application/post.service';
 import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
 import {
@@ -20,10 +20,10 @@ import {
   PostApiPaginationModelType,
 } from '../post-api-models/post-api.models';
 import { PostApiPaginationQueryDTOType } from '../post-api-models/post-api.query-dto';
-import { JwtAuthGuard } from '../../../../app-helpers/passport-strategy/auth-jwt.strategy';
-import { AdditionalReqDataDecorator } from '../../../../app-helpers/decorators/additional-req-data.decorator';
-import { JwtAccessTokenPayloadType } from '../../../../app-models/jwt.payload.model';
-import { Post as PostType } from '../../../product-domain/post.entity';
+import { JwtAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt.strategy';
+import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { Post as PostType } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { CommentApiCreateDto } from '../../../comment/comment-api/comment-api-models/comment-api.dto';
 import {
   CommentApiModel,
@@ -32,8 +32,8 @@ import {
 import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comment-api-models/comment-api.query-dto';
 import { CommentQueryRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.query-repository';
 import { LikeDto } from '../../../product-models/like.dto';
-import { AccessToken } from '../../../../app-helpers/decorators/access-token.decorator';
-import { BasicAuthGuard } from '../../../../app-helpers/passport-strategy/auth-basic.strategy';
+import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
+import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
 
 @Controller('posts')
 export class PostController {
@@ -46,7 +46,7 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(BasicAuthGuard)
   async createPost(
-    @Body() postCreateDTO: IPostApiCreateUpdateDTO,
+    @Body() postCreateDTO: PostApiCreateUpdateDTO,
   ): Promise<PostApiModel> {
     const newPost: PostType = await this.postService.createNewPost(
       postCreateDTO,
@@ -169,7 +169,7 @@ export class PostController {
   @UseGuards(BasicAuthGuard)
   async updatePost(
     @Param('postId') postId: string,
-    @Body() postUpdateDTO: IPostApiCreateUpdateDTO,
+    @Body() postUpdateDTO: PostApiCreateUpdateDTO,
   ): Promise<void> {
     await this.postService.updatePost(postId, postUpdateDTO);
   }

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MongooseSchemesModule } from '../../app-configuration/db/mongoose.schemes-module';
+import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { LikeService } from './like.service';
 
 @Module({

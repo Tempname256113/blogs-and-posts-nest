@@ -1,15 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  IBlogApiCreatePostDTO,
-  IBlogApiCreateUpdateDTO,
-} from '../blog-api/blog-api-models/blog-api.dto';
+import { BlogApiCreateUpdateDTO } from '../blog-api/blog-api-models/blog-api.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
   BlogSchema,
   BlogDocument,
   Blog,
-} from '../../product-domain/blog.entity';
+} from '../../../../libs/db/mongoose/schemes/blog.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { BlogRepository } from '../blog-infrastructure/blog-repositories/blog.repository';
 import { BlogApiModelType } from '../blog-api/blog-api-models/blog-api.models';
@@ -17,8 +14,8 @@ import {
   Post,
   PostDocument,
   PostSchema,
-} from '../../product-domain/post.entity';
-import { IPostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
+} from '../../../../libs/db/mongoose/schemes/post.entity';
+import { PostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
 import { PostApiModel } from '../../post/post-api/post-api-models/post-api.models';
 
 @Injectable()
@@ -30,7 +27,7 @@ export class BlogService {
   ) {}
 
   async createBlog(
-    createBlogDTO: IBlogApiCreateUpdateDTO,
+    createBlogDTO: BlogApiCreateUpdateDTO,
   ): Promise<BlogApiModelType> {
     const newBlog: Blog = {
       id: uuidv4(),
@@ -47,7 +44,7 @@ export class BlogService {
 
   async createPost(
     blogId: string,
-    createPostDTO: IPostApiCreateUpdateDTO,
+    createPostDTO: PostApiCreateUpdateDTO,
   ): Promise<PostApiModel> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: blogId,
@@ -76,7 +73,7 @@ export class BlogService {
 
   async updateBlog(
     blogId: string,
-    updateBlogDTO: IBlogApiCreateUpdateDTO,
+    updateBlogDTO: BlogApiCreateUpdateDTO,
   ): Promise<void> {
     const blogUpdateStatus: boolean = await this.blogRepository.updateBlog(
       blogId,
