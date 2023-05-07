@@ -10,9 +10,16 @@ import { UserRepository } from './user/user-infrastructure/user-repositories/use
 import { MongooseSchemesModule } from '../../libs/db/mongoose/mongoose.schemes-module';
 import { UserQueryRepository } from './user/user-infrastructure/user-repositories/user.query-repository';
 import { JwtModule } from '../../libs/auth/jwt/jwt.module';
+import { SecurityModule } from './security/security.module';
 
 @Module({
-  imports: [MongooseSchemesModule, UserModule, NodemailerModule, JwtModule],
+  imports: [
+    MongooseSchemesModule,
+    UserModule,
+    NodemailerModule,
+    JwtModule,
+    SecurityModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
