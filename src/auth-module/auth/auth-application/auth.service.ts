@@ -139,7 +139,7 @@ export class AuthService {
     const createNewSession = (): SessionDocument => {
       const newSessionData: Session = {
         userId: user.id,
-        deviceId: newRefreshToken.refreshToken,
+        deviceId: newRefreshToken.deviceId,
         iat: newRefreshToken.iat,
         userIpAddress: clientIpAddress,
         userDeviceTitle: clientDeviceTitle,

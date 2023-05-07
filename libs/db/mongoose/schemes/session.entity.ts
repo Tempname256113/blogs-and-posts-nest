@@ -22,11 +22,23 @@ class SessionMethods extends Session {
 
 @Schema({ versionKey: false, collection: 'sessions' })
 export class SessionSchema extends SessionMethods implements Session {
-  @Prop({ required: true })
+  @Prop()
   userId: string;
 
-  @Prop({ required: true })
+  @Prop()
+  deviceId: string;
+
+  @Prop()
   iat: number;
+
+  @Prop()
+  userIpAddress: string;
+
+  @Prop()
+  userDeviceTitle: string;
+
+  @Prop()
+  lastActiveDate: string;
 }
 
 export const sessionSchema = SchemaFactory.createForClass(SessionSchema);

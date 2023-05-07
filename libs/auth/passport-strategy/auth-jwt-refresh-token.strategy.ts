@@ -17,10 +17,10 @@ const refreshTokenSecret = new EnvConfiguration().JWT_SECRET_REFRESH_TOKEN;
 const extractRefreshTokenFromCookie = (req: Request) => {
   const reqRefreshToken: string | undefined =
     req.cookies?.[CookiesEnum.REFRESH_TOKEN_PROPERTY];
-  console.log(reqRefreshToken);
   if (!reqRefreshToken) {
     return null;
   }
+  return reqRefreshToken;
 };
 
 @Injectable()
@@ -52,4 +52,7 @@ export class AuthJwtRefreshTokenStrategy extends PassportStrategy(Strategy) {
   }
 }
 
+/* guard расшифровывает refresh token из cookies и проверяет его валидность, срок жизни
+ * и сравнивает версии пришедшего с запросом токена и токена с таким же deivceId из базы данных
+ * если все верно, то guard пропускает запрос дальше контроллеру или выкидывает исключение unauthorized */
 export class JwtAuthRefreshTokenGuard extends AuthGuard('jwt') {}
