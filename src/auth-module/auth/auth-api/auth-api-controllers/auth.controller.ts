@@ -24,10 +24,14 @@ import {
 } from '../auth-api-models/auth-api.dto';
 import { Cookies } from '../../../../../generic-decorators/cookies.decorator';
 import { JwtAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt.strategy';
-import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import {
+  JwtAccessTokenPayloadType,
+  JwtRefreshTokenPayloadType,
+} from '../../../../../generic-models/jwt.payload.model';
 import { AuthApiUserInfoModelType } from '../auth-api-models/auth-api.models';
 import { UserQueryRepository } from '../../../user/user-infrastructure/user-repositories/user.query-repository';
 import { ClientDeviceTitle } from '../../../../../generic-decorators/client-device-title.decorator';
+import { JwtAuthRefreshTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -94,22 +98,20 @@ export class AuthController {
 
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthRefreshTokenGuard)
   async updatePairOfTokens(
-    @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY)
-    refreshToken: string | undefined,
     @Ip() clientIp: string,
     @ClientDeviceTitle() clientDeviceTitle: string,
     @Res({ passthrough: true }) response: Response,
+    @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
+    refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<{ accessToken: string }> {
-    if (!refreshToken) {
-      throw new UnauthorizedException();
-    }
     const {
       newAccessToken,
       newRefreshToken,
     }: { newAccessToken: string; newRefreshToken: string } =
       await this.authService.updatePairOfTokens({
-        refreshToken,
+        refreshTokenPayload: refreshTokenPayload,
         userIpAddress: clientIp,
         userDeviceTitle: clientDeviceTitle,
       });

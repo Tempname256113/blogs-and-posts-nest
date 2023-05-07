@@ -220,47 +220,20 @@ export class AuthService {
   }
 
   async updatePairOfTokens({
-    refreshToken,
+    refreshTokenPayload,
     userDeviceTitle,
     userIpAddress,
   }: {
-    refreshToken: string;
+    refreshTokenPayload: JwtRefreshTokenPayloadType;
     userIpAddress: string;
     userDeviceTitle: string;
   }): Promise<{
     newAccessToken: string;
     newRefreshToken: string;
   }> {
-    const getRequestRefreshTokenPayload = (): JwtRefreshTokenPayloadType => {
-      const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
-        this.jwtHelpers.verifyRefreshToken(refreshToken);
-      if (!refreshTokenPayload) {
-        throw new UnauthorizedException();
-      }
-      return refreshTokenPayload;
-    };
-    const requestRefreshTokenPayload: JwtRefreshTokenPayloadType =
-      getRequestRefreshTokenPayload();
-    const findSessionInDB = async (): Promise<SessionDocument> => {
-      const foundedSession: SessionDocument | null =
-        await this.SessionModel.findOne({
-          deviceId: requestRefreshTokenPayload.deviceId,
-        });
-      if (!foundedSession) {
-        throw new UnauthorizedException();
-      }
-      return foundedSession;
-    };
-    const foundedSessionFromDB: SessionDocument = await findSessionInDB();
-    const compareSessionVersions = async (): Promise<void> => {
-      if (requestRefreshTokenPayload.iat !== foundedSessionFromDB.iat) {
-        throw new UnauthorizedException();
-      }
-    };
-    await compareSessionVersions();
     const createNewTokenPairData = {
-      userId: requestRefreshTokenPayload.userId,
-      userLogin: requestRefreshTokenPayload.userLogin,
+      userId: refreshTokenPayload.userId,
+      userLogin: refreshTokenPayload.userLogin,
     };
     const newTokenPair: {
       newAccessToken: string;
@@ -277,6 +250,10 @@ export class AuthService {
       userDeviceTitle,
       lastActiveDate: newTokenPair.newRefreshToken.activeDate,
     };
+    const foundedSessionFromDB: SessionDocument =
+      await this.SessionModel.findOne({
+        deviceId: refreshTokenPayload.deviceId,
+      });
     foundedSessionFromDB.updateSession(updateSessionData);
     await this.authRepository.saveSession(foundedSessionFromDB);
     return {
