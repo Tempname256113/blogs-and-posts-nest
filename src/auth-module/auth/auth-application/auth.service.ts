@@ -224,49 +224,53 @@ export class AuthService {
   }
 
   async updatePairOfTokens({
-    requestRefreshTokenPayload,
+    // requestRefreshTokenPayload,
+    reqRefreshToken,
     userDeviceTitle,
     userIpAddress,
+    currentDate: providedDate,
   }: {
-    requestRefreshTokenPayload: JwtRefreshTokenPayloadType;
-    // reqRefreshToken: string;
+    // requestRefreshTokenPayload: JwtRefreshTokenPayloadType;
+    currentDate: Date;
+    reqRefreshToken: string;
     userIpAddress: string;
     userDeviceTitle: string;
   }): Promise<{
     newAccessToken: string;
     newRefreshToken: string;
   }> {
-    // const getRequestRefreshTokenPayload = (): JwtRefreshTokenPayloadType => {
-    //   const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
-    //     this.jwtHelpers.verifyRefreshToken(refreshToken);
-    //   if (!refreshTokenPayload) {
-    //     throw new UnauthorizedException();
-    //   }
-    //   return refreshTokenPayload;
-    // };
-    // const requestRefreshTokenPayload: JwtRefreshTokenPayloadType =
-    //   getRequestRefreshTokenPayload();
-    // const findSessionInDB = async (): Promise<SessionDocument> => {
-    //   const foundedSession: SessionDocument | null =
-    //     await this.SessionModel.findOne({
-    //       deviceId: requestRefreshTokenPayload.deviceId,
-    //     });
-    //   if (!foundedSession) {
-    //     throw new UnauthorizedException();
-    //   }
-    //   return foundedSession;
-    // };
-    // const foundedSessionFromDB: SessionDocument = await findSessionInDB();
-    // const compareSessionVersions = (): void => {
-    //   if (requestRefreshTokenPayload.iat !== foundedSessionFromDB.iat) {
-    //     throw new UnauthorizedException();
-    //   }
-    // };
-    // compareSessionVersions();
+    const getRequestRefreshTokenPayload = (): JwtRefreshTokenPayloadType => {
+      const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
+        this.jwtHelpers.verifyRefreshToken(reqRefreshToken);
+      if (!refreshTokenPayload) {
+        throw new UnauthorizedException();
+      }
+      return refreshTokenPayload;
+    };
+    const requestRefreshTokenPayload: JwtRefreshTokenPayloadType =
+      getRequestRefreshTokenPayload();
+    const findSessionInDB = async (): Promise<SessionDocument> => {
+      const foundedSession: SessionDocument | null =
+        await this.SessionModel.findOne({
+          deviceId: requestRefreshTokenPayload.deviceId,
+        });
+      if (!foundedSession) {
+        throw new UnauthorizedException();
+      }
+      return foundedSession;
+    };
+    const foundedSessionFromDB: SessionDocument = await findSessionInDB();
+    const compareSessionVersions = (): void => {
+      if (requestRefreshTokenPayload.iat !== foundedSessionFromDB.iat) {
+        throw new UnauthorizedException();
+      }
+    };
+    compareSessionVersions();
     const createNewTokenPairData: CreateNewTokenPairData = {
       userId: requestRefreshTokenPayload.userId,
       userLogin: requestRefreshTokenPayload.userLogin,
       deviceId: requestRefreshTokenPayload.deviceId,
+      dateNow: providedDate,
     };
     const newTokenPair: CreateNewTokenPairReturnType =
       this.jwtHelpers.createNewTokenPair(createNewTokenPairData);
@@ -276,10 +280,10 @@ export class AuthService {
       userDeviceTitle,
       lastActiveDate: newTokenPair.newRefreshToken.activeDate,
     };
-    const foundedSessionFromDB: SessionDocument =
-      await this.SessionModel.findOne({
-        deviceId: requestRefreshTokenPayload.deviceId,
-      });
+    // const foundedSessionFromDB: SessionDocument =
+    //   await this.SessionModel.findOne({
+    //     deviceId: requestRefreshTokenPayload.deviceId,
+    //   });
     foundedSessionFromDB.updateSession(updateSessionData);
     await this.authRepository.saveSession(foundedSessionFromDB);
     return {
