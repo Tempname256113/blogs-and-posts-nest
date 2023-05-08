@@ -84,7 +84,7 @@ export class AuthController {
     });
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
     });
     return { accessToken: newAccessToken };
   }
@@ -103,6 +103,7 @@ export class AuthController {
 
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthRefreshTokenGuard)
   async updatePairOfTokens(
     @Ip() clientIp: string,
     @ClientDeviceTitle() clientDeviceTitle: string,
