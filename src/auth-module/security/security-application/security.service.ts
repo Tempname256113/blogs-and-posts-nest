@@ -1,33 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  SessionDocument,
+  Session,
   SessionSchema,
 } from '../../../../libs/db/mongoose/schemes/session.entity';
-import { Model } from 'mongoose';
-import { SessionUpdateDTO } from '../../auth/auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
+import { FilterQuery, Model } from 'mongoose';
+import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 
 @Injectable()
 export class SecurityService {
   constructor(
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
   ) {}
-  // const updateSession = async (): Promise<boolean> => {
-  //   const foundedSession: SessionDocument | null =
-  //     await this.SessionModel.findOne({
-  //       deviceId: user.id,
-  //     });
-  //   if (!foundedSession) {
-  //     return false;
-  //   } else {
-  //     const sessionUpdateData: SessionUpdateDTO = {
-  //       refreshTokenIat: newRefreshToken.iat,
-  //       userIpAddress: clientIpAddress,
-  //       userDeviceTitle: clientDeviceTitle,
-  //       lastActiveDate: newRefreshToken.activeDate,
-  //     };
-  //     foundedSession.updateSession(sessionUpdateData);
-  //     return true;
-  //   }
-  // };
+  async deleteAllSessionsExcludeCurrent(
+    reqRefreshTokenPayload: JwtRefreshTokenPayloadType,
+  ): Promise<void> {
+    const allFoundedSessions: Session[] = await this.SessionModel.find({
+      userId: reqRefreshTokenPayload.userId,
+    }).lean();
+    const deviceIdForDeleteArray: string[] = [];
+    for (const sessionFromDB of allFoundedSessions) {
+      if (sessionFromDB.deviceId !== reqRefreshTokenPayload.deviceId) {
+        deviceIdForDeleteArray.push(sessionFromDB.deviceId);
+      }
+    }
+    const filter: FilterQuery<SessionSchema> = {
+      deviceId: { $in: deviceIdForDeleteArray },
+    };
+    await this.SessionModel.deleteMany(filter);
+  }
 }

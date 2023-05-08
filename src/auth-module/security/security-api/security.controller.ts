@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -30,5 +31,17 @@ export class SecurityController {
         refreshTokenPayload,
       );
     return sessionArray;
+  }
+
+  @Delete('devices')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthRefreshTokenGuard)
+  async deleteAllSessionsExcludeCurrent(
+    @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
+    refreshTokenPayload: JwtRefreshTokenPayloadType,
+  ): Promise<void> {
+    await this.securityService.deleteAllSessionsExcludeCurrent(
+      refreshTokenPayload,
+    );
   }
 }

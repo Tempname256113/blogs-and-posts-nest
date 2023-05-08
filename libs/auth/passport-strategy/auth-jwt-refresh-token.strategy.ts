@@ -54,5 +54,8 @@ export class AuthJwtRefreshTokenStrategy extends PassportStrategy(Strategy) {
 
 /* guard расшифровывает refresh token из cookies и проверяет его валидность, срок жизни
  * и сравнивает версии пришедшего с запросом токена и токена с таким же deivceId из базы данных
- * если все верно, то guard пропускает запрос дальше контроллеру или выкидывает исключение unauthorized */
+ * если все верно, то guard пропускает запрос дальше контроллеру и прикрепляет
+ * к объекту запроса свой объект user, то есть получается req.user
+ * в req.user будет содержимое правильного расшифрованного токена refresh token payload
+ *  или выкинет исключение unauthorized если токена нет/истекло время жизни/или не одинаковые версии */
 export class JwtAuthRefreshTokenGuard extends AuthGuard('jwt') {}
