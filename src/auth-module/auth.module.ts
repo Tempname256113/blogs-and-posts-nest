@@ -11,6 +11,7 @@ import { MongooseSchemesModule } from '../../libs/db/mongoose/mongoose.schemes-m
 import { UserQueryRepository } from './user/user-infrastructure/user-repositories/user.query-repository';
 import { JwtModule } from '../../libs/auth/jwt/jwt.module';
 import { SecurityModule } from './security/security.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SecurityModule } from './security/security.module';
     NodemailerModule,
     JwtModule,
     SecurityModule,
+    ThrottlerModule.forRoot({ ttl: 10, limit: 5 }),
   ],
   controllers: [AuthController],
   providers: [

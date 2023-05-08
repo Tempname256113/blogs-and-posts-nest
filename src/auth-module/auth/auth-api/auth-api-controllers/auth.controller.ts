@@ -32,6 +32,7 @@ import { AuthApiUserInfoModelType } from '../auth-api-models/auth-api.models';
 import { UserQueryRepository } from '../../../user/user-infrastructure/user-repositories/user.query-repository';
 import { ClientDeviceTitle } from '../../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -41,6 +42,7 @@ export class AuthController {
   ) {}
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(ThrottlerGuard)
   async registrationNewUser(
     @Body() createNewUserDTO: UserApiCreateDto,
   ): Promise<void> {
@@ -49,6 +51,7 @@ export class AuthController {
 
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(ThrottlerGuard)
   async confirmRegistration(
     @Body() { code }: AuthApiConfirmRegistrationDTO,
   ): Promise<void> {
@@ -57,6 +60,7 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(ThrottlerGuard)
   async emailResending(
     @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
@@ -66,6 +70,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard)
   async login(
     @AdditionalReqDataDecorator<User>() reqUser: User,
     @Res({ passthrough: true }) response: Response,
@@ -124,6 +129,7 @@ export class AuthController {
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(ThrottlerGuard)
   async passwordRecovery(
     @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
@@ -132,6 +138,7 @@ export class AuthController {
 
   @Post('new-password')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(ThrottlerGuard)
   async confirmPasswordRecovery(
     @Body() { newPassword, recoveryCode }: NewPasswordDTO,
   ): Promise<void> {
