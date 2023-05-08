@@ -28,13 +28,12 @@ export class JwtHelpers {
     userId,
     userLogin,
     deviceId: refreshTokenDeviceId = uuidv4(),
-    dateNow = new Date(),
   }: {
     userId: string;
     userLogin: string;
     deviceId?: string;
-    dateNow?: Date;
   }): CreateRefreshTokenReturnType {
+    const dateNow: Date = new Date();
     const refreshTokenIat: number = getUnixTime(dateNow);
     const refreshTokenExpiresIn: number = getUnixTime(
       add(dateNow, this.refreshTokenExpiresIn),
@@ -45,10 +44,10 @@ export class JwtHelpers {
       deviceId: refreshTokenDeviceId,
       userLogin,
       iat: refreshTokenIat,
+      exp: refreshTokenExpiresIn,
     };
     const refreshToken: string = this.jwtService.sign(refreshTokenPayload, {
       secret: this.refreshTokenSecret,
-      expiresIn: refreshTokenExpiresIn,
     });
     return {
       refreshToken,
@@ -66,15 +65,15 @@ export class JwtHelpers {
     userLogin: string;
   }): string {
     const accessTokenExpiresIn: number = getUnixTime(
-      add(new Date(), this.accessTokenExpiresIn),
+      add(new Date(), this.accessTokenExpiresIn).getTime(),
     );
     const accessTokenPayload: JwtAccessTokenPayloadType = {
       userId,
       userLogin,
+      exp: accessTokenExpiresIn,
     };
     const accessToken = this.jwtService.sign(accessTokenPayload, {
       secret: this.accessTokenSecret,
-      expiresIn: accessTokenExpiresIn,
     });
     return accessToken;
   }
@@ -83,7 +82,6 @@ export class JwtHelpers {
     userId,
     userLogin,
     deviceId = uuidv4(),
-    dateNow: providedDate = new Date(),
   }: CreateNewTokenPairData): CreateNewTokenPairReturnType {
     const {
       refreshToken,
@@ -94,7 +92,6 @@ export class JwtHelpers {
       userId,
       userLogin,
       deviceId,
-      dateNow: providedDate,
     });
     return {
       newAccessToken: this.createAccessToken({ userId, userLogin }),
@@ -155,5 +152,4 @@ export type CreateNewTokenPairData = {
   userId: string;
   userLogin: string;
   deviceId?: string;
-  dateNow?: Date;
 };
