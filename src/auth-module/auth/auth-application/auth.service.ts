@@ -25,7 +25,11 @@ import {
 import { SessionUpdateDTO } from '../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
 import { UserRepository } from '../../user/user-infrastructure/user-repositories/user.repository';
 import { badRequestErrorFactoryFunction } from '../../../../generic-factory-functions/bad-request.error-factory-function';
-import { JwtHelpers } from '../../../../libs/auth/jwt/jwt-helpers.service';
+import {
+  CreateNewTokenPairData,
+  CreateNewTokenPairReturnType,
+  JwtHelpers,
+} from '../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 
 @Injectable()
@@ -220,30 +224,52 @@ export class AuthService {
   }
 
   async updatePairOfTokens({
-    refreshTokenPayload,
+    requestRefreshTokenPayload,
     userDeviceTitle,
     userIpAddress,
   }: {
-    refreshTokenPayload: JwtRefreshTokenPayloadType;
+    requestRefreshTokenPayload: JwtRefreshTokenPayloadType;
+    // reqRefreshToken: string;
     userIpAddress: string;
     userDeviceTitle: string;
   }): Promise<{
     newAccessToken: string;
     newRefreshToken: string;
   }> {
-    const createNewTokenPairData = {
-      userId: refreshTokenPayload.userId,
-      userLogin: refreshTokenPayload.userLogin,
+    // const getRequestRefreshTokenPayload = (): JwtRefreshTokenPayloadType => {
+    //   const refreshTokenPayload: JwtRefreshTokenPayloadType | null =
+    //     this.jwtHelpers.verifyRefreshToken(refreshToken);
+    //   if (!refreshTokenPayload) {
+    //     throw new UnauthorizedException();
+    //   }
+    //   return refreshTokenPayload;
+    // };
+    // const requestRefreshTokenPayload: JwtRefreshTokenPayloadType =
+    //   getRequestRefreshTokenPayload();
+    // const findSessionInDB = async (): Promise<SessionDocument> => {
+    //   const foundedSession: SessionDocument | null =
+    //     await this.SessionModel.findOne({
+    //       deviceId: requestRefreshTokenPayload.deviceId,
+    //     });
+    //   if (!foundedSession) {
+    //     throw new UnauthorizedException();
+    //   }
+    //   return foundedSession;
+    // };
+    // const foundedSessionFromDB: SessionDocument = await findSessionInDB();
+    // const compareSessionVersions = (): void => {
+    //   if (requestRefreshTokenPayload.iat !== foundedSessionFromDB.iat) {
+    //     throw new UnauthorizedException();
+    //   }
+    // };
+    // compareSessionVersions();
+    const createNewTokenPairData: CreateNewTokenPairData = {
+      userId: requestRefreshTokenPayload.userId,
+      userLogin: requestRefreshTokenPayload.userLogin,
+      deviceId: requestRefreshTokenPayload.deviceId,
     };
-    const newTokenPair: {
-      newAccessToken: string;
-      newRefreshToken: {
-        refreshToken: string;
-        iat: number;
-        deviceId: string;
-        activeDate: string;
-      };
-    } = this.jwtHelpers.createNewTokenPair(createNewTokenPairData);
+    const newTokenPair: CreateNewTokenPairReturnType =
+      this.jwtHelpers.createNewTokenPair(createNewTokenPairData);
     const updateSessionData: SessionUpdateDTO = {
       refreshTokenIat: newTokenPair.newRefreshToken.iat,
       userIpAddress,
@@ -252,7 +278,7 @@ export class AuthService {
     };
     const foundedSessionFromDB: SessionDocument =
       await this.SessionModel.findOne({
-        deviceId: refreshTokenPayload.deviceId,
+        deviceId: requestRefreshTokenPayload.deviceId,
       });
     foundedSessionFromDB.updateSession(updateSessionData);
     await this.authRepository.saveSession(foundedSessionFromDB);
@@ -270,7 +296,7 @@ export class AuthService {
     } else {
       const newPasswordRecoveryCode: string = uuidv4();
       foundedUserByEmail.setPasswordRecoveryCode(newPasswordRecoveryCode);
-      this.usersRepository.saveUser(foundedUserByEmail);
+      await this.usersRepository.saveUser(foundedUserByEmail);
       this.emailService.sendPasswordRecovery(email, newPasswordRecoveryCode);
     }
   }
@@ -290,6 +316,6 @@ export class AuthService {
     }
     const newPasswordHash: string = hashSync(data.newPassword, 10);
     foundedUser.setNewPassword(newPasswordHash);
-    this.usersRepository.saveUser(foundedUser);
+    await this.usersRepository.saveUser(foundedUser);
   }
 }

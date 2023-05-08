@@ -27,22 +27,18 @@ export class JwtHelpers {
   createRefreshToken({
     userId,
     userLogin,
+    deviceId: refreshTokenDeviceId = uuidv4(),
   }: {
     userId: string;
     userLogin: string;
-  }): {
-    refreshToken: string;
-    refreshTokenIat: number;
-    refreshTokenDeviceId: string;
-    refreshTokenActiveDate: string;
-  } {
+    deviceId?: string;
+  }): CreateRefreshTokenReturnType {
     const dateNow: Date = new Date();
     const refreshTokenIat: number = getUnixTime(dateNow);
     const refreshTokenExpiresIn: number = getUnixTime(
       add(dateNow, this.refreshTokenExpiresIn),
     );
     const refreshTokenActiveDate: string = dateNow.toISOString();
-    const refreshTokenDeviceId: string = uuidv4();
     const refreshTokenPayload: JwtRefreshTokenPayloadType = {
       userId,
       deviceId: refreshTokenDeviceId,
@@ -85,26 +81,17 @@ export class JwtHelpers {
   createNewTokenPair({
     userId,
     userLogin,
-  }: {
-    userId: string;
-    userLogin: string;
-  }): {
-    newAccessToken: string;
-    newRefreshToken: {
-      refreshToken: string;
-      iat: number;
-      deviceId: string;
-      activeDate: string;
-    };
-  } {
+    deviceId = uuidv4(),
+  }: CreateNewTokenPairData): CreateNewTokenPairReturnType {
     const {
       refreshToken,
       refreshTokenIat,
       refreshTokenDeviceId,
       refreshTokenActiveDate,
-    } = this.createRefreshToken({
+    }: CreateRefreshTokenReturnType = this.createRefreshToken({
       userId,
       userLogin,
+      deviceId,
     });
     return {
       newAccessToken: this.createAccessToken({ userId, userLogin }),
@@ -143,3 +130,26 @@ export class JwtHelpers {
     }
   }
 }
+
+export type CreateNewTokenPairReturnType = {
+  newAccessToken: string;
+  newRefreshToken: {
+    refreshToken: string;
+    iat: number;
+    deviceId: string;
+    activeDate: string;
+  };
+};
+
+export type CreateRefreshTokenReturnType = {
+  refreshToken: string;
+  refreshTokenIat: number;
+  refreshTokenDeviceId: string;
+  refreshTokenActiveDate: string;
+};
+
+export type CreateNewTokenPairData = {
+  userId: string;
+  userLogin: string;
+  deviceId?: string;
+};

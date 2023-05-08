@@ -84,7 +84,7 @@ export class AuthController {
     });
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
     });
     return { accessToken: newAccessToken };
   }
@@ -103,11 +103,12 @@ export class AuthController {
 
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthRefreshTokenGuard)
   async updatePairOfTokens(
     @Ip() clientIp: string,
     @ClientDeviceTitle() clientDeviceTitle: string,
     @Res({ passthrough: true }) response: Response,
+    // @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY)
+    // refreshToken: string | undefined,
     @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<{ accessToken: string }> {
@@ -116,7 +117,8 @@ export class AuthController {
       newRefreshToken,
     }: { newAccessToken: string; newRefreshToken: string } =
       await this.authService.updatePairOfTokens({
-        refreshTokenPayload: refreshTokenPayload,
+        requestRefreshTokenPayload: refreshTokenPayload,
+        // reqRefreshToken: refreshToken,
         userIpAddress: clientIp,
         userDeviceTitle: clientDeviceTitle,
       });
