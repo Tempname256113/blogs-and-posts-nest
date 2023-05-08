@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Session,
@@ -28,5 +32,24 @@ export class SecurityService {
       deviceId: { $in: deviceIdForDeleteArray },
     };
     await this.SessionModel.deleteMany(filter);
+  }
+
+  async deleteSessionByDeviceId(reqData: {
+    deviceId: string;
+    refreshTokenPayload: JwtRefreshTokenPayloadType;
+  }): Promise<void> {
+    const foundedSessionByDeviceId: Session | null =
+      await this.SessionModel.findOne({
+        deviceId: reqData.deviceId,
+      }).lean();
+    if (!foundedSessionByDeviceId) {
+      throw new NotFoundException();
+    }
+    if (
+      foundedSessionByDeviceId.userId !== reqData.refreshTokenPayload.userId
+    ) {
+      throw new ForbiddenException();
+    }
+    await this.SessionModel.deleteOne({ deviceId: reqData.deviceId });
   }
 }

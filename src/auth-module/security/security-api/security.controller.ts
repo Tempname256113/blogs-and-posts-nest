@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { SecurityService } from '../security-application/security.service';
@@ -43,5 +44,19 @@ export class SecurityController {
     await this.securityService.deleteAllSessionsExcludeCurrent(
       refreshTokenPayload,
     );
+  }
+
+  @Delete('devices/:deviceId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthRefreshTokenGuard)
+  async deleteSessionByDeviceId(
+    @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
+    refreshTokenPayload: JwtRefreshTokenPayloadType,
+    @Param('deviceId') deviceId: string,
+  ): Promise<void> {
+    await this.securityService.deleteSessionByDeviceId({
+      deviceId,
+      refreshTokenPayload,
+    });
   }
 }
