@@ -5,15 +5,15 @@ import { Request } from 'express';
  * при успешном извлечении возвращает токен (отделяет строку Bearer от токена)
  * если поле authorization пустое или там нет строки Bearer то возвращает null*/
 export const AccessToken = createParamDecorator(
-  (data: any, ctx: ExecutionContext) => {
+  (data: any, ctx: ExecutionContext): string | null => {
     const request: Request = ctx.switchToHttp().getRequest();
     if (!request.headers.authorization) return null;
-    const splitAuthorization: string[] =
+    const splitAuthorizationToken: string[] =
       request.headers.authorization.split(' ');
-    if (splitAuthorization[0] !== 'Bearer') {
+    if (splitAuthorizationToken[0] !== 'Bearer') {
       return null;
-    } else if (splitAuthorization[0] === 'Bearer') {
-      return splitAuthorization[1];
+    } else if (splitAuthorizationToken[0] === 'Bearer') {
+      return splitAuthorizationToken[1];
     }
   },
 );

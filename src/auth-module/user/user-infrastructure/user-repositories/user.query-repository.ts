@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   User,
@@ -18,11 +18,14 @@ import {
 } from '../../../../product-module/product-additional/get-documents-with-pagination.func';
 import { UserRepositoryPaginationModelType } from './user-repositories-models/user-repository.model';
 import { AuthApiUserInfoModelType } from '../../../auth/auth-api/auth-api-models/auth-api.models';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 
 @Injectable()
 export class UserQueryRepository {
   constructor(
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
+    private jwtHelpers: JwtHelpers,
   ) {}
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
@@ -89,10 +92,15 @@ export class UserQueryRepository {
   }
 
   async getInfoAboutUser(
-    userId: string,
+    accessToken: string,
   ): Promise<AuthApiUserInfoModelType | null> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) {
+      throw new UnauthorizedException();
+    }
     const foundedUser: User | null = await this.UserModel.findOne({
-      id: userId,
+      id: accessTokenPayload.userId,
     });
     if (!foundedUser) return null;
     const mappedUser: AuthApiUserInfoModelType = {

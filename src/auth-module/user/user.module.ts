@@ -6,9 +6,10 @@ import { UserQueryRepository } from './user-infrastructure/user-repositories/use
 import { AuthBasicStrategy } from '../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
+import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 
 @Module({
-  imports: [MongooseSchemesModule],
+  imports: [MongooseSchemesModule, JwtModule],
   controllers: [UserController],
   providers: [
     UserService,

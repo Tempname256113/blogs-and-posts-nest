@@ -14,7 +14,7 @@ import { Model } from 'mongoose';
 
 const refreshTokenSecret = new EnvConfiguration().JWT_SECRET_REFRESH_TOKEN;
 
-const extractRefreshTokenFromCookie = (req: Request) => {
+const extractRefreshTokenFromCookie = (req: Request): string => {
   const reqRefreshToken: string | undefined =
     req.cookies?.[CookiesEnum.REFRESH_TOKEN_PROPERTY];
   if (!reqRefreshToken) {

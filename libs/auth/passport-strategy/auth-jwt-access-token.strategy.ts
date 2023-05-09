@@ -7,7 +7,7 @@ import { JwtAccessTokenPayloadType } from '../../../generic-models/jwt.payload.m
 const accessTokenSecret = new EnvConfiguration().JWT_SECRET_ACCESS_TOKEN;
 
 @Injectable()
-export class AuthJwtStrategy extends PassportStrategy(Strategy) {
+export class AuthJwtAccessTokenStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -23,4 +23,4 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
   }
 }
 
-export class JwtAuthGuard extends AuthGuard('jwt') {}
+export class JwtAuthAccessTokenGuard extends AuthGuard('jwt') {}

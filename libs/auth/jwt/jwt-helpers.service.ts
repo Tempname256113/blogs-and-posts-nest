@@ -72,7 +72,7 @@ export class JwtHelpers {
       userLogin,
       exp: accessTokenExpiresIn,
     };
-    const accessToken = this.jwtService.sign(accessTokenPayload, {
+    const accessToken: string = this.jwtService.sign(accessTokenPayload, {
       secret: this.accessTokenSecret,
     });
     return accessToken;

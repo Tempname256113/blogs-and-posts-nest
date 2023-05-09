@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Ip,
   Post,
+  Req,
   Res,
   UnauthorizedException,
   UseGuards,
@@ -23,7 +24,7 @@ import {
   NewPasswordDTO,
 } from '../auth-api-models/auth-api.dto';
 import { Cookies } from '../../../../../generic-decorators/cookies.decorator';
-import { JwtAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt.strategy';
+import { JwtAuthAccessTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import {
   JwtAccessTokenPayloadType,
   JwtRefreshTokenPayloadType,
@@ -33,6 +34,7 @@ import { UserQueryRepository } from '../../../user/user-infrastructure/user-repo
 import { ClientDeviceTitle } from '../../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -84,7 +86,7 @@ export class AuthController {
     });
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
     });
     return { accessToken: newAccessToken };
   }
@@ -122,7 +124,7 @@ export class AuthController {
       });
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
     });
     return { accessToken: newAccessToken };
   }
@@ -151,15 +153,11 @@ export class AuthController {
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
   async getInfoAboutUser(
-    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
-    accessTokenPayload: JwtAccessTokenPayloadType,
+    @AccessToken() accessToken: string | null,
   ): Promise<AuthApiUserInfoModelType> {
     const foundedUserInfo: AuthApiUserInfoModelType | null =
-      await this.usersQueryRepository.getInfoAboutUser(
-        accessTokenPayload.userId,
-      );
+      await this.usersQueryRepository.getInfoAboutUser(accessToken);
     if (!foundedUserInfo) throw new UnauthorizedException();
     return foundedUserInfo;
   }

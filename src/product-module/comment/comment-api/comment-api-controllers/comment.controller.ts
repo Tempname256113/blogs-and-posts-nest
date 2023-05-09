@@ -14,7 +14,7 @@ import { CommentQueryRepository } from '../../comment-infrastructure/comment-rep
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { JwtAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt.strategy';
+import { JwtAuthAccessTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import { CommentService } from '../../comment-application/comment.service';
 import { CommentApiUpdateDTO } from '../comment-api-models/comment-api.dto';
 import { LikeDto } from '../../../product-models/like.dto';
@@ -41,7 +41,7 @@ export class CommentController {
 
   @Delete(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessTokenGuard)
   async deleteComment(
     @Param('commentId') commentId: string,
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
@@ -55,7 +55,7 @@ export class CommentController {
 
   @Put(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessTokenGuard)
   async updateComment(
     @Body() commentUpdateDTO: CommentApiUpdateDTO,
     @Param('commentId') commentId: string,
@@ -71,7 +71,7 @@ export class CommentController {
 
   @Put(':commentId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessTokenGuard)
   async changeLikeStatus(
     @Param('commentId') commentId: string,
     @Body() { likeStatus }: LikeDto,

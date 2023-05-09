@@ -20,7 +20,7 @@ import {
   PostApiPaginationModelType,
 } from '../post-api-models/post-api.models';
 import { PostApiPaginationQueryDTOType } from '../post-api-models/post-api.query-dto';
-import { JwtAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt.strategy';
+import { JwtAuthAccessTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Post as PostType } from '../../../../../libs/db/mongoose/schemes/post.entity';
@@ -103,7 +103,7 @@ export class PostController {
 
   @Post(':postId/comments')
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessTokenGuard)
   async createNewComment(
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
@@ -149,7 +149,7 @@ export class PostController {
 
   @Put(':postId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessTokenGuard)
   async changeLikeStatus(
     @Param('postId') postId: string,
     @Body() { likeStatus }: LikeDto,
