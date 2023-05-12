@@ -13,14 +13,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
 import { UserRepository } from '../../../user/user-infrastructure/user-repositories/user.repository';
 import { v4 as uuidv4 } from 'uuid';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-export class RegistrationUserUseCase {
+export class RegistrationUserCommand {
+  constructor(public readonly createNewUserDTO: UserApiCreateDto) {}
+}
+
+@CommandHandler(RegistrationUserCommand)
+export class RegistrationUserUseCase
+  implements ICommandHandler<RegistrationUserCommand>
+{
   constructor(
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     private emailService: NodemailerService,
     private usersRepository: UserRepository,
   ) {}
-  async registrationNewUser(createNewUserDTO: UserApiCreateDto): Promise<void> {
+  async execute({ createNewUserDTO }: RegistrationUserCommand): Promise<void> {
     await this.checkUserExistence(createNewUserDTO);
     const passwordHash: string = hashSync(createNewUserDTO.password, 10);
     const emailConfirmationCode: string = uuidv4();
