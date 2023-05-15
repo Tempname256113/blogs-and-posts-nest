@@ -3,10 +3,15 @@ import { Strategy } from 'passport-local';
 import { AuthService } from '../../../src/auth-module/auth/auth-application/auth.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { User } from '../../db/mongoose/schemes/user.entity';
+import { CommandBus } from '@nestjs/cqrs';
+import { ValidateUserCommand } from '../../../src/auth-module/auth/auth-application/auth-application-use-cases/validate-user.use-case';
 
 @Injectable()
 export class AuthLocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private commandBus: CommandBus,
+  ) {
     super({
       usernameField: 'loginOrEmail',
       passwordField: 'password',
@@ -14,10 +19,9 @@ export class AuthLocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(loginOrEmail: string, password: string) {
-    const user: User | null = await this.authService.validateUser({
-      loginOrEmail,
-      password,
-    });
+    const user: User | null = await this.commandBus.execute(
+      new ValidateUserCommand({ loginOrEmail, password }),
+    );
     if (!user) throw new UnauthorizedException();
     return user;
   }

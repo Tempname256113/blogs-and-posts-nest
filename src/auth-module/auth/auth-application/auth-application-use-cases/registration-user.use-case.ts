@@ -21,7 +21,7 @@ export class RegistrationUserCommand {
 
 @CommandHandler(RegistrationUserCommand)
 export class RegistrationUserUseCase
-  implements ICommandHandler<RegistrationUserCommand>
+  implements ICommandHandler<RegistrationUserCommand, void>
 {
   constructor(
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,

@@ -12,6 +12,11 @@ import { UserQueryRepository } from './user/user-infrastructure/user-repositorie
 import { JwtModule } from '../../libs/auth/jwt/jwt.module';
 import { SecurityModule } from './security/security.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { RegistrationUserUseCase } from './auth/auth-application/auth-application-use-cases/registration-user.use-case';
+import { CqrsModule } from '@nestjs/cqrs';
+import { ValidateUserUseCase } from './auth/auth-application/auth-application-use-cases/validate-user.use-case';
+
+const UseCases = [RegistrationUserUseCase, ValidateUserUseCase];
 
 @Module({
   imports: [
@@ -21,6 +26,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     JwtModule,
     SecurityModule,
     ThrottlerModule.forRoot({ ttl: 10, limit: 5 }),
+    CqrsModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -30,6 +36,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     AuthLocalStrategy,
     UserRepository,
     UserQueryRepository,
+    ...UseCases,
   ],
 })
 export class AuthModule {}

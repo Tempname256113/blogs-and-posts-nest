@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Ip,
   Post,
-  Req,
   Res,
   UnauthorizedException,
   UseGuards,
@@ -24,23 +23,22 @@ import {
   NewPasswordDTO,
 } from '../auth-api-models/auth-api.dto';
 import { Cookies } from '../../../../../generic-decorators/cookies.decorator';
-import { JwtAuthAccessTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
-import {
-  JwtAccessTokenPayloadType,
-  JwtRefreshTokenPayloadType,
-} from '../../../../../generic-models/jwt.payload.model';
+import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { AuthApiUserInfoModelType } from '../auth-api-models/auth-api.models';
 import { UserQueryRepository } from '../../../user/user-infrastructure/user-repositories/user.query-repository';
 import { ClientDeviceTitle } from '../../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
+import { CommandBus } from '@nestjs/cqrs';
+import { RegistrationUserCommand } from '../../auth-application/auth-application-use-cases/registration-user.use-case';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private usersQueryRepository: UserQueryRepository,
+    private commandBus: CommandBus,
   ) {}
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -48,7 +46,9 @@ export class AuthController {
   async registrationNewUser(
     @Body() createNewUserDTO: UserApiCreateDto,
   ): Promise<void> {
-    await this.authService.registrationNewUser(createNewUserDTO);
+    await this.commandBus.execute(
+      new RegistrationUserCommand(createNewUserDTO),
+    );
   }
 
   @Post('registration-confirmation')
