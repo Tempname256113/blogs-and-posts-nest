@@ -15,8 +15,13 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { RegistrationUserUseCase } from './auth/auth-application/auth-application-use-cases/registration-user.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ValidateUserUseCase } from './auth/auth-application/auth-application-use-cases/validate-user.use-case';
+import { LoginUserUseCase } from './auth/auth-application/auth-application-use-cases/login-user.use-case';
 
-const UseCases = [RegistrationUserUseCase, ValidateUserUseCase];
+const UseCases = [
+  RegistrationUserUseCase,
+  ValidateUserUseCase,
+  LoginUserUseCase,
+];
 
 @Module({
   imports: [

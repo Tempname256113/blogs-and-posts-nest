@@ -42,7 +42,7 @@ export class AuthService {
     private emailService: NodemailerService,
     private jwtHelpers: JwtHelpers,
   ) {}
-  async registrationNewUser(createNewUserDTO: UserApiCreateDto): Promise<void> {
+  /*async registrationNewUser(createNewUserDTO: UserApiCreateDto): Promise<void> {
     const checkUserExistence = async (): Promise<void> => {
       const findUserWithSimilarEmailOrLogin =
         async (): Promise<User | null> => {
@@ -100,9 +100,9 @@ export class AuthService {
       emailConfirmationCode,
     );
     await this.usersRepository.saveUser(newUserModel);
-  }
+  }*/
 
-  async validateUser(loginDTO: AuthApiLoginDtoType): Promise<User | null> {
+  /*async validateUser(loginDTO: AuthApiLoginDtoType): Promise<User | null> {
     const foundedUser: User | null = await this.UserModel.findOne(
       {
         $or: [
@@ -124,9 +124,9 @@ export class AuthService {
       return null;
     }
     return foundedUser;
-  }
+  }*/
 
-  async login({
+  /*async login({
     user,
     clientIpAddress,
     clientDeviceTitle,
@@ -160,7 +160,7 @@ export class AuthService {
       newAccessToken,
       newRefreshToken: newRefreshToken.refreshToken,
     };
-  }
+  }*/
 
   async confirmRegistration(
     confirmationCode: string,

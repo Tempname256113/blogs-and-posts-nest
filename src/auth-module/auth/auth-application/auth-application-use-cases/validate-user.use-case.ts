@@ -28,7 +28,7 @@ export class ValidateUserUseCase
         ],
       },
       { _id: false },
-    );
+    ).lean();
     if (!foundedUser) {
       return null;
     }

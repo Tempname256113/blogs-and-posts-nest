@@ -32,6 +32,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { RegistrationUserCommand } from '../../auth-application/auth-application-use-cases/registration-user.use-case';
+import { LoginUserCommand } from '../../auth-application/auth-application-use-cases/login-user.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -79,11 +80,9 @@ export class AuthController {
     @Ip() clientIp: string,
     @ClientDeviceTitle() clientDeviceTitle: string,
   ): Promise<{ accessToken: string }> {
-    const { newAccessToken, newRefreshToken } = await this.authService.login({
-      user: reqUser,
-      clientIpAddress: clientIp,
-      clientDeviceTitle,
-    });
+    const { newAccessToken, newRefreshToken } = await this.commandBus.execute(
+      new LoginUserCommand(reqUser, clientIp, clientDeviceTitle),
+    );
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
       secure: true,
