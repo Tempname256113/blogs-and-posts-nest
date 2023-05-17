@@ -161,7 +161,7 @@ export class AuthService {
       newRefreshToken: newRefreshToken.refreshToken,
     };
   }*/
-
+  // не переносить
   async confirmRegistration(
     confirmationCode: string,
     errorField: string,
