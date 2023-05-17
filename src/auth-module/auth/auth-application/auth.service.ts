@@ -161,8 +161,8 @@ export class AuthService {
       newRefreshToken: newRefreshToken.refreshToken,
     };
   }*/
-  // не переносить
-  async confirmRegistration(
+
+  /*async confirmRegistration(
     confirmationCode: string,
     errorField: string,
   ): Promise<void> {
@@ -180,7 +180,7 @@ export class AuthService {
       );
     }
     await this.usersRepository.saveUser(foundedUserByConfirmationCode);
-  }
+  }*/
 
   async emailResending(email: string, errorField: string): Promise<void> {
     const foundedUserByEmail: UserDocument | null =

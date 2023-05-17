@@ -33,6 +33,7 @@ import { AccessToken } from '../../../../../generic-decorators/access-token.deco
 import { CommandBus } from '@nestjs/cqrs';
 import { RegistrationUserCommand } from '../../auth-application/auth-application-use-cases/registration-user.use-case';
 import { LoginUserCommand } from '../../auth-application/auth-application-use-cases/login-user.use-case';
+import { ConfirmRegistrationCommand } from '../../auth-application/auth-application-use-cases/registration-confirm.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +48,7 @@ export class AuthController {
   async registrationNewUser(
     @Body() createNewUserDTO: UserApiCreateDto,
   ): Promise<void> {
-    await this.commandBus.execute(
+    await this.commandBus.execute<RegistrationUserCommand, void>(
       new RegistrationUserCommand(createNewUserDTO),
     );
   }
@@ -58,7 +59,9 @@ export class AuthController {
   async confirmRegistration(
     @Body() { code }: AuthApiConfirmRegistrationDTO,
   ): Promise<void> {
-    await this.authService.confirmRegistration(code, 'code');
+    await this.commandBus.execute<ConfirmRegistrationCommand, void>(
+      new ConfirmRegistrationCommand(code, 'code'),
+    );
   }
 
   @Post('registration-email-resending')
@@ -80,8 +83,15 @@ export class AuthController {
     @Ip() clientIp: string,
     @ClientDeviceTitle() clientDeviceTitle: string,
   ): Promise<{ accessToken: string }> {
-    const { newAccessToken, newRefreshToken } = await this.commandBus.execute(
-      new LoginUserCommand(reqUser, clientIp, clientDeviceTitle),
+    const { newAccessToken, newRefreshToken } = await this.commandBus.execute<
+      LoginUserCommand,
+      { newAccessToken: string; newRefreshToken: string }
+    >(
+      new LoginUserCommand({
+        user: reqUser,
+        clientIpAddress: clientIp,
+        clientDeviceTitle: clientDeviceTitle,
+      }),
     );
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,

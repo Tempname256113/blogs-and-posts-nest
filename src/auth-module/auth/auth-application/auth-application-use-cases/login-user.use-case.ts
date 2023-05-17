@@ -15,9 +15,11 @@ import { AuthRepository } from '../../auth-infrastructure/auth-repositories/auth
 
 export class LoginUserCommand {
   constructor(
-    public readonly user: User,
-    public readonly clientIpAddress: string,
-    public readonly clientDeviceTitle: string,
+    public readonly data: {
+      user: User;
+      clientIpAddress: string;
+      clientDeviceTitle: string;
+    },
   ) {}
 }
 
@@ -36,9 +38,7 @@ export class LoginUserUseCase
   ) {}
 
   async execute({
-    user,
-    clientIpAddress,
-    clientDeviceTitle,
+    data: { user, clientIpAddress, clientDeviceTitle },
   }: LoginUserCommand): Promise<{
     newAccessToken: string;
     newRefreshToken: string;
