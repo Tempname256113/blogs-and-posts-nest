@@ -182,7 +182,10 @@ export class AuthService {
     await this.usersRepository.saveUser(foundedUserByConfirmationCode);
   }*/
 
-  async emailResending(email: string, errorField: string): Promise<void> {
+  /*async resendConfirmationEmail(
+    email: string,
+    errorField: string,
+  ): Promise<void> {
     const foundedUserByEmail: UserDocument | null =
       await this.UserModel.findOne({ 'accountData.email': email });
     if (!foundedUserByEmail) {
@@ -200,7 +203,7 @@ export class AuthService {
     }
     await this.usersRepository.saveUser(foundedUserByEmail);
     this.emailService.sendUserConfirmation(email, confirmationCode);
-  }
+  }*/
 
   async logout(refreshToken: string): Promise<void> {
     const requestRefreshTokenPayload: JwtRefreshTokenPayloadType | null =

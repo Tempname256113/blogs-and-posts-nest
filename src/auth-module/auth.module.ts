@@ -17,12 +17,14 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ValidateUserUseCase } from './auth/auth-application/auth-application-use-cases/validate-user.use-case';
 import { LoginUserUseCase } from './auth/auth-application/auth-application-use-cases/login-user.use-case';
 import { RegistrationConfirmUseCase } from './auth/auth-application/auth-application-use-cases/registration-confirm.use-case';
+import { ResendConfirmationEmailUseCase } from './auth/auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
 
 const UseCases = [
   RegistrationUserUseCase,
   ValidateUserUseCase,
   LoginUserUseCase,
   RegistrationConfirmUseCase,
+  ResendConfirmationEmailUseCase,
 ];
 
 @Module({

@@ -34,6 +34,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { RegistrationUserCommand } from '../../auth-application/auth-application-use-cases/registration-user.use-case';
 import { LoginUserCommand } from '../../auth-application/auth-application-use-cases/login-user.use-case';
 import { ConfirmRegistrationCommand } from '../../auth-application/auth-application-use-cases/registration-confirm.use-case';
+import { ResendConfirmationEmailCommand } from '../../auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -70,7 +71,9 @@ export class AuthController {
   async emailResending(
     @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
-    await this.authService.emailResending(email, 'email');
+    await this.commandBus.execute<ResendConfirmationEmailCommand, void>(
+      new ResendConfirmationEmailCommand(email, 'email'),
+    );
   }
 
   @Post('login')
