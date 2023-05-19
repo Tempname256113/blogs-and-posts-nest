@@ -35,6 +35,7 @@ import { RegistrationUserCommand } from '../../auth-application/auth-application
 import { LoginUserCommand } from '../../auth-application/auth-application-use-cases/login-user.use-case';
 import { ConfirmRegistrationCommand } from '../../auth-application/auth-application-use-cases/registration-confirm.use-case';
 import { ResendConfirmationEmailCommand } from '../../auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
+import { LogoutCommand } from '../../auth-application/auth-application-use-cases/logout-user.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -112,7 +113,9 @@ export class AuthController {
     if (!refreshToken) {
       throw new UnauthorizedException();
     }
-    await this.authService.logout(refreshToken);
+    await this.commandBus.execute<LogoutCommand, void>(
+      new LogoutCommand(refreshToken),
+    );
   }
 
   @Post('refresh-token')

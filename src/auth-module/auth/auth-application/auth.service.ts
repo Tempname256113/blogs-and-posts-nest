@@ -205,7 +205,7 @@ export class AuthService {
     this.emailService.sendUserConfirmation(email, confirmationCode);
   }*/
 
-  async logout(refreshToken: string): Promise<void> {
+  /*async logout(refreshToken: string): Promise<void> {
     const requestRefreshTokenPayload: JwtRefreshTokenPayloadType | null =
       this.jwtHelpers.verifyRefreshToken(refreshToken);
     if (!requestRefreshTokenPayload) {
@@ -224,7 +224,7 @@ export class AuthService {
     await this.authRepository.deleteSession(
       requestRefreshTokenPayload.deviceId,
     );
-  }
+  }*/
 
   async updatePairOfTokens({
     requestRefreshTokenPayload,
