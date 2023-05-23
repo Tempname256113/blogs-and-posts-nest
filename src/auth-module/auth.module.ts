@@ -18,6 +18,7 @@ import { ValidateUserUseCase } from './auth/auth-application/auth-application-us
 import { LoginUserUseCase } from './auth/auth-application/auth-application-use-cases/login-user.use-case';
 import { RegistrationConfirmUseCase } from './auth/auth-application/auth-application-use-cases/registration-confirm.use-case';
 import { ResendConfirmationEmailUseCase } from './auth/auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
+import { UpdateTokensPairUseCase } from './auth/auth-application/auth-application-use-cases/update-tokens-pair.use-case';
 
 const UseCases = [
   RegistrationUserUseCase,
@@ -25,6 +26,7 @@ const UseCases = [
   LoginUserUseCase,
   RegistrationConfirmUseCase,
   ResendConfirmationEmailUseCase,
+  UpdateTokensPairUseCase,
 ];
 
 @Module({

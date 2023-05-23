@@ -36,6 +36,7 @@ import { LoginUserCommand } from '../../auth-application/auth-application-use-ca
 import { ConfirmRegistrationCommand } from '../../auth-application/auth-application-use-cases/registration-confirm.use-case';
 import { ResendConfirmationEmailCommand } from '../../auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
 import { LogoutCommand } from '../../auth-application/auth-application-use-cases/logout-user.use-case';
+import { UpdateTokensPairCommand } from '../../auth-application/auth-application-use-cases/update-tokens-pair.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -132,11 +133,13 @@ export class AuthController {
       newAccessToken,
       newRefreshToken,
     }: { newAccessToken: string; newRefreshToken: string } =
-      await this.authService.updatePairOfTokens({
-        requestRefreshTokenPayload: refreshTokenPayload,
-        userIpAddress: clientIp,
-        userDeviceTitle: clientDeviceTitle,
-      });
+      await this.commandBus.execute(
+        new UpdateTokensPairCommand({
+          requestRefreshTokenPayload: refreshTokenPayload,
+          userIpAddress: clientIp,
+          userDeviceTitle: clientDeviceTitle,
+        }),
+      );
     response.cookie(CookiesEnum.REFRESH_TOKEN_PROPERTY, newRefreshToken, {
       httpOnly: true,
       secure: true,

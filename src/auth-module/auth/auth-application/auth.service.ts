@@ -226,7 +226,7 @@ export class AuthService {
     );
   }*/
 
-  async updatePairOfTokens({
+  /*async updatePairOfTokens({
     requestRefreshTokenPayload,
     userDeviceTitle,
     userIpAddress,
@@ -261,7 +261,7 @@ export class AuthService {
       newAccessToken: newTokenPair.newAccessToken,
       newRefreshToken: newTokenPair.newRefreshToken.refreshToken,
     };
-  }
+  }*/
 
   async sendPasswordRecoveryCode(email: string): Promise<void> {
     const foundedUserByEmail: UserDocument | null =
