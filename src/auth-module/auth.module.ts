@@ -20,6 +20,7 @@ import { RegistrationConfirmUseCase } from './auth/auth-application/auth-applica
 import { ResendConfirmationEmailUseCase } from './auth/auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
 import { UpdateTokensPairUseCase } from './auth/auth-application/auth-application-use-cases/update-tokens-pair.use-case';
 import { SendPasswordRecoveryCodeUseCase } from './auth/auth-application/auth-application-use-cases/send-password-recovery-code.use-case';
+import { SetNewPasswordUseCase } from './auth/auth-application/auth-application-use-cases/set-new-password.use-case';
 
 const UseCases = [
   RegistrationUserUseCase,
@@ -29,6 +30,7 @@ const UseCases = [
   ResendConfirmationEmailUseCase,
   UpdateTokensPairUseCase,
   SendPasswordRecoveryCodeUseCase,
+  SetNewPasswordUseCase,
 ];
 
 @Module({

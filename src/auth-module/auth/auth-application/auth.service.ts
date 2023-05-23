@@ -276,7 +276,7 @@ export class AuthService {
     }
   }*/
 
-  async setNewUserPassword(data: {
+  /*async setNewUserPassword(data: {
     newPassword: string;
     recoveryCode: string;
     errorField: string;
@@ -292,5 +292,5 @@ export class AuthService {
     const newPasswordHash: string = hashSync(data.newPassword, 10);
     foundedUser.setNewPassword(newPasswordHash);
     await this.usersRepository.saveUser(foundedUser);
-  }
+  }*/
 }

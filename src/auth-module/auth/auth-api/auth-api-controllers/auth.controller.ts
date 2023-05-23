@@ -38,6 +38,7 @@ import { ResendConfirmationEmailCommand } from '../../auth-application/auth-appl
 import { LogoutCommand } from '../../auth-application/auth-application-use-cases/logout-user.use-case';
 import { UpdateTokensPairCommand } from '../../auth-application/auth-application-use-cases/update-tokens-pair.use-case';
 import { SendPasswordRecoveryCodeCommand } from '../../auth-application/auth-application-use-cases/send-password-recovery-code.use-case';
+import { SetNewPasswordCommand } from '../../auth-application/auth-application-use-cases/set-new-password.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -168,11 +169,13 @@ export class AuthController {
   async confirmPasswordRecovery(
     @Body() { newPassword, recoveryCode }: NewPasswordDTO,
   ): Promise<void> {
-    await this.authService.setNewUserPassword({
-      newPassword,
-      recoveryCode,
-      errorField: 'recoveryCode',
-    });
+    await this.commandBus.execute(
+      new SetNewPasswordCommand({
+        newPassword,
+        recoveryCode,
+        errorField: 'recoveryCode',
+      }),
+    );
   }
 
   @Get('me')
