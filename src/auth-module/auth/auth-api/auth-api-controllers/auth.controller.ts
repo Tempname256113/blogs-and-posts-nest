@@ -37,6 +37,7 @@ import { ConfirmRegistrationCommand } from '../../auth-application/auth-applicat
 import { ResendConfirmationEmailCommand } from '../../auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
 import { LogoutCommand } from '../../auth-application/auth-application-use-cases/logout-user.use-case';
 import { UpdateTokensPairCommand } from '../../auth-application/auth-application-use-cases/update-tokens-pair.use-case';
+import { SendPasswordRecoveryCodeCommand } from '../../auth-application/auth-application-use-cases/send-password-recovery-code.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -133,7 +134,10 @@ export class AuthController {
       newAccessToken,
       newRefreshToken,
     }: { newAccessToken: string; newRefreshToken: string } =
-      await this.commandBus.execute(
+      await this.commandBus.execute<
+        UpdateTokensPairCommand,
+        { newAccessToken: string; newRefreshToken: string }
+      >(
         new UpdateTokensPairCommand({
           requestRefreshTokenPayload: refreshTokenPayload,
           userIpAddress: clientIp,
@@ -153,7 +157,9 @@ export class AuthController {
   async passwordRecovery(
     @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
-    await this.authService.sendPasswordRecoveryCode(email);
+    await this.commandBus.execute<SendPasswordRecoveryCodeCommand, void>(
+      new SendPasswordRecoveryCodeCommand(email),
+    );
   }
 
   @Post('new-password')

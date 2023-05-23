@@ -263,7 +263,7 @@ export class AuthService {
     };
   }*/
 
-  async sendPasswordRecoveryCode(email: string): Promise<void> {
+  /*async sendPasswordRecoveryCode(email: string): Promise<void> {
     const foundedUserByEmail: UserDocument | null =
       await this.UserModel.findOne({ 'accountData.email': email });
     if (!foundedUserByEmail) {
@@ -274,7 +274,7 @@ export class AuthService {
       await this.usersRepository.saveUser(foundedUserByEmail);
       this.emailService.sendPasswordRecovery(email, newPasswordRecoveryCode);
     }
-  }
+  }*/
 
   async setNewUserPassword(data: {
     newPassword: string;
