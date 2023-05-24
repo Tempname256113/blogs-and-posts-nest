@@ -7,6 +7,9 @@ import { AuthBasicStrategy } from '../../../libs/auth/passport-strategy/auth-bas
 import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
+import { CreateUserUseCase } from './user-application/user-application-use-cases/create-user.use-case';
+
+const UseCases = [CreateUserUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, JwtModule],
@@ -17,6 +20,7 @@ import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
     UserQueryRepository,
     AuthBasicStrategy,
     EnvConfiguration,
+    ...UseCases,
   ],
 })
 export class UserModule {}

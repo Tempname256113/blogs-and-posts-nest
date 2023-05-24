@@ -19,12 +19,15 @@ import {
 import { UserQueryRepository } from '../../user-infrastructure/user-repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dto';
 import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../../user-application/user-application-use-cases/create-user.use-case';
 
 @Controller('users')
 export class UserController {
   constructor(
     private userService: UserService,
     private userQueryRepository: UserQueryRepository,
+    private commandBus: CommandBus,
   ) {}
   @Post()
   @UseGuards(BasicAuthGuard)
@@ -32,9 +35,10 @@ export class UserController {
   async createUser(
     @Body() createUserDTO: UserApiCreateDto,
   ): Promise<UserApiModelType> {
-    const createdUser: UserApiModelType = await this.userService.createUser(
-      createUserDTO,
-    );
+    const createdUser: UserApiModelType = await this.commandBus.execute<
+      CreateUserCommand,
+      UserApiModelType
+    >(new CreateUserCommand(createUserDTO));
     return createdUser;
   }
 
