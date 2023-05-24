@@ -21,6 +21,7 @@ import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dt
 import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../../user-application/user-application-use-cases/create-user.use-case';
+import { DeleteUserByIdCommand } from '../../user-application/user-application-use-cases/delete-user-by-id.use-case';
 
 @Controller('users')
 export class UserController {
@@ -65,6 +66,8 @@ export class UserController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserById(@Param('userId') userId: string): Promise<void> {
-    await this.userService.deleteUserById(userId);
+    await this.commandBus.execute<DeleteUserByIdCommand, void>(
+      new DeleteUserByIdCommand(userId),
+    );
   }
 }

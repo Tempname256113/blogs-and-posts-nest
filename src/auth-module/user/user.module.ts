@@ -8,8 +8,9 @@ import { EnvConfiguration } from '../../../app-configuration/environment/env-con
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CreateUserUseCase } from './user-application/user-application-use-cases/create-user.use-case';
+import { DeleteUserByIdCommand } from './user-application/user-application-use-cases/delete-user-by-id.use-case';
 
-const UseCases = [CreateUserUseCase];
+const UseCases = [CreateUserUseCase, DeleteUserByIdCommand];
 
 @Module({
   imports: [MongooseSchemesModule, JwtModule],

@@ -49,10 +49,10 @@ export class UserService {
     return userApiModel;
   }*/
 
-  async deleteUserById(userId: string): Promise<void> {
+  /*async deleteUserById(userId: string): Promise<void> {
     const deleteUserStatus: boolean = await this.userRepository.deleteUserById(
       userId,
     );
     if (!deleteUserStatus) throw new NotFoundException();
-  }
+  }*/
 }
