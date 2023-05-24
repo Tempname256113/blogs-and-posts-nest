@@ -5,6 +5,9 @@ import { SecurityController } from './security-api/security.controller';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { AuthJwtRefreshTokenStrategy } from '../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { SecurityQueryRepository } from './security-infrastructure/security-repositories/security.query-repository';
+import { DeleteAllSessionsExceptCurrentUseCase } from './security-application/security-application-use-cases/delete-all-sessions.use-case';
+
+const useCases = [DeleteAllSessionsExceptCurrentUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, JwtModule],
@@ -12,6 +15,7 @@ import { SecurityQueryRepository } from './security-infrastructure/security-repo
     SecurityService,
     AuthJwtRefreshTokenStrategy,
     SecurityQueryRepository,
+    ...useCases,
   ],
   controllers: [SecurityController],
 })

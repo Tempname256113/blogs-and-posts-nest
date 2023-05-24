@@ -16,7 +16,7 @@ export class SecurityService {
   constructor(
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
   ) {}
-  async deleteAllSessionsExcludeCurrent(
+  /*async deleteAllSessionsExcludeCurrent(
     reqRefreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<void> {
     const allFoundedSessions: Session[] = await this.SessionModel.find({
@@ -32,7 +32,7 @@ export class SecurityService {
       deviceId: { $in: deviceIdForDeleteArray },
     };
     await this.SessionModel.deleteMany(filter);
-  }
+  }*/
 
   async deleteSessionByDeviceId(reqData: {
     deviceId: string;

@@ -13,12 +13,15 @@ import { AdditionalReqDataDecorator } from '../../../../generic-decorators/addit
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { SessionSecurityApiModel } from './security-api-models/security-api.models';
 import { SecurityQueryRepository } from '../security-infrastructure/security-repositories/security.query-repository';
+import { CommandBus } from '@nestjs/cqrs';
+import { DeleteAllSessionsExceptCurrentCommand } from '../security-application/security-application-use-cases/delete-all-sessions.use-case';
 
 @Controller('security')
 export class SecurityController {
   constructor(
     private securityService: SecurityService,
     private securityQueryRepository: SecurityQueryRepository,
+    private commandBus: CommandBus,
   ) {}
   @Get('devices')
   @HttpCode(HttpStatus.OK)
@@ -41,8 +44,8 @@ export class SecurityController {
     @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<void> {
-    await this.securityService.deleteAllSessionsExcludeCurrent(
-      refreshTokenPayload,
+    await this.commandBus.execute(
+      new DeleteAllSessionsExceptCurrentCommand(refreshTokenPayload),
     );
   }
 
