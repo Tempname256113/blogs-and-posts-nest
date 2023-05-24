@@ -6,10 +6,13 @@ import { BlogQueryRepository } from './blog-infrastructure/blog-repositories/blo
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
+import { CreateBlogUseCase } from './blog-application/blog-application-use-cases/create-blog.use-case';
+
+const UseCases = [CreateBlogUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule],
   controllers: [BlogController],
-  providers: [BlogService, BlogRepository, BlogQueryRepository],
+  providers: [BlogService, BlogRepository, BlogQueryRepository, ...UseCases],
 })
 export class BlogModule {}

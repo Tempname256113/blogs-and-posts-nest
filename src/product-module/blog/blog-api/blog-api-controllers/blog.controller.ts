@@ -31,12 +31,15 @@ import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-m
 import { PostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
 import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from '../../blog-application/blog-application-use-cases/create-blog.use-case';
 
 @Controller('blogs')
 export class BlogController {
   constructor(
     private blogService: BlogService,
     private blogQueryRepository: BlogQueryRepository,
+    private commandBus: CommandBus,
   ) {}
 
   @Post()
@@ -45,9 +48,10 @@ export class BlogController {
   async createBlog(
     @Body() blogCreateDTO: BlogApiCreateUpdateDTO,
   ): Promise<BlogApiModelType> {
-    const createdBlog: BlogApiModelType = await this.blogService.createBlog(
-      blogCreateDTO,
-    );
+    const createdBlog: BlogApiModelType = await this.commandBus.execute<
+      CreateBlogCommand,
+      BlogApiModelType
+    >(new CreateBlogCommand(blogCreateDTO));
     return createdBlog;
   }
 

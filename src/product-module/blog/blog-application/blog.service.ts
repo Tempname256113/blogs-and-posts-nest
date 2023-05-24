@@ -26,7 +26,7 @@ export class BlogService {
     private blogRepository: BlogRepository,
   ) {}
 
-  async createBlog(
+  /*async createBlog(
     createBlogDTO: BlogApiCreateUpdateDTO,
   ): Promise<BlogApiModelType> {
     const newBlog: Blog = {
@@ -40,7 +40,7 @@ export class BlogService {
     const newBlogModel: BlogDocument = new this.BlogModel(newBlog);
     await this.blogRepository.saveBlogOrPost(newBlogModel);
     return newBlog;
-  }
+  }*/
 
   async createPost(
     blogId: string,
