@@ -15,6 +15,7 @@ import { SessionSecurityApiModel } from './security-api-models/security-api.mode
 import { SecurityQueryRepository } from '../security-infrastructure/security-repositories/security.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteAllSessionsExceptCurrentCommand } from '../security-application/security-application-use-cases/delete-all-sessions.use-case';
+import { DeleteSessionByDeviceIdCommand } from '../security-application/security-application-use-cases/delete-session-by-deviceId.use-case';
 
 @Controller('security')
 export class SecurityController {
@@ -44,7 +45,7 @@ export class SecurityController {
     @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<void> {
-    await this.commandBus.execute(
+    await this.commandBus.execute<DeleteAllSessionsExceptCurrentCommand, void>(
       new DeleteAllSessionsExceptCurrentCommand(refreshTokenPayload),
     );
   }
@@ -57,9 +58,8 @@ export class SecurityController {
     refreshTokenPayload: JwtRefreshTokenPayloadType,
     @Param('deviceId') deviceId: string,
   ): Promise<void> {
-    await this.securityService.deleteSessionByDeviceId({
-      deviceId,
-      refreshTokenPayload,
-    });
+    await this.commandBus.execute<DeleteSessionByDeviceIdCommand, void>(
+      new DeleteSessionByDeviceIdCommand({ deviceId, refreshTokenPayload }),
+    );
   }
 }

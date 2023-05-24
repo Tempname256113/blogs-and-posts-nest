@@ -34,7 +34,7 @@ export class SecurityService {
     await this.SessionModel.deleteMany(filter);
   }*/
 
-  async deleteSessionByDeviceId(reqData: {
+  /*async deleteSessionByDeviceId(reqData: {
     deviceId: string;
     refreshTokenPayload: JwtRefreshTokenPayloadType;
   }): Promise<void> {
@@ -51,5 +51,5 @@ export class SecurityService {
       throw new ForbiddenException();
     }
     await this.SessionModel.deleteOne({ deviceId: reqData.deviceId });
-  }
+  }*/
 }
