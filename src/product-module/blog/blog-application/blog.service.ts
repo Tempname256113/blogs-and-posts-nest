@@ -42,7 +42,7 @@ export class BlogService {
     return newBlog;
   }*/
 
-  async createPost(
+  /*async createPost(
     blogId: string,
     createPostDTO: PostApiCreateUpdateDTO,
   ): Promise<PostApiModel> {
@@ -69,7 +69,7 @@ export class BlogService {
       },
     };
     return mappedNewPost;
-  }
+  }*/
 
   async updateBlog(
     blogId: string,

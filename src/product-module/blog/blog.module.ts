@@ -7,8 +7,9 @@ import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.scheme
 import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CreateBlogUseCase } from './blog-application/blog-application-use-cases/create-blog.use-case';
+import { CreatePostBlogUseCase } from './blog-application/blog-application-use-cases/create-post.use-case';
 
-const UseCases = [CreateBlogUseCase];
+const UseCases = [CreateBlogUseCase, CreatePostBlogUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule],

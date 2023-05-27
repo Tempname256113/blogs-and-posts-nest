@@ -33,6 +33,7 @@ import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../../blog-application/blog-application-use-cases/create-blog.use-case';
+import { CreatePostBlogCommand } from '../../blog-application/blog-application-use-cases/create-post.use-case';
 
 @Controller('blogs')
 export class BlogController {
@@ -68,9 +69,14 @@ export class BlogController {
       content: postCreateDTO.content,
       blogId,
     };
-    const createdPost: PostApiModel = await this.blogService.createPost(
-      blogId,
-      mappedCreatePostDTO,
+    const createdPost: PostApiModel = await this.commandBus.execute<
+      CreatePostBlogCommand,
+      PostApiModel
+    >(
+      new CreatePostBlogCommand({
+        blogId,
+        createPostDTO: mappedCreatePostDTO,
+      }),
     );
     return createdPost;
   }
