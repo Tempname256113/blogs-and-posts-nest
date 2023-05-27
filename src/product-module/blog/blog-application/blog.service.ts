@@ -82,10 +82,10 @@ export class BlogService {
     if (!blogUpdateStatus) throw new NotFoundException();
   }*/
 
-  async deleteBlog(blogId: string): Promise<void> {
+  /*async deleteBlog(blogId: string): Promise<void> {
     const deleteBlogStatus: boolean = await this.blogRepository.deleteBlog(
       blogId,
     );
     if (!deleteBlogStatus) throw new NotFoundException();
-  }
+  }*/
 }

@@ -35,6 +35,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../../blog-application/blog-application-use-cases/create-blog.use-case';
 import { CreatePostBlogCommand } from '../../blog-application/blog-application-use-cases/create-post.use-case';
 import { UpdateBlogCommand } from '../../blog-application/blog-application-use-cases/update-blog.use-case';
+import { DeleteBlogCommand } from '../../blog-application/blog-application-use-cases/delete-blog.use-case';
 
 @Controller('blogs')
 export class BlogController {
@@ -153,6 +154,8 @@ export class BlogController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
   async deleteBlogById(@Param('blogId') blogId: string) {
-    await this.blogService.deleteBlog(blogId);
+    await this.commandBus.execute<DeleteBlogCommand, void>(
+      new DeleteBlogCommand(blogId),
+    );
   }
 }

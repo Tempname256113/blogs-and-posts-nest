@@ -9,8 +9,14 @@ import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CreateBlogUseCase } from './blog-application/blog-application-use-cases/create-blog.use-case';
 import { CreatePostBlogUseCase } from './blog-application/blog-application-use-cases/create-post.use-case';
 import { UpdateBlogUseCase } from './blog-application/blog-application-use-cases/update-blog.use-case';
+import { DeleteBlogCommand } from './blog-application/blog-application-use-cases/delete-blog.use-case';
 
-const UseCases = [CreateBlogUseCase, CreatePostBlogUseCase, UpdateBlogUseCase];
+const UseCases = [
+  CreateBlogUseCase,
+  CreatePostBlogUseCase,
+  UpdateBlogUseCase,
+  DeleteBlogCommand,
+];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule],
