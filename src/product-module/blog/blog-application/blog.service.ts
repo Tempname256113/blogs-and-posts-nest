@@ -71,7 +71,7 @@ export class BlogService {
     return mappedNewPost;
   }*/
 
-  async updateBlog(
+  /*async updateBlog(
     blogId: string,
     updateBlogDTO: BlogApiCreateUpdateDTO,
   ): Promise<void> {
@@ -80,7 +80,7 @@ export class BlogService {
       updateBlogDTO,
     );
     if (!blogUpdateStatus) throw new NotFoundException();
-  }
+  }*/
 
   async deleteBlog(blogId: string): Promise<void> {
     const deleteBlogStatus: boolean = await this.blogRepository.deleteBlog(

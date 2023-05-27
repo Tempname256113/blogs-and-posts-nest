@@ -34,6 +34,7 @@ import { AccessToken } from '../../../../../generic-decorators/access-token.deco
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../../blog-application/blog-application-use-cases/create-blog.use-case';
 import { CreatePostBlogCommand } from '../../blog-application/blog-application-use-cases/create-post.use-case';
+import { UpdateBlogCommand } from '../../blog-application/blog-application-use-cases/update-blog.use-case';
 
 @Controller('blogs')
 export class BlogController {
@@ -143,7 +144,9 @@ export class BlogController {
     @Param('blogId') blogId: string,
     @Body() blogUpdateDTO: BlogApiCreateUpdateDTO,
   ): Promise<void> {
-    await this.blogService.updateBlog(blogId, blogUpdateDTO);
+    await this.commandBus.execute<UpdateBlogCommand, void>(
+      new UpdateBlogCommand({ blogId, updateBlogDTO: blogUpdateDTO }),
+    );
   }
 
   @Delete(':blogId')

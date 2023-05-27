@@ -8,8 +8,9 @@ import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CreateBlogUseCase } from './blog-application/blog-application-use-cases/create-blog.use-case';
 import { CreatePostBlogUseCase } from './blog-application/blog-application-use-cases/create-post.use-case';
+import { UpdateBlogUseCase } from './blog-application/blog-application-use-cases/update-blog.use-case';
 
-const UseCases = [CreateBlogUseCase, CreatePostBlogUseCase];
+const UseCases = [CreateBlogUseCase, CreatePostBlogUseCase, UpdateBlogUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule],
