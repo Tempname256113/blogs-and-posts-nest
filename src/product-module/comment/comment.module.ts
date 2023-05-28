@@ -6,11 +6,19 @@ import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.scheme
 import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CommentService } from './comment-application/comment.service';
+import { DeleteCommentUseCase } from './comment-application/comment-application-use-cases/delete-comment.use-case';
+
+const UseCases = [DeleteCommentUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule],
   controllers: [CommentController],
-  providers: [CommentRepository, CommentQueryRepository, CommentService],
+  providers: [
+    CommentRepository,
+    CommentQueryRepository,
+    CommentService,
+    ...UseCases,
+  ],
   exports: [CommentRepository, CommentQueryRepository],
 })
 export class CommentModule {}

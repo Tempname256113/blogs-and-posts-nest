@@ -18,12 +18,15 @@ import { JwtAuthAccessTokenGuard } from '../../../../../libs/auth/passport-strat
 import { CommentService } from '../../comment-application/comment.service';
 import { CommentApiUpdateDTO } from '../comment-api-models/comment-api.dto';
 import { LikeDto } from '../../../product-models/like.dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { DeleteCommentCommand } from '../../comment-application/comment-application-use-cases/delete-comment.use-case';
 
 @Controller('comments')
 export class CommentController {
   constructor(
     private commentQueryRepository: CommentQueryRepository,
     private commentService: CommentService,
+    private commandBus: CommandBus,
   ) {}
   @Get(':commentId')
   @HttpCode(HttpStatus.OK)
@@ -47,10 +50,12 @@ export class CommentController {
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
-    await this.commentService.deleteComment({
-      userId: accessTokenPayload.userId,
-      commentId,
-    });
+    await this.commandBus.execute(
+      new DeleteCommentCommand({
+        userId: accessTokenPayload.userId,
+        commentId,
+      }),
+    );
   }
 
   @Put(':commentId')

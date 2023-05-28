@@ -20,7 +20,7 @@ export class CommentService {
     private commentRepository: CommentRepository,
     private likeService: LikeService,
   ) {}
-  async deleteComment({
+  /*async deleteComment({
     commentId,
     userId,
   }: {
@@ -37,7 +37,7 @@ export class CommentService {
       throw new ForbiddenException();
     }
     this.commentRepository.deleteComment(commentId);
-  }
+  }*/
 
   async updateComment({
     commentId,
@@ -72,7 +72,7 @@ export class CommentService {
     reaction: 'Like' | 'Dislike' | 'None';
     userId: string;
     userLogin: string;
-  }) {
+  }): Promise<void> {
     const foundedComment: Comment | null = await this.CommentModel.findOne({
       id: commentId,
     });
