@@ -7,8 +7,9 @@ import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CommentService } from './comment-application/comment.service';
 import { DeleteCommentUseCase } from './comment-application/comment-application-use-cases/delete-comment.use-case';
+import { UpdateCommentUseCase } from './comment-application/comment-application-use-cases/update-comment.use-case';
 
-const UseCases = [DeleteCommentUseCase];
+const UseCases = [DeleteCommentUseCase, UpdateCommentUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule],

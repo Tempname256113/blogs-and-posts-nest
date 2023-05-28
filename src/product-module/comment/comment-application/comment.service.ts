@@ -39,7 +39,7 @@ export class CommentService {
     this.commentRepository.deleteComment(commentId);
   }*/
 
-  async updateComment({
+  /*async updateComment({
     commentId,
     content,
     userId,
@@ -60,7 +60,7 @@ export class CommentService {
     }
     foundedComment.content = content;
     this.commentRepository.saveComment(foundedComment);
-  }
+  }*/
 
   async changeLikeStatus({
     commentId,

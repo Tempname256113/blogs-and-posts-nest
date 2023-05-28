@@ -20,6 +20,7 @@ import { CommentApiUpdateDTO } from '../comment-api-models/comment-api.dto';
 import { LikeDto } from '../../../product-models/like.dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteCommentCommand } from '../../comment-application/comment-application-use-cases/delete-comment.use-case';
+import { UpdateCommentCommand } from '../../comment-application/comment-application-use-cases/update-comment.use-case';
 
 @Controller('comments')
 export class CommentController {
@@ -50,7 +51,7 @@ export class CommentController {
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
-    await this.commandBus.execute(
+    await this.commandBus.execute<DeleteCommentCommand, void>(
       new DeleteCommentCommand({
         userId: accessTokenPayload.userId,
         commentId,
@@ -67,11 +68,13 @@ export class CommentController {
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
-    await this.commentService.updateComment({
-      userId: accessTokenPayload.userId,
-      commentId,
-      content: commentUpdateDTO.content,
-    });
+    await this.commandBus.execute<UpdateCommentCommand, void>(
+      new UpdateCommentCommand({
+        userId: accessTokenPayload.userId,
+        commentId,
+        content: commentUpdateDTO.content,
+      }),
+    );
   }
 
   @Put(':commentId/like-status')
