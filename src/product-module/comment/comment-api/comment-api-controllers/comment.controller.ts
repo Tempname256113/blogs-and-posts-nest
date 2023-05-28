@@ -21,6 +21,7 @@ import { LikeDto } from '../../../product-models/like.dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteCommentCommand } from '../../comment-application/comment-application-use-cases/delete-comment.use-case';
 import { UpdateCommentCommand } from '../../comment-application/comment-application-use-cases/update-comment.use-case';
+import { ChangeLikeStatusCommand } from '../../comment-application/comment-application-use-cases/change-like-status.use-case';
 
 @Controller('comments')
 export class CommentController {
@@ -86,11 +87,13 @@ export class CommentController {
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
-    await this.commentService.changeLikeStatus({
-      commentId,
-      reaction: likeStatus,
-      userLogin: accessTokenPayload.userLogin,
-      userId: accessTokenPayload.userId,
-    });
+    await this.commandBus.execute(
+      new ChangeLikeStatusCommand({
+        commentId,
+        reaction: likeStatus,
+        userLogin: accessTokenPayload.userLogin,
+        userId: accessTokenPayload.userId,
+      }),
+    );
   }
 }

@@ -62,7 +62,7 @@ export class CommentService {
     this.commentRepository.saveComment(foundedComment);
   }*/
 
-  async changeLikeStatus({
+  /*async changeLikeStatus({
     commentId,
     reaction,
     userId,
@@ -79,12 +79,12 @@ export class CommentService {
     if (!foundedComment) {
       throw new NotFoundException();
     }
-    this.likeService.changeEntityLikeStatus({
+    await this.likeService.changeEntityLikeStatus({
       likeStatus: reaction,
       userId,
       userLogin,
       entityId: commentId,
       entity: 'comment',
     });
-  }
+  }*/
 }
