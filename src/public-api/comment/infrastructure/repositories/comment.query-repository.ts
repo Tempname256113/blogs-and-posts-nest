@@ -7,7 +7,7 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { Model } from 'mongoose';
 import { CommentApiPaginationQueryDto } from '../../api/models/comment-api.query-dto';
-import { getDocumentsWithPagination } from '../../../../product-module/product-additional/get-documents-with-pagination.func';
+import { getDocumentsWithPagination } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { CommentRepositoryPaginationModel } from './models/comment-repository.models';
 import {
   CommentApiModel,

@@ -30,7 +30,7 @@ import {
 } from '../../comment/api/models/comment-api.models';
 import { CommentApiPaginationQueryDto } from '../../comment/api/models/comment-api.query-dto';
 import { CommentQueryRepository } from '../../comment/infrastructure/repositories/comment.query-repository';
-import { LikeDto } from '../../../product-module/product-models/like.dto';
+import { LikeDto } from '../../like/api/models/like.dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';

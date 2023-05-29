@@ -6,7 +6,7 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { Model } from 'mongoose';
 import { PostRepositoryPaginationType } from './models/post-repository.models';
-import { getDocumentsWithPagination } from '../../../../product-module/product-additional/get-documents-with-pagination.func';
+import { getDocumentsWithPagination } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
   PostApiModel,
   PostApiPaginationModelType,

@@ -16,7 +16,7 @@ import { AdditionalReqDataDecorator } from '../../../../generic-decorators/addit
 import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import { CommentApiUpdateDTO } from './models/comment-api.dto';
-import { LikeDto } from '../../../product-module/product-models/like.dto';
+import { LikeDto } from '../../like/api/models/like.dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteCommentCommand } from '../application/use-cases/delete-comment.use-case';
 import { UpdateCommentCommand } from '../application/use-cases/update-comment.use-case';

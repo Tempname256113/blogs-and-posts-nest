@@ -15,7 +15,7 @@ import {
   FilterType,
   getDocumentsWithPagination,
   PaginationQueryType,
-} from '../../../../product-module/product-additional/get-documents-with-pagination.func';
+} from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { UserRepositoryPaginationType } from './models/user-repository.model';
 import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
