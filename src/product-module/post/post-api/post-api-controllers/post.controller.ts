@@ -39,6 +39,7 @@ import { CreateNewPostCommand } from '../post-application/post-application-use-c
 import { CreateNewCommentCommand } from '../post-application/post-application-use-cases/create-new-comment.use-case';
 import { UpdatePostCommand } from '../post-application/post-application-use-cases/update-post.use-case';
 import { DeletePostCommand } from '../post-application/post-application-use-cases/delete-post.use-case';
+import { ChangePostLikeStatusCommand } from '../post-application/post-application-use-cases/change-post-like-status.use-case';
 
 @Controller('posts')
 export class PostController {
@@ -166,12 +167,14 @@ export class PostController {
     @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
-    await this.postService.changeLikeStatus({
-      postId,
-      likeStatus,
-      userId: accessTokenPayload.userId,
-      userLogin: accessTokenPayload.userLogin,
-    });
+    await this.commandBus.execute<ChangePostLikeStatusCommand, void>(
+      new ChangePostLikeStatusCommand({
+        postId,
+        likeStatus,
+        userId: accessTokenPayload.userId,
+        userLogin: accessTokenPayload.userLogin,
+      }),
+    );
   }
 
   @Put(':postId')

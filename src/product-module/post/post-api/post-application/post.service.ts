@@ -102,7 +102,7 @@ export class PostService {
     if (!postDeleteStatus) throw new NotFoundException();
   }*/
 
-  async changeLikeStatus({
+  /*async changeLikeStatus({
     postId,
     likeStatus,
     userId,
@@ -128,5 +128,5 @@ export class PostService {
         userLogin,
       }),
     );
-  }
+  }*/
 }
