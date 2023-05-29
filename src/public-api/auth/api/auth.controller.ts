@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserApiCreateDto } from '../../../admin-api/user/user-api/user-api-models/user-api.dto';
+import { UserApiCreateDto } from '../../../admin-api/user/api/models/user-api.dto';
 import { LocalAuthGuard } from '../../../../libs/auth/passport-strategy/auth-local.strategy';
 import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
 import { User } from '../../../../libs/db/mongoose/schemes/user.entity';
@@ -24,7 +24,7 @@ import {
 import { Cookies } from '../../../../generic-decorators/cookies.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { AuthApiUserInfoType } from './models/auth-api.models';
-import { UserQueryRepository } from '../../../admin-api/user/user-infrastructure/user-repositories/user.query-repository';
+import { UserQueryRepository } from '../../../admin-api/user/infrastructure/repositories/user.query-repository';
 import { ClientDeviceTitle } from '../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { ThrottlerGuard } from '@nestjs/throttler';

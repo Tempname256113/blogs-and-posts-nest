@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { SessionUpdateDTO } from '../../../../src/auth-module/auth/public/infrastructure/models/auth-repository.dto';
+import { SessionUpdateRepositoryDTO } from '../../../../src/public-api/auth/infrastructure/repositories/models/auth-repository.dto';
 
 export class Session {
   userId: string;
@@ -12,7 +12,7 @@ export class Session {
 }
 
 class SessionMethods extends Session {
-  updateSession(updateSessionData: SessionUpdateDTO): void {
+  updateSession(updateSessionData: SessionUpdateRepositoryDTO): void {
     this.iat = updateSessionData.refreshTokenIat;
     this.userIpAddress = updateSessionData.userIpAddress;
     this.userDeviceTitle = updateSessionData.userDeviceTitle;

@@ -6,7 +6,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserRepository } from '../../../../admin-api/user/user-infrastructure/user-repositories/user.repository';
+import { UserRepository } from '../../../../admin-api/user/infrastructure/repositories/user.repository';
 import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
 
 export class SendPasswordRecoveryCodeCommand {

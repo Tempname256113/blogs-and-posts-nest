@@ -1,4 +1,4 @@
-import { UserApiCreateDto } from '../../../../admin-api/user/user-api/user-api-models/user-api.dto';
+import { UserApiCreateDto } from '../../../../admin-api/user/api/models/user-api.dto';
 import {
   User,
   UserDocument,
@@ -11,7 +11,7 @@ import { hashSync } from 'bcrypt';
 import { add } from 'date-fns';
 import { InjectModel } from '@nestjs/mongoose';
 import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
-import { UserRepository } from '../../../../admin-api/user/user-infrastructure/user-repositories/user.repository';
+import { UserRepository } from '../../../../admin-api/user/infrastructure/repositories/user.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 

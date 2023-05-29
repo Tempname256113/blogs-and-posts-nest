@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from '../admin-api/user/user.module';
+import { UserModule } from './user.module';
 import { AuthController } from '../public-api/auth/api/auth.controller';
 import { NodemailerModule } from '../../libs/email/nodemailer/nodemailer.module';
 import { AuthRepository } from '../public-api/auth/infrastructure/repositories/auth.repository';

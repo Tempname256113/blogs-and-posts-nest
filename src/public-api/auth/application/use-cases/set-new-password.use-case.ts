@@ -8,7 +8,7 @@ import { badRequestErrorFactoryFunction } from '../../../../../generic-factory-f
 import { hashSync } from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserRepository } from '../../../../admin-api/user/user-infrastructure/user-repositories/user.repository';
+import { UserRepository } from '../../../../admin-api/user/infrastructure/repositories/user.repository';
 
 export class SetNewPasswordCommand {
   constructor(
