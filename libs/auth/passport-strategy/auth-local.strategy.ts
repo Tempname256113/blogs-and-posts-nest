@@ -3,7 +3,7 @@ import { Strategy } from 'passport-local';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { User } from '../../db/mongoose/schemes/user.entity';
 import { CommandBus } from '@nestjs/cqrs';
-import { ValidateUserCommand } from '../../../src/auth-module/auth/public/application/use-cases/validate-user.use-case';
+import { ValidateUserCommand } from '../../../src/public-api/auth/application/use-cases/validate-user.use-case';
 
 @Injectable()
 export class AuthLocalStrategy extends PassportStrategy(Strategy) {

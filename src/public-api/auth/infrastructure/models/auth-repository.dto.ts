@@ -1,4 +1,4 @@
-export type SessionUpdateDTO = {
+export type SessionUpdateRepositoryDTO = {
   refreshTokenIat: number;
   userIpAddress: string;
   userDeviceTitle: string;

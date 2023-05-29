@@ -2,14 +2,14 @@ import { ICommandHandler } from '@nestjs/cqrs';
 import {
   UserDocument,
   UserSchema,
-} from '../../../../../../libs/db/mongoose/schemes/user.entity';
+} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BadRequestException } from '@nestjs/common';
-import { badRequestErrorFactoryFunction } from '../../../../../../generic-factory-functions/bad-request.error-factory-function';
+import { badRequestErrorFactoryFunction } from '../../../../../generic-factory-functions/bad-request.error-factory-function';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { randomUUID } from 'crypto';
-import { UserRepository } from '../../../../user/user-infrastructure/user-repositories/user.repository';
-import { NodemailerService } from '../../../../../../libs/email/nodemailer/nodemailer.service';
+import { UserRepository } from '../../../../admin-api/user/user-infrastructure/user-repositories/user.repository';
+import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
 
 export class ResendConfirmationEmailCommand {
   constructor(

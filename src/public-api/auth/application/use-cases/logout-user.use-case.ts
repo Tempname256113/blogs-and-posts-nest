@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { JwtRefreshTokenPayloadType } from '../../../../../../generic-models/jwt.payload.model';
+import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { UnauthorizedException } from '@nestjs/common';
 import {
   SessionDocument,
   SessionSchema,
-} from '../../../../../../libs/db/mongoose/schemes/session.entity';
-import { JwtHelpers } from '../../../../../../libs/auth/jwt/jwt-helpers.service';
+} from '../../../../../libs/db/mongoose/schemes/session.entity';
+import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthRepository } from '../../infrastructure/auth.repository';

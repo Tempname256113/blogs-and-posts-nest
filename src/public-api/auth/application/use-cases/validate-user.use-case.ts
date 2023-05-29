@@ -3,7 +3,7 @@ import { AuthApiLoginDtoType } from '../../api/models/auth-api.dto';
 import {
   User,
   UserSchema,
-} from '../../../../../../libs/db/mongoose/schemes/user.entity';
+} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { compare } from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

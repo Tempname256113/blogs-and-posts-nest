@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { User } from '../../../../../../libs/db/mongoose/schemes/user.entity';
+import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
   Session,
   SessionDocument,
   SessionSchema,
-} from '../../../../../../libs/db/mongoose/schemes/session.entity';
+} from '../../../../../libs/db/mongoose/schemes/session.entity';
 import {
   CreateNewTokenPairReturnType,
   JwtHelpers,
-} from '../../../../../../libs/auth/jwt/jwt-helpers.service';
+} from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthRepository } from '../../infrastructure/auth.repository';

@@ -1,15 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { JwtRefreshTokenPayloadType } from '../../../../../../generic-models/jwt.payload.model';
+import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import {
   CreateNewTokenPairData,
   CreateNewTokenPairReturnType,
   JwtHelpers,
-} from '../../../../../../libs/auth/jwt/jwt-helpers.service';
-import { SessionUpdateDTO } from '../../infrastructure/models/auth-repository.dto';
+} from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { SessionUpdateRepositoryDTO } from '../../infrastructure/models/auth-repository.dto';
 import {
   SessionDocument,
   SessionSchema,
-} from '../../../../../../libs/db/mongoose/schemes/session.entity';
+} from '../../../../../libs/db/mongoose/schemes/session.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthRepository } from '../../infrastructure/auth.repository';
@@ -51,7 +51,7 @@ export class UpdateTokensPairUseCase
     };
     const newTokenPair: CreateNewTokenPairReturnType =
       this.jwtHelpers.createNewTokenPair(createNewTokenPairData);
-    const updateSessionData: SessionUpdateDTO = {
+    const updateSessionData: SessionUpdateRepositoryDTO = {
       refreshTokenIat: newTokenPair.newRefreshToken.iat,
       userIpAddress,
       userDeviceTitle,

@@ -10,25 +10,25 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserApiCreateDto } from '../../../user/user-api/user-api-models/user-api.dto';
-import { LocalAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-local.strategy';
-import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
-import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
+import { UserApiCreateDto } from '../../../admin-api/user/user-api/user-api-models/user-api.dto';
+import { LocalAuthGuard } from '../../../../libs/auth/passport-strategy/auth-local.strategy';
+import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
+import { User } from '../../../../libs/db/mongoose/schemes/user.entity';
 import { Response } from 'express';
-import { CookiesEnum } from '../../../../../generic-enums/cookies.enum';
+import { CookiesEnum } from '../../../../generic-enums/cookies.enum';
 import {
   AuthApiConfirmRegistrationDTO,
   AuthApiEmailPropertyDTO,
   NewPasswordDTO,
 } from './models/auth-api.dto';
-import { Cookies } from '../../../../../generic-decorators/cookies.decorator';
-import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { Cookies } from '../../../../generic-decorators/cookies.decorator';
+import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { AuthApiUserInfoModelType } from './models/auth-api.models';
-import { UserQueryRepository } from '../../../user/user-infrastructure/user-repositories/user.query-repository';
-import { ClientDeviceTitle } from '../../../../../generic-decorators/client-device-title.decorator';
-import { JwtAuthRefreshTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
+import { UserQueryRepository } from '../../../admin-api/user/user-infrastructure/user-repositories/user.query-repository';
+import { ClientDeviceTitle } from '../../../../generic-decorators/client-device-title.decorator';
+import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
+import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { RegistrationUserCommand } from '../application/use-cases/registration-user.use-case';
 import { LoginUserCommand } from '../application/use-cases/login-user.use-case';
