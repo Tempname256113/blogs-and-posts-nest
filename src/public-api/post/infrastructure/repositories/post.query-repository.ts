@@ -16,7 +16,7 @@ import { PostApiPaginationQueryDTOType } from '../../api/models/post-api.query-d
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
-import { LikeQueryRepository } from '../../../../product-module/like/like.query-repository';
+import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
 
 @Injectable()
 export class PostQueryRepository {

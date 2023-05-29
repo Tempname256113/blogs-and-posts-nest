@@ -1,11 +1,11 @@
 import {
   Like,
   LikeSchema,
-} from '../../../libs/db/mongoose/schemes/like.entity';
+} from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { FilterQuery, Model } from 'mongoose';
-import { EntityLikesCountType } from './like-application/like.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
+import { EntityLikesCountType } from '../../application/models/entity-likes-count.model';
 
 @Injectable()
 export class LikeQueryRepository {

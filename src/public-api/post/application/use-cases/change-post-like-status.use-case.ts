@@ -3,7 +3,7 @@ import {
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { NotFoundException } from '@nestjs/common';
-import { ChangeEntityLikeStatusCommand } from '../../../../product-module/like/like-application/like-application-use-cases/change-entity-like-status.use-case';
+import { ChangeEntityLikeStatusCommand } from '../../../like/application/use-cases/change-entity-like-status.use-case';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

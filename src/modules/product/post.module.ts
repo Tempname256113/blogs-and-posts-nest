@@ -3,7 +3,7 @@ import { PostController } from '../../public-api/post/api/post.controller';
 import { PostRepository } from '../../public-api/post/infrastructure/repositories/post.repository';
 import { PostQueryRepository } from '../../public-api/post/infrastructure/repositories/post.query-repository';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
-import { LikeModule } from '../../product-module/like/like.module';
+import { LikeModule } from './like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CommentModule } from './comment.module';
 import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';

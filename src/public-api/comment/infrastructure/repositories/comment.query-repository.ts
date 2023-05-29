@@ -15,8 +15,8 @@ import {
 } from '../../api/models/comment-api.models';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { EntityLikesCountType } from '../../../../product-module/like/like-application/like.service';
-import { LikeQueryRepository } from '../../../../product-module/like/like.query-repository';
+import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
+import { EntityLikesCountType } from '../../../like/application/models/entity-likes-count.model';
 
 @Injectable()
 export class CommentQueryRepository {

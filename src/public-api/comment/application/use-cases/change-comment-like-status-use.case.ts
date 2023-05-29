@@ -6,7 +6,7 @@ import {
 import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChangeEntityLikeStatusCommand } from '../../../../product-module/like/like-application/like-application-use-cases/change-entity-like-status.use-case';
+import { ChangeEntityLikeStatusCommand } from '../../../like/application/use-cases/change-entity-like-status.use-case';
 
 export class ChangeCommentLikeStatusCommand {
   constructor(
