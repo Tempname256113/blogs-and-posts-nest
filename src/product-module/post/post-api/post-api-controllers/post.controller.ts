@@ -37,6 +37,7 @@ import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewPostCommand } from '../post-application/post-application-use-cases/create-new-post.use-case';
 import { CreateNewCommentCommand } from '../post-application/post-application-use-cases/create-new-comment.use-case';
+import { UpdatePostCommand } from '../post-application/post-application-use-cases/update-post.use-case';
 
 @Controller('posts')
 export class PostController {
@@ -179,7 +180,9 @@ export class PostController {
     @Param('postId') postId: string,
     @Body() postUpdateDTO: PostApiCreateUpdateDTO,
   ): Promise<void> {
-    await this.postService.updatePost(postId, postUpdateDTO);
+    await this.commandBus.execute<UpdatePostCommand, void>(
+      new UpdatePostCommand({ postId, postUpdateDTO }),
+    );
   }
 
   @Delete(':postId')

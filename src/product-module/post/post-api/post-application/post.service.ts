@@ -84,7 +84,7 @@ export class PostService {
     return mappedComment;
   }*/
 
-  async updatePost(
+  /*async updatePost(
     postId: string,
     postUpdateDTO: PostApiCreateUpdateDTO,
   ): Promise<void> {
@@ -93,7 +93,7 @@ export class PostService {
       postUpdateDTO,
     );
     if (!postUpdateStatus) throw new NotFoundException();
-  }
+  }*/
 
   async deletePost(postId: string): Promise<void> {
     const postDeleteStatus: boolean = await this.postRepository.deletePost(
