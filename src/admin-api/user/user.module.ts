@@ -24,5 +24,6 @@ const UseCases = [CreateUserUseCase, DeleteUserByIdCommand];
     EnvConfiguration,
     ...UseCases,
   ],
+  exports: [UserRepository, UserQueryRepository],
 })
 export class UserModule {}
