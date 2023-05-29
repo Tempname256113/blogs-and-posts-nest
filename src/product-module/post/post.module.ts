@@ -11,11 +11,13 @@ import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validato
 import { CreateNewPostUseCase } from './post-api/post-application/post-application-use-cases/create-new-post.use-case';
 import { CreateNewCommentUseCase } from './post-api/post-application/post-application-use-cases/create-new-comment.use-case';
 import { UpdatePostUseCase } from './post-api/post-application/post-application-use-cases/update-post.use-case';
+import { DeletePostCommand } from './post-api/post-application/post-application-use-cases/delete-post.use-case';
 
 const UseCases = [
   CreateNewPostUseCase,
   CreateNewCommentUseCase,
   UpdatePostUseCase,
+  DeletePostCommand,
 ];
 
 @Module({

@@ -38,6 +38,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewPostCommand } from '../post-application/post-application-use-cases/create-new-post.use-case';
 import { CreateNewCommentCommand } from '../post-application/post-application-use-cases/create-new-comment.use-case';
 import { UpdatePostCommand } from '../post-application/post-application-use-cases/update-post.use-case';
+import { DeletePostCommand } from '../post-application/post-application-use-cases/delete-post.use-case';
 
 @Controller('posts')
 export class PostController {
@@ -189,6 +190,8 @@ export class PostController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
   async deletePost(@Param('postId') postId: string): Promise<void> {
-    await this.postService.deletePost(postId);
+    await this.commandBus.execute<DeletePostCommand, void>(
+      new DeletePostCommand(postId),
+    );
   }
 }

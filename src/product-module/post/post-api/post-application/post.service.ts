@@ -95,12 +95,12 @@ export class PostService {
     if (!postUpdateStatus) throw new NotFoundException();
   }*/
 
-  async deletePost(postId: string): Promise<void> {
+  /*async deletePost(postId: string): Promise<void> {
     const postDeleteStatus: boolean = await this.postRepository.deletePost(
       postId,
     );
     if (!postDeleteStatus) throw new NotFoundException();
-  }
+  }*/
 
   async changeLikeStatus({
     postId,
