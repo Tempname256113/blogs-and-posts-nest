@@ -13,16 +13,16 @@ import {
   PostNewestLikeType,
 } from '../../post-api/post-api-models/post-api.models';
 import { PostApiPaginationQueryDTOType } from '../../post-api/post-api-models/post-api.query-dto';
-import { LikeService } from '../../../like/like-application/like.service';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
+import { LikeQueryRepository } from '../../../like/like.query-repository';
 
 @Injectable()
 export class PostQueryRepository {
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    private likeService: LikeService,
+    private likeQueryRepository: LikeQueryRepository,
     private jwtHelpers: JwtHelpers,
   ) {}
   async getPostById(
@@ -44,17 +44,17 @@ export class PostQueryRepository {
     };
     const userId: string = getUserId();
     const postReactionsCount: { likesCount: number; dislikesCount: number } =
-      await this.likeService.getEntityLikesCount(postId);
+      await this.likeQueryRepository.getEntityLikesCount(postId);
     const foundedPost: PostDocument | null = await this.PostModel.findOne({
       id: postId,
     });
     if (!foundedPost) throw new NotFoundException();
     const userLikeStatus: 'None' | 'Like' | 'Dislike' =
-      await this.likeService.getUserLikeStatus({
+      await this.likeQueryRepository.getUserLikeStatus({
         userId,
         entityId: foundedPost.id,
       });
-    const lastLikes: Like[] = await this.likeService.getEntityLastLikes(
+    const lastLikes: Like[] = await this.likeQueryRepository.getEntityLastLikes(
       foundedPost.id,
     );
     const newestLikesArray: PostNewestLikeType[] = [];
@@ -110,15 +110,14 @@ export class PostQueryRepository {
     const apiPosts: PostApiModel[] = [];
     for (const postDocument of postsWithPagination.items) {
       const postReactionsCount: { likesCount: number; dislikesCount: number } =
-        await this.likeService.getEntityLikesCount(postDocument.id);
+        await this.likeQueryRepository.getEntityLikesCount(postDocument.id);
       const userLikeStatus: 'None' | 'Like' | 'Dislike' =
-        await this.likeService.getUserLikeStatus({
+        await this.likeQueryRepository.getUserLikeStatus({
           userId,
           entityId: postDocument.id,
         });
-      const lastLikes: Like[] = await this.likeService.getEntityLastLikes(
-        postDocument.id,
-      );
+      const lastLikes: Like[] =
+        await this.likeQueryRepository.getEntityLastLikes(postDocument.id);
       const newestLikesArray: PostNewestLikeType[] = [];
       for (const rawLike of lastLikes) {
         const mappedLike: PostNewestLikeType = {

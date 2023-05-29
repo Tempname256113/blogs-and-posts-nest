@@ -15,17 +15,15 @@ import {
 } from '../../comment-api/comment-api-models/comment-api.models';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import {
-  EntityLikesCountType,
-  LikeService,
-} from '../../../like/like-application/like.service';
+import { EntityLikesCountType } from '../../../like/like-application/like.service';
+import { LikeQueryRepository } from '../../../like/like.query-repository';
 
 @Injectable()
 export class CommentQueryRepository {
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private jwtHelpers: JwtHelpers,
-    private likeService: LikeService,
+    private likeQueryRepository: LikeQueryRepository,
   ) {}
 
   async getCommentsWithPaginationByPostId({
@@ -62,9 +60,11 @@ export class CommentQueryRepository {
       const commentReactionsCount: {
         likesCount: number;
         dislikesCount: number;
-      } = await this.likeService.getEntityLikesCount(commentDocument.id);
+      } = await this.likeQueryRepository.getEntityLikesCount(
+        commentDocument.id,
+      );
       const userLikeStatus: 'None' | 'Like' | 'Dislike' =
-        await this.likeService.getUserLikeStatus({
+        await this.likeQueryRepository.getUserLikeStatus({
           userId,
           entityId: commentDocument.id,
         });
@@ -120,9 +120,9 @@ export class CommentQueryRepository {
     }).lean();
     if (!foundedComment) throw new NotFoundException();
     const commentReactionsCount: EntityLikesCountType =
-      await this.likeService.getEntityLikesCount(commentId);
+      await this.likeQueryRepository.getEntityLikesCount(commentId);
     const userLikeInfo: 'Like' | 'Dislike' | 'None' =
-      await this.likeService.getUserLikeStatus({
+      await this.likeQueryRepository.getUserLikeStatus({
         userId,
         entityId: commentId,
       });

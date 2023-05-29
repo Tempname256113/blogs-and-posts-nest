@@ -59,7 +59,7 @@ export class LikeService {
     }
   }*/
 
-  async getEntityLikesCount(entityId: string): Promise<EntityLikesCountType> {
+  /*async getEntityLikesCount(entityId: string): Promise<EntityLikesCountType> {
     const likesCount: number = await this.LikeModel.countDocuments({
       entityId,
       likeStatus: 'Like',
@@ -72,9 +72,9 @@ export class LikeService {
       likesCount,
       dislikesCount,
     };
-  }
+  }*/
 
-  async getEntityLastLikes(entityId: string): Promise<Like[]> {
+  /*async getEntityLastLikes(entityId: string): Promise<Like[]> {
     const fewLastLikes: Like[] = await this.LikeModel.find(
       {
         $and: [{ entityId }, { likeStatus: 'Like' }],
@@ -83,9 +83,9 @@ export class LikeService {
       { sort: { addedAt: -1 }, limit: 3 },
     ).lean();
     return fewLastLikes;
-  }
+  }*/
 
-  async getUserLikeStatus({
+  /*async getUserLikeStatus({
     userId,
     entityId,
   }: {
@@ -103,5 +103,5 @@ export class LikeService {
       currentUserLikeStatus = foundedReaction.likeStatus;
     }
     return currentUserLikeStatus;
-  }
+  }*/
 }

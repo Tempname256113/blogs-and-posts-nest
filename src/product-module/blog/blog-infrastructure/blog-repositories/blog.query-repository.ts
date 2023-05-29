@@ -23,20 +23,18 @@ import {
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
-import {
-  EntityLikesCountType,
-  LikeService,
-} from '../../../like/like-application/like.service';
+import { EntityLikesCountType } from '../../../like/like-application/like.service';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
+import { LikeQueryRepository } from '../../../like/like.query-repository';
 
 @Injectable()
 export class BlogQueryRepository {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    private likeService: LikeService,
+    private likeQueryRepository: LikeQueryRepository,
     private jwtHelpers: JwtHelpers,
   ) {}
   async getBlogsWithPagination(
@@ -98,15 +96,14 @@ export class BlogQueryRepository {
     const mappedPosts: PostApiModel[] = [];
     for (const postDocument of postsWithPagination.items) {
       const countOfReactions: EntityLikesCountType =
-        await this.likeService.getEntityLikesCount(postDocument.id);
+        await this.likeQueryRepository.getEntityLikesCount(postDocument.id);
       const userLikeStatus: 'Like' | 'Dislike' | 'None' =
-        await this.likeService.getUserLikeStatus({
+        await this.likeQueryRepository.getUserLikeStatus({
           userId,
           entityId: postDocument.id,
         });
-      const newestLikes: Like[] = await this.likeService.getEntityLastLikes(
-        postDocument.id,
-      );
+      const newestLikes: Like[] =
+        await this.likeQueryRepository.getEntityLastLikes(postDocument.id);
       const mappedNewestLikes: PostNewestLikeType[] = [];
       for (const rawLike of newestLikes) {
         const mappedLike: PostNewestLikeType = {
