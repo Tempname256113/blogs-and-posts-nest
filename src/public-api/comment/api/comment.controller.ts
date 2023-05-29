@@ -9,25 +9,23 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CommentApiModel } from '../comment-api-models/comment-api.models';
-import { CommentQueryRepository } from '../../comment-infrastructure/comment-repositories/comment.query-repository';
-import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
-import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
-import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { JwtAuthAccessTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
-import { CommentService } from '../../comment-application/comment.service';
-import { CommentApiUpdateDTO } from '../comment-api-models/comment-api.dto';
-import { LikeDto } from '../../../product-models/like.dto';
+import { CommentApiModel } from './models/comment-api.models';
+import { CommentQueryRepository } from '../infrastructure/repositories/comment.query-repository';
+import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
+import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
+import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
+import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
+import { CommentApiUpdateDTO } from './models/comment-api.dto';
+import { LikeDto } from '../../../product-module/product-models/like.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeleteCommentCommand } from '../../comment-application/comment-application-use-cases/delete-comment.use-case';
-import { UpdateCommentCommand } from '../../comment-application/comment-application-use-cases/update-comment.use-case';
-import { ChangeLikeStatusCommand } from '../../comment-application/comment-application-use-cases/change-like-status.use-case';
+import { DeleteCommentCommand } from '../application/use-cases/delete-comment.use-case';
+import { UpdateCommentCommand } from '../application/use-cases/update-comment.use-case';
+import { ChangeCommentLikeStatusCommand } from '../application/use-cases/change-comment-like-status-use.case';
 
 @Controller('comments')
 export class CommentController {
   constructor(
     private commentQueryRepository: CommentQueryRepository,
-    private commentService: CommentService,
     private commandBus: CommandBus,
   ) {}
   @Get(':commentId')
@@ -88,7 +86,7 @@ export class CommentController {
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
     await this.commandBus.execute(
-      new ChangeLikeStatusCommand({
+      new ChangeCommentLikeStatusCommand({
         commentId,
         reaction: likeStatus,
         userLogin: accessTokenPayload.userLogin,

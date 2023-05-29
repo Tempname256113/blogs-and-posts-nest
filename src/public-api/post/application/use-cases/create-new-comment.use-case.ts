@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentApiModel } from '../../../../product-module/comment/comment-api/comment-api-models/comment-api.models';
+import { CommentApiModel } from '../../../comment/api/models/comment-api.models';
 import {
   PostDocument,
   PostSchema,
@@ -12,7 +12,7 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CommentRepository } from '../../../../product-module/comment/comment-infrastructure/comment-repositories/comment.repository';
+import { CommentRepository } from '../../../comment/infrastructure/repositories/comment.repository';
 
 export class CreateNewCommentCommand {
   constructor(

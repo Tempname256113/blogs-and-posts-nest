@@ -6,17 +6,17 @@ import {
   CommentSchema,
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { Model } from 'mongoose';
-import { CommentApiPaginationQueryDto } from '../../comment-api/comment-api-models/comment-api.query-dto';
-import { getDocumentsWithPagination } from '../../../product-additional/get-documents-with-pagination.func';
-import { CommentRepositoryPaginationModel } from './comment-repositories-models/comment-repository.models';
+import { CommentApiPaginationQueryDto } from '../../api/models/comment-api.query-dto';
+import { getDocumentsWithPagination } from '../../../../product-module/product-additional/get-documents-with-pagination.func';
+import { CommentRepositoryPaginationModel } from './models/comment-repository.models';
 import {
   CommentApiModel,
   CommentApiPaginationModel,
-} from '../../comment-api/comment-api-models/comment-api.models';
+} from '../../api/models/comment-api.models';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { EntityLikesCountType } from '../../../like/like-application/like.service';
-import { LikeQueryRepository } from '../../../like/like.query-repository';
+import { EntityLikesCountType } from '../../../../product-module/like/like-application/like.service';
+import { LikeQueryRepository } from '../../../../product-module/like/like.query-repository';
 
 @Injectable()
 export class CommentQueryRepository {

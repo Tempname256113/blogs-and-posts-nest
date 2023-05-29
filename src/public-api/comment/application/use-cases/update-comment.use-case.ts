@@ -6,7 +6,7 @@ import {
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CommentRepository } from '../../comment-infrastructure/comment-repositories/comment.repository';
+import { CommentRepository } from '../../infrastructure/repositories/comment.repository';
 
 export class UpdateCommentCommand {
   constructor(

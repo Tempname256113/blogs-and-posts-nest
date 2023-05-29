@@ -6,9 +6,9 @@ import {
 import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChangeEntityLikeStatusCommand } from '../../../like/like-application/like-application-use-cases/change-entity-like-status.use-case';
+import { ChangeEntityLikeStatusCommand } from '../../../../product-module/like/like-application/like-application-use-cases/change-entity-like-status.use-case';
 
-export class ChangeLikeStatusCommand {
+export class ChangeCommentLikeStatusCommand {
   constructor(
     public readonly data: {
       commentId: string;
@@ -19,9 +19,9 @@ export class ChangeLikeStatusCommand {
   ) {}
 }
 
-@CommandHandler(ChangeLikeStatusCommand)
-export class ChangeLikeStatusUseCase
-  implements ICommandHandler<ChangeLikeStatusCommand, void>
+@CommandHandler(ChangeCommentLikeStatusCommand)
+export class ChangeCommentLikeStatusUseCase
+  implements ICommandHandler<ChangeCommentLikeStatusCommand, void>
 {
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
@@ -30,7 +30,7 @@ export class ChangeLikeStatusUseCase
 
   async execute({
     data: { commentId, reaction, userId, userLogin },
-  }: ChangeLikeStatusCommand): Promise<void> {
+  }: ChangeCommentLikeStatusCommand): Promise<void> {
     const foundedComment: Comment | null = await this.CommentModel.findOne({
       id: commentId,
     });
