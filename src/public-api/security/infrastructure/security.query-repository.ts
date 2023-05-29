@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   Session,
   SessionSchema,
-} from '../../../../../libs/db/mongoose/schemes/session.entity';
+} from '../../../../libs/db/mongoose/schemes/session.entity';
 import { Model } from 'mongoose';
-import { SessionSecurityApiModel } from '../../security-api/security-api-models/security-api.models';
-import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { SessionSecurityApiModel } from '../api/models/security-api.models';
+import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 
 @Injectable()
 export class SecurityQueryRepository {

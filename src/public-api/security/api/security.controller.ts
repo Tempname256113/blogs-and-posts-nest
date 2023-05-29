@@ -7,20 +7,18 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { SecurityService } from '../security-application/security.service';
 import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
-import { SessionSecurityApiModel } from './security-api-models/security-api.models';
-import { SecurityQueryRepository } from '../security-infrastructure/security-repositories/security.query-repository';
+import { SessionSecurityApiModel } from './models/security-api.models';
+import { SecurityQueryRepository } from '../infrastructure/security.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeleteAllSessionsExceptCurrentCommand } from '../security-application/security-application-use-cases/delete-all-sessions.use-case';
-import { DeleteSessionByDeviceIdCommand } from '../security-application/security-application-use-cases/delete-session-by-deviceId.use-case';
+import { DeleteAllSessionsExceptCurrentCommand } from '../application/use-cases/delete-all-sessions.use-case';
+import { DeleteSessionByDeviceIdCommand } from '../application/use-cases/delete-session-by-deviceId.use-case';
 
 @Controller('security')
 export class SecurityController {
   constructor(
-    private securityService: SecurityService,
     private securityQueryRepository: SecurityQueryRepository,
     private commandBus: CommandBus,
   ) {}
