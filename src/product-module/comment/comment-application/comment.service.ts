@@ -11,14 +11,12 @@ import {
 } from '../../../../libs/db/mongoose/schemes/comment.entity';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../comment-infrastructure/comment-repositories/comment.repository';
-import { LikeService } from '../../like/like-application/like.service';
 
 @Injectable()
 export class CommentService {
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private commentRepository: CommentRepository,
-    private likeService: LikeService,
   ) {}
   /*async deleteComment({
     commentId,

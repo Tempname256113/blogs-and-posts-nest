@@ -19,7 +19,6 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { CommentRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.repository';
 import { CommentApiModel } from '../../../comment/comment-api/comment-api-models/comment-api.models';
-import { LikeService } from '../../../like/like-application/like.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { ChangeEntityLikeStatusCommand } from '../../../like/like-application/like-application-use-cases/change-entity-like-status.use-case';
 
@@ -31,7 +30,6 @@ export class PostService {
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private postRepository: PostRepository,
     private commentRepository: CommentRepository,
-    private likeService: LikeService,
     private commandBus: CommandBus,
   ) {}
   /*async createNewPost(createPostDTO: PostApiCreateUpdateDTO): Promise<Post> {

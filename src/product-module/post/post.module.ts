@@ -13,6 +13,7 @@ import { CreateNewCommentUseCase } from './post-api/post-application/post-applic
 import { UpdatePostUseCase } from './post-api/post-application/post-application-use-cases/update-post.use-case';
 import { DeletePostUseCase } from './post-api/post-application/post-application-use-cases/delete-post.use-case';
 import { ChangePostLikeStatusUseCase } from './post-api/post-application/post-application-use-cases/change-post-like-status.use-case';
+import { CqrsModule } from '@nestjs/cqrs';
 
 const UseCases = [
   CreateNewPostUseCase,
@@ -23,7 +24,13 @@ const UseCases = [
 ];
 
 @Module({
-  imports: [MongooseSchemesModule, LikeModule, JwtModule, CommentModule],
+  imports: [
+    MongooseSchemesModule,
+    LikeModule,
+    JwtModule,
+    CommentModule,
+    CqrsModule,
+  ],
   controllers: [PostController],
   providers: [
     PostService,

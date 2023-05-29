@@ -7,6 +7,7 @@ import { AuthJwtRefreshTokenStrategy } from '../../../libs/auth/passport-strateg
 import { SecurityQueryRepository } from './security-infrastructure/security-repositories/security.query-repository';
 import { DeleteAllSessionsExceptCurrentUseCase } from './security-application/security-application-use-cases/delete-all-sessions.use-case';
 import { DeleteSessionByDeviceIdUseCase } from './security-application/security-application-use-cases/delete-session-by-deviceId.use-case';
+import { CqrsModule } from '@nestjs/cqrs';
 
 const UseCases = [
   DeleteAllSessionsExceptCurrentUseCase,
@@ -14,7 +15,7 @@ const UseCases = [
 ];
 
 @Module({
-  imports: [MongooseSchemesModule, JwtModule],
+  imports: [MongooseSchemesModule, JwtModule, CqrsModule],
   providers: [
     SecurityService,
     AuthJwtRefreshTokenStrategy,

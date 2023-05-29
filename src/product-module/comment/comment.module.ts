@@ -9,6 +9,7 @@ import { CommentService } from './comment-application/comment.service';
 import { DeleteCommentUseCase } from './comment-application/comment-application-use-cases/delete-comment.use-case';
 import { UpdateCommentUseCase } from './comment-application/comment-application-use-cases/update-comment.use-case';
 import { ChangeLikeStatusUseCase } from './comment-application/comment-application-use-cases/change-like-status.use-case';
+import { CqrsModule } from '@nestjs/cqrs';
 
 const UseCases = [
   DeleteCommentUseCase,
@@ -17,7 +18,7 @@ const UseCases = [
 ];
 
 @Module({
-  imports: [MongooseSchemesModule, LikeModule, JwtModule],
+  imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],
   controllers: [CommentController],
   providers: [
     CommentRepository,

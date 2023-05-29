@@ -10,6 +10,7 @@ import { CreateBlogUseCase } from './blog-application/blog-application-use-cases
 import { CreatePostBlogUseCase } from './blog-application/blog-application-use-cases/create-post.use-case';
 import { UpdateBlogUseCase } from './blog-application/blog-application-use-cases/update-blog.use-case';
 import { DeleteBlogCommand } from './blog-application/blog-application-use-cases/delete-blog.use-case';
+import { CqrsModule } from '@nestjs/cqrs';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -19,7 +20,7 @@ const UseCases = [
 ];
 
 @Module({
-  imports: [MongooseSchemesModule, LikeModule, JwtModule],
+  imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],
   controllers: [BlogController],
   providers: [BlogService, BlogRepository, BlogQueryRepository, ...UseCases],
 })

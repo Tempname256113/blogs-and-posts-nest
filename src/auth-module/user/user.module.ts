@@ -9,11 +9,12 @@ import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.scheme
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CreateUserUseCase } from './user-application/user-application-use-cases/create-user.use-case';
 import { DeleteUserByIdCommand } from './user-application/user-application-use-cases/delete-user-by-id.use-case';
+import { CqrsModule } from '@nestjs/cqrs';
 
 const UseCases = [CreateUserUseCase, DeleteUserByIdCommand];
 
 @Module({
-  imports: [MongooseSchemesModule, JwtModule],
+  imports: [MongooseSchemesModule, JwtModule, CqrsModule],
   controllers: [UserController],
   providers: [
     UserService,
