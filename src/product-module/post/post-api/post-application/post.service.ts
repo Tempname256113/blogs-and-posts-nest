@@ -45,7 +45,7 @@ export class PostService {
     return newCreatedPost;
   }*/
 
-  async createNewComment({
+  /*async createNewComment({
     userId,
     userLogin,
     content,
@@ -66,7 +66,7 @@ export class PostService {
       content,
     });
     const newCommentModel: CommentDocument = new this.CommentModel(newComment);
-    this.commentRepository.saveComment(newCommentModel);
+    await this.commentRepository.saveComment(newCommentModel);
     const mappedComment: CommentApiModel = {
       id: newComment.id,
       content: newComment.content,
@@ -82,7 +82,7 @@ export class PostService {
       },
     };
     return mappedComment;
-  }
+  }*/
 
   async updatePost(
     postId: string,

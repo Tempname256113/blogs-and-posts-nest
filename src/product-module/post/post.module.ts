@@ -9,8 +9,9 @@ import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CommentModule } from '../comment/comment.module';
 import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';
 import { CreateNewPostUseCase } from './post-api/post-application/post-application-use-cases/create-new-post.use-case';
+import { CreateNewCommentUseCase } from './post-api/post-application/post-application-use-cases/create-new-comment.use-case';
 
-const UseCases = [CreateNewPostUseCase];
+const UseCases = [CreateNewPostUseCase, CreateNewCommentUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule, CommentModule],

@@ -36,6 +36,7 @@ import { AccessToken } from '../../../../../generic-decorators/access-token.deco
 import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewPostCommand } from '../post-application/post-application-use-cases/create-new-post.use-case';
+import { CreateNewCommentCommand } from '../post-application/post-application-use-cases/create-new-comment.use-case';
 
 @Controller('posts')
 export class PostController {
@@ -114,13 +115,16 @@ export class PostController {
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
   ): Promise<CommentApiModel> {
-    const newComment: CommentApiModel = await this.postService.createNewComment(
-      {
+    const newComment: CommentApiModel = await this.commandBus.execute<
+      CreateNewCommentCommand,
+      CommentApiModel
+    >(
+      new CreateNewCommentCommand({
         postId,
         content,
         userId: accessTokenPayload.userId,
         userLogin: accessTokenPayload.userLogin,
-      },
+      }),
     );
     return newComment;
   }
