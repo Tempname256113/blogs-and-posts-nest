@@ -5,7 +5,7 @@ import {
   PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { PostApiCreateUpdateDTO } from '../../post-api/post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTO } from '../../api/models/post-api.dto';
 
 @Injectable()
 export class PostRepository {

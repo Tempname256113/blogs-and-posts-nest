@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostApiCreateUpdateDTO } from '../../post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTO } from '../../api/models/post-api.dto';
 import { NotFoundException } from '@nestjs/common';
-import { PostRepository } from '../../../post-infrastructure/post-repositories/post.repository';
+import { PostRepository } from '../../infrastructure/repositories/post.repository';
 
 export class UpdatePostCommand {
   constructor(

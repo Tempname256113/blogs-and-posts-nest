@@ -5,18 +5,18 @@ import {
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { Model } from 'mongoose';
-import { PostRepositoryPaginationModelType } from './post-repositories-models/post-repository.models';
-import { getDocumentsWithPagination } from '../../../product-additional/get-documents-with-pagination.func';
+import { PostRepositoryPaginationType } from './models/post-repository.models';
+import { getDocumentsWithPagination } from '../../../../product-module/product-additional/get-documents-with-pagination.func';
 import {
   PostApiModel,
   PostApiPaginationModelType,
   PostNewestLikeType,
-} from '../../post-api/post-api-models/post-api.models';
-import { PostApiPaginationQueryDTOType } from '../../post-api/post-api-models/post-api.query-dto';
+} from '../../api/models/post-api.models';
+import { PostApiPaginationQueryDTOType } from '../../api/models/post-api.query-dto';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
-import { LikeQueryRepository } from '../../../like/like.query-repository';
+import { LikeQueryRepository } from '../../../../product-module/like/like.query-repository';
 
 @Injectable()
 export class PostQueryRepository {
@@ -88,7 +88,7 @@ export class PostQueryRepository {
     rawQueryPaginationDTO: PostApiPaginationQueryDTOType,
     accessToken: string | null,
   ): Promise<PostApiPaginationModelType> {
-    const postsWithPagination: PostRepositoryPaginationModelType =
+    const postsWithPagination: PostRepositoryPaginationType =
       await getDocumentsWithPagination<PostDocument>({
         query: rawQueryPaginationDTO,
         model: this.PostModel,

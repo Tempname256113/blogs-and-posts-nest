@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
-import { PostRepository } from '../../../post-infrastructure/post-repositories/post.repository';
+import { PostRepository } from '../../infrastructure/repositories/post.repository';
 
 export class DeletePostCommand {
   constructor(public readonly postId: string) {}

@@ -1,18 +1,18 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostApiCreateUpdateDTO } from '../../post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTO } from '../../api/models/post-api.dto';
 import {
   Post,
   PostDocument,
   PostSchema,
-} from '../../../../../../libs/db/mongoose/schemes/post.entity';
+} from '../../../../../libs/db/mongoose/schemes/post.entity';
 import {
   BlogDocument,
   BlogSchema,
-} from '../../../../../../libs/db/mongoose/schemes/blog.entity';
+} from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PostRepository } from '../../../post-infrastructure/post-repositories/post.repository';
+import { PostRepository } from '../../infrastructure/repositories/post.repository';
 
 export class CreateNewPostCommand {
   constructor(public readonly data: PostApiCreateUpdateDTO) {}

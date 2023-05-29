@@ -12,39 +12,37 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PostApiCreateUpdateDTO } from '../post-api-models/post-api.dto';
-import { PostService } from '../post-application/post.service';
-import { PostQueryRepository } from '../../post-infrastructure/post-repositories/post.query-repository';
+import { PostApiCreateUpdateDTO } from './models/post-api.dto';
+import { PostQueryRepository } from '../infrastructure/repositories/post.query-repository';
 import {
   PostApiModel,
   PostApiPaginationModelType,
-} from '../post-api-models/post-api.models';
-import { PostApiPaginationQueryDTOType } from '../post-api-models/post-api.query-dto';
-import { JwtAuthAccessTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
-import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
-import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { Post as PostType } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { CommentApiCreateDto } from '../../../comment/comment-api/comment-api-models/comment-api.dto';
+} from './models/post-api.models';
+import { PostApiPaginationQueryDTOType } from './models/post-api.query-dto';
+import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
+import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
+import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
+import { Post as PostType } from '../../../../libs/db/mongoose/schemes/post.entity';
+import { CommentApiCreateDto } from '../../../product-module/comment/comment-api/comment-api-models/comment-api.dto';
 import {
   CommentApiModel,
   CommentApiPaginationModel,
-} from '../../../comment/comment-api/comment-api-models/comment-api.models';
-import { CommentApiPaginationQueryDto } from '../../../comment/comment-api/comment-api-models/comment-api.query-dto';
-import { CommentQueryRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.query-repository';
-import { LikeDto } from '../../../product-models/like.dto';
-import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
-import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
+} from '../../../product-module/comment/comment-api/comment-api-models/comment-api.models';
+import { CommentApiPaginationQueryDto } from '../../../product-module/comment/comment-api/comment-api-models/comment-api.query-dto';
+import { CommentQueryRepository } from '../../../product-module/comment/comment-infrastructure/comment-repositories/comment.query-repository';
+import { LikeDto } from '../../../product-module/product-models/like.dto';
+import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
+import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateNewPostCommand } from '../post-application/post-application-use-cases/create-new-post.use-case';
-import { CreateNewCommentCommand } from '../post-application/post-application-use-cases/create-new-comment.use-case';
-import { UpdatePostCommand } from '../post-application/post-application-use-cases/update-post.use-case';
-import { DeletePostCommand } from '../post-application/post-application-use-cases/delete-post.use-case';
-import { ChangePostLikeStatusCommand } from '../post-application/post-application-use-cases/change-post-like-status.use-case';
+import { CreateNewPostCommand } from '../application/use-cases/create-new-post.use-case';
+import { CreateNewCommentCommand } from '../application/use-cases/create-new-comment.use-case';
+import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
+import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
+import { ChangePostLikeStatusCommand } from '../application/use-cases/change-post-like-status.use-case';
 
 @Controller('posts')
 export class PostController {
   constructor(
-    private postService: PostService,
     private postQueryRepository: PostQueryRepository,
     private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,

@@ -1,18 +1,18 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentApiModel } from '../../../../comment/comment-api/comment-api-models/comment-api.models';
+import { CommentApiModel } from '../../../../product-module/comment/comment-api/comment-api-models/comment-api.models';
 import {
   PostDocument,
   PostSchema,
-} from '../../../../../../libs/db/mongoose/schemes/post.entity';
+} from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { NotFoundException } from '@nestjs/common';
 import {
   Comment,
   CommentDocument,
   CommentSchema,
-} from '../../../../../../libs/db/mongoose/schemes/comment.entity';
+} from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CommentRepository } from '../../../../comment/comment-infrastructure/comment-repositories/comment.repository';
+import { CommentRepository } from '../../../../product-module/comment/comment-infrastructure/comment-repositories/comment.repository';
 
 export class CreateNewCommentCommand {
   constructor(
