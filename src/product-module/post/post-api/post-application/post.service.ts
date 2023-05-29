@@ -19,7 +19,9 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { CommentRepository } from '../../../comment/comment-infrastructure/comment-repositories/comment.repository';
 import { CommentApiModel } from '../../../comment/comment-api/comment-api-models/comment-api.models';
-import { LikeService } from '../../../like/like.service';
+import { LikeService } from '../../../like/like-application/like.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { ChangeEntityLikeStatusCommand } from '../../../like/like-application/like-application-use-cases/change-entity-like-status.use-case';
 
 @Injectable()
 export class PostService {
@@ -30,6 +32,7 @@ export class PostService {
     private postRepository: PostRepository,
     private commentRepository: CommentRepository,
     private likeService: LikeService,
+    private commandBus: CommandBus,
   ) {}
   async createNewPost(createPostDTO: PostApiCreateUpdateDTO): Promise<Post> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
@@ -116,12 +119,14 @@ export class PostService {
     if (!foundedPost) {
       throw new NotFoundException();
     }
-    await this.likeService.changeEntityLikeStatus({
-      likeStatus,
-      entity: 'post',
-      entityId: postId,
-      userId,
-      userLogin,
-    });
+    await this.commandBus.execute(
+      new ChangeEntityLikeStatusCommand({
+        likeStatus,
+        entity: 'post',
+        entityId: postId,
+        userId,
+        userLogin,
+      }),
+    );
   }
 }

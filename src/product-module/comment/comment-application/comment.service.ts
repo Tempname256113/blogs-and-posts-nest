@@ -11,7 +11,7 @@ import {
 } from '../../../../libs/db/mongoose/schemes/comment.entity';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../comment-infrastructure/comment-repositories/comment.repository';
-import { LikeService } from '../../like/like.service';
+import { LikeService } from '../../like/like-application/like.service';
 
 @Injectable()
 export class CommentService {

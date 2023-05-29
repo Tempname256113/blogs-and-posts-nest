@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
   Comment,
   CommentSchema,
@@ -6,7 +6,8 @@ import {
 import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { LikeService } from '../../../like/like.service';
+import { LikeService } from '../../../like/like-application/like.service';
+import { ChangeEntityLikeStatusCommand } from '../../../like/like-application/like-application-use-cases/change-entity-like-status.use-case';
 
 export class ChangeLikeStatusCommand {
   constructor(
@@ -26,6 +27,7 @@ export class ChangeLikeStatusUseCase
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private likeService: LikeService,
+    private commandBus: CommandBus,
   ) {}
 
   async execute({
@@ -37,12 +39,14 @@ export class ChangeLikeStatusUseCase
     if (!foundedComment) {
       throw new NotFoundException();
     }
-    await this.likeService.changeEntityLikeStatus({
-      likeStatus: reaction,
-      userId,
-      userLogin,
-      entityId: commentId,
-      entity: 'comment',
-    });
+    await this.commandBus.execute(
+      new ChangeEntityLikeStatusCommand({
+        likeStatus: reaction,
+        userId,
+        userLogin,
+        entityId: commentId,
+        entity: 'comment',
+      }),
+    );
   }
 }

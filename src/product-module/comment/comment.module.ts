@@ -9,11 +9,13 @@ import { CommentService } from './comment-application/comment.service';
 import { DeleteCommentUseCase } from './comment-application/comment-application-use-cases/delete-comment.use-case';
 import { UpdateCommentUseCase } from './comment-application/comment-application-use-cases/update-comment.use-case';
 import { ChangeLikeStatusUseCase } from './comment-application/comment-application-use-cases/change-like-status.use-case';
+import { ChangeEntityLikeStatusUseCase } from '../like/like-application/like-application-use-cases/change-entity-like-status.use-case';
 
 const UseCases = [
   DeleteCommentUseCase,
   UpdateCommentUseCase,
   ChangeLikeStatusUseCase,
+  ChangeEntityLikeStatusUseCase,
 ];
 
 @Module({

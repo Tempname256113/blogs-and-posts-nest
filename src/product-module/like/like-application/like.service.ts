@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Like, LikeDocument, LikeSchema } from '../../../libs/db/mongoose/schemes/like.entity';
+import {
+  Like,
+  LikeDocument,
+  LikeSchema,
+} from '../../../../libs/db/mongoose/schemes/like.entity';
 import { FilterQuery, Model } from 'mongoose';
 
 export type EntityLikesCountType = {
@@ -14,7 +18,7 @@ export class LikeService {
     @InjectModel(LikeSchema.name) private LikeModel: Model<LikeSchema>,
   ) {}
 
-  async changeEntityLikeStatus({
+  /*async changeEntityLikeStatus({
     entity,
     entityId,
     userId,
@@ -53,7 +57,7 @@ export class LikeService {
     } else if (likeStatus === 'None') {
       await this.LikeModel.deleteOne(filter);
     }
-  }
+  }*/
 
   async getEntityLikesCount(entityId: string): Promise<EntityLikesCountType> {
     const likesCount: number = await this.LikeModel.countDocuments({

@@ -15,7 +15,10 @@ import {
 } from '../../comment-api/comment-api-models/comment-api.models';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { EntityLikesCountType, LikeService } from '../../../like/like.service';
+import {
+  EntityLikesCountType,
+  LikeService,
+} from '../../../like/like-application/like.service';
 
 @Injectable()
 export class CommentQueryRepository {

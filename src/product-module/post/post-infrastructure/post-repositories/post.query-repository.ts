@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostDocument, PostSchema } from '../../../../../libs/db/mongoose/schemes/post.entity';
+import {
+  PostDocument,
+  PostSchema,
+} from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { Model } from 'mongoose';
 import { PostRepositoryPaginationModelType } from './post-repositories-models/post-repository.models';
 import { getDocumentsWithPagination } from '../../../product-additional/get-documents-with-pagination.func';
@@ -10,7 +13,7 @@ import {
   PostNewestLikeType,
 } from '../../post-api/post-api-models/post-api.models';
 import { PostApiPaginationQueryDTOType } from '../../post-api/post-api-models/post-api.query-dto';
-import { LikeService } from '../../../like/like.service';
+import { LikeService } from '../../../like/like-application/like.service';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';

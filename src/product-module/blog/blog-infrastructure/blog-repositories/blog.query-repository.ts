@@ -23,7 +23,10 @@ import {
 } from '../../../post/post-api/post-api-models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
-import { EntityLikesCountType, LikeService } from '../../../like/like.service';
+import {
+  EntityLikesCountType,
+  LikeService,
+} from '../../../like/like-application/like.service';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
