@@ -34,16 +34,16 @@ export class PostService {
     private likeService: LikeService,
     private commandBus: CommandBus,
   ) {}
-  async createNewPost(createPostDTO: PostApiCreateUpdateDTO): Promise<Post> {
+  /*async createNewPost(createPostDTO: PostApiCreateUpdateDTO): Promise<Post> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: createPostDTO.blogId,
     });
     if (!foundedBlog) throw new NotFoundException();
     const newCreatedPost: Post = foundedBlog.createPost(createPostDTO);
     const newPostModel: PostDocument = new this.PostModel(newCreatedPost);
-    this.postRepository.savePost(newPostModel);
+    await this.postRepository.savePost(newPostModel);
     return newCreatedPost;
-  }
+  }*/
 
   async createNewComment({
     userId,

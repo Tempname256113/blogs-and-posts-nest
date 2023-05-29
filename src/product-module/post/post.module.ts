@@ -8,6 +8,9 @@ import { LikeModule } from '../like/like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CommentModule } from '../comment/comment.module';
 import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';
+import { CreateNewPostUseCase } from './post-api/post-application/post-application-use-cases/create-new-post.use-case';
+
+const UseCases = [CreateNewPostUseCase];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule, CommentModule],
@@ -17,6 +20,7 @@ import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validato
     PostRepository,
     PostQueryRepository,
     IsValidBlogIdConstraint,
+    ...UseCases,
   ],
 })
 export class PostModule {}

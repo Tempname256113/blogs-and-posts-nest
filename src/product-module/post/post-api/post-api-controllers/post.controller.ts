@@ -34,6 +34,8 @@ import { CommentQueryRepository } from '../../../comment/comment-infrastructure/
 import { LikeDto } from '../../../product-models/like.dto';
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateNewPostCommand } from '../post-application/post-application-use-cases/create-new-post.use-case';
 
 @Controller('posts')
 export class PostController {
@@ -41,6 +43,7 @@ export class PostController {
     private postService: PostService,
     private postQueryRepository: PostQueryRepository,
     private commentQueryRepository: CommentQueryRepository,
+    private commandBus: CommandBus,
   ) {}
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -48,9 +51,10 @@ export class PostController {
   async createPost(
     @Body() postCreateDTO: PostApiCreateUpdateDTO,
   ): Promise<PostApiModel> {
-    const newPost: PostType = await this.postService.createNewPost(
-      postCreateDTO,
-    );
+    const newPost: PostType = await this.commandBus.execute<
+      CreateNewPostCommand,
+      PostType
+    >(new CreateNewPostCommand(postCreateDTO));
     const postApiModel: PostApiModel = {
       id: newPost.id,
       title: newPost.title,
