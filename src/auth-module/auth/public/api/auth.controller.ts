@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserApiCreateDto } from '../../../user/user-api/user-api-models/user-api.dto';
-import { AuthService } from '../../auth-application/auth.service';
 import { LocalAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-local.strategy';
 import { AdditionalReqDataDecorator } from '../../../../../generic-decorators/additional-req-data.decorator';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
@@ -21,29 +20,28 @@ import {
   AuthApiConfirmRegistrationDTO,
   AuthApiEmailPropertyDTO,
   NewPasswordDTO,
-} from '../auth-api-models/auth-api.dto';
+} from './models/auth-api.dto';
 import { Cookies } from '../../../../../generic-decorators/cookies.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { AuthApiUserInfoModelType } from '../auth-api-models/auth-api.models';
+import { AuthApiUserInfoModelType } from './models/auth-api.models';
 import { UserQueryRepository } from '../../../user/user-infrastructure/user-repositories/user.query-repository';
 import { ClientDeviceTitle } from '../../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
-import { RegistrationUserCommand } from '../../auth-application/auth-application-use-cases/registration-user.use-case';
-import { LoginUserCommand } from '../../auth-application/auth-application-use-cases/login-user.use-case';
-import { ConfirmRegistrationCommand } from '../../auth-application/auth-application-use-cases/registration-confirm.use-case';
-import { ResendConfirmationEmailCommand } from '../../auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
-import { LogoutCommand } from '../../auth-application/auth-application-use-cases/logout-user.use-case';
-import { UpdateTokensPairCommand } from '../../auth-application/auth-application-use-cases/update-tokens-pair.use-case';
-import { SendPasswordRecoveryCodeCommand } from '../../auth-application/auth-application-use-cases/send-password-recovery-code.use-case';
-import { SetNewPasswordCommand } from '../../auth-application/auth-application-use-cases/set-new-password.use-case';
+import { RegistrationUserCommand } from '../application/use-cases/registration-user.use-case';
+import { LoginUserCommand } from '../application/use-cases/login-user.use-case';
+import { ConfirmRegistrationCommand } from '../application/use-cases/registration-confirm.use-case';
+import { ResendConfirmationEmailCommand } from '../application/use-cases/resend-confirmation-email.use-case';
+import { LogoutCommand } from '../application/use-cases/logout-user.use-case';
+import { UpdateTokensPairCommand } from '../application/use-cases/update-tokens-pair.use-case';
+import { SendPasswordRecoveryCodeCommand } from '../application/use-cases/send-password-recovery-code.use-case';
+import { SetNewPasswordCommand } from '../application/use-cases/set-new-password.use-case';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private authService: AuthService,
     private usersQueryRepository: UserQueryRepository,
     private commandBus: CommandBus,
   ) {}

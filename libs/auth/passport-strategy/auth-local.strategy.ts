@@ -1,17 +1,13 @@
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { AuthService } from '../../../src/auth-module/auth/auth-application/auth.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { User } from '../../db/mongoose/schemes/user.entity';
 import { CommandBus } from '@nestjs/cqrs';
-import { ValidateUserCommand } from '../../../src/auth-module/auth/auth-application/auth-application-use-cases/validate-user.use-case';
+import { ValidateUserCommand } from '../../../src/auth-module/auth/public/application/use-cases/validate-user.use-case';
 
 @Injectable()
 export class AuthLocalStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private authService: AuthService,
-    private commandBus: CommandBus,
-  ) {
+  constructor(private commandBus: CommandBus) {
     super({
       usernameField: 'loginOrEmail',
       passwordField: 'password',

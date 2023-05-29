@@ -1,18 +1,18 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { JwtRefreshTokenPayloadType } from '../../../../../../generic-models/jwt.payload.model';
 import {
   CreateNewTokenPairData,
   CreateNewTokenPairReturnType,
   JwtHelpers,
-} from '../../../../../libs/auth/jwt/jwt-helpers.service';
-import { SessionUpdateDTO } from '../../auth-infrastructure/auth-repositories/auth-repositories-models/auth-repository.dto';
+} from '../../../../../../libs/auth/jwt/jwt-helpers.service';
+import { SessionUpdateDTO } from '../../infrastructure/models/auth-repository.dto';
 import {
   SessionDocument,
   SessionSchema,
-} from '../../../../../libs/db/mongoose/schemes/session.entity';
+} from '../../../../../../libs/db/mongoose/schemes/session.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AuthRepository } from '../../auth-infrastructure/auth-repositories/auth.repository';
+import { AuthRepository } from '../../infrastructure/auth.repository';
 
 export class UpdateTokensPairCommand {
   constructor(

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
-import { AuthController } from './auth/auth-api/auth-api-controllers/auth.controller';
-import { AuthService } from './auth/auth-application/auth.service';
+import { AuthController } from './auth/public/api/auth.controller';
 import { NodemailerModule } from '../../libs/email/nodemailer/nodemailer.module';
-import { AuthRepository } from './auth/auth-infrastructure/auth-repositories/auth.repository';
+import { AuthRepository } from './auth/public/infrastructure/auth.repository';
 import { AuthJwtAccessTokenStrategy } from '../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import { AuthLocalStrategy } from '../../libs/auth/passport-strategy/auth-local.strategy';
 import { UserRepository } from './user/user-infrastructure/user-repositories/user.repository';
@@ -12,15 +11,15 @@ import { UserQueryRepository } from './user/user-infrastructure/user-repositorie
 import { JwtModule } from '../../libs/auth/jwt/jwt.module';
 import { SecurityModule } from './security/security.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { RegistrationUserUseCase } from './auth/auth-application/auth-application-use-cases/registration-user.use-case';
+import { RegistrationUserUseCase } from './auth/public/application/use-cases/registration-user.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ValidateUserUseCase } from './auth/auth-application/auth-application-use-cases/validate-user.use-case';
-import { LoginUserUseCase } from './auth/auth-application/auth-application-use-cases/login-user.use-case';
-import { RegistrationConfirmUseCase } from './auth/auth-application/auth-application-use-cases/registration-confirm.use-case';
-import { ResendConfirmationEmailUseCase } from './auth/auth-application/auth-application-use-cases/resend-confirmation-email.use-case';
-import { UpdateTokensPairUseCase } from './auth/auth-application/auth-application-use-cases/update-tokens-pair.use-case';
-import { SendPasswordRecoveryCodeUseCase } from './auth/auth-application/auth-application-use-cases/send-password-recovery-code.use-case';
-import { SetNewPasswordUseCase } from './auth/auth-application/auth-application-use-cases/set-new-password.use-case';
+import { ValidateUserUseCase } from './auth/public/application/use-cases/validate-user.use-case';
+import { LoginUserUseCase } from './auth/public/application/use-cases/login-user.use-case';
+import { RegistrationConfirmUseCase } from './auth/public/application/use-cases/registration-confirm.use-case';
+import { ResendConfirmationEmailUseCase } from './auth/public/application/use-cases/resend-confirmation-email.use-case';
+import { UpdateTokensPairUseCase } from './auth/public/application/use-cases/update-tokens-pair.use-case';
+import { SendPasswordRecoveryCodeUseCase } from './auth/public/application/use-cases/send-password-recovery-code.use-case';
+import { SetNewPasswordUseCase } from './auth/public/application/use-cases/set-new-password.use-case';
 
 const UseCases = [
   RegistrationUserUseCase,
@@ -45,7 +44,6 @@ const UseCases = [
   ],
   controllers: [AuthController],
   providers: [
-    AuthService,
     AuthRepository,
     AuthJwtAccessTokenStrategy,
     AuthLocalStrategy,
