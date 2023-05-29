@@ -10,23 +10,21 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from '../../user-application/user.service';
-import { UserApiCreateDto } from '../user-api-models/user-api.dto';
+import { UserApiCreateDto } from './models/user-api.dto';
 import {
   UserApiModelType,
   UserApiPaginationModelType,
-} from '../user-api-models/user-api.models';
-import { UserQueryRepository } from '../../user-infrastructure/user-repositories/user.query-repository';
-import { IUserApiPaginationQueryDto } from '../user-api-models/user-api.query-dto';
-import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
+} from './models/user-api.models';
+import { UserQueryRepository } from '../infrastructure/repositories/user.query-repository';
+import { IUserApiPaginationQueryDto } from './models/user-api.query-dto';
+import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand } from '../../user-application/user-application-use-cases/create-user.use-case';
-import { DeleteUserByIdCommand } from '../../user-application/user-application-use-cases/delete-user-by-id.use-case';
+import { CreateUserCommand } from '../application/use-cases/create-user.use-case';
+import { DeleteUserByIdCommand } from '../application/use-cases/delete-user-by-id.use-case';
 
 @Controller('users')
 export class UserController {
   constructor(
-    private userService: UserService,
     private userQueryRepository: UserQueryRepository,
     private commandBus: CommandBus,
   ) {}

@@ -1,6 +1,6 @@
 import { UserDocument } from '../../../../../../libs/db/mongoose/schemes/user.entity';
 
-export type UserRepositoryPaginationModelType = {
+export type UserRepositoryPaginationType = {
   pagesCount: number;
   page: number;
   pageSize: number;

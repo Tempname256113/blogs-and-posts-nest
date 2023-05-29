@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserApiCreateDto } from '../../user-api/user-api-models/user-api.dto';
-import { UserApiModelType } from '../../user-api/user-api-models/user-api.models';
+import { UserApiCreateDto } from '../../api/models/user-api.dto';
+import { UserApiModelType } from '../../api/models/user-api.models';
 import { hashSync } from 'bcrypt';
 import {
   User,
@@ -9,7 +9,7 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserRepository } from '../../user-infrastructure/user-repositories/user.repository';
+import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { v4 as uuidv4 } from 'uuid';
 
 export class CreateUserCommand {

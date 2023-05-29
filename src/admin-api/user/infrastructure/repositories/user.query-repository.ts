@@ -6,18 +6,18 @@ import {
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { Model } from 'mongoose';
-import { IUserApiPaginationQueryDto } from '../../user-api/user-api-models/user-api.query-dto';
+import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import {
   UserApiModelType,
   UserApiPaginationModelType,
-} from '../../user-api/user-api-models/user-api.models';
+} from '../../api/models/user-api.models';
 import {
   FilterType,
   getDocumentsWithPagination,
   PaginationQueryType,
 } from '../../../../product-module/product-additional/get-documents-with-pagination.func';
-import { UserRepositoryPaginationModelType } from './user-repositories-models/user-repository.model';
-import { AuthApiUserInfoModelType } from '../../../auth/public/api/models/auth-api.models';
+import { UserRepositoryPaginationType } from './models/user-repository.model';
+import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 
@@ -64,7 +64,7 @@ export class UserQueryRepository {
         value: rawPaginationQuery.searchEmailTerm,
       });
     }
-    const usersWithPagination: UserRepositoryPaginationModelType =
+    const usersWithPagination: UserRepositoryPaginationType =
       await getDocumentsWithPagination<UserDocument>({
         query: paginationQuery,
         model: this.UserModel,
@@ -93,7 +93,7 @@ export class UserQueryRepository {
 
   async getInfoAboutUser(
     accessToken: string,
-  ): Promise<AuthApiUserInfoModelType | null> {
+  ): Promise<AuthApiUserInfoType | null> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) {
@@ -103,7 +103,7 @@ export class UserQueryRepository {
       id: accessTokenPayload.userId,
     });
     if (!foundedUser) return null;
-    const mappedUser: AuthApiUserInfoModelType = {
+    const mappedUser: AuthApiUserInfoType = {
       userId: foundedUser.id,
       login: foundedUser.accountData.login,
       email: foundedUser.accountData.email,
