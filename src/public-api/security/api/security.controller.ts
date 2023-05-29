@@ -11,7 +11,7 @@ import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strateg
 import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { SessionSecurityApiModel } from './models/security-api.models';
-import { SecurityQueryRepository } from '../infrastructure/security.query-repository';
+import { SecurityQueryRepository } from '../infrastructure/repositories/security.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteAllSessionsExceptCurrentCommand } from '../application/use-cases/delete-all-sessions.use-case';
 import { DeleteSessionByDeviceIdCommand } from '../application/use-cases/delete-session-by-deviceId.use-case';

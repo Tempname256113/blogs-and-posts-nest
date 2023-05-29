@@ -23,7 +23,7 @@ import {
 } from './models/auth-api.dto';
 import { Cookies } from '../../../../generic-decorators/cookies.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
-import { AuthApiUserInfoModelType } from './models/auth-api.models';
+import { AuthApiUserInfoType } from './models/auth-api.models';
 import { UserQueryRepository } from '../../../admin-api/user/user-infrastructure/user-repositories/user.query-repository';
 import { ClientDeviceTitle } from '../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
@@ -180,8 +180,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async getInfoAboutUser(
     @AccessToken() accessToken: string | null,
-  ): Promise<AuthApiUserInfoModelType> {
-    const foundedUserInfo: AuthApiUserInfoModelType | null =
+  ): Promise<AuthApiUserInfoType> {
+    const foundedUserInfo: AuthApiUserInfoType | null =
       await this.usersQueryRepository.getInfoAboutUser(accessToken);
     if (!foundedUserInfo) throw new UnauthorizedException();
     return foundedUserInfo;

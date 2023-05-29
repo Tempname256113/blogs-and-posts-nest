@@ -5,14 +5,14 @@ import {
   CreateNewTokenPairReturnType,
   JwtHelpers,
 } from '../../../../../libs/auth/jwt/jwt-helpers.service';
-import { SessionUpdateRepositoryDTO } from '../../infrastructure/models/auth-repository.dto';
+import { SessionUpdateRepositoryDTO } from '../../infrastructure/repositories/models/auth-repository.dto';
 import {
   SessionDocument,
   SessionSchema,
 } from '../../../../../libs/db/mongoose/schemes/session.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AuthRepository } from '../../infrastructure/auth.repository';
+import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
 
 export class UpdateTokensPairCommand {
   constructor(

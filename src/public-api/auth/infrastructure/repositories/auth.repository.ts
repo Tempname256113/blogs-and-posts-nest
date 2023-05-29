@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserSchema } from '../../../../libs/db/mongoose/schemes/user.entity';
+import { UserSchema } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { Model } from 'mongoose';
 import {
   SessionDocument,
   SessionSchema,
-} from '../../../../libs/db/mongoose/schemes/session.entity';
+} from '../../../../../libs/db/mongoose/schemes/session.entity';
 
 @Injectable()
 export class AuthRepository {

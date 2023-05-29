@@ -8,7 +8,7 @@ import {
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AuthRepository } from '../../infrastructure/auth.repository';
+import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
 
 export class LogoutCommand {
   constructor(public readonly refreshToken: string) {}
