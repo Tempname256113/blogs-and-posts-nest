@@ -23,13 +23,13 @@ import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy
 import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
 import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { Post as PostType } from '../../../../libs/db/mongoose/schemes/post.entity';
-import { CommentApiCreateDto } from '../../../product-module/comment/comment-api/comment-api-models/comment-api.dto';
+import { CommentApiCreateDto } from '../../comment/api/models/comment-api.dto';
 import {
   CommentApiModel,
   CommentApiPaginationModel,
-} from '../../../product-module/comment/comment-api/comment-api-models/comment-api.models';
-import { CommentApiPaginationQueryDto } from '../../../product-module/comment/comment-api/comment-api-models/comment-api.query-dto';
-import { CommentQueryRepository } from '../../../product-module/comment/comment-infrastructure/comment-repositories/comment.query-repository';
+} from '../../comment/api/models/comment-api.models';
+import { CommentApiPaginationQueryDto } from '../../comment/api/models/comment-api.query-dto';
+import { CommentQueryRepository } from '../../comment/infrastructure/repositories/comment.query-repository';
 import { LikeDto } from '../../../product-module/product-models/like.dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';

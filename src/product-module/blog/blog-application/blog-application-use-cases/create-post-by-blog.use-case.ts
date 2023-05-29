@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
-import { PostApiModel } from '../../../post/post-api/post-api-models/post-api.models';
+import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
+import { PostApiModel } from '../../../../public-api/post/api/models/post-api.models';
 import {
   BlogDocument,
   BlogSchema,
@@ -15,7 +15,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BlogRepository } from '../../blog-infrastructure/blog-repositories/blog.repository';
 
-export class CreatePostBlogCommand {
+export class CreatePostByBlogCommand {
   constructor(
     public readonly data: {
       blogId: string;
@@ -24,9 +24,9 @@ export class CreatePostBlogCommand {
   ) {}
 }
 
-@CommandHandler(CreatePostBlogCommand)
-export class CreatePostBlogUseCase
-  implements ICommandHandler<CreatePostBlogCommand, PostApiModel>
+@CommandHandler(CreatePostByBlogCommand)
+export class CreatePostByBlogUseCase
+  implements ICommandHandler<CreatePostByBlogCommand, PostApiModel>
 {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
@@ -36,7 +36,7 @@ export class CreatePostBlogUseCase
 
   async execute({
     data: { blogId, createPostDTO },
-  }: CreatePostBlogCommand): Promise<PostApiModel> {
+  }: CreatePostByBlogCommand): Promise<PostApiModel> {
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: blogId,
     });
