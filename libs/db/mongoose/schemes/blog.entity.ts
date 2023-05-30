@@ -2,10 +2,11 @@ import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Post } from './post.entity';
-import { PostApiCreateUpdateDTO } from '../../../../src/product-module/post/post-api/post-api-models/post-api.dto';
+import { PostApiCreateUpdateDTO } from '../../../../src/public-api/post/api/models/post-api.dto';
 
 export class Blog {
   id: string;
+  bloggerId: string;
   name: string;
   description: string;
   websiteUrl: string;
@@ -32,6 +33,9 @@ class BlogMethods extends Blog {
 export class BlogSchema extends BlogMethods implements Blog {
   @Prop({ required: true })
   id: string;
+
+  @Prop()
+  bloggerId: string;
 
   @Prop({ required: true })
   name: string;
