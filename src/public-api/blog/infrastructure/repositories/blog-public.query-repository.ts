@@ -5,32 +5,32 @@ import { Model } from 'mongoose';
 import {
   BlogApiModelType,
   BlogApiPaginationModelType,
-} from '../../blog-api/blog-api-models/blog-api.models';
+} from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
 import {
   FilterType,
   getDocumentsWithPagination,
   PaginationQueryType,
-} from '../../../product-additional/get-documents-with-pagination.func';
+} from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
   PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { PostRepositoryPaginationModelType } from '../../../post/post-infrastructure/post-repositories/post-repositories-models/post-repository.models';
+import { PostRepositoryPaginationType } from '../../../post/infrastructure/repositories/models/post-repository.models';
 import {
   PostApiModel,
   PostApiPaginationModelType,
   PostNewestLikeType,
-} from '../../../post/post-api/post-api-models/post-api.models';
-import { BlogApiPaginationQueryDTO } from '../../blog-api/blog-api-models/blog-api.query-dto';
-import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
-import { EntityLikesCountType } from '../../../like/like-application/like.service';
+} from '../../../post/api/models/post-api.models';
+import { BlogApiPaginationQueryDTO } from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.query-dto';
+import { PostApiPaginationQueryDTOType } from '../../../post/api/models/post-api.query-dto';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
-import { LikeQueryRepository } from '../../../like/like.query-repository';
+import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
+import { EntityLikesCountType } from '../../../like/application/models/entity-likes-count.model';
 
 @Injectable()
-export class BlogQueryRepository {
+export class BlogPublicQueryRepository {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
@@ -72,7 +72,7 @@ export class BlogQueryRepository {
     blogId: string;
     accessToken: string | null;
   }): Promise<PostApiPaginationModelType> {
-    const postsWithPagination: PostRepositoryPaginationModelType =
+    const postsWithPagination: PostRepositoryPaginationType =
       await getDocumentsWithPagination<PostDocument>({
         query: rawPaginationQuery,
         model: this.PostModel,
