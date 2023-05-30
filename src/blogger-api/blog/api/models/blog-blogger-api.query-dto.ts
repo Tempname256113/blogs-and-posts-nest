@@ -1,4 +1,4 @@
-export type BlogApiPaginationQueryDTO = {
+export type BlogBloggerApiPaginationQueryDTO = {
   searchNameTerm: string | null;
   pageNumber: number;
   pageSize: number;

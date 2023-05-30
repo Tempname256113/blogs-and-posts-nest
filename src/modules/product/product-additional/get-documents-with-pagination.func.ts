@@ -1,6 +1,6 @@
 import { FilterQuery, Model } from 'mongoose';
 
-type DocumentPaginationModel<T> = {
+export type DocumentPaginationModel<T> = {
   pagesCount: number;
   page: number;
   pageSize: number;

@@ -7,7 +7,7 @@ export type BlogBloggerApiModel = {
   isMembership: boolean;
 };
 
-export type BlogApiPaginationModel = {
+export type BlogBloggerApiPaginationModel = {
   pagesCount: number;
   page: number;
   pageSize: number;

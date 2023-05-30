@@ -19,13 +19,13 @@ import {
 } from './models/blog-blogger-api.dto';
 import {
   BlogBloggerApiModel,
-  BlogApiPaginationModel,
+  BlogBloggerApiPaginationModel,
 } from './models/blog-blogger-api.models';
 import {
   PostApiModel,
   PostApiPaginationModelType,
 } from '../../../public-api/post/api/models/post-api.models';
-import { BlogApiPaginationQueryDTO } from './models/blog-blogger-api.query-dto';
+import { BlogBloggerApiPaginationQueryDTO } from './models/blog-blogger-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../public-api/post/api/models/post-api.query-dto';
 import { PostApiCreateUpdateDTO } from '../../../public-api/post/api/models/post-api.dto';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
@@ -93,23 +93,23 @@ export class BlogBloggerController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthAccessTokenGuard)
   async getBlogsWithPagination(
     @Query()
-    rawPaginationQuery: BlogApiPaginationQueryDTO,
-    @PassportjsReqDataDecorator() accessTokenPayload: JwtAccessTokenPayloadType,
-  ): Promise<BlogApiPaginationModel> {
-    const paginationQuery: BlogApiPaginationQueryDTO = {
+    rawPaginationQuery: BlogBloggerApiPaginationQueryDTO,
+    @AccessToken() accessToken: string | null,
+  ): Promise<BlogBloggerApiPaginationModel> {
+    if (!accessToken) throw new UnauthorizedException();
+    const paginationQuery: BlogBloggerApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const blogsWithPagination: BlogApiPaginationModel =
+    const blogsWithPagination: BlogBloggerApiPaginationModel =
       await this.blogQueryRepository.getBlogsWithPagination({
         paginationQuery,
-        bloggerId: accessTokenPayload.userId,
+        accessToken,
       });
     return blogsWithPagination;
   }

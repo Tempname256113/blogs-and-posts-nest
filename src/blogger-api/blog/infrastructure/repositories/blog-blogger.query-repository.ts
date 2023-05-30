@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogSchema } from '../../../../../libs/db/mongoose/schemes/blog.entity';
+import {
+  Blog,
+  BlogSchema,
+} from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { Model } from 'mongoose';
+import { BlogApiModelType } from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
 import {
-  BlogApiModelType,
-  BlogApiPaginationModelType,
-} from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
-import {
+  DocumentPaginationModel,
   FilterType,
   getDocumentsWithPagination,
   PaginationQueryType,
@@ -28,6 +29,10 @@ import {
   PostNewestLikeType,
 } from '../../../../public-api/post/api/models/post-api.models';
 import { PostRepositoryPaginationType } from '../../../../public-api/post/infrastructure/repositories/models/post-repository.models';
+import {
+  BlogBloggerApiModel,
+  BlogBloggerApiPaginationModel,
+} from '../../api/models/blog-blogger-api.models';
 
 @Injectable()
 export class BlogBloggerQueryRepository {
@@ -38,12 +43,16 @@ export class BlogBloggerQueryRepository {
     private jwtHelpers: JwtHelpers,
   ) {}
   async getBlogsWithPagination({
-    bloggerId,
+    accessToken,
     paginationQuery: rawPaginationQuery,
   }: {
     paginationQuery: BlogApiPaginationQueryDTO;
-    bloggerId: string;
-  }): Promise<BlogApiPaginationModelType> {
+    accessToken: string;
+  }): Promise<BlogBloggerApiPaginationModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const bloggerId: string = accessTokenPayload.userId;
     const filter: FilterType = [{ value: bloggerId, property: 'bloggerId' }];
     const paginationQuery: PaginationQueryType = {
       pageNumber: rawPaginationQuery.pageNumber,
@@ -57,14 +66,33 @@ export class BlogBloggerQueryRepository {
         property: 'title',
       });
     }
-    const blogsWithPagination: BlogApiPaginationModelType =
-      await getDocumentsWithPagination<BlogApiModelType>({
+    const blogsWithPagination: DocumentPaginationModel<Blog> =
+      await getDocumentsWithPagination<Blog>({
         query: paginationQuery,
         model: this.BlogModel,
         rawFilter: filter,
         lean: true,
       });
-    return blogsWithPagination;
+    const mappedBlogsWithPagination: BlogBloggerApiModel[] =
+      blogsWithPagination.items.map((blog) => {
+        const mappedBlog: BlogBloggerApiModel = {
+          id: blog.id,
+          name: blog.name,
+          description: blog.description,
+          websiteUrl: blog.websiteUrl,
+          createdAt: blog.createdAt,
+          isMembership: blog.isMembership,
+        };
+        return mappedBlog;
+      });
+    const result: BlogBloggerApiPaginationModel = {
+      pagesCount: blogsWithPagination.pagesCount,
+      page: blogsWithPagination.page,
+      pageSize: blogsWithPagination.pageSize,
+      totalCount: blogsWithPagination.totalCount,
+      items: mappedBlogsWithPagination,
+    };
+    return result;
   }
 
   async getPostsWithPaginationByBlogId({
