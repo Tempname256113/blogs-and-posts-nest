@@ -113,7 +113,7 @@ export class BlogBloggerController {
     return blogsWithPagination;
   }
 
-  @Get(':blogId/posts')
+  /*@Get(':blogId/posts')
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaginationByBlogId(
     @Query()
@@ -137,9 +137,9 @@ export class BlogBloggerController {
         accessToken,
       });
     return foundedPostsByBlogId;
-  }
+  }*/
 
-  @Get(':blogId')
+  /*@Get(':blogId')
   @HttpCode(HttpStatus.OK)
   async getBlogById(
     @Param('blogId') blogId: string,
@@ -148,7 +148,7 @@ export class BlogBloggerController {
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     return foundedBlog;
-  }
+  }*/
 
   @Put(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)
