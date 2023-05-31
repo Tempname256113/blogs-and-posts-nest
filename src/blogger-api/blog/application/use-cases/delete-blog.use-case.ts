@@ -1,21 +1,49 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundException } from '@nestjs/common';
-import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import {
+  Blog,
+  BlogSchema,
+} from '../../../../../libs/db/mongoose/schemes/blog.entity';
+import { Model } from 'mongoose';
+import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 
 export class DeleteBlogCommand {
-  constructor(public readonly blogId: string) {}
+  constructor(
+    public readonly data: {
+      blogId: string;
+      accessToken: string;
+    },
+  ) {}
 }
 
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlogUseCase
   implements ICommandHandler<DeleteBlogCommand, void>
 {
-  constructor(private blogRepository: BlogRepository) {}
+  constructor(
+    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
+    private jwtHelpers: JwtHelpers,
+  ) {}
 
-  async execute({ blogId }: DeleteBlogCommand): Promise<void> {
-    const deleteBlogStatus: boolean = await this.blogRepository.deleteBlog(
-      blogId,
-    );
-    if (!deleteBlogStatus) throw new NotFoundException();
+  async execute({
+    data: { blogId, accessToken },
+  }: DeleteBlogCommand): Promise<void> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const foundedBlog: Blog | null = await this.BlogModel.findOne({
+      id: blogId,
+    }).lean();
+    if (!foundedBlog) throw new NotFoundException();
+    if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
+      throw new ForbiddenException();
+    }
+    await this.BlogModel.deleteOne({ id: blogId });
   }
 }

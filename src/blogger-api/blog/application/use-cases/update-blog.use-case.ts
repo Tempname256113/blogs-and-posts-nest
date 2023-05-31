@@ -5,7 +5,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { InjectModel } from '@nestjs/mongoose';
@@ -42,7 +41,7 @@ export class UpdateBlogUseCase
     if (!accessTokenPayload) throw new UnauthorizedException();
     const foundedBlog: Blog | null = await this.BlogModel.findOne({
       id: blogId,
-    });
+    }).lean();
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();

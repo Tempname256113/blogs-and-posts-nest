@@ -189,10 +189,13 @@ export class BlogBloggerController {
 
   @Delete(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(BasicAuthGuard)
-  async deleteBlogById(@Param('blogId') blogId: string) {
+  async deleteBlogById(
+    @Param('blogId') blogId: string,
+    @AccessToken() accessToken: string | null,
+  ) {
+    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<DeleteBlogCommand, void>(
-      new DeleteBlogCommand(blogId),
+      new DeleteBlogCommand({ blogId, accessToken }),
     );
   }
 }
