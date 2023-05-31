@@ -153,13 +153,18 @@ export class BlogBloggerController {
 
   @Put(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(BasicAuthGuard)
   async updateBlogById(
     @Param('blogId') blogId: string,
     @Body() blogUpdateDTO: BlogBloggerApiCreateUpdateDTO,
+    @AccessToken() accessToken: string | null,
   ): Promise<void> {
+    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<UpdateBlogCommand, void>(
-      new UpdateBlogCommand({ blogId, updateBlogDTO: blogUpdateDTO }),
+      new UpdateBlogCommand({
+        blogId,
+        updateBlogDTO: blogUpdateDTO,
+        accessToken,
+      }),
     );
   }
 
