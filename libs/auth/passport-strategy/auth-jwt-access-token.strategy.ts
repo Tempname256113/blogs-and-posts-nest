@@ -23,4 +23,9 @@ export class AuthJwtAccessTokenStrategy extends PassportStrategy(Strategy) {
   }
 }
 
+/* проверяет валидность access token и время его жизни. если токен валиден и
+ * по времени еще актуален то гард пропускает запрос дальше, если нет, то будет ошибка
+ * Unauthorized которая отправит на клиент ответ со статусом 401.
+ * если все хорошо то к req будет прикреплен объект user с расшифрованным
+ * access token payload. получится так req.user = {accessTokenPayload} */
 export class JwtAuthAccessTokenGuard extends AuthGuard('jwt') {}
