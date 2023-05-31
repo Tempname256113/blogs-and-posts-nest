@@ -14,7 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
-  BlogBloggerApiCreatePostDTO,
+  BlogBloggerApiCreateUpdatePostDTO,
   BlogBloggerApiCreateUpdateDTO,
 } from './models/blog-blogger-api.dto';
 import {
@@ -36,9 +36,7 @@ import { CreatePostByBlogCommand } from '../application/use-cases/create-post-by
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case';
 import { BlogBloggerQueryRepository } from '../infrastructure/repositories/blog-blogger.query-repository';
-import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
-import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
-import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
+import { UpdatePostByBlogIdCommand } from '../application/use-cases/update-post-by-blogId.use-case';
 
 @Controller('blogger/blogs')
 export class BlogBloggerController {
@@ -68,10 +66,9 @@ export class BlogBloggerController {
 
   @Post(':blogId/posts')
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(BasicAuthGuard)
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
-    @Body() postCreateDTO: BlogBloggerApiCreatePostDTO,
+    @Body() postCreateDTO: BlogBloggerApiCreateUpdatePostDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<PostApiModel> {
     if (!accessToken) throw new UnauthorizedException();
@@ -163,6 +160,25 @@ export class BlogBloggerController {
   ): Promise<void> {
     await this.commandBus.execute<UpdateBlogCommand, void>(
       new UpdateBlogCommand({ blogId, updateBlogDTO: blogUpdateDTO }),
+    );
+  }
+
+  @Put(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePostById(
+    @Param('blogId') blogId: string,
+    @Param('postId') postId: string,
+    @Body() postUpdateDTO: BlogBloggerApiCreateUpdatePostDTO,
+    @AccessToken() accessToken: string,
+  ): Promise<void> {
+    if (!accessToken) throw new UnauthorizedException();
+    await this.commandBus.execute<UpdatePostByBlogIdCommand, void>(
+      new UpdatePostByBlogIdCommand({
+        blogId,
+        postId,
+        postUpdateDTO,
+        accessToken,
+      }),
     );
   }
 
