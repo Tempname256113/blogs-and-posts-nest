@@ -72,7 +72,9 @@ export class BlogBloggerController {
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: BlogBloggerApiCreatePostDTO,
+    @AccessToken() accessToken: string | null,
   ): Promise<PostApiModel> {
+    if (!accessToken) throw new UnauthorizedException();
     const mappedCreatePostDTO: PostApiCreateUpdateDTO = {
       title: postCreateDTO.title,
       shortDescription: postCreateDTO.shortDescription,
@@ -86,6 +88,7 @@ export class BlogBloggerController {
       new CreatePostByBlogCommand({
         blogId,
         createPostDTO: mappedCreatePostDTO,
+        accessToken,
       }),
     );
     return createdPost;
