@@ -13,12 +13,14 @@ import { CreateBlogUseCase } from '../../blogger-api/blog/application/use-cases/
 import { BlogRepository } from '../../blogger-api/blog/infrastructure/repositories/blog.repository';
 import { CreatePostByBlogUseCase } from '../../blogger-api/blog/application/use-cases/create-post-by-blog.use-case';
 import { UpdateBlogUseCase } from '../../blogger-api/blog/application/use-cases/update-blog.use-case';
+import { UpdatePostByBlogIdUseCase } from '../../blogger-api/blog/application/use-cases/update-post-by-blogId.use-case';
 
 const UseCases = [
   CreateBlogUseCase,
   CreatePostByBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogCommand,
+  UpdatePostByBlogIdUseCase,
 ];
 
 @Module({

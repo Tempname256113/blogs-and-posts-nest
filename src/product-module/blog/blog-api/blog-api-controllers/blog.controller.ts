@@ -21,19 +21,19 @@ import {
   BlogApiModelType,
   BlogApiPaginationModelType,
 } from '../blog-api-models/blog-api.models';
-import { BlogQueryRepository } from '../../blog-infrastructure/blog-repositories/blog.query-repository';
+import { BlogPublicQueryRepository } from '../../../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 import {
   PostApiModel,
   PostApiPaginationModelType,
-} from '../../../post/post-api/post-api-models/post-api.models';
+} from '../../../../public-api/post/api/models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
-import { PostApiPaginationQueryDTOType } from '../../../post/post-api/post-api-models/post-api.query-dto';
-import { PostApiCreateUpdateDTO } from '../../../post/post-api/post-api-models/post-api.dto';
+import { PostApiPaginationQueryDTOType } from '../../../../public-api/post/api/models/post-api.query-dto';
+import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
 import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../../blog-application/blog-application-use-cases/create-blog.use-case';
-import { CreatePostBlogCommand } from '../../blog-application/blog-application-use-cases/create-post.use-case';
+import { CreatePostByBlogCommand } from '../../blog-application/blog-application-use-cases/create-post-by-blog.use-case';
 import { UpdateBlogCommand } from '../../blog-application/blog-application-use-cases/update-blog.use-case';
 import { DeleteBlogCommand } from '../../blog-application/blog-application-use-cases/delete-blog.use-case';
 
@@ -41,7 +41,7 @@ import { DeleteBlogCommand } from '../../blog-application/blog-application-use-c
 export class BlogController {
   constructor(
     private blogService: BlogService,
-    private blogQueryRepository: BlogQueryRepository,
+    private blogQueryRepository: BlogPublicQueryRepository,
     private commandBus: CommandBus,
   ) {}
 
@@ -72,10 +72,10 @@ export class BlogController {
       blogId,
     };
     const createdPost: PostApiModel = await this.commandBus.execute<
-      CreatePostBlogCommand,
+      CreatePostByBlogCommand,
       PostApiModel
     >(
-      new CreatePostBlogCommand({
+      new CreatePostByBlogCommand({
         blogId,
         createPostDTO: mappedCreatePostDTO,
       }),
@@ -83,7 +83,7 @@ export class BlogController {
     return createdPost;
   }
 
-  @Get()
+  /*@Get()
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
     @Query()
@@ -99,9 +99,9 @@ export class BlogController {
     const blogsWithPagination: BlogApiPaginationModelType =
       await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
-  }
+  }*/
 
-  @Get(':blogId/posts')
+  /*@Get(':blogId/posts')
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaginationByBlogId(
     @Query()
@@ -125,9 +125,9 @@ export class BlogController {
         accessToken,
       });
     return foundedPostsByBlogId;
-  }
+  }*/
 
-  @Get(':blogId')
+  /*@Get(':blogId')
   @HttpCode(HttpStatus.OK)
   async getBlogById(
     @Param('blogId') blogId: string,
@@ -136,7 +136,7 @@ export class BlogController {
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     return foundedBlog;
-  }
+  }*/
 
   @Put(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)

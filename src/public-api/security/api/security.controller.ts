@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
-import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
+import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { SessionSecurityApiModel } from './models/security-api.models';
 import { SecurityQueryRepository } from '../infrastructure/repositories/security.query-repository';
@@ -26,7 +26,7 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthRefreshTokenGuard)
   async getAllActiveSessions(
-    @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<SessionSecurityApiModel[]> {
     const sessionArray: SessionSecurityApiModel[] =
@@ -40,7 +40,7 @@ export class SecurityController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthRefreshTokenGuard)
   async deleteAllSessionsExcludeCurrent(
-    @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<void> {
     await this.commandBus.execute<DeleteAllSessionsExceptCurrentCommand, void>(
@@ -52,7 +52,7 @@ export class SecurityController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthRefreshTokenGuard)
   async deleteSessionByDeviceId(
-    @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
     @Param('deviceId') deviceId: string,
   ): Promise<void> {

@@ -20,7 +20,7 @@ import {
 } from './models/post-api.models';
 import { PostApiPaginationQueryDTOType } from './models/post-api.query-dto';
 import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
-import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
+import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
 import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { Post as PostType } from '../../../../libs/db/mongoose/schemes/post.entity';
 import { CommentApiCreateDto } from '../../comment/api/models/comment-api.dto';
@@ -111,7 +111,7 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthAccessTokenGuard)
   async createNewComment(
-    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
@@ -162,7 +162,7 @@ export class PostController {
   async changeLikeStatus(
     @Param('postId') postId: string,
     @Body() { likeStatus }: LikeDto,
-    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
     await this.commandBus.execute<ChangePostLikeStatusCommand, void>(

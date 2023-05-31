@@ -29,6 +29,7 @@ export class CreateBlogUseCase
   }: CreateBlogCommand): Promise<BlogApiModelType> {
     const newBlog: Blog = {
       id: uuidv4(),
+      bloggerId: 'mock blogger id',
       name: createBlogDTO.name,
       description: createBlogDTO.description,
       websiteUrl: createBlogDTO.websiteUrl,

@@ -15,8 +15,8 @@ import {
   PostDocument,
   PostSchema,
 } from '../../../../libs/db/mongoose/schemes/post.entity';
-import { PostApiCreateUpdateDTO } from '../../post/post-api/post-api-models/post-api.dto';
-import { PostApiModel } from '../../post/post-api/post-api-models/post-api.models';
+import { PostApiCreateUpdateDTO } from '../../../public-api/post/api/models/post-api.dto';
+import { PostApiModel } from '../../../public-api/post/api/models/post-api.models';
 
 @Injectable()
 export class BlogService {

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { UserApiCreateDto } from '../../../admin-api/user/api/models/user-api.dto';
 import { LocalAuthGuard } from '../../../../libs/auth/passport-strategy/auth-local.strategy';
-import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
+import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
 import { User } from '../../../../libs/db/mongoose/schemes/user.entity';
 import { Response } from 'express';
 import { CookiesEnum } from '../../../../generic-enums/cookies.enum';
@@ -83,7 +83,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
   async login(
-    @AdditionalReqDataDecorator<User>() reqUser: User,
+    @PassportjsReqDataDecorator<User>() reqUser: User,
     @Res({ passthrough: true }) response: Response,
     @Ip() clientIp: string,
     @ClientDeviceTitle() clientDeviceTitle: string,
@@ -126,7 +126,7 @@ export class AuthController {
     @Ip() clientIp: string,
     @ClientDeviceTitle() clientDeviceTitle: string,
     @Res({ passthrough: true }) response: Response,
-    @AdditionalReqDataDecorator<JwtRefreshTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<{ accessToken: string }> {
     const {

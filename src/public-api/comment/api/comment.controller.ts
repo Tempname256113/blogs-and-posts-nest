@@ -12,7 +12,7 @@ import {
 import { CommentApiModel } from './models/comment-api.models';
 import { CommentQueryRepository } from '../infrastructure/repositories/comment.query-repository';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
-import { AdditionalReqDataDecorator } from '../../../../generic-decorators/additional-req-data.decorator';
+import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
 import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import { CommentApiUpdateDTO } from './models/comment-api.dto';
@@ -47,7 +47,7 @@ export class CommentController {
   @UseGuards(JwtAuthAccessTokenGuard)
   async deleteComment(
     @Param('commentId') commentId: string,
-    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
     await this.commandBus.execute<DeleteCommentCommand, void>(
@@ -64,7 +64,7 @@ export class CommentController {
   async updateComment(
     @Body() commentUpdateDTO: CommentApiUpdateDTO,
     @Param('commentId') commentId: string,
-    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
     await this.commandBus.execute<UpdateCommentCommand, void>(
@@ -82,7 +82,7 @@ export class CommentController {
   async changeLikeStatus(
     @Param('commentId') commentId: string,
     @Body() { likeStatus }: LikeDto,
-    @AdditionalReqDataDecorator<JwtAccessTokenPayloadType>()
+    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
     accessTokenPayload: JwtAccessTokenPayloadType,
   ): Promise<void> {
     await this.commandBus.execute(

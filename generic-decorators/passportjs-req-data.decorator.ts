@@ -5,7 +5,7 @@ import { IExtendedExpressRequest } from '../generic-models/extended-request.mode
  * принимает дженерик - ожидаемый тип данных прикрепленный к объекту запроса passportjs.
  * например, если был использована jwt стратегия, то passportjs при успешной аутентификации прикрепит к объекту запроса
  * payload расшифрованного access jwt токена, следовательно нужно передать тип ожидаемого payloadAccessToken  */
-export const AdditionalReqDataDecorator = createParamDecorator(
+export const PassportjsReqDataDecorator = createParamDecorator(
   <T>(data: any, ctx: ExecutionContext): T => {
     const request: IExtendedExpressRequest<T> = ctx.switchToHttp().getRequest();
     return request.user;
