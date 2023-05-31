@@ -45,17 +45,17 @@ export class CreatePostByBlogUseCase
   async execute({
     data: { blogId, createPostDTO, accessToken },
   }: CreatePostByBlogCommand): Promise<PostApiModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
     const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
       id: blogId,
     });
     if (!foundedBlog) throw new NotFoundException();
-    const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
-    if (!accessTokenPayload) throw new UnauthorizedException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    const newCreatedPost: Post = await foundedBlog.createPost(createPostDTO);
+    const newCreatedPost: Post = foundedBlog.createPost(createPostDTO);
     const newPostModel: PostDocument = new this.PostModel(newCreatedPost);
     await this.blogRepository.saveBlogOrPost(newPostModel);
     const mappedNewPost: PostApiModel = {

@@ -14,6 +14,7 @@ import { BlogRepository } from '../../blogger-api/blog/infrastructure/repositori
 import { CreatePostByBlogUseCase } from '../../blogger-api/blog/application/use-cases/create-post-by-blog.use-case';
 import { UpdateBlogUseCase } from '../../blogger-api/blog/application/use-cases/update-blog.use-case';
 import { UpdatePostByBlogIdUseCase } from '../../blogger-api/blog/application/use-cases/update-post-by-blogId.use-case';
+import { DeletePostByBlogIdUseCase } from '../../blogger-api/blog/application/use-cases/delete-post-by-blogId.use-case';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -21,6 +22,7 @@ const UseCases = [
   UpdateBlogUseCase,
   DeleteBlogCommand,
   UpdatePostByBlogIdUseCase,
+  DeletePostByBlogIdUseCase,
 ];
 
 @Module({

@@ -11,7 +11,6 @@ import {
   Put,
   Query,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import {
   BlogBloggerApiCreateUpdatePostDTO,
@@ -28,7 +27,6 @@ import {
 import { BlogBloggerApiPaginationQueryDTO } from './models/blog-blogger-api.query-dto';
 import { PostApiPaginationQueryDTOType } from '../../../public-api/post/api/models/post-api.query-dto';
 import { PostApiCreateUpdateDTO } from '../../../public-api/post/api/models/post-api.dto';
-import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case';
@@ -37,6 +35,7 @@ import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case';
 import { BlogBloggerQueryRepository } from '../infrastructure/repositories/blog-blogger.query-repository';
 import { UpdatePostByBlogIdCommand } from '../application/use-cases/update-post-by-blogId.use-case';
+import { DeletePostByBlogIdCommand } from '../application/use-cases/delete-post-by-blogId.use-case';
 
 @Controller('blogger/blogs')
 export class BlogBloggerController {
@@ -192,10 +191,23 @@ export class BlogBloggerController {
   async deleteBlogById(
     @Param('blogId') blogId: string,
     @AccessToken() accessToken: string | null,
-  ) {
+  ): Promise<void> {
     if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<DeleteBlogCommand, void>(
       new DeleteBlogCommand({ blogId, accessToken }),
+    );
+  }
+
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePostById(
+    @Param('blogId') blogId: string,
+    @Param('postId') postId: string,
+    @AccessToken() accessToken: string | null,
+  ): Promise<void> {
+    if (!accessToken) throw new UnauthorizedException();
+    await this.commandBus.execute<DeletePostByBlogIdCommand, void>(
+      new DeletePostByBlogIdCommand({ postId, blogId, accessToken }),
     );
   }
 }
