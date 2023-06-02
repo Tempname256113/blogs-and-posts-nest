@@ -1,24 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Blog,
   BlogDocument,
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import { FilterQuery, Model, QueryOptions } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import {
   BlogApiModelType,
   BlogApiPaginationModelType,
 } from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
 import {
-  FilterType,
-  PaginationQueryType,
-} from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
-import {
-  PostDocument,
+  Post,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { PostRepositoryPaginationType } from '../../../post/infrastructure/repositories/models/post-repository.models';
 import {
   PostApiModel,
   PostApiPaginationModelType,
@@ -31,6 +26,10 @@ import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.pay
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
 import { EntityLikesCountType } from '../../../like/application/models/entity-likes-count.model';
+import {
+  getPaginationHelpers,
+  PaginationHelpersType,
+} from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 
 @Injectable()
 export class BlogPublicQueryRepository {
@@ -45,40 +44,38 @@ export class BlogPublicQueryRepository {
   ): Promise<BlogApiPaginationModelType> {
     const blogsWithPagination =
       async (): Promise<BlogApiPaginationModelType> => {
-        const getCorrectSortQuery = (): { [sortByProp: string]: number } => {
-          let sortDirection: 1 | -1 = -1;
-          if (rawPaginationQuery.sortDirection === 'asc') sortDirection = 1;
-          if (rawPaginationQuery.sortDirection === 'desc') sortDirection = -1;
-          const sortQuery = { [rawPaginationQuery.sortBy]: sortDirection };
-          return sortQuery;
-        };
         let filter: FilterQuery<BlogSchema>;
-        if (!rawPaginationQuery.searchNameTerm) {
-          filter = {};
-        } else {
-          filter = {
-            name: {
-              $regex: [rawPaginationQuery.searchNameTerm],
-              $options: 'i',
-            },
-          };
-        }
+        const getCorrectBlogsFilter = (): void => {
+          if (!rawPaginationQuery.searchNameTerm) {
+            filter = { hidden: false };
+          } else {
+            filter = {
+              name: {
+                $regex: [rawPaginationQuery.searchNameTerm],
+                $options: 'i',
+              },
+              hidden: false,
+            };
+          }
+        };
+        getCorrectBlogsFilter();
         const totalBlogsCount: number = await this.BlogModel.countDocuments(
           filter,
         );
-        const sortQuery = getCorrectSortQuery();
-        const howMuchToSkip: number =
-          rawPaginationQuery.pageSize * (rawPaginationQuery.pageNumber - 1);
-        const pagesCount: number = Math.ceil(
-          totalBlogsCount / rawPaginationQuery.pageSize,
-        );
+        const additionalData: PaginationHelpersType = getPaginationHelpers({
+          pageSize: rawPaginationQuery.pageSize,
+          sortBy: rawPaginationQuery.sortBy,
+          totalDocumentsCount: totalBlogsCount,
+          pageNumber: rawPaginationQuery.pageNumber,
+          sortDirection: rawPaginationQuery.sortDirection,
+        });
         const foundedBlogs: Blog[] = await this.BlogModel.find(
           filter,
           { _id: false },
           {
             limit: rawPaginationQuery.pageSize,
-            skip: howMuchToSkip,
-            sort: sortQuery,
+            skip: additionalData.howMuchToSkip,
+            sort: additionalData.sortQuery,
           },
         ).lean();
         const mappedBlogs: BlogApiModelType[] = foundedBlogs.map(
@@ -95,7 +92,7 @@ export class BlogPublicQueryRepository {
           },
         );
         const paginationBlogsResult: BlogApiPaginationModelType = {
-          pagesCount,
+          pagesCount: additionalData.pagesCount,
           page: Number(rawPaginationQuery.pageNumber),
           pageSize: Number(rawPaginationQuery.pageSize),
           totalCount: Number(totalBlogsCount),
@@ -115,13 +112,6 @@ export class BlogPublicQueryRepository {
     blogId: string;
     accessToken: string | null;
   }): Promise<PostApiPaginationModelType> {
-    const postsWithPagination: PostRepositoryPaginationType =
-      await getDocumentsWithPagination<PostDocument>({
-        query: rawPaginationQuery,
-        model: this.PostModel,
-        filter: [{ property: 'blogId', value: blogId }],
-        lean: true,
-      });
     const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
@@ -135,52 +125,81 @@ export class BlogPublicQueryRepository {
         }
       }
     };
-    const userId: string = getUserId();
-    const mappedPosts: PostApiModel[] = [];
-    for (const postDocument of postsWithPagination.items) {
-      const countOfReactions: EntityLikesCountType =
-        await this.likeQueryRepository.getEntityLikesCount(postDocument.id);
-      const userLikeStatus: 'Like' | 'Dislike' | 'None' =
-        await this.likeQueryRepository.getUserLikeStatus({
-          userId,
-          entityId: postDocument.id,
+    const userId: string | null = getUserId();
+    const foundedBlog: Blog | null = await this.BlogModel.findOne({
+      id: blogId,
+      hidden: false,
+    }).lean();
+    if (!foundedBlog) throw new NotFoundException();
+    const getPostsWithPagination =
+      async (): Promise<PostApiPaginationModelType> => {
+        const filter: FilterQuery<PostSchema> = { blogId, hidden: false };
+        const totalPostsCount: number = await this.PostModel.countDocuments(
+          filter,
+        );
+        const paginationHelpers: PaginationHelpersType = getPaginationHelpers({
+          pageSize: rawPaginationQuery.pageSize,
+          sortBy: rawPaginationQuery.sortBy,
+          totalDocumentsCount: totalPostsCount,
+          sortDirection: rawPaginationQuery.sortDirection,
+          pageNumber: rawPaginationQuery.pageNumber,
         });
-      const newestLikes: Like[] =
-        await this.likeQueryRepository.getEntityLastLikes(postDocument.id);
-      const mappedNewestLikes: PostNewestLikeType[] = [];
-      for (const rawLike of newestLikes) {
-        const mappedLike: PostNewestLikeType = {
-          userId: rawLike.userId,
-          login: rawLike.userLogin,
-          addedAt: rawLike.addedAt,
+        const foundedPosts: Post[] = await this.PostModel.find(
+          filter,
+          { _id: false },
+          {
+            limit: rawPaginationQuery.pageSize,
+            skip: paginationHelpers.howMuchToSkip,
+            sort: paginationHelpers.sortQuery,
+          },
+        ).lean();
+        const mappedPosts: PostApiModel[] = [];
+        for (const postDocument of foundedPosts) {
+          const countOfReactions: EntityLikesCountType =
+            await this.likeQueryRepository.getEntityLikesCount(postDocument.id);
+          const userLikeStatus: 'Like' | 'Dislike' | 'None' =
+            await this.likeQueryRepository.getUserLikeStatus({
+              userId,
+              entityId: postDocument.id,
+            });
+          const newestLikes: Like[] =
+            await this.likeQueryRepository.getEntityLastLikes(postDocument.id);
+          const mappedNewestLikes: PostNewestLikeType[] = [];
+          for (const rawLike of newestLikes) {
+            const mappedLike: PostNewestLikeType = {
+              userId: rawLike.userId,
+              login: rawLike.userLogin,
+              addedAt: rawLike.addedAt,
+            };
+            mappedNewestLikes.push(mappedLike);
+          }
+          const resultPost: PostApiModel = {
+            id: postDocument.id,
+            title: postDocument.title,
+            shortDescription: postDocument.shortDescription,
+            content: postDocument.content,
+            blogId: postDocument.blogId,
+            blogName: postDocument.blogName,
+            createdAt: postDocument.createdAt,
+            extendedLikesInfo: {
+              likesCount: countOfReactions.likesCount,
+              dislikesCount: countOfReactions.dislikesCount,
+              myStatus: userLikeStatus,
+              newestLikes: mappedNewestLikes,
+            },
+          };
+          mappedPosts.push(resultPost);
+        }
+        const resultPostsPagination: PostApiPaginationModelType = {
+          pagesCount: paginationHelpers.pagesCount,
+          page: rawPaginationQuery.pageNumber,
+          pageSize: rawPaginationQuery.pageSize,
+          totalCount: totalPostsCount,
+          items: mappedPosts,
         };
-        mappedNewestLikes.push(mappedLike);
-      }
-      const resultPost: PostApiModel = {
-        id: postDocument.id,
-        title: postDocument.title,
-        shortDescription: postDocument.shortDescription,
-        content: postDocument.content,
-        blogId: postDocument.blogId,
-        blogName: postDocument.blogName,
-        createdAt: postDocument.createdAt,
-        extendedLikesInfo: {
-          likesCount: countOfReactions.likesCount,
-          dislikesCount: countOfReactions.dislikesCount,
-          myStatus: userLikeStatus,
-          newestLikes: mappedNewestLikes,
-        },
+        return resultPostsPagination;
       };
-      mappedPosts.push(resultPost);
-    }
-    const resultPostsPagination: PostApiPaginationModelType = {
-      pagesCount: postsWithPagination.pagesCount,
-      page: postsWithPagination.page,
-      pageSize: postsWithPagination.pageSize,
-      totalCount: postsWithPagination.totalCount,
-      items: mappedPosts,
-    };
-    return resultPostsPagination;
+    return getPostsWithPagination();
   }
 
   async getBlogById(blogId: string): Promise<BlogDocument | null> {
