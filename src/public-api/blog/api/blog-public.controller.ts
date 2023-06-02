@@ -53,9 +53,6 @@ export class BlogPublicController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const foundedBlog: BlogApiModelType | null =
-      await this.blogQueryRepository.getBlogById(blogId);
-    if (!foundedBlog) throw new NotFoundException();
     const foundedPostsByBlogId: PostApiPaginationModelType =
       await this.blogQueryRepository.getPostsWithPaginationByBlogId({
         rawPaginationQuery: paginationQuery,
