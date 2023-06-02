@@ -8,6 +8,7 @@ export class Like {
   userLogin: string;
   likeStatus: 'Like' | 'Dislike' | 'None';
   addedAt: string;
+  hidden?: boolean;
 }
 
 @Schema({ versionKey: false, collection: 'likes' })
@@ -29,6 +30,9 @@ export class LikeSchema implements Like {
 
   @Prop()
   addedAt: string;
+
+  @Prop({ default: false })
+  hidden: boolean;
 }
 
 export const likeSchema = SchemaFactory.createForClass(LikeSchema);

@@ -17,10 +17,12 @@ export class LikeQueryRepository {
     const likesCount: number = await this.LikeModel.countDocuments({
       entityId,
       likeStatus: 'Like',
+      hidden: false,
     });
     const dislikesCount: number = await this.LikeModel.countDocuments({
       entityId,
       likeStatus: 'Dislike',
+      hidden: false,
     });
     return {
       likesCount,
@@ -30,9 +32,7 @@ export class LikeQueryRepository {
 
   async getEntityLastLikes(entityId: string): Promise<Like[]> {
     const fewLastLikes: Like[] = await this.LikeModel.find(
-      {
-        $and: [{ entityId }, { likeStatus: 'Like' }],
-      },
+      { entityId, likeStatus: 'Like', hidden: false },
       { _id: false },
       { sort: { addedAt: -1 }, limit: 3 },
     ).lean();
@@ -46,10 +46,10 @@ export class LikeQueryRepository {
     userId: string;
     entityId: string;
   }): Promise<'Like' | 'Dislike' | 'None'> {
-    const filter: FilterQuery<any> = { $and: [{ userId }, { entityId }] };
-    const foundedReaction: Like | null = await this.LikeModel.findOne(
-      filter,
-    ).lean();
+    const filter: FilterQuery<LikeSchema> = { userId, entityId, hidden: false };
+    const foundedReaction: Like | null = await this.LikeModel.findOne(filter, {
+      _id: false,
+    }).lean();
     let currentUserLikeStatus: 'Like' | 'Dislike' | 'None';
     if (!foundedReaction) {
       currentUserLikeStatus = 'None';
