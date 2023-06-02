@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogSchema } from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import { Model } from 'mongoose';
+import {
+  Blog,
+  BlogDocument,
+  BlogSchema,
+} from '../../../../../libs/db/mongoose/schemes/blog.entity';
+import { FilterQuery, Model, QueryOptions } from 'mongoose';
 import {
   BlogApiModelType,
   BlogApiPaginationModelType,
 } from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
 import {
   FilterType,
-  getDocumentsWithPagination,
   PaginationQueryType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
@@ -40,27 +43,67 @@ export class BlogPublicQueryRepository {
   async getBlogsWithPagination(
     rawPaginationQuery: BlogApiPaginationQueryDTO,
   ): Promise<BlogApiPaginationModelType> {
-    const filter: FilterType = [];
-    const paginationQuery: PaginationQueryType = {
-      pageNumber: rawPaginationQuery.pageNumber,
-      pageSize: rawPaginationQuery.pageSize,
-      sortBy: rawPaginationQuery.sortBy,
-      sortDirection: rawPaginationQuery.sortDirection,
-    };
-    if (rawPaginationQuery.searchNameTerm) {
-      filter.push({
-        value: rawPaginationQuery.searchNameTerm,
-        property: rawPaginationQuery.sortBy,
-      });
-    }
-    const blogsWithPagination: BlogApiPaginationModelType =
-      await getDocumentsWithPagination<BlogApiModelType>({
-        query: paginationQuery,
-        model: this.BlogModel,
-        rawFilter: filter,
-        lean: true,
-      });
-    return blogsWithPagination;
+    const blogsWithPagination =
+      async (): Promise<BlogApiPaginationModelType> => {
+        const getCorrectSortQuery = (): { [sortByProp: string]: number } => {
+          let sortDirection: 1 | -1 = -1;
+          if (rawPaginationQuery.sortDirection === 'asc') sortDirection = 1;
+          if (rawPaginationQuery.sortDirection === 'desc') sortDirection = -1;
+          const sortQuery = { [rawPaginationQuery.sortBy]: sortDirection };
+          return sortQuery;
+        };
+        let filter: FilterQuery<BlogSchema>;
+        if (!rawPaginationQuery.searchNameTerm) {
+          filter = {};
+        } else {
+          filter = {
+            name: {
+              $regex: [rawPaginationQuery.searchNameTerm],
+              $options: 'i',
+            },
+          };
+        }
+        const totalBlogsCount: number = await this.BlogModel.countDocuments(
+          filter,
+        );
+        const sortQuery = getCorrectSortQuery();
+        const howMuchToSkip: number =
+          rawPaginationQuery.pageSize * (rawPaginationQuery.pageNumber - 1);
+        const pagesCount: number = Math.ceil(
+          totalBlogsCount / rawPaginationQuery.pageSize,
+        );
+        const foundedBlogs: Blog[] = await this.BlogModel.find(
+          filter,
+          { _id: false },
+          {
+            limit: rawPaginationQuery.pageSize,
+            skip: howMuchToSkip,
+            sort: sortQuery,
+          },
+        ).lean();
+        const mappedBlogs: BlogApiModelType[] = foundedBlogs.map(
+          (blogFromDB) => {
+            const mappedBlog: BlogApiModelType = {
+              id: blogFromDB.id,
+              name: blogFromDB.name,
+              description: blogFromDB.description,
+              websiteUrl: blogFromDB.websiteUrl,
+              createdAt: blogFromDB.createdAt,
+              isMembership: blogFromDB.isMembership,
+            };
+            return mappedBlog;
+          },
+        );
+        const paginationBlogsResult: BlogApiPaginationModelType = {
+          pagesCount,
+          page: Number(rawPaginationQuery.pageNumber),
+          pageSize: Number(rawPaginationQuery.pageSize),
+          totalCount: Number(totalBlogsCount),
+          items: mappedBlogs,
+        };
+        return paginationBlogsResult;
+      };
+    return blogsWithPagination();
   }
 
   async getPostsWithPaginationByBlogId({
@@ -76,7 +119,7 @@ export class BlogPublicQueryRepository {
       await getDocumentsWithPagination<PostDocument>({
         query: rawPaginationQuery,
         model: this.PostModel,
-        rawFilter: [{ property: 'blogId', value: blogId }],
+        filter: [{ property: 'blogId', value: blogId }],
         lean: true,
       });
     const getUserId = (): string | null => {
@@ -140,7 +183,10 @@ export class BlogPublicQueryRepository {
     return resultPostsPagination;
   }
 
-  async getBlogById(blogId: string): Promise<BlogApiModelType | null> {
-    return this.BlogModel.findOne({ id: blogId }, { _id: false }).lean();
+  async getBlogById(blogId: string): Promise<BlogDocument | null> {
+    return this.BlogModel.findOne(
+      { id: blogId, hidden: false },
+      { _id: false },
+    );
   }
 }
