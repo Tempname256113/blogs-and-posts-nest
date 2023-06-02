@@ -36,7 +36,7 @@ type FilterOptionsType = {
 export const getDocumentsWithPagination = async <T>({
   query,
   model,
-  rawFilter = [],
+  filter: rawFilter = [],
   filterOptions = {
     multipleFieldsOption: '$or',
     regexOption: 'i',
@@ -45,7 +45,7 @@ export const getDocumentsWithPagination = async <T>({
 }: {
   query: PaginationQueryType;
   model: Model<any>;
-  rawFilter?: FilterType;
+  filter?: FilterType;
   filterOptions?: FilterOptionsType;
   lean?: boolean;
 }): Promise<DocumentPaginationModel<T>> => {
@@ -118,4 +118,39 @@ export const getDocumentsWithPagination = async <T>({
     items: documentsWithPagination,
   };
   return paginationResult;
+};
+
+export type PaginationHelpersType = {
+  sortQuery: { [sortBy: string]: number };
+  howMuchToSkip: number;
+  pagesCount: number;
+};
+
+export const getPaginationHelpers = ({
+  sortDirection,
+  sortBy,
+  pageSize,
+  pageNumber,
+  totalDocumentsCount,
+}: {
+  sortDirection: 'asc' | 'desc';
+  sortBy: string;
+  pageSize: number;
+  pageNumber: number;
+  totalDocumentsCount: number;
+}): PaginationHelpersType => {
+  const getCorrectSortQuery = (): { [sortByProp: string]: number } => {
+    let sortDir: 1 | -1 = -1;
+    if (sortDirection === 'asc') sortDir = 1;
+    if (sortDirection === 'desc') sortDir = -1;
+    const sortQuery = { [sortBy]: sortDir };
+    return sortQuery;
+  };
+  const howMuchToSkip: number = pageSize * (pageNumber - 1);
+  const pagesCount: number = Math.ceil(totalDocumentsCount / pageSize);
+  return {
+    sortQuery: getCorrectSortQuery(),
+    howMuchToSkip,
+    pagesCount,
+  };
 };
