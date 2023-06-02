@@ -13,6 +13,7 @@ import {
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { Model } from 'mongoose';
+import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
 export class UpdateBlogCommand {
   constructor(
@@ -31,6 +32,7 @@ export class UpdateBlogUseCase
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     private jwtHelpers: JwtHelpers,
+    private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 
   async execute({
@@ -39,9 +41,9 @@ export class UpdateBlogUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: Blog | null = await this.BlogModel.findOne({
-      id: blogId,
-    }).lean();
+    const foundedBlog: Blog | null = await this.blogQueryRepository.getBlogById(
+      blogId,
+    );
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();

@@ -6,16 +6,17 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
-  Blog,
+  BlogDocument,
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import {
-  Post,
+  PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
 export class DeletePostByBlogIdCommand {
   constructor(
@@ -35,6 +36,7 @@ export class DeletePostByBlogIdUseCase
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private jwtHelpers: JwtHelpers,
+    private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 
   async execute({
@@ -43,16 +45,14 @@ export class DeletePostByBlogIdUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: Blog | null = await this.BlogModel.findOne({
-      id: blogId,
-    }).lean();
+    const foundedBlog: BlogDocument | null =
+      await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    const foundedPost: Post | null = await this.PostModel.findOne({
-      id: postId,
-    }).lean();
+    const foundedPost: PostDocument | null =
+      await this.blogQueryRepository.getRawPostById(postId);
     if (!foundedPost) throw new NotFoundException();
     if (foundedPost.blogId !== blogId) {
       throw new ForbiddenException();

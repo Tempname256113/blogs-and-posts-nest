@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostApiCreateUpdateDTO } from './models/post-api.dto';
-import { PostQueryRepository } from '../infrastructure/repositories/post.query-repository';
+import { PostPublicQueryRepository } from '../infrastructure/repositories/post.query-repository';
 import {
   PostApiModel,
   PostApiPaginationModelType,
@@ -43,7 +43,7 @@ import { ChangePostLikeStatusCommand } from '../application/use-cases/change-pos
 @Controller('posts')
 export class PostController {
   constructor(
-    private postQueryRepository: PostQueryRepository,
+    private postQueryRepository: PostPublicQueryRepository,
     private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,
   ) {}

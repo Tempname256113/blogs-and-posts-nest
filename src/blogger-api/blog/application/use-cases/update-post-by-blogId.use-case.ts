@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogBloggerApiCreateUpdatePostDTO } from '../../api/models/blog-blogger-api.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  Post,
+  PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { Model } from 'mongoose';
@@ -17,6 +17,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
 export class UpdatePostByBlogIdCommand {
   constructor(
@@ -37,6 +38,7 @@ export class UpdatePostByBlogIdUseCase
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     private jwtHelpers: JwtHelpers,
+    private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 
   async execute({
@@ -45,16 +47,15 @@ export class UpdatePostByBlogIdUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: Blog | null = await this.BlogModel.findOne({
-      id: blogId,
-    }).lean();
+    const foundedBlog: Blog | null = await this.blogQueryRepository.getBlogById(
+      blogId,
+    );
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    const foundedPost: Post | null = await this.PostModel.findOne({
-      id: postId,
-    }).lean();
+    const foundedPost: PostDocument | null =
+      await this.blogQueryRepository.getRawPostById(postId);
     if (!foundedPost) throw new NotFoundException();
     if (foundedPost.blogId !== blogId) {
       throw new ForbiddenException();

@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
 import { PostApiModel } from '../../../../public-api/post/api/models/post-api.models';
 import {
+  Blog,
   BlogDocument,
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
@@ -20,6 +21,7 @@ import { Model } from 'mongoose';
 import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { BlogPublicQueryRepository } from '../../../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 
 export class CreatePostByBlogCommand {
   constructor(
@@ -39,6 +41,7 @@ export class CreatePostByBlogUseCase
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private blogRepository: BlogRepository,
+    private blogQueryRepository: BlogPublicQueryRepository,
     private jwtHelpers: JwtHelpers,
   ) {}
 
@@ -48,9 +51,8 @@ export class CreatePostByBlogUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
-      id: blogId,
-    });
+    const foundedBlog: BlogDocument | null =
+      await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();

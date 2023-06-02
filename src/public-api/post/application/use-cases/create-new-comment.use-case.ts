@@ -13,6 +13,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../../../comment/infrastructure/repositories/comment.repository';
+import { PostPublicQueryRepository } from '../../infrastructure/repositories/post.query-repository';
 
 export class CreateNewCommentCommand {
   constructor(
@@ -33,14 +34,14 @@ export class CreateNewCommentUseCase
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private commentRepository: CommentRepository,
+    private postsQueryRepository: PostPublicQueryRepository,
   ) {}
 
   async execute({
     data: { userId, userLogin, content, postId },
   }: CreateNewCommentCommand): Promise<CommentApiModel> {
-    const foundedPost: PostDocument | null = await this.PostModel.findOne({
-      id: postId,
-    });
+    const foundedPost: PostDocument | null =
+      await this.postsQueryRepository.getRawPostById(postId);
     if (!foundedPost) throw new NotFoundException();
     const newComment: Comment = foundedPost.createComment({
       userId,

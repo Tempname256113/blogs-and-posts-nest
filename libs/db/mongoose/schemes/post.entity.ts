@@ -11,9 +11,35 @@ export class Post {
   blogId: string;
   blogName: string;
   createdAt: string;
+  hidden?: boolean;
 }
 
-class PostMethods extends Post {
+@Schema({ versionKey: false, collection: 'posts' })
+export class PostSchema implements Post {
+  @Prop()
+  id: string;
+
+  @Prop()
+  title: string;
+
+  @Prop()
+  shortDescription: string;
+
+  @Prop()
+  content: string;
+
+  @Prop()
+  blogId: string;
+
+  @Prop()
+  blogName: string;
+
+  @Prop()
+  createdAt: string;
+
+  @Prop({ default: false })
+  hidden: boolean;
+
   createComment({
     userId,
     userLogin,
@@ -33,30 +59,6 @@ class PostMethods extends Post {
     };
     return newComment;
   }
-}
-
-@Schema({ versionKey: false, collection: 'posts' })
-export class PostSchema extends PostMethods implements Post {
-  @Prop({ required: true })
-  id: string;
-
-  @Prop({ required: true })
-  title: string;
-
-  @Prop({ required: true })
-  shortDescription: string;
-
-  @Prop({ required: true })
-  content: string;
-
-  @Prop({ required: true })
-  blogId: string;
-
-  @Prop({ required: true })
-  blogName: string;
-
-  @Prop({ required: true })
-  createdAt: string;
 }
 
 export const postSchema = SchemaFactory.createForClass(PostSchema);

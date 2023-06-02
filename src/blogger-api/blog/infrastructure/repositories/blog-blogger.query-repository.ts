@@ -16,6 +16,7 @@ import {
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
   Post,
+  PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { BlogApiPaginationQueryDTO } from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.query-dto';
@@ -205,6 +206,16 @@ export class BlogBloggerQueryRepository {
   async getBlogById(blogId: string): Promise<BlogDocument | null> {
     return this.BlogModel.findOne(
       { id: blogId, hidden: false },
+      { _id: false },
+    );
+  }
+
+  async getRawPostById(postId: string): Promise<PostDocument | null> {
+    return this.PostModel.findOne(
+      {
+        id: postId,
+        hidden: false,
+      },
       { _id: false },
     );
   }

@@ -7,6 +7,7 @@ import { ChangeEntityLikeStatusCommand } from '../../../like/application/use-cas
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PostPublicQueryRepository } from '../../infrastructure/repositories/post.query-repository';
 
 export class ChangePostLikeStatusCommand {
   constructor(
@@ -26,14 +27,14 @@ export class ChangePostLikeStatusUseCase
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private commandBus: CommandBus,
+    private postQueryRepository: PostPublicQueryRepository,
   ) {}
 
   async execute({
     data: { postId, likeStatus, userId, userLogin },
   }: ChangePostLikeStatusCommand): Promise<void> {
-    const foundedPost: Post | null = await this.PostModel.findOne({
-      id: postId,
-    }).lean();
+    const foundedPost: Post | null =
+      await this.postQueryRepository.getRawPostById(postId);
     if (!foundedPost) {
       throw new NotFoundException();
     }

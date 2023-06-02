@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PostController } from '../../public-api/post/api/post.controller';
 import { PostRepository } from '../../public-api/post/infrastructure/repositories/post.repository';
-import { PostQueryRepository } from '../../public-api/post/infrastructure/repositories/post.query-repository';
+import { PostPublicQueryRepository } from '../../public-api/post/infrastructure/repositories/post.query-repository';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { LikeModule } from './like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
@@ -13,6 +13,7 @@ import { UpdatePostUseCase } from '../../public-api/post/application/use-cases/u
 import { DeletePostUseCase } from '../../public-api/post/application/use-cases/delete-post.use-case';
 import { ChangePostLikeStatusUseCase } from '../../public-api/post/application/use-cases/change-post-like-status.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
+import { BlogPublicQueryRepository } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 
 const UseCases = [
   CreateNewPostUseCase,
@@ -33,7 +34,8 @@ const UseCases = [
   controllers: [PostController],
   providers: [
     PostRepository,
-    PostQueryRepository,
+    PostPublicQueryRepository,
+    BlogPublicQueryRepository,
     IsValidBlogIdConstraint,
     ...UseCases,
   ],

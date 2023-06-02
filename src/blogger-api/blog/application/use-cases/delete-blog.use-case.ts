@@ -6,12 +6,13 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  Blog,
+  BlogDocument,
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { Model } from 'mongoose';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
 export class DeleteBlogCommand {
   constructor(
@@ -29,6 +30,7 @@ export class DeleteBlogUseCase
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     private jwtHelpers: JwtHelpers,
+    private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 
   async execute({
@@ -37,9 +39,8 @@ export class DeleteBlogUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: Blog | null = await this.BlogModel.findOne({
-      id: blogId,
-    }).lean();
+    const foundedBlog: BlogDocument | null =
+      await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();

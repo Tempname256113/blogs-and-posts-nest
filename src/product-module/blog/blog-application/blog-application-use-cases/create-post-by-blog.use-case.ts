@@ -14,6 +14,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BlogRepository } from '../../blog-infrastructure/blog-repositories/blog.repository';
+import { BlogPublicQueryRepository } from '../../../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 
 export class CreatePostByBlogCommand {
   constructor(
@@ -32,14 +33,14 @@ export class CreatePostByBlogUseCase
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private blogRepository: BlogRepository,
+    private blogQueryRepository: BlogPublicQueryRepository,
   ) {}
 
   async execute({
     data: { blogId, createPostDTO },
   }: CreatePostByBlogCommand): Promise<PostApiModel> {
-    const foundedBlog: BlogDocument | null = await this.BlogModel.findOne({
-      id: blogId,
-    });
+    const foundedBlog: BlogDocument | null =
+      await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     const newCreatedPost: Post = await foundedBlog.createPost(createPostDTO);
     const newPostModel: PostDocument = new this.PostModel(newCreatedPost);
