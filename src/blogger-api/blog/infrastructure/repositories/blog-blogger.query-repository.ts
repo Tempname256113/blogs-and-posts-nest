@@ -25,7 +25,7 @@ import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.pay
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { EntityLikesCountType } from '../../../../public-api/like/application/models/entity-likes-count.model';
 import { LikeQueryRepository } from '../../../../public-api/like/infrastructure/repositories/like.query-repository';
-import { PostApiPaginationQueryDTOType } from '../../../../public-api/post/api/models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from '../../../../public-api/post/api/models/post-api.query-dto';
 import {
   PostApiModel,
   PostApiPaginationModelType,
@@ -63,20 +63,21 @@ export class BlogBloggerQueryRepository {
         const totalBlogsCount: number = await this.BlogModel.countDocuments(
           filter,
         );
-        const additionalData: PaginationHelpersType = getPaginationHelpers({
-          pageSize: rawPaginationQuery.pageSize,
-          sortBy: rawPaginationQuery.sortBy,
-          totalDocumentsCount: totalBlogsCount,
-          pageNumber: rawPaginationQuery.pageNumber,
-          sortDirection: rawPaginationQuery.sortDirection,
-        });
+        const additionalPaginationData: PaginationHelpersType =
+          getPaginationHelpers({
+            pageSize: rawPaginationQuery.pageSize,
+            sortBy: rawPaginationQuery.sortBy,
+            totalDocumentsCount: totalBlogsCount,
+            pageNumber: rawPaginationQuery.pageNumber,
+            sortDirection: rawPaginationQuery.sortDirection,
+          });
         const foundedBlogs: Blog[] = await this.BlogModel.find(
           filter,
           { _id: false },
           {
             limit: rawPaginationQuery.pageSize,
-            skip: additionalData.howMuchToSkip,
-            sort: additionalData.sortQuery,
+            skip: additionalPaginationData.howMuchToSkip,
+            sort: additionalPaginationData.sortQuery,
           },
         ).lean();
         const mappedBlogs: BlogApiModelType[] = foundedBlogs.map(
@@ -93,7 +94,7 @@ export class BlogBloggerQueryRepository {
           },
         );
         const paginationBlogsResult: BlogApiPaginationModelType = {
-          pagesCount: additionalData.pagesCount,
+          pagesCount: additionalPaginationData.pagesCount,
           page: Number(rawPaginationQuery.pageNumber),
           pageSize: Number(rawPaginationQuery.pageSize),
           totalCount: Number(totalBlogsCount),
@@ -109,7 +110,7 @@ export class BlogBloggerQueryRepository {
     blogId,
     accessToken,
   }: {
-    rawPaginationQuery: PostApiPaginationQueryDTOType;
+    rawPaginationQuery: PostApiPaginationQueryDTO;
     blogId: string;
     accessToken: string | null;
   }): Promise<PostApiPaginationModelType> {

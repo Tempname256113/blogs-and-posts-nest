@@ -12,7 +12,7 @@ import {
   BlogApiModelType,
   BlogApiPaginationModelType,
 } from '../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
-import { PostApiPaginationQueryDTOType } from '../../post/api/models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from '../../post/api/models/post-api.query-dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { PostApiPaginationModelType } from '../../post/api/models/post-api.models';
 import { BlogPublicQueryRepository } from '../infrastructure/repositories/blog-public.query-repository';
@@ -43,11 +43,11 @@ export class BlogPublicController {
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaginationByBlogId(
     @Query()
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
+    rawPaginationQuery: PostApiPaginationQueryDTO,
     @Param('blogId') blogId: string,
     @AccessToken() accessToken: string | null,
   ): Promise<PostApiPaginationModelType> {
-    const paginationQuery: PostApiPaginationQueryDTOType = {
+    const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',

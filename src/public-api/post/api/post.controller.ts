@@ -18,7 +18,7 @@ import {
   PostApiModel,
   PostApiPaginationModelType,
 } from './models/post-api.models';
-import { PostApiPaginationQueryDTOType } from './models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from './models/post-api.query-dto';
 import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
 import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
@@ -79,20 +79,20 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   async getPostsWithPagination(
     @Query()
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
+    rawPaginationQuery: PostApiPaginationQueryDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<PostApiPaginationModelType> {
-    const paginationQuery: PostApiPaginationQueryDTOType = {
+    const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const postsWithPagination: PostApiPaginationModelType =
-      await this.postQueryRepository.getPostsWithPagination(
-        paginationQuery,
+      await this.postQueryRepository.getPostsWithPagination({
+        rawPaginationQuery: paginationQuery,
         accessToken,
-      );
+      });
     return postsWithPagination;
   }
 

@@ -1,4 +1,4 @@
-export type PostApiPaginationQueryDTOType = {
+export type PostApiPaginationQueryDTO = {
   pageNumber: number;
   pageSize: number;
   sortBy: string;

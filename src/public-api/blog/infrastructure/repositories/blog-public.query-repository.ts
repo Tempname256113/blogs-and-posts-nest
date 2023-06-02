@@ -20,7 +20,7 @@ import {
   PostNewestLikeType,
 } from '../../../post/api/models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.query-dto';
-import { PostApiPaginationQueryDTOType } from '../../../post/api/models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from '../../../post/api/models/post-api.query-dto';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
@@ -108,7 +108,7 @@ export class BlogPublicQueryRepository {
     blogId,
     accessToken,
   }: {
-    rawPaginationQuery: PostApiPaginationQueryDTOType;
+    rawPaginationQuery: PostApiPaginationQueryDTO;
     blogId: string;
     accessToken: string | null;
   }): Promise<PostApiPaginationModelType> {

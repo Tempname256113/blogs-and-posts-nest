@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -20,12 +19,8 @@ import {
   BlogBloggerApiModel,
   BlogBloggerApiPaginationModel,
 } from './models/blog-blogger-api.models';
-import {
-  PostApiModel,
-  PostApiPaginationModelType,
-} from '../../../public-api/post/api/models/post-api.models';
+import { PostApiModel } from '../../../public-api/post/api/models/post-api.models';
 import { BlogBloggerApiPaginationQueryDTO } from './models/blog-blogger-api.query-dto';
-import { PostApiPaginationQueryDTOType } from '../../../public-api/post/api/models/post-api.query-dto';
 import { PostApiCreateUpdateDTO } from '../../../public-api/post/api/models/post-api.dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
@@ -106,10 +101,7 @@ export class BlogBloggerController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const blogsWithPagination: BlogBloggerApiPaginationModel =
-      await this.blogQueryRepository.getBlogsWithPagination({
-        paginationQuery,
-        accessToken,
-      });
+      await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
 
