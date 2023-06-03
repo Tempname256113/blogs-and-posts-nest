@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserApiCreateDto } from '../../api/models/user-api.dto';
-import { UserApiModelType } from '../../api/models/user-api.models';
+import { UserApiModel } from '../../api/models/user-api.models';
 import { hashSync } from 'bcrypt';
 import {
   User,
@@ -18,16 +18,14 @@ export class CreateUserCommand {
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase
-  implements ICommandHandler<CreateUserCommand, UserApiModelType>
+  implements ICommandHandler<CreateUserCommand, UserApiModel>
 {
   constructor(
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     private userRepository: UserRepository,
   ) {}
 
-  async execute({
-    createUserDTO,
-  }: CreateUserCommand): Promise<UserApiModelType> {
+  async execute({ createUserDTO }: CreateUserCommand): Promise<UserApiModel> {
     const passwordHash: string = hashSync(createUserDTO.password, 10);
     const newUser: User = {
       id: uuidv4(),
@@ -47,11 +45,16 @@ export class CreateUserUseCase
         recoveryStatus: false,
       },
     };
-    const userApiModel: UserApiModelType = {
+    const userApiModel: UserApiModel = {
       id: newUser.id,
       login: newUser.accountData.login,
       email: newUser.accountData.email,
       createdAt: newUser.accountData.createdAt,
+      banInfo: {
+        isBanned: newUser.banStatus.banned,
+        banDate: newUser.banStatus.banDate,
+        banReason: newUser.banStatus.banReason,
+      },
     };
     const newUserModel: UserDocument = new this.UserModel(newUser);
     await this.userRepository.saveUser(newUserModel);

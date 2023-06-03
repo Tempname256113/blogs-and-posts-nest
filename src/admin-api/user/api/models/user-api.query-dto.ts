@@ -5,4 +5,5 @@ export interface IUserApiPaginationQueryDto {
   pageSize: number;
   sortBy: string;
   sortDirection: 'asc' | 'desc';
+  banStatus: 'all' | 'banned' | 'notBanned';
 }

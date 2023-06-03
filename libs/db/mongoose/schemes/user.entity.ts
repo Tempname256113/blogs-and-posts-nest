@@ -20,14 +20,41 @@ class UserPasswordRecovery {
   recoveryStatus: boolean;
 }
 
-export class User {
+class UserBanStatus {
+  banned: boolean;
+  banReason: string | null;
+  banDate: Date | null;
+}
+
+/* используются здесь классы из за того что декораторы не видят типов, но могут видеть классы.
+ * можно и без классов создавать схему, но тогда typescript подсказок не будет и придется
+ * самому смотреть и писать свойства. или сделать как я сделал. в nest лучше делать так как я */
+
+export type User = {
   id: string;
   accountData: UserAccountData;
   emailConfirmation: UserEmailConfirmation;
   passwordRecovery: UserPasswordRecovery;
-}
+  banStatus?: UserBanStatus;
+};
 
-class UserMethods extends User {
+@Schema({ versionKey: false, collection: 'users' })
+export class UserSchema implements User {
+  @Prop()
+  id: string;
+
+  @Prop()
+  accountData: UserAccountData;
+
+  @Prop()
+  emailConfirmation: UserEmailConfirmation;
+
+  @Prop()
+  passwordRecovery: UserPasswordRecovery;
+
+  @Prop({ default: { banned: false, banReason: null, banDate: null } })
+  banStatus: UserBanStatus;
+
   confirmRegistration(): boolean {
     if (new Date().toISOString() > this.emailConfirmation.expirationDate) {
       return false;
@@ -71,24 +98,11 @@ class UserMethods extends User {
       'emailConfirmation.isConfirmed',
       'passwordRecovery.recoveryCode',
       'passwordRecovery.recoveryStatus',
+      'banStatus.banned',
+      'banStatus.banReason',
     ];
     return userProperties;
   }
-}
-
-@Schema({ versionKey: false, collection: 'users' })
-export class UserSchema extends UserMethods implements User {
-  @Prop({ required: true })
-  id: string;
-
-  @Prop({ required: true })
-  accountData: UserAccountData;
-
-  @Prop({ required: true })
-  emailConfirmation: UserEmailConfirmation;
-
-  @Prop({ required: true })
-  passwordRecovery: UserPasswordRecovery;
 }
 
 export const userSchema = SchemaFactory.createForClass(UserSchema);

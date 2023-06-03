@@ -2,21 +2,18 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   User,
-  UserDocument,
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import {
-  UserApiModelType,
-  UserApiPaginationModelType,
+  UserApiModel,
+  UserApiPaginationModel,
 } from '../../api/models/user-api.models';
 import {
-  FilterType,
-  getDocumentsWithPagination,
-  PaginationQueryType,
+  getPaginationHelpers,
+  PaginationHelpersType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
-import { UserRepositoryPaginationType } from './models/user-repository.model';
 import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
@@ -29,8 +26,8 @@ export class UserQueryRepository {
   ) {}
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<UserApiPaginationModelType> {
-    let correctSortBy: string;
+  ): Promise<UserApiPaginationModel> {
+    let correctSortBy: string = rawPaginationQuery.sortBy;
     switch (rawPaginationQuery.sortBy) {
       case 'login':
         correctSortBy = 'accountData.login';
@@ -45,48 +42,68 @@ export class UserQueryRepository {
         correctSortBy = 'accountData.createdAt';
         break;
     }
-    const paginationQuery: PaginationQueryType = {
-      pageNumber: rawPaginationQuery.pageNumber,
-      pageSize: rawPaginationQuery.pageSize,
-      sortBy: correctSortBy,
-      sortDirection: rawPaginationQuery.sortDirection,
+    const filter: FilterQuery<UserSchema> = {
+      $or: [{}],
     };
-    const filter: FilterType = [];
-    if (rawPaginationQuery.searchLoginTerm) {
-      filter.push({
-        property: 'accountData.login',
-        value: rawPaginationQuery.searchLoginTerm,
+    const createCorrectFilter = (): void => {
+      switch (rawPaginationQuery.banStatus) {
+        case 'banned':
+          filter.$or.push({ 'banStatus.banned': true });
+          break;
+        case 'notBanned':
+          filter.$or.push({ 'banStatus.banned': false });
+          break;
+      }
+      if (rawPaginationQuery.searchLoginTerm) {
+        filter.$or.push({
+          'accountData.login': rawPaginationQuery.searchLoginTerm,
+        });
+      }
+      if (rawPaginationQuery.searchEmailTerm) {
+        filter.$or.push({
+          'accountData.email': rawPaginationQuery.searchEmailTerm,
+        });
+      }
+    };
+    createCorrectFilter();
+    const allUsersCount: number = await this.UserModel.countDocuments(filter);
+    const additionalPaginationData: PaginationHelpersType =
+      getPaginationHelpers({
+        sortDirection: rawPaginationQuery.sortDirection,
+        sortBy: correctSortBy,
+        pageSize: rawPaginationQuery.pageSize,
+        pageNumber: rawPaginationQuery.pageNumber,
+        totalDocumentsCount: allUsersCount,
       });
-    }
-    if (rawPaginationQuery.searchEmailTerm) {
-      filter.push({
-        property: 'accountData.email',
-        value: rawPaginationQuery.searchEmailTerm,
-      });
-    }
-    const usersWithPagination: UserRepositoryPaginationType =
-      await getDocumentsWithPagination<UserDocument>({
-        query: paginationQuery,
-        model: this.UserModel,
-        rawFilter: filter,
-        lean: true,
-      });
-    const mappedUsersArray: UserApiModelType[] = [];
-    for (const userDocument of usersWithPagination.items) {
-      const mappedUser: UserApiModelType = {
-        id: userDocument.id,
-        login: userDocument.accountData?.login,
-        email: userDocument.accountData?.email,
-        createdAt: userDocument.accountData?.createdAt,
+    const foundedUsers: User[] = await this.UserModel.find(
+      filter,
+      { _id: false },
+      {
+        limit: rawPaginationQuery.pageSize,
+        skip: additionalPaginationData.howMuchToSkip,
+        sort: additionalPaginationData.sortQuery,
+      },
+    ).lean();
+    const mappedUsers: UserApiModel[] = foundedUsers.map((rawUser) => {
+      const mappedUser: UserApiModel = {
+        id: rawUser.id,
+        login: rawUser.accountData.login,
+        email: rawUser.accountData.email,
+        createdAt: rawUser.accountData.createdAt,
+        banInfo: {
+          isBanned: rawUser.banStatus.banned,
+          banDate: rawUser.banStatus.banDate,
+          banReason: rawUser.banStatus.banReason,
+        },
       };
-      mappedUsersArray.push(mappedUser);
-    }
-    const usersPaginationResult: UserApiPaginationModelType = {
-      pagesCount: usersWithPagination.pagesCount,
-      page: usersWithPagination.page,
-      pageSize: usersWithPagination.pageSize,
-      totalCount: usersWithPagination.totalCount,
-      items: mappedUsersArray,
+      return mappedUser;
+    });
+    const usersPaginationResult: UserApiPaginationModel = {
+      pagesCount: additionalPaginationData.pagesCount,
+      page: rawPaginationQuery.pageNumber,
+      pageSize: rawPaginationQuery.pageSize,
+      totalCount: allUsersCount,
+      items: mappedUsers,
     };
     return usersPaginationResult;
   }
