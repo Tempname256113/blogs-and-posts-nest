@@ -8,12 +8,11 @@ export class Comment {
   userLogin: string;
   content: string;
   createdAt: string;
+  hidden?: boolean;
 }
 
-class CommentMethods extends Comment {}
-
 @Schema({ versionKey: false, collection: 'comments' })
-export class CommentSchema extends CommentMethods implements Comment {
+export class CommentSchema implements Comment {
   @Prop()
   id: string;
 
@@ -31,6 +30,9 @@ export class CommentSchema extends CommentMethods implements Comment {
 
   @Prop()
   createdAt: string;
+
+  @Prop({ default: false })
+  hidden: boolean;
 }
 
 export const commentSchema = SchemaFactory.createForClass(CommentSchema);

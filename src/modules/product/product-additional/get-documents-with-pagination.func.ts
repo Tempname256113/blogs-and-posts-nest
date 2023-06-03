@@ -33,7 +33,7 @@ type FilterOptionsType = {
  содержит также generic.
  generic<T> отвечает за тип возвращаемых сущностей (нужно передать тип документов. например BlogDocument)
 */
-export const getDocumentsWithPagination = async <T>({
+/*export const getDocumentsWithPagination = async <T>({
   query,
   model,
   filter: rawFilter = [],
@@ -118,7 +118,7 @@ export const getDocumentsWithPagination = async <T>({
     items: documentsWithPagination,
   };
   return paginationResult;
-};
+};*/
 
 export type PaginationHelpersType = {
   sortQuery: { [sortBy: string]: number };

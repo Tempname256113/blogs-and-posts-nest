@@ -12,7 +12,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogService } from '../../blog-application/blog.service';
 import {
   BlogApiCreatePostDTO,
   BlogApiCreateUpdateDTO,
@@ -27,7 +26,7 @@ import {
   PostApiPaginationModelType,
 } from '../../../../public-api/post/api/models/post-api.models';
 import { BlogApiPaginationQueryDTO } from '../blog-api-models/blog-api.query-dto';
-import { PostApiPaginationQueryDTOType } from '../../../../public-api/post/api/models/post-api.query-dto';
+import { PostApiPaginationQueryDTO } from '../../../../public-api/post/api/models/post-api.query-dto';
 import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
 import { BasicAuthGuard } from '../../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { AccessToken } from '../../../../../generic-decorators/access-token.decorator';
@@ -40,7 +39,6 @@ import { DeleteBlogCommand } from '../../blog-application/blog-application-use-c
 @Controller('blogs')
 export class BlogController {
   constructor(
-    private blogService: BlogService,
     private blogQueryRepository: BlogPublicQueryRepository,
     private commandBus: CommandBus,
   ) {}

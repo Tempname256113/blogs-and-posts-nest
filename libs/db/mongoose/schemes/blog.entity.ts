@@ -12,25 +12,11 @@ export class Blog {
   websiteUrl: string;
   createdAt: string;
   isMembership: boolean;
-}
-
-class BlogMethods extends Blog {
-  createPost(createPostDTO: PostApiCreateUpdateDTO): Post {
-    const newPostDocument: Post = {
-      id: uuidv4(),
-      title: createPostDTO.title,
-      shortDescription: createPostDTO.shortDescription,
-      content: createPostDTO.content,
-      blogId: this.id,
-      blogName: this.name,
-      createdAt: new Date().toISOString(),
-    };
-    return newPostDocument;
-  }
+  hidden?: boolean;
 }
 
 @Schema({ versionKey: false, collection: 'blogs' })
-export class BlogSchema extends BlogMethods implements Blog {
+export class BlogSchema implements Blog {
   @Prop({ required: true })
   id: string;
 
@@ -46,11 +32,28 @@ export class BlogSchema extends BlogMethods implements Blog {
   @Prop({ required: true })
   websiteUrl: string;
 
-  @Prop({ required: true })
+  @Prop()
   createdAt: string;
 
   @Prop({ required: true })
   isMembership: boolean;
+
+  @Prop({ default: false })
+  hidden: boolean;
+
+  createPost(createPostDTO: PostApiCreateUpdateDTO): Post {
+    const newPostDocument: Post = {
+      id: uuidv4(),
+      title: createPostDTO.title,
+      shortDescription: createPostDTO.shortDescription,
+      content: createPostDTO.content,
+      blogId: this.id,
+      blogName: this.name,
+      bloggerId: this.bloggerId,
+      createdAt: new Date().toISOString(),
+    };
+    return newPostDocument;
+  }
 }
 
 export const blogSchema = SchemaFactory.createForClass(BlogSchema);
