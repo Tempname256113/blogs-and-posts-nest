@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Comment } from './comment.entity';
 import { v4 as uuidv4 } from 'uuid';
 
-export class Post {
+export type Post = {
   id: string;
   title: string;
   shortDescription: string;
@@ -11,8 +11,9 @@ export class Post {
   blogId: string;
   blogName: string;
   createdAt: string;
+  bloggerId: string;
   hidden?: boolean;
-}
+};
 
 @Schema({ versionKey: false, collection: 'posts' })
 export class PostSchema implements Post {
@@ -36,6 +37,9 @@ export class PostSchema implements Post {
 
   @Prop()
   createdAt: string;
+
+  @Prop()
+  bloggerId: string;
 
   @Prop({ default: false })
   hidden: boolean;

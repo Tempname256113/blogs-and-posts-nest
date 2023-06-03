@@ -5,7 +5,7 @@ export type UserApiModel = {
   createdAt: string;
   banInfo: {
     isBanned: boolean;
-    banDate: Date | null;
+    banDate: string | null;
     banReason: string | null;
   };
 };

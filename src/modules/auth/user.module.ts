@@ -7,10 +7,15 @@ import { EnvConfiguration } from '../../../app-configuration/environment/env-con
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CreateUserUseCase } from '../../admin-api/user/application/use-cases/create-user.use-case';
-import { DeleteUserByIdCommand } from '../../admin-api/user/application/use-cases/delete-user-by-id.use-case';
+import { DeleteUserByIdUseCase } from '../../admin-api/user/application/use-cases/delete-user-by-id.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
+import { BanUnbanUserUseCase } from '../../admin-api/user/application/use-cases/ban-unban-user.use-case';
 
-const UseCases = [CreateUserUseCase, DeleteUserByIdCommand];
+const UseCases = [
+  CreateUserUseCase,
+  DeleteUserByIdUseCase,
+  BanUnbanUserUseCase,
+];
 
 @Module({
   imports: [MongooseSchemesModule, JwtModule, CqrsModule],

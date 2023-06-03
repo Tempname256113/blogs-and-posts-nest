@@ -33,6 +33,7 @@ export class ValidateUserUseCase
       return null;
     }
     if (foundedUser.passwordRecovery.recoveryStatus) return null;
+    if (foundedUser.banStatus.banned) return null;
     const comparePasswords: boolean = await compare(
       loginDTO.password,
       foundedUser.accountData.password,

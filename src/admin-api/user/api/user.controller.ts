@@ -7,22 +7,21 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserApiCreateDto } from './models/user-api.dto';
-import {
-  UserApiModelType,
-  UserApiPaginationModelType,
-} from './models/user-api.models';
+import { UserBanUnbanDTO, UserApiCreateDto } from './models/user-api.dto';
+import { UserApiModel, UserApiPaginationModel } from './models/user-api.models';
 import { UserQueryRepository } from '../infrastructure/repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from './models/user-api.query-dto';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/use-cases/create-user.use-case';
 import { DeleteUserByIdCommand } from '../application/use-cases/delete-user-by-id.use-case';
+import { BanUnbanUserCommand } from '../application/use-cases/ban-unban-user.use-case';
 
-@Controller('users')
+@Controller('sa/users')
 export class UserController {
   constructor(
     private userQueryRepository: UserQueryRepository,
@@ -33,12 +32,24 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   async createUser(
     @Body() createUserDTO: UserApiCreateDto,
-  ): Promise<UserApiModelType> {
-    const createdUser: UserApiModelType = await this.commandBus.execute<
+  ): Promise<UserApiModel> {
+    const createdUser: UserApiModel = await this.commandBus.execute<
       CreateUserCommand,
-      UserApiModelType
+      UserApiModel
     >(new CreateUserCommand(createUserDTO));
     return createdUser;
+  }
+
+  @Put(':userId/ban')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async banUnbanUser(
+    @Param('userId') userId: string,
+    @Body() banUnbanDTO: UserBanUnbanDTO,
+  ): Promise<void> {
+    await this.commandBus.execute<BanUnbanUserCommand, void>(
+      new BanUnbanUserCommand({ userId, banUnbanDTO: banUnbanDTO }),
+    );
   }
 
   @Get()
@@ -46,7 +57,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async getUsersWithPagination(
     @Query() rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<UserApiPaginationModelType> {
+  ): Promise<UserApiPaginationModel> {
     const paginationQuery: IUserApiPaginationQueryDto = {
       searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
       searchEmailTerm: rawPaginationQuery.searchEmailTerm ?? null,
@@ -54,8 +65,9 @@ export class UserController {
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+      banStatus: rawPaginationQuery.banStatus ?? 'all',
     };
-    const usersWithPagination: UserApiPaginationModelType =
+    const usersWithPagination: UserApiPaginationModel =
       await this.userQueryRepository.getUsersWithPagination(paginationQuery);
     return usersWithPagination;
   }

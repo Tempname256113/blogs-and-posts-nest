@@ -20,10 +20,10 @@ class UserPasswordRecovery {
   recoveryStatus: boolean;
 }
 
-class UserBanStatus {
+export class UserBanStatus {
   banned: boolean;
   banReason: string | null;
-  banDate: Date | null;
+  banDate: string | null;
 }
 
 /* используются здесь классы из за того что декораторы не видят типов, но могут видеть классы.
@@ -100,6 +100,7 @@ export class UserSchema implements User {
       'passwordRecovery.recoveryStatus',
       'banStatus.banned',
       'banStatus.banReason',
+      'banStatus.banDate',
     ];
     return userProperties;
   }
