@@ -2,13 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Comment,
-  CommentDocument,
   CommentSchema,
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { CommentApiPaginationQueryDto } from '../../api/models/comment-api.query-dto';
-import { getDocumentsWithPagination } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
-import { CommentRepositoryPaginationModel } from './models/comment-repository.models';
+import {
+  getPaginationHelpers,
+  PaginationHelpersType,
+} from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
   CommentApiModel,
   CommentApiPaginationModel,
@@ -35,28 +36,37 @@ export class CommentQueryRepository {
     postId: string;
     accessToken: string | null;
   }): Promise<CommentApiPaginationModel> {
-    const getUserId = (): string => {
-      if (accessToken) {
+    const getUserId = (): string | null => {
+      if (!accessToken) {
+        return null;
+      } else {
         const accessTokenPayload: JwtAccessTokenPayloadType | null =
           this.jwtHelpers.verifyAccessToken(accessToken);
-        if (accessTokenPayload) {
-          return accessTokenPayload.userId;
+        if (!accessToken) {
+          return null;
         } else {
-          return '';
+          return accessTokenPayload.userId;
         }
-      } else {
-        return '';
       }
     };
     const userId: string = getUserId();
-    const commentsWithPagination: CommentRepositoryPaginationModel =
-      await getDocumentsWithPagination<CommentDocument>({
-        query: paginationQuery,
-        model: this.CommentModel,
-        rawFilter: [{ property: 'postId', value: postId }],
+    const filter: FilterQuery<CommentSchema> = { postId, hidden: false };
+    const allCommentsCount: number = await this.CommentModel.countDocuments(
+      filter,
+    );
+    const additionalPaginationData: PaginationHelpersType =
+      getPaginationHelpers({
+        pageSize: paginationQuery.pageSize,
+        sortBy: paginationQuery.sortBy,
+        totalDocumentsCount: allCommentsCount,
+        pageNumber: paginationQuery.pageNumber,
+        sortDirection: paginationQuery.sortDirection,
       });
+    const foundedComments: Comment[] = await this.CommentModel.find(
+      filter,
+    ).lean();
     const arrayWithMappedComments: CommentApiModel[] = [];
-    for (const commentDocument of commentsWithPagination.items) {
+    for (const commentDocument of foundedComments) {
       const commentReactionsCount: {
         likesCount: number;
         dislikesCount: number;
@@ -85,10 +95,10 @@ export class CommentQueryRepository {
       arrayWithMappedComments.push(mappedComment);
     }
     const paginationResult: CommentApiPaginationModel = {
-      pagesCount: commentsWithPagination.pagesCount,
-      page: commentsWithPagination.page,
-      pageSize: commentsWithPagination.pageSize,
-      totalCount: commentsWithPagination.totalCount,
+      pagesCount: additionalPaginationData.pagesCount,
+      page: paginationQuery.pageNumber,
+      pageSize: paginationQuery.pageSize,
+      totalCount: allCommentsCount,
       items: arrayWithMappedComments,
     };
     return paginationResult;
@@ -101,22 +111,23 @@ export class CommentQueryRepository {
     commentId: string;
     accessToken: string | null;
   }): Promise<CommentApiModel> {
-    const getUserId = (): string => {
-      if (accessToken) {
+    const getUserId = (): string | null => {
+      if (!accessToken) {
+        return null;
+      } else {
         const accessTokenPayload: JwtAccessTokenPayloadType | null =
           this.jwtHelpers.verifyAccessToken(accessToken);
-        if (accessTokenPayload) {
-          return accessTokenPayload.userId;
+        if (!accessToken) {
+          return null;
         } else {
-          return '';
+          return accessTokenPayload.userId;
         }
-      } else {
-        return '';
       }
     };
     const userId: string = getUserId();
     const foundedComment: Comment | null = await this.CommentModel.findOne({
       id: commentId,
+      hidden: false,
     }).lean();
     if (!foundedComment) throw new NotFoundException();
     const commentReactionsCount: EntityLikesCountType =
