@@ -30,6 +30,7 @@ export class CreateBlogUseCase
     const newBlog: Blog = {
       id: uuidv4(),
       bloggerId: 'mock blogger id',
+      bloggerLogin: 'mock blogger login',
       name: createBlogDTO.name,
       description: createBlogDTO.description,
       websiteUrl: createBlogDTO.websiteUrl,

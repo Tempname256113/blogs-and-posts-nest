@@ -42,6 +42,7 @@ export class CreateBlogUseCase
     const newBlog: Blog = {
       id: uuidv4(),
       bloggerId: accessTokenPayload.userId,
+      bloggerLogin: accessTokenPayload.userLogin,
       name: createBlogDTO.name,
       description: createBlogDTO.description,
       websiteUrl: createBlogDTO.websiteUrl,
