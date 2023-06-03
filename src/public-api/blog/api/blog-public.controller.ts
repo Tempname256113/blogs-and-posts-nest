@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { BlogApiPaginationQueryDTO } from '../../../product-module/blog/blog-api/blog-api-models/blog-api.query-dto';
 import {
-  BlogApiModelType,
-  BlogApiPaginationModelType,
+  BlogApiModel,
+  BlogApiPaginationModel,
 } from '../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
 import { PostApiPaginationQueryDTO } from '../../post/api/models/post-api.query-dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
@@ -26,7 +26,7 @@ export class BlogPublicController {
   async getBlogsWithPagination(
     @Query()
     rawPaginationQuery: BlogApiPaginationQueryDTO,
-  ): Promise<BlogApiPaginationModelType> {
+  ): Promise<BlogApiPaginationModel> {
     const paginationQuery: BlogApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -34,7 +34,7 @@ export class BlogPublicController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const blogsWithPagination: BlogApiPaginationModelType =
+    const blogsWithPagination: BlogApiPaginationModel =
       await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
@@ -64,10 +64,8 @@ export class BlogPublicController {
 
   @Get(':blogId')
   @HttpCode(HttpStatus.OK)
-  async getBlogById(
-    @Param('blogId') blogId: string,
-  ): Promise<BlogApiModelType> {
-    const foundedBlog: BlogApiModelType | null =
+  async getBlogById(@Param('blogId') blogId: string): Promise<BlogApiModel> {
+    const foundedBlog: BlogApiModel | null =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     return foundedBlog;

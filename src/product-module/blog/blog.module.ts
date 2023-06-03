@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { BlogController } from './blog-api/blog-api-controllers/blog.controller';
 import { BlogPublicQueryRepository } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { LikeModule } from '../../modules/product/like.module';
@@ -15,6 +14,8 @@ import { CreatePostByBlogUseCase } from '../../blogger-api/blog/application/use-
 import { UpdateBlogUseCase } from '../../blogger-api/blog/application/use-cases/update-blog.use-case';
 import { UpdatePostByBlogIdUseCase } from '../../blogger-api/blog/application/use-cases/update-post-by-blogId.use-case';
 import { DeletePostByBlogIdUseCase } from '../../blogger-api/blog/application/use-cases/delete-post-by-blogId.use-case';
+import { BlogAdminController } from '../../admin-api/blog/api/blog-admin.controller';
+import { BlogAdminQueryRepository } from '../../admin-api/blog/infrastructure/repositories/blog-admin.query-repository';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -27,11 +28,16 @@ const UseCases = [
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],
-  controllers: [BlogPublicController, BlogBloggerController],
+  controllers: [
+    BlogPublicController,
+    BlogBloggerController,
+    BlogAdminController,
+  ],
   providers: [
     BlogRepository,
     BlogPublicQueryRepository,
     BlogBloggerQueryRepository,
+    BlogAdminQueryRepository,
     ...UseCases,
   ],
 })

@@ -17,8 +17,8 @@ import {
   BlogApiCreateUpdateDTO,
 } from '../blog-api-models/blog-api.dto';
 import {
-  BlogApiModelType,
-  BlogApiPaginationModelType,
+  BlogApiModel,
+  BlogApiPaginationModel,
 } from '../blog-api-models/blog-api.models';
 import { BlogPublicQueryRepository } from '../../../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 import {
@@ -48,10 +48,10 @@ export class BlogController {
   @UseGuards(BasicAuthGuard)
   async createBlog(
     @Body() blogCreateDTO: BlogApiCreateUpdateDTO,
-  ): Promise<BlogApiModelType> {
-    const createdBlog: BlogApiModelType = await this.commandBus.execute<
+  ): Promise<BlogApiModel> {
+    const createdBlog: BlogApiModel = await this.commandBus.execute<
       CreateBlogCommand,
-      BlogApiModelType
+      BlogApiModel
     >(new CreateBlogCommand(blogCreateDTO));
     return createdBlog;
   }

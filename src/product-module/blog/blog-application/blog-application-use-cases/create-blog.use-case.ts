@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogApiCreateUpdateDTO } from '../../blog-api/blog-api-models/blog-api.dto';
-import { BlogApiModelType } from '../../blog-api/blog-api-models/blog-api.models';
+import { BlogApiModel } from '../../blog-api/blog-api-models/blog-api.models';
 import {
   Blog,
   BlogDocument,
@@ -17,16 +17,14 @@ export class CreateBlogCommand {
 
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase
-  implements ICommandHandler<CreateBlogCommand, BlogApiModelType>
+  implements ICommandHandler<CreateBlogCommand, BlogApiModel>
 {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     private blogRepository: BlogRepository,
   ) {}
 
-  async execute({
-    createBlogDTO,
-  }: CreateBlogCommand): Promise<BlogApiModelType> {
+  async execute({ createBlogDTO }: CreateBlogCommand): Promise<BlogApiModel> {
     const newBlog: Blog = {
       id: uuidv4(),
       bloggerId: 'mock blogger id',

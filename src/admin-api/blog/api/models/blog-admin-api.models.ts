@@ -1,16 +1,20 @@
-export type BlogApiModel = {
+export type BlogAdminApiModel = {
   id: string;
   name: string;
   description: string;
   websiteUrl: string;
   createdAt: string;
   isMembership: boolean;
+  blogOwnerInfo: {
+    userId: string;
+    userLogin: string;
+  };
 };
 
-export type BlogApiPaginationModel = {
+export type BlogAdminApiPaginationModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: BlogApiModel[];
+  items: BlogAdminApiModel[];
 };
