@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseSchemesModule } from '../libs/db/mongoose/mongoose.schemes-module';
 import { SecurityModule } from './modules/auth/security.module';
 import { PostModule } from './modules/product/post.module';
-import { BlogModule } from './product-module/blog/blog.module';
+import { BlogModule } from './modules/product/blog.module';
 
 const ProductModules = [PostModule, BlogModule];
 

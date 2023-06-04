@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { BlogPublicQueryRepository } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
-import { LikeModule } from '../../modules/product/like.module';
+import { LikeModule } from './like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
-import { DeleteBlogCommand } from './blog-application/blog-application-use-cases/delete-blog.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
 import { BlogPublicController } from '../../public-api/blog/api/blog-public.controller';
 import { BlogBloggerController } from '../../blogger-api/blog/api/blog-blogger.controller';
@@ -17,6 +16,7 @@ import { DeletePostByBlogIdUseCase } from '../../blogger-api/blog/application/us
 import { BlogAdminController } from '../../admin-api/blog/api/blog-admin.controller';
 import { BlogAdminQueryRepository } from '../../admin-api/blog/infrastructure/repositories/blog-admin.query-repository';
 import { BindBlogWithUserUseCase } from '../../admin-api/blog/application/use-cases/bind-blog-with-user.use-case';
+import { DeleteBlogCommand } from '../../blogger-api/blog/application/use-cases/delete-blog.use-case';
 
 const UseCases = [
   CreateBlogUseCase,

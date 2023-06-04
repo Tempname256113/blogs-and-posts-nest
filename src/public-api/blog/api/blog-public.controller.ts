@@ -7,15 +7,15 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { BlogApiPaginationQueryDTO } from '../../../product-module/blog/blog-api/blog-api-models/blog-api.query-dto';
-import {
-  BlogApiModel,
-  BlogApiPaginationModel,
-} from '../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
 import { PostApiPaginationQueryDTO } from '../../post/api/models/post-api.query-dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { PostApiPaginationModelType } from '../../post/api/models/post-api.models';
 import { BlogPublicQueryRepository } from '../infrastructure/repositories/blog-public.query-repository';
+import {
+  BlogPublicApiModel,
+  BlogPublicApiPaginationModel,
+} from './models/blog-public-api.models';
+import { BlogPublicApiPaginationQueryDTO } from './models/blog-public-api.query-dto';
 
 @Controller('blogs')
 export class BlogPublicController {
@@ -25,16 +25,16 @@ export class BlogPublicController {
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
     @Query()
-    rawPaginationQuery: BlogApiPaginationQueryDTO,
-  ): Promise<BlogApiPaginationModel> {
-    const paginationQuery: BlogApiPaginationQueryDTO = {
+    rawPaginationQuery: BlogPublicApiPaginationQueryDTO,
+  ): Promise<BlogPublicApiPaginationModel> {
+    const paginationQuery: BlogPublicApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const blogsWithPagination: BlogApiPaginationModel =
+    const blogsWithPagination: BlogPublicApiPaginationModel =
       await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
@@ -64,8 +64,10 @@ export class BlogPublicController {
 
   @Get(':blogId')
   @HttpCode(HttpStatus.OK)
-  async getBlogById(@Param('blogId') blogId: string): Promise<BlogApiModel> {
-    const foundedBlog: BlogApiModel | null =
+  async getBlogById(
+    @Param('blogId') blogId: string,
+  ): Promise<BlogPublicApiModel> {
+    const foundedBlog: BlogPublicApiModel | null =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
     return foundedBlog;

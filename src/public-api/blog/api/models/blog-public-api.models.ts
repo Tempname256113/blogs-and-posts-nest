@@ -1,4 +1,4 @@
-export type BlogApiModel = {
+export type BlogPublicApiModel = {
   id: string;
   name: string;
   description: string;
@@ -7,10 +7,10 @@ export type BlogApiModel = {
   isMembership: boolean;
 };
 
-export type BlogApiPaginationModel = {
+export type BlogPublicApiPaginationModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: BlogApiModel[];
+  items: BlogPublicApiModel[];
 };

@@ -47,9 +47,8 @@ export class PostController {
     private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,
   ) {}
-  @Post()
+  /*@Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(BasicAuthGuard)
   async createPost(
     @Body() postCreateDTO: PostApiCreateUpdateDTO,
   ): Promise<PostApiModel> {
@@ -73,7 +72,7 @@ export class PostController {
       },
     };
     return postApiModel;
-  }
+  }*/
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -175,7 +174,7 @@ export class PostController {
     );
   }
 
-  @Put(':postId')
+  /*@Put(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
   async updatePost(
@@ -185,14 +184,14 @@ export class PostController {
     await this.commandBus.execute<UpdatePostCommand, void>(
       new UpdatePostCommand({ postId, postUpdateDTO }),
     );
-  }
+  }*/
 
-  @Delete(':postId')
+  /*@Delete(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
   async deletePost(@Param('postId') postId: string): Promise<void> {
     await this.commandBus.execute<DeletePostCommand, void>(
       new DeletePostCommand(postId),
     );
-  }
+  }*/
 }
