@@ -87,7 +87,7 @@ export class BlogBloggerController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getBlogsWithPagination(
+  async getBlogsWithPaginationForCurrentUser(
     @Query()
     rawPaginationQuery: BlogBloggerApiPaginationQueryDTO,
     @AccessToken() accessToken: string | null,
