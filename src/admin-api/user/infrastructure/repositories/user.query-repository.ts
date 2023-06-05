@@ -43,19 +43,19 @@ export class UserQueryRepository {
         break;
     }
     let filter: FilterQuery<UserSchema> = {
-      $and: [],
+      $or: [],
     };
     const createCorrectFilter = (): void => {
       switch (rawPaginationQuery.banStatus) {
         case 'banned':
-          filter.$and.push({ 'banStatus.banned': true });
+          filter.$or.push({ 'banStatus.banned': true });
           break;
         case 'notBanned':
-          filter.$and.push({ 'banStatus.banned': false });
+          filter.$or.push({ 'banStatus.banned': false });
           break;
       }
       if (rawPaginationQuery.searchLoginTerm) {
-        filter.$and.push({
+        filter.$or.push({
           'accountData.login': {
             $regex: rawPaginationQuery.searchLoginTerm,
             $options: 'i',
@@ -63,7 +63,7 @@ export class UserQueryRepository {
         });
       }
       if (rawPaginationQuery.searchEmailTerm) {
-        filter.$and.push({
+        filter.$or.push({
           'accountData.email': {
             $regex: rawPaginationQuery.searchEmailTerm,
             $options: 'i',
@@ -72,7 +72,7 @@ export class UserQueryRepository {
       }
     };
     createCorrectFilter();
-    if (filter.$and.length < 1) {
+    if (filter.$or.length < 1) {
       filter = {};
     }
     const allUsersCount: number = await this.UserModel.countDocuments(filter);
