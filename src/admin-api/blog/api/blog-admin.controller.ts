@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BlogAdminQueryRepository } from '../infrastructure/repositories/blog-admin.query-repository';
@@ -27,7 +28,7 @@ export class BlogAdminController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
-    @Body() rawPaginationQuery: BlogAdminApiPaginationQueryDTO,
+    @Query() rawPaginationQuery: BlogAdminApiPaginationQueryDTO,
   ): Promise<BlogAdminApiPaginationModel> {
     const paginationQuery: BlogBloggerApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
@@ -36,6 +37,7 @@ export class BlogAdminController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
+    console.log(paginationQuery);
     const blogsWithPagination: BlogAdminApiPaginationModel =
       await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
