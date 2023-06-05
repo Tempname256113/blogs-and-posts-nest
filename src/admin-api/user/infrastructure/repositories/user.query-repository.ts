@@ -43,7 +43,7 @@ export class UserQueryRepository {
         break;
     }
     const filter: FilterQuery<UserSchema> = {
-      $or: [],
+      $or: [{}],
     };
     const createCorrectFilter = (): void => {
       switch (rawPaginationQuery.banStatus) {
