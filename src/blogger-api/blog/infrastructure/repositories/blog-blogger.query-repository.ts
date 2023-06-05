@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Blog,
@@ -40,17 +44,26 @@ export class BlogBloggerQueryRepository {
     private likeQueryRepository: LikeQueryRepository,
     private jwtHelpers: JwtHelpers,
   ) {}
-  async getBlogsWithPagination(
-    rawPaginationQuery: BlogBloggerApiPaginationQueryDTO,
-  ): Promise<BlogBloggerApiPaginationModel> {
+  async getBlogsWithPagination({
+    rawPaginationQuery,
+    accessToken,
+  }: {
+    rawPaginationQuery: BlogBloggerApiPaginationQueryDTO;
+    accessToken: string;
+  }): Promise<BlogBloggerApiPaginationModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const bloggerId: string = accessTokenPayload.userId;
     const blogsWithPagination =
       async (): Promise<BlogBloggerApiPaginationModel> => {
         let filter: FilterQuery<BlogSchema>;
         const getCorrectBlogsFilter = (): void => {
           if (!rawPaginationQuery.searchNameTerm) {
-            filter = { hidden: false };
+            filter = { bloggerId, hidden: false };
           } else {
             filter = {
+              bloggerId,
               name: {
                 $regex: [rawPaginationQuery.searchNameTerm],
                 $options: 'i',

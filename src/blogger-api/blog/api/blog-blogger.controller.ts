@@ -101,7 +101,10 @@ export class BlogBloggerController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const blogsWithPagination: BlogBloggerApiPaginationModel =
-      await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
+      await this.blogQueryRepository.getBlogsWithPagination({
+        rawPaginationQuery: paginationQuery,
+        accessToken,
+      });
     return blogsWithPagination;
   }
 
