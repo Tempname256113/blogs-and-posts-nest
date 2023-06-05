@@ -37,7 +37,6 @@ export class BlogAdminController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    console.log(paginationQuery);
     const blogsWithPagination: BlogAdminApiPaginationModel =
       await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;

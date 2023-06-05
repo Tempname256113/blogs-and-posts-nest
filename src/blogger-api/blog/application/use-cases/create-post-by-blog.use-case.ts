@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
 import { PostApiModel } from '../../../../public-api/post/api/models/post-api.models';
 import {
-  Blog,
   BlogDocument,
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';

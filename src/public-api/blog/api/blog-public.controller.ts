@@ -16,6 +16,7 @@ import {
   BlogPublicApiPaginationModel,
 } from './models/blog-public-api.models';
 import { BlogPublicApiPaginationQueryDTO } from './models/blog-public-api.query-dto';
+import { BlogDocument } from '../../../../libs/db/mongoose/schemes/blog.entity';
 
 @Controller('blogs')
 export class BlogPublicController {
@@ -67,9 +68,17 @@ export class BlogPublicController {
   async getBlogById(
     @Param('blogId') blogId: string,
   ): Promise<BlogPublicApiModel> {
-    const foundedBlog: BlogPublicApiModel | null =
+    const foundedBlog: BlogDocument =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
-    return foundedBlog;
+    const mappedBlog: BlogPublicApiModel = {
+      id: foundedBlog.id,
+      name: foundedBlog.name,
+      description: foundedBlog.description,
+      websiteUrl: foundedBlog.websiteUrl,
+      createdAt: foundedBlog.createdAt,
+      isMembership: foundedBlog.isMembership,
+    };
+    return mappedBlog;
   }
 }
