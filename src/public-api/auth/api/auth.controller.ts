@@ -47,7 +47,7 @@ export class AuthController {
   ) {}
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   async registrationNewUser(
     @Body() createNewUserDTO: UserApiCreateDto,
   ): Promise<void> {
@@ -58,7 +58,7 @@ export class AuthController {
 
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   async confirmRegistration(
     @Body() { code }: AuthApiConfirmRegistrationDTO,
   ): Promise<void> {
@@ -69,7 +69,7 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   async emailResending(
     @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
@@ -81,7 +81,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   async login(
     @PassportjsReqDataDecorator<User>() reqUser: User,
     @Res({ passthrough: true }) response: Response,
@@ -152,7 +152,7 @@ export class AuthController {
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   async passwordRecovery(
     @Body() { email }: AuthApiEmailPropertyDTO,
   ): Promise<void> {
@@ -163,7 +163,7 @@ export class AuthController {
 
   @Post('new-password')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   async confirmPasswordRecovery(
     @Body() { newPassword, recoveryCode }: NewPasswordDTO,
   ): Promise<void> {
@@ -181,6 +181,7 @@ export class AuthController {
   async getInfoAboutUser(
     @AccessToken() accessToken: string | null,
   ): Promise<AuthApiUserInfoType> {
+    if (!accessToken) throw new UnauthorizedException();
     const foundedUserInfo: AuthApiUserInfoType | null =
       await this.usersQueryRepository.getInfoAboutUser(accessToken);
     if (!foundedUserInfo) throw new UnauthorizedException();

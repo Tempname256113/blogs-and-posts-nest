@@ -4,7 +4,7 @@ import {
   PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {
   Comment,
   CommentDocument,
@@ -14,12 +14,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../../../comment/infrastructure/repositories/comment.repository';
 import { PostPublicQueryRepository } from '../../infrastructure/repositories/post.query-repository';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 
 export class CreateNewCommentCommand {
   constructor(
     public readonly data: {
-      userId: string;
-      userLogin: string;
+      accessToken: string;
       content: string;
       postId: string;
     },
@@ -35,11 +36,17 @@ export class CreateNewCommentUseCase
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private commentRepository: CommentRepository,
     private postsQueryRepository: PostPublicQueryRepository,
+    private jwtHelpers: JwtHelpers,
   ) {}
 
   async execute({
-    data: { userId, userLogin, content, postId },
+    data: { accessToken, content, postId },
   }: CreateNewCommentCommand): Promise<CommentApiModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const userId = accessTokenPayload.userId;
+    const userLogin = accessTokenPayload.userLogin;
     const foundedPost: PostDocument | null =
       await this.postsQueryRepository.getRawPostById(postId);
     if (!foundedPost) throw new NotFoundException();

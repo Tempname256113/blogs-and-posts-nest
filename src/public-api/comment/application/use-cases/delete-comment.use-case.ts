@@ -3,13 +3,21 @@ import {
   Comment,
   CommentSchema,
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../../infrastructure/repositories/comment.repository';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 
 export class DeleteCommentCommand {
-  constructor(public readonly data: { commentId: string; userId: string }) {}
+  constructor(
+    public readonly data: { commentId: string; accessToken: string },
+  ) {}
 }
 
 @CommandHandler(DeleteCommentCommand)
@@ -19,11 +27,16 @@ export class DeleteCommentUseCase
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private commentRepository: CommentRepository,
+    private jwtHelpers: JwtHelpers,
   ) {}
 
   async execute({
-    data: { commentId, userId },
+    data: { commentId, accessToken },
   }: DeleteCommentCommand): Promise<void> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const userId = accessTokenPayload.userId;
     const foundedComment: Comment | null = await this.CommentModel.findOne({
       id: commentId,
     });

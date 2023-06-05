@@ -42,7 +42,7 @@ export class CommentQueryRepository {
       } else {
         const accessTokenPayload: JwtAccessTokenPayloadType | null =
           this.jwtHelpers.verifyAccessToken(accessToken);
-        if (!accessToken) {
+        if (!accessTokenPayload) {
           return null;
         } else {
           return accessTokenPayload.userId;

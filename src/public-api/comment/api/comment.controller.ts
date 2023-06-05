@@ -7,14 +7,11 @@ import {
   HttpStatus,
   Param,
   Put,
-  UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CommentApiModel } from './models/comment-api.models';
 import { CommentQueryRepository } from '../infrastructure/repositories/comment.query-repository';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
-import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
-import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
-import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
 import { CommentApiUpdateDTO } from './models/comment-api.dto';
 import { LikeDto } from '../../like/api/models/like.dto';
 import { CommandBus } from '@nestjs/cqrs';
@@ -44,15 +41,14 @@ export class CommentController {
 
   @Delete(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthAccessTokenGuard)
   async deleteComment(
     @Param('commentId') commentId: string,
-    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
-    accessTokenPayload: JwtAccessTokenPayloadType,
+    @AccessToken() accessToken: string | null,
   ): Promise<void> {
+    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<DeleteCommentCommand, void>(
       new DeleteCommentCommand({
-        userId: accessTokenPayload.userId,
+        accessToken,
         commentId,
       }),
     );
@@ -60,16 +56,15 @@ export class CommentController {
 
   @Put(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthAccessTokenGuard)
   async updateComment(
     @Body() commentUpdateDTO: CommentApiUpdateDTO,
     @Param('commentId') commentId: string,
-    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
-    accessTokenPayload: JwtAccessTokenPayloadType,
+    @AccessToken() accessToken: string,
   ): Promise<void> {
+    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<UpdateCommentCommand, void>(
       new UpdateCommentCommand({
-        userId: accessTokenPayload.userId,
+        accessToken,
         commentId,
         content: commentUpdateDTO.content,
       }),
@@ -78,19 +73,17 @@ export class CommentController {
 
   @Put(':commentId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthAccessTokenGuard)
   async changeLikeStatus(
     @Param('commentId') commentId: string,
     @Body() { likeStatus }: LikeDto,
-    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
-    accessTokenPayload: JwtAccessTokenPayloadType,
+    @AccessToken() accessToken: string,
   ): Promise<void> {
-    await this.commandBus.execute(
+    if (!accessToken) throw new UnauthorizedException();
+    await this.commandBus.execute<ChangeCommentLikeStatusCommand, void>(
       new ChangeCommentLikeStatusCommand({
         commentId,
         reaction: likeStatus,
-        userLogin: accessTokenPayload.userLogin,
-        userId: accessTokenPayload.userId,
+        accessToken,
       }),
     );
   }

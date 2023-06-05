@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -10,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { PostApiCreateUpdateDTO } from './models/post-api.dto';
@@ -19,9 +19,6 @@ import {
   PostApiPaginationModelType,
 } from './models/post-api.models';
 import { PostApiPaginationQueryDTO } from './models/post-api.query-dto';
-import { JwtAuthAccessTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-access-token.strategy';
-import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
-import { JwtAccessTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { Post as PostType } from '../../../../libs/db/mongoose/schemes/post.entity';
 import { CommentApiCreateDto } from '../../comment/api/models/comment-api.dto';
 import {
@@ -108,13 +105,12 @@ export class PostController {
 
   @Post(':postId/comments')
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JwtAuthAccessTokenGuard)
   async createNewComment(
-    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
-    accessTokenPayload: JwtAccessTokenPayloadType,
+    @AccessToken() accessToken: string,
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
   ): Promise<CommentApiModel> {
+    if (!accessToken) throw new UnauthorizedException();
     const newComment: CommentApiModel = await this.commandBus.execute<
       CreateNewCommentCommand,
       CommentApiModel
@@ -122,8 +118,7 @@ export class PostController {
       new CreateNewCommentCommand({
         postId,
         content,
-        userId: accessTokenPayload.userId,
-        userLogin: accessTokenPayload.userLogin,
+        accessToken,
       }),
     );
     return newComment;
@@ -157,19 +152,17 @@ export class PostController {
 
   @Put(':postId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthAccessTokenGuard)
   async changeLikeStatus(
     @Param('postId') postId: string,
     @Body() { likeStatus }: LikeDto,
-    @PassportjsReqDataDecorator<JwtAccessTokenPayloadType>()
-    accessTokenPayload: JwtAccessTokenPayloadType,
+    @AccessToken() accessToken: string,
   ): Promise<void> {
+    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<ChangePostLikeStatusCommand, void>(
       new ChangePostLikeStatusCommand({
         postId,
         likeStatus,
-        userId: accessTokenPayload.userId,
-        userLogin: accessTokenPayload.userLogin,
+        accessToken,
       }),
     );
   }

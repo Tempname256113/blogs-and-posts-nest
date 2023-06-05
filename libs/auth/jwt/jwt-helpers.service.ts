@@ -116,7 +116,8 @@ export class JwtHelpers {
     }
   }
 
-  /* расшифровывает access token и в случае успеха возвращает payload of access token
+  /* расшифровывает access token, проверяет не истекло ли время жизни access token
+   и в случае успеха (время жизни не истекло и валиден токен) возвращает payload of access token
    * в случае ошибки возвращает null */
   verifyAccessToken(accessToken: string): JwtAccessTokenPayloadType | null {
     try {
