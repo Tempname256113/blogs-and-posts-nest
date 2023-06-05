@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UserController } from '../../admin-api/user/api/user.controller';
+import { UserAdminController } from '../../admin-api/user/api/user-admin.controller';
 import { UserRepository } from '../../admin-api/user/infrastructure/repositories/user.repository';
 import { UserQueryRepository } from '../../admin-api/user/infrastructure/repositories/user.query-repository';
 import { AuthBasicStrategy } from '../../../libs/auth/passport-strategy/auth-basic.strategy';
@@ -19,7 +19,7 @@ const UseCases = [
 
 @Module({
   imports: [MongooseSchemesModule, JwtModule, CqrsModule],
-  controllers: [UserController],
+  controllers: [UserAdminController],
   providers: [
     UserRepository,
     UserQueryRepository,

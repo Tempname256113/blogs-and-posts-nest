@@ -22,7 +22,7 @@ import { DeleteUserByIdCommand } from '../application/use-cases/delete-user-by-i
 import { BanUnbanUserCommand } from '../application/use-cases/ban-unban-user.use-case';
 
 @Controller('sa/users')
-export class UserController {
+export class UserAdminController {
   constructor(
     private userQueryRepository: UserQueryRepository,
     private commandBus: CommandBus,
