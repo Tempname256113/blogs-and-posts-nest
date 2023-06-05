@@ -43,7 +43,7 @@ export class UserQueryRepository {
         break;
     }
     const filter: FilterQuery<UserSchema> = {
-      $or: [{}],
+      $or: [],
     };
     const createCorrectFilter = (): void => {
       switch (rawPaginationQuery.banStatus) {
@@ -56,12 +56,18 @@ export class UserQueryRepository {
       }
       if (rawPaginationQuery.searchLoginTerm) {
         filter.$or.push({
-          'accountData.login': rawPaginationQuery.searchLoginTerm,
+          'accountData.login': {
+            $regex: rawPaginationQuery.searchLoginTerm,
+            $options: 'i',
+          },
         });
       }
       if (rawPaginationQuery.searchEmailTerm) {
         filter.$or.push({
-          'accountData.email': rawPaginationQuery.searchEmailTerm,
+          'accountData.email': {
+            $regex: rawPaginationQuery.searchEmailTerm,
+            $options: 'i',
+          },
         });
       }
     };
