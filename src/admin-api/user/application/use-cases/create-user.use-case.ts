@@ -44,7 +44,13 @@ export class CreateUserUseCase
         recoveryCode: null,
         recoveryStatus: false,
       },
+      banStatus: {
+        banned: false,
+        banReason: null,
+        banDate: null,
+      },
     };
+    console.log(newUser.banStatus);
     const userApiModel: UserApiModel = {
       id: newUser.id,
       login: newUser.accountData.login,
