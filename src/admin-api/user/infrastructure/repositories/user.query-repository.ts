@@ -99,9 +99,9 @@ export class UserQueryRepository {
       return mappedUser;
     });
     const usersPaginationResult: UserApiPaginationModel = {
-      pagesCount: additionalPaginationData.pagesCount,
-      page: rawPaginationQuery.pageNumber,
-      pageSize: rawPaginationQuery.pageSize,
+      pagesCount: Number(additionalPaginationData.pagesCount),
+      page: Number(rawPaginationQuery.pageNumber),
+      pageSize: Number(rawPaginationQuery.pageSize),
       totalCount: allUsersCount,
       items: mappedUsers,
     };

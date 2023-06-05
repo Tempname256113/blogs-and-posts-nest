@@ -50,7 +50,6 @@ export class CreateUserUseCase
         banDate: null,
       },
     };
-    console.log(newUser.banStatus);
     const userApiModel: UserApiModel = {
       id: newUser.id,
       login: newUser.accountData.login,
