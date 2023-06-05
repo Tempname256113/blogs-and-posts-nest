@@ -16,13 +16,13 @@ import { DeletePostByBlogIdUseCase } from '../../blogger-api/blog/application/us
 import { BlogAdminController } from '../../admin-api/blog/api/blog-admin.controller';
 import { BlogAdminQueryRepository } from '../../admin-api/blog/infrastructure/repositories/blog-admin.query-repository';
 import { BindBlogWithUserUseCase } from '../../admin-api/blog/application/use-cases/bind-blog-with-user.use-case';
-import { DeleteBlogCommand } from '../../blogger-api/blog/application/use-cases/delete-blog.use-case';
+import { DeleteBlogUseCase } from '../../blogger-api/blog/application/use-cases/delete-blog.use-case';
 
 const UseCases = [
   CreateBlogUseCase,
   CreatePostByBlogUseCase,
   UpdateBlogUseCase,
-  DeleteBlogCommand,
+  DeleteBlogUseCase,
   UpdatePostByBlogIdUseCase,
   DeletePostByBlogIdUseCase,
   BindBlogWithUserUseCase,
