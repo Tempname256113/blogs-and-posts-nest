@@ -7,10 +7,6 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { FilterQuery, Model } from 'mongoose';
 import {
-  BlogApiModel,
-  BlogApiPaginationModel,
-} from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.models';
-import {
   Post,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
@@ -19,7 +15,6 @@ import {
   PostApiPaginationModelType,
   PostNewestLikeType,
 } from '../../../post/api/models/post-api.models';
-import { BlogApiPaginationQueryDTO } from '../../../../product-module/blog/blog-api/blog-api-models/blog-api.query-dto';
 import { PostApiPaginationQueryDTO } from '../../../post/api/models/post-api.query-dto';
 import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
@@ -30,6 +25,11 @@ import {
   getPaginationHelpers,
   PaginationHelpersType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
+import { BlogPublicApiPaginationQueryDTO } from '../../api/models/blog-public-api.query-dto';
+import {
+  BlogPublicApiModel,
+  BlogPublicApiPaginationModel,
+} from '../../api/models/blog-public-api.models';
 
 @Injectable()
 export class BlogPublicQueryRepository {
@@ -40,63 +40,66 @@ export class BlogPublicQueryRepository {
     private jwtHelpers: JwtHelpers,
   ) {}
   async getBlogsWithPagination(
-    rawPaginationQuery: BlogApiPaginationQueryDTO,
-  ): Promise<BlogApiPaginationModel> {
-    const blogsWithPagination = async (): Promise<BlogApiPaginationModel> => {
-      let filter: FilterQuery<BlogSchema>;
-      const getCorrectBlogsFilter = (): void => {
-        if (!rawPaginationQuery.searchNameTerm) {
-          filter = { hidden: false };
-        } else {
-          filter = {
-            name: {
-              $regex: [rawPaginationQuery.searchNameTerm],
-              $options: 'i',
-            },
-            hidden: false,
-          };
-        }
-      };
-      getCorrectBlogsFilter();
-      const totalBlogsCount: number = await this.BlogModel.countDocuments(
-        filter,
-      );
-      const additionalData: PaginationHelpersType = getPaginationHelpers({
-        pageSize: rawPaginationQuery.pageSize,
-        sortBy: rawPaginationQuery.sortBy,
-        totalDocumentsCount: totalBlogsCount,
-        pageNumber: rawPaginationQuery.pageNumber,
-        sortDirection: rawPaginationQuery.sortDirection,
-      });
-      const foundedBlogs: Blog[] = await this.BlogModel.find(
-        filter,
-        { _id: false },
-        {
-          limit: rawPaginationQuery.pageSize,
-          skip: additionalData.howMuchToSkip,
-          sort: additionalData.sortQuery,
-        },
-      ).lean();
-      const mappedBlogs: BlogApiModel[] = foundedBlogs.map((blogFromDB) => {
-        const mappedBlog: BlogApiModel = {
-          id: blogFromDB.id,
-          name: blogFromDB.name,
-          description: blogFromDB.description,
-          websiteUrl: blogFromDB.websiteUrl,
-          createdAt: blogFromDB.createdAt,
-          isMembership: blogFromDB.isMembership,
+    rawPaginationQuery: BlogPublicApiPaginationQueryDTO,
+  ): Promise<BlogPublicApiPaginationModel> {
+    const blogsWithPagination =
+      async (): Promise<BlogPublicApiPaginationModel> => {
+        let filter: FilterQuery<BlogSchema>;
+        const getCorrectBlogsFilter = (): void => {
+          if (!rawPaginationQuery.searchNameTerm) {
+            filter = { hidden: false };
+          } else {
+            filter = {
+              name: {
+                $regex: [rawPaginationQuery.searchNameTerm],
+                $options: 'i',
+              },
+              hidden: false,
+            };
+          }
         };
-        return mappedBlog;
-      });
-      const paginationBlogsResult: BlogApiPaginationModel = {
-        pagesCount: additionalData.pagesCount,
-        page: Number(rawPaginationQuery.pageNumber),
-        pageSize: Number(rawPaginationQuery.pageSize),
-        totalCount: Number(totalBlogsCount),
-        items: mappedBlogs,
+        getCorrectBlogsFilter();
+        const totalBlogsCount: number = await this.BlogModel.countDocuments(
+          filter,
+        );
+        const additionalData: PaginationHelpersType = getPaginationHelpers({
+          pageSize: rawPaginationQuery.pageSize,
+          sortBy: rawPaginationQuery.sortBy,
+          totalDocumentsCount: totalBlogsCount,
+          pageNumber: rawPaginationQuery.pageNumber,
+          sortDirection: rawPaginationQuery.sortDirection,
+        });
+        const foundedBlogs: Blog[] = await this.BlogModel.find(
+          filter,
+          { _id: false },
+          {
+            limit: rawPaginationQuery.pageSize,
+            skip: additionalData.howMuchToSkip,
+            sort: additionalData.sortQuery,
+          },
+        ).lean();
+        const mappedBlogs: BlogPublicApiModel[] = foundedBlogs.map(
+          (blogFromDB) => {
+            const mappedBlog: BlogPublicApiModel = {
+              id: blogFromDB.id,
+              name: blogFromDB.name,
+              description: blogFromDB.description,
+              websiteUrl: blogFromDB.websiteUrl,
+              createdAt: blogFromDB.createdAt,
+              isMembership: blogFromDB.isMembership,
+            };
+            return mappedBlog;
+          },
+        );
+        const paginationBlogsResult: BlogPublicApiPaginationModel = {
+          pagesCount: additionalData.pagesCount,
+          page: Number(rawPaginationQuery.pageNumber),
+          pageSize: Number(rawPaginationQuery.pageSize),
+          totalCount: Number(totalBlogsCount),
+          items: mappedBlogs,
+        };
+        return paginationBlogsResult;
       };
-      return paginationBlogsResult;
-    };
     return blogsWithPagination();
   }
 
