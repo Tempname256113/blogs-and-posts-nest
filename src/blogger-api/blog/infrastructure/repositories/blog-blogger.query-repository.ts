@@ -65,7 +65,7 @@ export class BlogBloggerQueryRepository {
             filter = {
               bloggerId,
               name: {
-                $regex: [rawPaginationQuery.searchNameTerm],
+                $regex: rawPaginationQuery.searchNameTerm,
                 $options: 'i',
               },
               hidden: false,
