@@ -5,9 +5,9 @@ import { validationPipeExceptionFactoryFunction } from '../generic-pipes/validat
 import cookieParser from 'cookie-parser';
 import { useContainer } from 'class-validator';
 import morgan from 'morgan';
+import { Request } from 'express';
 
-morgan.token('body', (req) => {
-  //@ts-ignore
+morgan.token<Request>('body', (req) => {
   return JSON.stringify(req.body);
 });
 
