@@ -17,6 +17,7 @@ import { BlogAdminController } from '../../admin-api/blog/api/blog-admin.control
 import { BlogAdminQueryRepository } from '../../admin-api/blog/infrastructure/repositories/blog-admin.query-repository';
 import { BindBlogWithUserUseCase } from '../../admin-api/blog/application/use-cases/bind-blog-with-user.use-case';
 import { DeleteBlogUseCase } from '../../blogger-api/blog/application/use-cases/delete-blog.use-case';
+import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -41,6 +42,7 @@ const UseCases = [
     BlogBloggerQueryRepository,
     BlogAdminQueryRepository,
     ...UseCases,
+    AccessTokenGuard,
   ],
 })
 export class BlogModule {}

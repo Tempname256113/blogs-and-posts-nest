@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import {
   BlogBloggerApiCreateUpdatePostDTO,
@@ -31,6 +32,7 @@ import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case
 import { BlogBloggerQueryRepository } from '../infrastructure/repositories/blog-blogger.query-repository';
 import { UpdatePostByBlogIdCommand } from '../application/use-cases/update-post-by-blogId.use-case';
 import { DeletePostByBlogIdCommand } from '../application/use-cases/delete-post-by-blogId.use-case';
+import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 
 @Controller('blogger/blogs')
 export class BlogBloggerController {
@@ -146,6 +148,7 @@ export class BlogBloggerController {
   }*/
 
   @Put(':blogId')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlogById(
     @Param('blogId') blogId: string,
@@ -163,6 +166,7 @@ export class BlogBloggerController {
   }
 
   @Put(':blogId/posts/:postId')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostById(
     @Param('blogId') blogId: string,
