@@ -42,6 +42,7 @@ export class BlogBloggerController {
   ) {}
 
   @Post()
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
   async createBlog(
     @Body() blogCreateDTO: BlogBloggerApiCreateUpdateDTO,
@@ -61,6 +62,7 @@ export class BlogBloggerController {
   }
 
   @Post(':blogId/posts')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
