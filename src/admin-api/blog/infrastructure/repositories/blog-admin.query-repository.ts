@@ -33,7 +33,7 @@ export class BlogAdminQueryRepository {
           } else {
             filter = {
               name: {
-                $regex: [rawPaginationQuery.searchNameTerm],
+                $regex: rawPaginationQuery.searchNameTerm,
                 $options: 'i',
               },
               hidden: false,
