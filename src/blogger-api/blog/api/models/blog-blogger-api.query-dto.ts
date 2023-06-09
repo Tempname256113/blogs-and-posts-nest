@@ -5,3 +5,10 @@ export type BlogBloggerApiPaginationQueryDTO = {
   sortBy: string;
   sortDirection: 'asc' | 'desc';
 };
+
+export type CommentBloggerApiPaginationQueryDTO = {
+  pageNumber: number;
+  pageSize: number;
+  sortBy: string;
+  sortDirection: 'asc' | 'desc';
+};

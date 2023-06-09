@@ -19,9 +19,13 @@ import {
 import {
   BlogBloggerApiModel,
   BlogBloggerApiPaginationModel,
+  CommentBloggerApiPaginationModel,
 } from './models/blog-blogger-api.models';
 import { PostApiModel } from '../../../public-api/post/api/models/post-api.models';
-import { BlogBloggerApiPaginationQueryDTO } from './models/blog-blogger-api.query-dto';
+import {
+  BlogBloggerApiPaginationQueryDTO,
+  CommentBloggerApiPaginationQueryDTO,
+} from './models/blog-blogger-api.query-dto';
 import { PostApiCreateUpdateDTO } from '../../../public-api/post/api/models/post-api.dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
@@ -110,6 +114,29 @@ export class BlogBloggerController {
         accessToken,
       });
     return blogsWithPagination;
+  }
+
+  @Get('comments')
+  @HttpCode(HttpStatus.OK)
+  async getAllCommentsFromAllMyPosts(
+    @Query() rawPaginationQuery: CommentBloggerApiPaginationQueryDTO,
+    @AccessToken() accessToken: string | null,
+  ): Promise<CommentBloggerApiPaginationModel> {
+    if (!accessToken) {
+      throw new UnauthorizedException();
+    }
+    const paginationQuery: CommentBloggerApiPaginationQueryDTO = {
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
+    const foundedCommentsWithPagination: CommentBloggerApiPaginationModel =
+      await this.blogQueryRepository.getAllCommentsFromAllPosts({
+        paginationQuery,
+        accessToken,
+      });
+    return foundedCommentsWithPagination;
   }
 
   /*@Get(':blogId/posts')

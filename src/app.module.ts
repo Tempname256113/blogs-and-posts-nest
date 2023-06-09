@@ -14,7 +14,7 @@ const AuthModules = [AuthModule, SecurityModule];
 
 @Module({
   imports: [
-    MongooseModule.forRoot(new EnvConfiguration().MONGO_URL),
+    MongooseModule.forRoot(new EnvConfiguration().MONGO_LOCAL),
     MongooseSchemesModule,
     ...ProductModules,
     ...AuthModules,

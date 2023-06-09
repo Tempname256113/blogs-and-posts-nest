@@ -14,3 +14,27 @@ export type BlogBloggerApiPaginationModel = {
   totalCount: number;
   items: BlogBloggerApiModel[];
 };
+
+export type CommentBloggerApiModel = {
+  id: string;
+  content: string;
+  commentatorInfo: {
+    userId: string;
+    userLogin: string;
+  };
+  createdAt: string;
+  postInfo: {
+    id: string;
+    title: string;
+    blogId: string;
+    blogName: string;
+  };
+};
+
+export type CommentBloggerApiPaginationModel = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: CommentBloggerApiModel[];
+};

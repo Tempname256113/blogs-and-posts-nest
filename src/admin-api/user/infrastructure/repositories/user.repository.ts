@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import {
+  User,
   UserDocument,
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
@@ -19,6 +20,13 @@ export class UserRepository {
       userDocument.markModified(modifiedProperty);
     });
     await userDocument.save();
+  }
+
+  async saveUser2(user: User): Promise<any> {
+    const userDocument = new this.UserModel(user);
+    await userDocument.save();
+    // return 1
+    return 'saved';
   }
 
   async deleteUserById(userId: string): Promise<boolean> {

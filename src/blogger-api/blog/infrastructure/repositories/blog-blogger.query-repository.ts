@@ -30,20 +30,31 @@ import {
   PostApiPaginationModelType,
   PostNewestLikeType,
 } from '../../../../public-api/post/api/models/post-api.models';
-import { BlogBloggerApiPaginationQueryDTO } from '../../api/models/blog-blogger-api.query-dto';
+import {
+  BlogBloggerApiPaginationQueryDTO,
+  CommentBloggerApiPaginationQueryDTO,
+} from '../../api/models/blog-blogger-api.query-dto';
 import {
   BlogBloggerApiModel,
   BlogBloggerApiPaginationModel,
+  CommentBloggerApiModel,
+  CommentBloggerApiPaginationModel,
 } from '../../api/models/blog-blogger-api.models';
+import {
+  Comment,
+  CommentSchema,
+} from '../../../../../libs/db/mongoose/schemes/comment.entity';
 
 @Injectable()
 export class BlogBloggerQueryRepository {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
+    @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private likeQueryRepository: LikeQueryRepository,
     private jwtHelpers: JwtHelpers,
   ) {}
+
   async getBlogsWithPagination({
     rawPaginationQuery,
     accessToken,
@@ -215,6 +226,85 @@ export class BlogBloggerQueryRepository {
         return resultPostsPagination;
       };
     return getPostsWithPagination();
+  }
+
+  async getAllCommentsFromAllPosts({
+    paginationQuery,
+    accessToken,
+  }: {
+    paginationQuery: CommentBloggerApiPaginationQueryDTO;
+    accessToken: string;
+  }): Promise<CommentBloggerApiPaginationModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtHelpers.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const userId: string = accessTokenPayload.userId;
+    const foundedPosts: Post[] = await this.PostModel.find({
+      bloggerId: userId,
+      hidden: false,
+    }).lean();
+    const mappedCommentsToClient: CommentBloggerApiModel[] = [];
+    for (const post of foundedPosts) {
+      const foundedComments: Comment[] = await this.CommentModel.find({
+        postId: post.id,
+        hidden: false,
+      }).lean();
+      const mappedComments: CommentBloggerApiModel[] = foundedComments.map(
+        (comment) => {
+          const mappedComment: CommentBloggerApiModel = {
+            id: comment.id,
+            content: comment.content,
+            commentatorInfo: {
+              userId: comment.userId,
+              userLogin: comment.userLogin,
+            },
+            createdAt: comment.createdAt,
+            postInfo: {
+              id: post.id,
+              title: post.title,
+              blogId: post.blogId,
+              blogName: post.blogName,
+            },
+          };
+          return mappedComment;
+        },
+      );
+      mappedCommentsToClient.push(...mappedComments);
+    }
+    const allCommentsCount: number = mappedCommentsToClient.length;
+    const additionalPaginationData: PaginationHelpersType =
+      getPaginationHelpers({
+        pageSize: paginationQuery.pageSize,
+        sortBy: paginationQuery.sortBy,
+        totalDocumentsCount: allCommentsCount,
+        pageNumber: paginationQuery.pageNumber,
+        sortDirection: paginationQuery.sortDirection,
+      });
+    mappedCommentsToClient.sort((a, b) => {
+      return a.createdAt.localeCompare(b.createdAt);
+    });
+    const correctCountOfComments: CommentBloggerApiModel[] = [];
+    for (
+      let i = additionalPaginationData.howMuchToSkip;
+      i < mappedCommentsToClient.length;
+      i++
+    ) {
+      correctCountOfComments.push(mappedCommentsToClient[i]);
+      if (
+        i ===
+        additionalPaginationData.howMuchToSkip + paginationQuery.pageSize - 1
+      ) {
+        break;
+      }
+    }
+    const paginationResult: CommentBloggerApiPaginationModel = {
+      pagesCount: additionalPaginationData.pagesCount,
+      page: paginationQuery.pageNumber,
+      pageSize: paginationQuery.pageSize,
+      totalCount: allCommentsCount,
+      items: mappedCommentsToClient,
+    };
+    return paginationResult;
   }
 
   async getBlogById(blogId: string): Promise<BlogDocument | null> {
