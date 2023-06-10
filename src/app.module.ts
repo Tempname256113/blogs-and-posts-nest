@@ -7,6 +7,7 @@ import { MongooseSchemesModule } from '../libs/db/mongoose/mongoose.schemes-modu
 import { SecurityModule } from './modules/auth/security.module';
 import { PostModule } from './modules/product/post.module';
 import { BlogModule } from './modules/product/blog.module';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 const ProductModules = [PostModule, BlogModule];
 
@@ -14,7 +15,20 @@ const AuthModules = [AuthModule, SecurityModule];
 
 @Module({
   imports: [
-    MongooseModule.forRoot(new EnvConfiguration().MONGO_LOCAL),
+    MongooseModule.forRootAsync({
+      useFactory: async () => {
+        const mongoMemoryServer = await MongoMemoryServer.create();
+        const mongoMemoryServerConnectionString: string =
+          mongoMemoryServer.getUri();
+        const mongoLocalConnectionString: string = new EnvConfiguration()
+          .MONGO_LOCAL;
+        const mongoServerConnectionString: string = new EnvConfiguration()
+          .MONGO_URL;
+        return {
+          uri: mongoMemoryServerConnectionString,
+        };
+      },
+    }),
     MongooseSchemesModule,
     ...ProductModules,
     ...AuthModules,
