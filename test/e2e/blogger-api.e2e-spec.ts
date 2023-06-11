@@ -4,7 +4,15 @@ import { AppModule } from '../../src/app.module';
 import request, { Response } from 'supertest';
 import { UserApiCreateDto } from '../../src/admin-api/user/api/models/user-api.dto';
 import { BlogBloggerApiModel } from '../../src/blogger-api/blog/api/models/blog-blogger-api.models';
-import { BlogBloggerApiCreateUpdateDTO } from '../../src/blogger-api/blog/api/models/blog-blogger-api.dto';
+import {
+  BlogBloggerApiCreateUpdateDTO,
+  BloggerApiCreateUpdatePostDTO,
+} from '../../src/blogger-api/blog/api/models/blog-blogger-api.dto';
+import {
+  PostApiModel,
+  PostNewestLikeType,
+} from '../../src/public-api/post/api/models/post-api.models';
+import { PostApiCreateUpdateDTO } from '../../src/public-api/post/api/models/post-api.dto';
 
 describe('blogger api e2e tests', () => {
   let app: INestApplication;
@@ -22,8 +30,17 @@ describe('blogger api e2e tests', () => {
     await app.close();
   });
 
-  const usersAccessTokens: string[] = [];
+  const userAccessTokens: {
+    user1AccessToken: string;
+    user2AccessToken: string;
+    user3AccessToken: string;
+  } = {
+    user1AccessToken: '',
+    user2AccessToken: '',
+    user3AccessToken: '',
+  };
 
+  // созданы по 2 блога для каждого пользователя
   const usersCreatedBlogs: {
     user1Blogs: BlogBloggerApiModel[];
     user2Blogs: BlogBloggerApiModel[];
@@ -32,6 +49,19 @@ describe('blogger api e2e tests', () => {
     user1Blogs: [],
     user2Blogs: [],
     user3Blogs: [],
+  };
+
+  /* 1 пользователь === 1 пост
+   * 2 пользователь === 2 поста
+   * 3 пользователь === 3 поста */
+  const usersCreatedPosts: {
+    user1Posts: PostApiModel[];
+    user2Posts: PostApiModel[];
+    user3Posts: PostApiModel[];
+  } = {
+    user1Posts: [],
+    user2Posts: [],
+    user3Posts: [],
   };
 
   describe('create 3 users throgh admin api', () => {
@@ -79,7 +109,8 @@ describe('blogger api e2e tests', () => {
         expect(responseWithAccessToken.body).toStrictEqual({
           accessToken: expect.any(String),
         });
-        usersAccessTokens.push(responseWithAccessToken.body.accessToken);
+        userAccessTokens[`user${i + 1}AccessToken`] =
+          responseWithAccessToken.body.accessToken;
       }
     });
   });
@@ -121,7 +152,7 @@ describe('blogger api e2e tests', () => {
         },
       ];
 
-      const userCreateBlogsRequest = async ({
+      const userCreateBlogRequest = async ({
         createBlogDTOIndex,
         userAccessTokenIndex,
       }: {
@@ -130,7 +161,9 @@ describe('blogger api e2e tests', () => {
       }): Promise<BlogBloggerApiModel> => {
         const response: Response = await request(app.getHttpServer())
           .post('/blogger/blogs')
-          .auth(usersAccessTokens[userAccessTokenIndex], { type: 'bearer' })
+          .auth(userAccessTokens[`user${userAccessTokenIndex}AccessToken`], {
+            type: 'bearer',
+          })
           .send(newBlogsDTOArray[createBlogDTOIndex])
           .expect(201);
         expect(response.body).toStrictEqual(
@@ -144,22 +177,138 @@ describe('blogger api e2e tests', () => {
       };
 
       for (let i = 0; i < 2; i++) {
-        const user1Blog: BlogBloggerApiModel = await userCreateBlogsRequest({
-          userAccessTokenIndex: 0,
-          createBlogDTOIndex: i,
-        });
-        usersCreatedBlogs.user1Blogs.push(user1Blog);
-        const user2Blog: BlogBloggerApiModel = await userCreateBlogsRequest({
+        const user1Blog: BlogBloggerApiModel = await userCreateBlogRequest({
           userAccessTokenIndex: 1,
           createBlogDTOIndex: i,
         });
-        usersCreatedBlogs.user2Blogs.push(user2Blog);
-        const user3Blog: BlogBloggerApiModel = await userCreateBlogsRequest({
+        const user2Blog: BlogBloggerApiModel = await userCreateBlogRequest({
           userAccessTokenIndex: 2,
           createBlogDTOIndex: i,
         });
+        const user3Blog: BlogBloggerApiModel = await userCreateBlogRequest({
+          userAccessTokenIndex: 3,
+          createBlogDTOIndex: i,
+        });
+        usersCreatedBlogs.user1Blogs.push(user1Blog);
+        usersCreatedBlogs.user2Blogs.push(user2Blog);
         usersCreatedBlogs.user3Blogs.push(user3Blog);
       }
+    });
+  });
+
+  describe('blogger api creating new posts', () => {
+    it('POST(/blogger/blogs/:blogId/posts), create new post, should return status 201 and new created post', async () => {
+      const newPostsDTOArray: BloggerApiCreateUpdatePostDTO[] = [
+        {
+          title: '123',
+          shortDescription: 'description',
+          content: 'post content',
+        },
+        {
+          title: '321',
+          shortDescription: 'description321',
+          content: 'content post',
+        },
+      ];
+
+      const getCorrectCreatedPost = ({
+        title,
+        shortDescription,
+        content,
+        blogId,
+        blogName,
+      }: {
+        title: string;
+        shortDescription: string;
+        content: string;
+        blogId: string;
+        blogName: string;
+      }): PostApiModel => {
+        const correctCreatedPost: PostApiModel = {
+          id: expect.any(String),
+          title,
+          shortDescription,
+          content,
+          blogId,
+          blogName,
+          createdAt: expect.any(String),
+          extendedLikesInfo: {
+            likesCount: 0,
+            dislikesCount: 0,
+            myStatus: 'None',
+            newestLikes: [],
+          },
+        };
+        return correctCreatedPost;
+      };
+
+      const userCreatePostRequest = async ({
+        blog,
+        createPostDTOIndex,
+        userAccessToken,
+      }: {
+        blog: BlogBloggerApiModel;
+        createPostDTOIndex: number;
+        userAccessToken: string;
+      }): Promise<PostApiModel> => {
+        const response: Response = await request(app.getHttpServer())
+          .post(`/blogger/blogs/${blog.id}/posts`)
+          .auth(userAccessToken, { type: 'bearer' })
+          .send(newPostsDTOArray[createPostDTOIndex])
+          .expect(201);
+        expect(response.body).toStrictEqual(
+          getCorrectCreatedPost({
+            title: newPostsDTOArray[createPostDTOIndex].title,
+            shortDescription:
+              newPostsDTOArray[createPostDTOIndex].shortDescription,
+            content: newPostsDTOArray[createPostDTOIndex].content,
+            blogId: blog.id,
+            blogName: blog.name,
+          }),
+        );
+        return response.body;
+      };
+
+      const createPostsByUser1 = async (): Promise<void> => {
+        const newPost: PostApiModel = await userCreatePostRequest({
+          blog: usersCreatedBlogs.user1Blogs[0],
+          createPostDTOIndex: 0,
+          userAccessToken: userAccessTokens.user1AccessToken,
+        });
+        usersCreatedPosts.user1Posts.push(newPost);
+      };
+
+      const createPostsByUser2 = async (): Promise<void> => {
+        for (let i = 0; i < 2; i++) {
+          const newPost: PostApiModel = await userCreatePostRequest({
+            blog: usersCreatedBlogs.user2Blogs[i],
+            createPostDTOIndex: i,
+            userAccessToken: userAccessTokens.user2AccessToken,
+          });
+          usersCreatedPosts.user2Posts.push(newPost);
+        }
+      };
+
+      const createPostsByUser3 = async (): Promise<void> => {
+        const newPost: PostApiModel = await userCreatePostRequest({
+          blog: usersCreatedBlogs.user3Blogs[0],
+          createPostDTOIndex: 1,
+          userAccessToken: userAccessTokens.user3AccessToken,
+        });
+        usersCreatedPosts.user3Posts.push(newPost);
+        for (let i = 0; i < 2; i++) {
+          const newPost: PostApiModel = await userCreatePostRequest({
+            blog: usersCreatedBlogs.user3Blogs[i],
+            createPostDTOIndex: i,
+            userAccessToken: userAccessTokens.user3AccessToken,
+          });
+          usersCreatedPosts.user3Posts.push(newPost);
+        }
+      };
+
+      await createPostsByUser1();
+      await createPostsByUser2();
+      await createPostsByUser3();
     });
   });
 });

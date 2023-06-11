@@ -15,7 +15,7 @@ export class BlogBloggerApiCreateUpdateDTO {
   websiteUrl: string;
 }
 
-export class BlogBloggerApiCreateUpdatePostDTO {
+export class BloggerApiCreateUpdatePostDTO {
   @IsStringWithTrim()
   @MaxLength(30)
   title: string;

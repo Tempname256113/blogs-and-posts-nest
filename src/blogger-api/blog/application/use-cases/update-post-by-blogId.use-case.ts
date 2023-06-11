@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogBloggerApiCreateUpdatePostDTO } from '../../api/models/blog-blogger-api.dto';
+import { BloggerApiCreateUpdatePostDTO } from '../../api/models/blog-blogger-api.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   PostDocument,
@@ -24,7 +24,7 @@ export class UpdatePostByBlogIdCommand {
     public readonly data: {
       blogId: string;
       postId: string;
-      postUpdateDTO: BlogBloggerApiCreateUpdatePostDTO;
+      postUpdateDTO: BloggerApiCreateUpdatePostDTO;
       accessToken: string;
     },
   ) {}

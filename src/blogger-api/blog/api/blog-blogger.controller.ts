@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
-  BlogBloggerApiCreateUpdatePostDTO,
+  BloggerApiCreateUpdatePostDTO,
   BlogBloggerApiCreateUpdateDTO,
 } from './models/blog-blogger-api.dto';
 import {
@@ -70,7 +70,7 @@ export class BlogBloggerController {
   @HttpCode(HttpStatus.CREATED)
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
-    @Body() postCreateDTO: BlogBloggerApiCreateUpdatePostDTO,
+    @Body() postCreateDTO: BloggerApiCreateUpdatePostDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<PostApiModel> {
     if (!accessToken) throw new UnauthorizedException();
@@ -200,7 +200,7 @@ export class BlogBloggerController {
   async updatePostById(
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
-    @Body() postUpdateDTO: BlogBloggerApiCreateUpdatePostDTO,
+    @Body() postUpdateDTO: BloggerApiCreateUpdatePostDTO,
     @AccessToken() accessToken: string,
   ): Promise<void> {
     if (!accessToken) throw new UnauthorizedException();
