@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ChangeEntityLikeStatusCommand } from '../../../like/application/use-cases/change-entity-like-status.use-case';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 
 export class ChangeCommentLikeStatusCommand {
   constructor(
@@ -27,7 +27,7 @@ export class ChangeCommentLikeStatusUseCase
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private commandBus: CommandBus,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
   ) {}
 
   async execute({

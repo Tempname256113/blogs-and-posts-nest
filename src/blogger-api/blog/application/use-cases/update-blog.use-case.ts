@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { InjectModel } from '@nestjs/mongoose';
 import {
@@ -31,7 +31,7 @@ export class UpdateBlogUseCase
 {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 

@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BloggerApiCreateUpdatePostDTO } from '../../api/models/blog-blogger-api.dto';
+import { PostCreateUpdateBloggerApiDTO } from '../../api/models/blog-blogger-api.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   PostDocument,
@@ -10,7 +10,7 @@ import {
   Blog,
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import {
   ForbiddenException,
@@ -24,7 +24,7 @@ export class UpdatePostByBlogIdCommand {
     public readonly data: {
       blogId: string;
       postId: string;
-      postUpdateDTO: BloggerApiCreateUpdatePostDTO;
+      postUpdateDTO: PostCreateUpdateBloggerApiDTO;
       accessToken: string;
     },
   ) {}
@@ -37,7 +37,7 @@ export class UpdatePostByBlogIdUseCase
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 

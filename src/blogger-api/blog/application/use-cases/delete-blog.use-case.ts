@@ -10,7 +10,7 @@ import {
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { Model } from 'mongoose';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
@@ -29,7 +29,7 @@ export class DeleteBlogUseCase
 {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 

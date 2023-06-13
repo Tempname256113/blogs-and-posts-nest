@@ -6,7 +6,7 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { FilterQuery, Model } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
-import { badRequestErrorFactoryFunction } from '../../../../../generic-factory-functions/bad-request.error-factory-function';
+import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { hashSync } from 'bcrypt';
 import { add } from 'date-fns';
 import { InjectModel } from '@nestjs/mongoose';
@@ -84,9 +84,7 @@ export class RegistrationUserUseCase
       }
     }
     if (errorField) {
-      throw new BadRequestException(
-        badRequestErrorFactoryFunction([errorField]),
-      );
+      throw new BadRequestException(exceptionFactoryFunction([errorField]));
     }
   }
 }

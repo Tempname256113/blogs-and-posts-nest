@@ -14,7 +14,7 @@ import {
   CommentApiModel,
   CommentApiPaginationModel,
 } from '../../api/models/comment-api.models';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
 import { EntityLikesCountType } from '../../../like/application/models/entity-likes-count.model';
@@ -23,7 +23,7 @@ import { EntityLikesCountType } from '../../../like/application/models/entity-li
 export class CommentQueryRepository {
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private likeQueryRepository: LikeQueryRepository,
   ) {}
 

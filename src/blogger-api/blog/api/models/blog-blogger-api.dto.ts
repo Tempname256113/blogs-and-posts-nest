@@ -1,5 +1,6 @@
-import { IsUrl, MaxLength } from 'class-validator';
+import { IsBoolean, IsUrl, MaxLength, MinLength } from 'class-validator';
 import { IsStringWithTrim } from '../../../../../libs/validation/class-validator/string-with-trim.validation-decorator';
+import { IsValidBlogId } from '../../../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';
 
 export class BlogBloggerApiCreateUpdateDTO {
   @IsStringWithTrim()
@@ -15,7 +16,7 @@ export class BlogBloggerApiCreateUpdateDTO {
   websiteUrl: string;
 }
 
-export class BloggerApiCreateUpdatePostDTO {
+export class PostCreateUpdateBloggerApiDTO {
   @IsStringWithTrim()
   @MaxLength(30)
   title: string;
@@ -27,4 +28,16 @@ export class BloggerApiCreateUpdatePostDTO {
   @IsStringWithTrim()
   @MaxLength(1000)
   content: string;
+}
+
+export class BanUserBloggerApiDTO {
+  @IsBoolean()
+  isBanned: boolean;
+
+  @IsStringWithTrim()
+  @MinLength(20)
+  banReason: string;
+
+  @IsValidBlogId()
+  blogId: string;
 }

@@ -9,12 +9,12 @@ import {
   Post,
   Put,
   Query,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
-  BloggerApiCreateUpdatePostDTO,
+  PostCreateUpdateBloggerApiDTO,
   BlogBloggerApiCreateUpdateDTO,
+  BanUserBloggerApiDTO,
 } from './models/blog-blogger-api.dto';
 import {
   BlogBloggerApiModel,
@@ -37,22 +37,22 @@ import { BlogBloggerQueryRepository } from '../infrastructure/repositories/blog-
 import { UpdatePostByBlogIdCommand } from '../application/use-cases/update-post-by-blogId.use-case';
 import { DeletePostByBlogIdCommand } from '../application/use-cases/delete-post-by-blogId.use-case';
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
+import { BanUserBloggerApiCommand } from '../application/use-cases/ban-user.blogger-api.use-case';
 
-@Controller('blogger/blogs')
+@Controller('blogger')
 export class BlogBloggerController {
   constructor(
     private blogQueryRepository: BlogBloggerQueryRepository,
     private commandBus: CommandBus,
   ) {}
 
-  @Post()
+  @Post('blogs')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
   async createBlog(
     @Body() blogCreateDTO: BlogBloggerApiCreateUpdateDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<BlogBloggerApiModel> {
-    if (!accessToken) throw new UnauthorizedException();
     const createdBlog: BlogBloggerApiModel = await this.commandBus.execute<
       CreateBlogCommand,
       BlogBloggerApiModel
@@ -65,15 +65,14 @@ export class BlogBloggerController {
     return createdBlog;
   }
 
-  @Post(':blogId/posts')
+  @Post('blogs/:blogId/posts')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
-    @Body() postCreateDTO: BloggerApiCreateUpdatePostDTO,
+    @Body() postCreateDTO: PostCreateUpdateBloggerApiDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<PostApiModel> {
-    if (!accessToken) throw new UnauthorizedException();
     const mappedCreatePostDTO: PostApiCreateUpdateDTO = {
       title: postCreateDTO.title,
       shortDescription: postCreateDTO.shortDescription,
@@ -93,14 +92,14 @@ export class BlogBloggerController {
     return createdPost;
   }
 
-  @Get()
+  @Get('blogs')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPaginationForCurrentUser(
     @Query()
     rawPaginationQuery: BlogBloggerApiPaginationQueryDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<BlogBloggerApiPaginationModel> {
-    if (!accessToken) throw new UnauthorizedException();
     const paginationQuery: BlogBloggerApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -116,15 +115,13 @@ export class BlogBloggerController {
     return blogsWithPagination;
   }
 
-  @Get('comments')
+  @Get('blogs/comments')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   async getAllCommentsFromAllMyPosts(
     @Query() rawPaginationQuery: CommentBloggerApiPaginationQueryDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<CommentBloggerApiPaginationModel> {
-    if (!accessToken) {
-      throw new UnauthorizedException();
-    }
     const paginationQuery: CommentBloggerApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
@@ -139,44 +136,7 @@ export class BlogBloggerController {
     return foundedCommentsWithPagination;
   }
 
-  /*@Get(':blogId/posts')
-  @HttpCode(HttpStatus.OK)
-  async getPostsWithPaginationByBlogId(
-    @Query()
-    rawPaginationQuery: PostApiPaginationQueryDTOType,
-    @Param('blogId') blogId: string,
-    @AccessToken() accessToken: string | null,
-  ): Promise<PostApiPaginationModelType> {
-    const paginationQuery: PostApiPaginationQueryDTOType = {
-      pageNumber: rawPaginationQuery.pageNumber ?? 1,
-      pageSize: rawPaginationQuery.pageSize ?? 10,
-      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
-      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
-    };
-    const foundedBlog: BlogBloggerApiModel | null =
-      await this.blogQueryRepository.getBlogById(blogId);
-    if (!foundedBlog) throw new NotFoundException();
-    const foundedPostsByBlogId: PostApiPaginationModelType =
-      await this.blogQueryRepository.getPostsWithPaginationByBlogId({
-        rawPaginationQuery: paginationQuery,
-        blogId,
-        accessToken,
-      });
-    return foundedPostsByBlogId;
-  }*/
-
-  /*@Get(':blogId')
-  @HttpCode(HttpStatus.OK)
-  async getBlogById(
-    @Param('blogId') blogId: string,
-  ): Promise<BlogBloggerApiModel> {
-    const foundedBlog: BlogBloggerApiModel | null =
-      await this.blogQueryRepository.getBlogById(blogId);
-    if (!foundedBlog) throw new NotFoundException();
-    return foundedBlog;
-  }*/
-
-  @Put(':blogId')
+  @Put('blogs/:blogId')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlogById(
@@ -184,7 +144,6 @@ export class BlogBloggerController {
     @Body() blogUpdateDTO: BlogBloggerApiCreateUpdateDTO,
     @AccessToken() accessToken: string | null,
   ): Promise<void> {
-    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<UpdateBlogCommand, void>(
       new UpdateBlogCommand({
         blogId,
@@ -194,16 +153,34 @@ export class BlogBloggerController {
     );
   }
 
-  @Put(':blogId/posts/:postId')
+  @Put('users/:userId/ban')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async banUser(
+    @Param('userId') bannedUserId: string,
+    @Body() banUserBloggerApiDTO: BanUserBloggerApiDTO,
+    @AccessToken() accessToken: string | null,
+  ): Promise<void> {
+    await this.commandBus.execute<BanUserBloggerApiCommand, void>(
+      new BanUserBloggerApiCommand({
+        bannedUserId,
+        isBanned: banUserBloggerApiDTO.isBanned,
+        banReason: banUserBloggerApiDTO.banReason,
+        blogId: banUserBloggerApiDTO.blogId,
+        accessToken,
+      }),
+    );
+  }
+
+  @Put('blogs/:blogId/posts/:postId')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostById(
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
-    @Body() postUpdateDTO: BloggerApiCreateUpdatePostDTO,
-    @AccessToken() accessToken: string,
+    @Body() postUpdateDTO: PostCreateUpdateBloggerApiDTO,
+    @AccessToken() accessToken: string | null,
   ): Promise<void> {
-    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<UpdatePostByBlogIdCommand, void>(
       new UpdatePostByBlogIdCommand({
         blogId,
@@ -214,26 +191,26 @@ export class BlogBloggerController {
     );
   }
 
-  @Delete(':blogId')
+  @Delete('blogs/:blogId')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlogById(
     @Param('blogId') blogId: string,
     @AccessToken() accessToken: string | null,
   ): Promise<void> {
-    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<DeleteBlogCommand, void>(
       new DeleteBlogCommand({ blogId, accessToken }),
     );
   }
 
-  @Delete(':blogId/posts/:postId')
+  @Delete('blogs/:blogId/posts/:postId')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePostById(
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
     @AccessToken() accessToken: string | null,
   ): Promise<void> {
-    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<DeletePostByBlogIdCommand, void>(
       new DeletePostByBlogIdCommand({ postId, blogId, accessToken }),
     );

@@ -9,7 +9,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class JwtHelpers {
+export class JwtUtils {
   private readonly refreshTokenSecret: string;
   private readonly accessTokenSecret: string;
   private readonly refreshTokenExpiresIn: Duration;

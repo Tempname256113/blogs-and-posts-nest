@@ -10,7 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { UnauthorizedException } from '@nestjs/common';
 
@@ -30,7 +30,7 @@ export class CreateBlogUseCase
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     private blogRepository: BlogRepository,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
   ) {}
 
   async execute({

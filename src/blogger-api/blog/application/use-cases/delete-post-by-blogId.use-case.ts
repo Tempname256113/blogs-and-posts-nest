@@ -15,7 +15,7 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
 export class DeletePostByBlogIdCommand {
@@ -35,7 +35,7 @@ export class DeletePostByBlogIdUseCase
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private blogQueryRepository: BlogBloggerQueryRepository,
   ) {}
 

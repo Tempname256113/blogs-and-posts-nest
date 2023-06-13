@@ -3,8 +3,8 @@ import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.pa
 import {
   CreateNewTokenPairData,
   CreateNewTokenPairReturnType,
-  JwtHelpers,
-} from '../../../../../libs/auth/jwt/jwt-helpers.service';
+  JwtUtils,
+} from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { SessionUpdateRepositoryDTO } from '../../infrastructure/repositories/models/auth-repository.dto';
 import {
   SessionDocument,
@@ -34,7 +34,7 @@ export class UpdateTokensPairUseCase
 {
   constructor(
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private authRepository: AuthRepository,
   ) {}
 

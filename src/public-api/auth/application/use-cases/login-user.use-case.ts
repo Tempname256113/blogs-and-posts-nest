@@ -7,8 +7,8 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/session.entity';
 import {
   CreateNewTokenPairReturnType,
-  JwtHelpers,
-} from '../../../../../libs/auth/jwt/jwt-helpers.service';
+  JwtUtils,
+} from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
@@ -33,7 +33,7 @@ export class LoginUserUseCase
 {
   constructor(
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private authRepository: AuthRepository,
   ) {}
 

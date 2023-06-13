@@ -5,7 +5,7 @@ type errorObject = {
   field: string;
 };
 
-export const badRequestErrorFactoryFunction = (
+export const exceptionFactoryFunction = (
   errorFields: string[],
 ): BadRequestErrorModelType => {
   const mappedErrorsArray: errorObject[] = errorFields.map((field) => {

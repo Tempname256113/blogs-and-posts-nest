@@ -12,7 +12,7 @@ import {
   PostNewestLikeType,
 } from '../../api/models/post-api.models';
 import { PostApiPaginationQueryDTO } from '../../api/models/post-api.query-dto';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
@@ -27,7 +27,7 @@ export class PostPublicQueryRepository {
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private likeQueryRepository: LikeQueryRepository,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
   ) {}
   async getPostById(
     postId: string,

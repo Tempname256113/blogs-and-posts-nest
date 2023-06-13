@@ -5,7 +5,7 @@ import {
   SessionDocument,
   SessionSchema,
 } from '../../../../../libs/db/mongoose/schemes/session.entity';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
@@ -18,7 +18,7 @@ export class LogoutCommand {
 export class LogoutUserUseCase implements ICommandHandler<LogoutCommand, void> {
   constructor(
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
     private authRepository: AuthRepository,
   ) {}
   async execute({ refreshToken }: LogoutCommand): Promise<void> {

@@ -4,7 +4,7 @@ import {
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BadRequestException } from '@nestjs/common';
-import { badRequestErrorFactoryFunction } from '../../../../../generic-factory-functions/bad-request.error-factory-function';
+import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { randomUUID } from 'crypto';
@@ -33,17 +33,13 @@ export class ResendConfirmationEmailUseCase
     const foundedUserByEmail: UserDocument | null =
       await this.UserModel.findOne({ 'accountData.email': email });
     if (!foundedUserByEmail) {
-      throw new BadRequestException(
-        badRequestErrorFactoryFunction([errorField]),
-      );
+      throw new BadRequestException(exceptionFactoryFunction([errorField]));
     }
     const confirmationCode: string = randomUUID();
     const changeConfirmationEmailCodeStatus: boolean =
       foundedUserByEmail.changeEmailConfirmationCode(confirmationCode);
     if (!changeConfirmationEmailCodeStatus) {
-      throw new BadRequestException(
-        badRequestErrorFactoryFunction([errorField]),
-      );
+      throw new BadRequestException(exceptionFactoryFunction([errorField]));
     }
     await this.usersRepository.saveUser(foundedUserByEmail);
     this.emailService.sendUserConfirmation(email, confirmationCode);

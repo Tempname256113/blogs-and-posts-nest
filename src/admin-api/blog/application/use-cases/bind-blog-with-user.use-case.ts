@@ -10,7 +10,7 @@ import {
   User,
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
-import { badRequestErrorFactoryFunction } from '../../../../../generic-factory-functions/bad-request.error-factory-function';
+import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 
 export class BindBlogWithUserCommand {
   constructor(
@@ -47,9 +47,7 @@ export class BindBlogWithUserUseCase
       errorFields.push('id');
     }
     if (errorFields.length > 0) {
-      throw new BadRequestException(
-        badRequestErrorFactoryFunction(errorFields),
-      );
+      throw new BadRequestException(exceptionFactoryFunction(errorFields));
     }
     await this.BlogModel.updateOne(
       { id: blogId },

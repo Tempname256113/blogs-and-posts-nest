@@ -4,7 +4,7 @@ import {
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BadRequestException } from '@nestjs/common';
-import { badRequestErrorFactoryFunction } from '../../../../../generic-factory-functions/bad-request.error-factory-function';
+import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { hashSync } from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -35,7 +35,7 @@ export class SetNewPasswordUseCase
     });
     if (!foundedUser) {
       throw new BadRequestException(
-        badRequestErrorFactoryFunction([data.errorField]),
+        exceptionFactoryFunction([data.errorField]),
       );
     }
     const newPasswordHash: string = hashSync(data.newPassword, 10);

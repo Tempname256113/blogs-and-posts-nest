@@ -8,7 +8,7 @@ import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostPublicQueryRepository } from '../../infrastructure/repositories/post.query-repository';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 
 export class ChangePostLikeStatusCommand {
@@ -29,7 +29,7 @@ export class ChangePostLikeStatusUseCase
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private commandBus: CommandBus,
     private postQueryRepository: PostPublicQueryRepository,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
   ) {}
 
   async execute({

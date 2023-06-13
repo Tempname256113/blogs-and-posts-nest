@@ -4,7 +4,11 @@ import {
   PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   Comment,
   CommentDocument,
@@ -15,7 +19,11 @@ import { Model } from 'mongoose';
 import { CommentRepository } from '../../../comment/infrastructure/repositories/comment.repository';
 import { PostPublicQueryRepository } from '../../infrastructure/repositories/post.query-repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
+import {
+  BannedUserByBlogger,
+  BannedUserByBloggerSchema,
+} from '../../../../../libs/db/mongoose/schemes/banned-user-by-blogger.entity';
 
 export class CreateNewCommentCommand {
   constructor(
@@ -34,22 +42,24 @@ export class CreateNewCommentUseCase
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
+    @InjectModel(BannedUserByBloggerSchema.name)
+    private BannedUserByBloggerModel: Model<BannedUserByBloggerSchema>,
     private commentRepository: CommentRepository,
     private postsQueryRepository: PostPublicQueryRepository,
-    private jwtHelpers: JwtHelpers,
+    private jwtUtils: JwtUtils,
   ) {}
 
   async execute({
     data: { accessToken, content, postId },
   }: CreateNewCommentCommand): Promise<CommentApiModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
-    if (!accessTokenPayload) throw new UnauthorizedException();
+      this.getAccessTokenPayload(accessToken);
     const userId = accessTokenPayload.userId;
     const userLogin = accessTokenPayload.userLogin;
     const foundedPost: PostDocument | null =
       await this.postsQueryRepository.getRawPostById(postId);
     if (!foundedPost) throw new NotFoundException();
+    await this.checkUserBannedOrNot({ userId, blogId: foundedPost.blogId });
     const newComment: Comment = foundedPost.createComment({
       userId,
       userLogin,
@@ -72,5 +82,31 @@ export class CreateNewCommentUseCase
       },
     };
     return mappedComment;
+  }
+
+  getAccessTokenPayload(accessToken): JwtAccessTokenPayloadType {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtUtils.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) {
+      throw new UnauthorizedException();
+    }
+    return accessTokenPayload;
+  }
+
+  async checkUserBannedOrNot({
+    userId,
+    blogId,
+  }: {
+    userId: string;
+    blogId: string;
+  }): Promise<void> {
+    const foundedBannedUserByBlogger: BannedUserByBlogger | null =
+      await this.BannedUserByBloggerModel.findOne({
+        userId,
+        blogId,
+      });
+    if (foundedBannedUserByBlogger) {
+      throw new ForbiddenException();
+    }
   }
 }

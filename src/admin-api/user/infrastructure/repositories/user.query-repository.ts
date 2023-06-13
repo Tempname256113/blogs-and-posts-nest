@@ -16,13 +16,13 @@ import {
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 
 @Injectable()
 export class UserQueryRepository {
   constructor(
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
   ) {}
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,

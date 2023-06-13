@@ -12,7 +12,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CommentRepository } from '../../infrastructure/repositories/comment.repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 
 export class UpdateCommentCommand {
   constructor(
@@ -31,7 +31,7 @@ export class UpdateCommentUseCase
   constructor(
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private commentRepository: CommentRepository,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
   ) {}
 
   async execute({

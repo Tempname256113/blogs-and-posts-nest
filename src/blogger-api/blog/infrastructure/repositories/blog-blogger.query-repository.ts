@@ -19,7 +19,7 @@ import {
   PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { EntityLikesCountType } from '../../../../public-api/like/application/models/entity-likes-count.model';
@@ -52,7 +52,7 @@ export class BlogBloggerQueryRepository {
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     private likeQueryRepository: LikeQueryRepository,
-    private jwtHelpers: JwtHelpers,
+    private jwtHelpers: JwtUtils,
   ) {}
 
   async getBlogsWithPagination({

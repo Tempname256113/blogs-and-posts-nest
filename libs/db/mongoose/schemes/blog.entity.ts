@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Post } from './post.entity';
 import { PostApiCreateUpdateDTO } from '../../../../src/public-api/post/api/models/post-api.dto';
 
-export class Blog {
+export type Blog = {
   id: string;
   bloggerId: string;
   bloggerLogin: string;
@@ -14,11 +14,11 @@ export class Blog {
   createdAt: string;
   isMembership: boolean;
   hidden?: boolean;
-}
+};
 
 @Schema({ versionKey: false, collection: 'blogs' })
 export class BlogSchema implements Blog {
-  @Prop({ required: true })
+  @Prop()
   id: string;
 
   @Prop()
@@ -27,19 +27,19 @@ export class BlogSchema implements Blog {
   @Prop()
   bloggerLogin: string;
 
-  @Prop({ required: true })
+  @Prop()
   name: string;
 
-  @Prop({ required: true })
+  @Prop()
   description: string;
 
-  @Prop({ required: true })
+  @Prop()
   websiteUrl: string;
 
   @Prop()
   createdAt: string;
 
-  @Prop({ required: true })
+  @Prop()
   isMembership: boolean;
 
   @Prop({ default: false })

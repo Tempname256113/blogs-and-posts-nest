@@ -19,8 +19,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { JwtHelpers } from '../../../../../libs/auth/jwt/jwt-helpers.service';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { BlogPublicQueryRepository } from '../../../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
+import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
 export class CreatePostByBlogCommand {
   constructor(
@@ -40,8 +41,8 @@ export class CreatePostByBlogUseCase
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private blogRepository: BlogRepository,
-    private blogQueryRepository: BlogPublicQueryRepository,
-    private jwtHelpers: JwtHelpers,
+    private blogQueryRepository: BlogBloggerQueryRepository,
+    private jwtHelpers: JwtUtils,
   ) {}
 
   async execute({

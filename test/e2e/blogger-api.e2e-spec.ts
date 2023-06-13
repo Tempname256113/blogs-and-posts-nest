@@ -10,15 +10,25 @@ import {
 } from '../../src/blogger-api/blog/api/models/blog-blogger-api.models';
 import {
   BlogBloggerApiCreateUpdateDTO,
-  BloggerApiCreateUpdatePostDTO,
+  PostCreateUpdateBloggerApiDTO,
 } from '../../src/blogger-api/blog/api/models/blog-blogger-api.dto';
 import { PostApiModel } from '../../src/public-api/post/api/models/post-api.models';
 import { CommentApiModel } from '../../src/public-api/comment/api/models/comment-api.models';
 import { CommentApiCreateDto } from '../../src/public-api/comment/api/models/comment-api.dto';
 
+/*const createUsers = async (httpServer: any, body: any): UserViewModel => {
+  const response = await request(httpServer)
+    .post('/sa/users')
+    .auth(basicAuthLogin, basicAuthPass, { type: 'basic' })
+    .send(body)
+    .expect(201);
+
+  return response.body;
+};*/
+
 describe('blogger api e2e tests', () => {
   let app: INestApplication;
-
+  // let accessToten;
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -218,7 +228,7 @@ describe('blogger api e2e tests', () => {
   });
 
   describe('POST(/blogger/blogs/:blogId/posts) blogger api creating new posts', () => {
-    const newPostsDTOArray: BloggerApiCreateUpdatePostDTO[] = [
+    const newPostsDTOArray: PostCreateUpdateBloggerApiDTO[] = [
       {
         title: '123',
         shortDescription: 'description',
@@ -268,7 +278,7 @@ describe('blogger api e2e tests', () => {
       userAccessToken,
     }: {
       blog: BlogBloggerApiModel;
-      createPostDTO: BloggerApiCreateUpdatePostDTO;
+      createPostDTO: PostCreateUpdateBloggerApiDTO;
       userAccessToken: string;
     }): Promise<PostApiModel> => {
       const response: Response = await request(app.getHttpServer())
