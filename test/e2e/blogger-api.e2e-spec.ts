@@ -4,9 +4,9 @@ import { AppModule } from '../../src/app.module';
 import request, { Response } from 'supertest';
 import { UserApiCreateDto } from '../../src/admin-api/user/api/models/user-api.dto';
 import {
-  BlogBloggerApiModel,
-  CommentBloggerApiModel,
-  CommentBloggerApiPaginationModel,
+  BlogBloggerApiViewModel,
+  CommentBloggerApiViewModel,
+  CommentBloggerApiPaginationViewModel,
 } from '../../src/blogger-api/blog/api/models/blog-blogger-api.models';
 import {
   BlogBloggerApiCreateUpdateDTO,
@@ -54,9 +54,9 @@ describe('blogger api e2e tests', () => {
 
   // созданы по 2 блога для каждого пользователя
   const usersCreatedBlogs: {
-    user1Blogs: BlogBloggerApiModel[];
-    user2Blogs: BlogBloggerApiModel[];
-    user3Blogs: BlogBloggerApiModel[];
+    user1Blogs: BlogBloggerApiViewModel[];
+    user2Blogs: BlogBloggerApiViewModel[];
+    user3Blogs: BlogBloggerApiViewModel[];
   } = {
     user1Blogs: [],
     user2Blogs: [],
@@ -151,8 +151,8 @@ describe('blogger api e2e tests', () => {
       name: string;
       description: string;
       websiteUrl: string;
-    }): BlogBloggerApiModel => {
-      const correctCreatedBlog: BlogBloggerApiModel = {
+    }): BlogBloggerApiViewModel => {
+      const correctCreatedBlog: BlogBloggerApiViewModel = {
         id: expect.any(String),
         name,
         description,
@@ -169,7 +169,7 @@ describe('blogger api e2e tests', () => {
     }: {
       userAccessToken: string;
       createBlogDTO: BlogBloggerApiCreateUpdateDTO;
-    }): Promise<BlogBloggerApiModel> => {
+    }): Promise<BlogBloggerApiViewModel> => {
       const response: Response = await request(app.getHttpServer())
         .post('/blogger/blogs')
         .auth(userAccessToken, {
@@ -188,11 +188,11 @@ describe('blogger api e2e tests', () => {
     };
 
     it('creating 2 new blogs by user1. should return 201 status and created blogs', async () => {
-      const blog1: BlogBloggerApiModel = await userCreateBlogRequest({
+      const blog1: BlogBloggerApiViewModel = await userCreateBlogRequest({
         userAccessToken: userAccessTokens.user1AccessToken,
         createBlogDTO: newBlogsDTOArray[0],
       });
-      const blog2: BlogBloggerApiModel = await userCreateBlogRequest({
+      const blog2: BlogBloggerApiViewModel = await userCreateBlogRequest({
         userAccessToken: userAccessTokens.user1AccessToken,
         createBlogDTO: newBlogsDTOArray[1],
       });
@@ -201,11 +201,11 @@ describe('blogger api e2e tests', () => {
     });
 
     it('creating 2 new blogs by user2. should return 201 status and created blogs', async () => {
-      const blog1: BlogBloggerApiModel = await userCreateBlogRequest({
+      const blog1: BlogBloggerApiViewModel = await userCreateBlogRequest({
         userAccessToken: userAccessTokens.user2AccessToken,
         createBlogDTO: newBlogsDTOArray[0],
       });
-      const blog2: BlogBloggerApiModel = await userCreateBlogRequest({
+      const blog2: BlogBloggerApiViewModel = await userCreateBlogRequest({
         userAccessToken: userAccessTokens.user2AccessToken,
         createBlogDTO: newBlogsDTOArray[1],
       });
@@ -214,11 +214,11 @@ describe('blogger api e2e tests', () => {
     });
 
     it('creating 2 new blogs by user3. should return 201 status and created blogs', async () => {
-      const blog1: BlogBloggerApiModel = await userCreateBlogRequest({
+      const blog1: BlogBloggerApiViewModel = await userCreateBlogRequest({
         userAccessToken: userAccessTokens.user3AccessToken,
         createBlogDTO: newBlogsDTOArray[0],
       });
-      const blog2: BlogBloggerApiModel = await userCreateBlogRequest({
+      const blog2: BlogBloggerApiViewModel = await userCreateBlogRequest({
         userAccessToken: userAccessTokens.user3AccessToken,
         createBlogDTO: newBlogsDTOArray[1],
       });
@@ -277,7 +277,7 @@ describe('blogger api e2e tests', () => {
       createPostDTO,
       userAccessToken,
     }: {
-      blog: BlogBloggerApiModel;
+      blog: BlogBloggerApiViewModel;
       createPostDTO: PostCreateUpdateBloggerApiDTO;
       userAccessToken: string;
     }): Promise<PostApiModel> => {
@@ -481,9 +481,9 @@ describe('blogger api e2e tests', () => {
 
     describe('GET (/blogger/blogs/comments) blogger api, getting all blogger comments', () => {
       it('get all comments by user1', async () => {
-        const user1MappedComments: CommentBloggerApiModel[] =
+        const user1MappedComments: CommentBloggerApiViewModel[] =
           usersCreatedComments.user1Comments.map((comment) => {
-            const mappedComment: CommentBloggerApiModel = {
+            const mappedComment: CommentBloggerApiViewModel = {
               id: comment.id,
               content: comment.content,
               commentatorInfo: {
@@ -508,7 +508,7 @@ describe('blogger api e2e tests', () => {
           .expect(200);
         expect(
           responseWithComments.body,
-        ).toEqual<CommentBloggerApiPaginationModel>({
+        ).toEqual<CommentBloggerApiPaginationViewModel>({
           pagesCount: 1,
           page: 1,
           pageSize: 10,
@@ -518,9 +518,9 @@ describe('blogger api e2e tests', () => {
       });
 
       it('get all comments by user2', async () => {
-        const user2MappedComments: CommentBloggerApiModel[] =
+        const user2MappedComments: CommentBloggerApiViewModel[] =
           usersCreatedComments.user2Comments.map((comment) => {
-            const mappedComment: CommentBloggerApiModel = {
+            const mappedComment: CommentBloggerApiViewModel = {
               id: comment.id,
               content: comment.content,
               commentatorInfo: {
@@ -545,7 +545,7 @@ describe('blogger api e2e tests', () => {
           .expect(200);
         expect(
           responseWithComments.body,
-        ).toEqual<CommentBloggerApiPaginationModel>({
+        ).toEqual<CommentBloggerApiPaginationViewModel>({
           pagesCount: 1,
           page: 1,
           pageSize: 10,
@@ -555,9 +555,9 @@ describe('blogger api e2e tests', () => {
       });
 
       it('get all comments by user3', async () => {
-        const user3MappedComments: CommentBloggerApiModel[] =
+        const user3MappedComments: CommentBloggerApiViewModel[] =
           usersCreatedComments.user3Comments.map((comment) => {
-            const mappedComment: CommentBloggerApiModel = {
+            const mappedComment: CommentBloggerApiViewModel = {
               id: comment.id,
               content: comment.content,
               commentatorInfo: {
@@ -582,7 +582,7 @@ describe('blogger api e2e tests', () => {
           .expect(200);
         expect(
           responseWithComments.body,
-        ).toEqual<CommentBloggerApiPaginationModel>({
+        ).toEqual<CommentBloggerApiPaginationViewModel>({
           pagesCount: 1,
           page: 1,
           pageSize: 10,

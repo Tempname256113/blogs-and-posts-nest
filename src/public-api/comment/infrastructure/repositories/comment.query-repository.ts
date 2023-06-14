@@ -7,8 +7,8 @@ import {
 import { FilterQuery, Model } from 'mongoose';
 import { CommentApiPaginationQueryDto } from '../../api/models/comment-api.query-dto';
 import {
-  getPaginationHelpers,
-  PaginationHelpersType,
+  getPaginationUtils,
+  PaginationUtilsType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
   CommentApiModel,
@@ -54,14 +54,13 @@ export class CommentQueryRepository {
     const allCommentsCount: number = await this.CommentModel.countDocuments(
       filter,
     );
-    const additionalPaginationData: PaginationHelpersType =
-      getPaginationHelpers({
-        pageSize: paginationQuery.pageSize,
-        sortBy: paginationQuery.sortBy,
-        totalDocumentsCount: allCommentsCount,
-        pageNumber: paginationQuery.pageNumber,
-        sortDirection: paginationQuery.sortDirection,
-      });
+    const additionalPaginationData: PaginationUtilsType = getPaginationUtils({
+      pageSize: paginationQuery.pageSize,
+      sortBy: paginationQuery.sortBy,
+      totalDocumentsCount: allCommentsCount,
+      pageNumber: paginationQuery.pageNumber,
+      sortDirection: paginationQuery.sortDirection,
+    });
     const foundedComments: Comment[] = await this.CommentModel.find(
       filter,
     ).lean();

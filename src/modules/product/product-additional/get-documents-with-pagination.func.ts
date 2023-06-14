@@ -120,13 +120,13 @@ type FilterOptionsType = {
   return paginationResult;
 };*/
 
-export type PaginationHelpersType = {
+export type PaginationUtilsType = {
   sortQuery: { [sortBy: string]: number };
   howMuchToSkip: number;
   pagesCount: number;
 };
 
-export const getPaginationHelpers = ({
+export const getPaginationUtils = ({
   sortDirection,
   sortBy,
   pageSize,
@@ -138,7 +138,7 @@ export const getPaginationHelpers = ({
   pageSize: number;
   pageNumber: number;
   totalDocumentsCount: number;
-}): PaginationHelpersType => {
+}): PaginationUtilsType => {
   const getCorrectSortQuery = (): { [sortByProp: string]: number } => {
     let sortDir: 1 | -1 = -1;
     if (sortDirection === 'asc') sortDir = 1;

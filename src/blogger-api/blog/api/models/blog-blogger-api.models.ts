@@ -1,4 +1,4 @@
-export type BlogBloggerApiModel = {
+export type BlogBloggerApiViewModel = {
   id: string;
   name: string;
   description: string;
@@ -7,15 +7,15 @@ export type BlogBloggerApiModel = {
   isMembership: boolean;
 };
 
-export type BlogBloggerApiPaginationModel = {
+export type BlogBloggerApiPaginationViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: BlogBloggerApiModel[];
+  items: BlogBloggerApiViewModel[];
 };
 
-export type CommentBloggerApiModel = {
+export type CommentBloggerApiViewModel = {
   id: string;
   content: string;
   commentatorInfo: {
@@ -31,10 +31,28 @@ export type CommentBloggerApiModel = {
   };
 };
 
-export type CommentBloggerApiPaginationModel = {
+export type CommentBloggerApiPaginationViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: CommentBloggerApiModel[];
+  items: CommentBloggerApiViewModel[];
+};
+
+export type BannedUserBloggerApiViewModel = {
+  id: string;
+  login: string;
+  banInfo: {
+    isBanned: boolean;
+    banDate: string;
+    banReason: string;
+  };
+};
+
+export type BannedUserBloggerApiPaginationViewModel = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BannedUserBloggerApiViewModel[];
 };

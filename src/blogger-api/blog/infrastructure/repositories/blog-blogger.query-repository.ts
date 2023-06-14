@@ -11,8 +11,8 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { FilterQuery, Model } from 'mongoose';
 import {
-  getPaginationHelpers,
-  PaginationHelpersType,
+  getPaginationUtils,
+  PaginationUtilsType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
   Post,
@@ -33,17 +33,24 @@ import {
 import {
   BlogBloggerApiPaginationQueryDTO,
   CommentBloggerApiPaginationQueryDTO,
+  BannedUsersBloggerApiPaginationQueryDTO,
 } from '../../api/models/blog-blogger-api.query-dto';
 import {
-  BlogBloggerApiModel,
-  BlogBloggerApiPaginationModel,
-  CommentBloggerApiModel,
-  CommentBloggerApiPaginationModel,
+  BlogBloggerApiViewModel,
+  BlogBloggerApiPaginationViewModel,
+  CommentBloggerApiViewModel,
+  CommentBloggerApiPaginationViewModel,
+  BannedUserBloggerApiPaginationViewModel,
+  BannedUserBloggerApiViewModel,
 } from '../../api/models/blog-blogger-api.models';
 import {
   Comment,
   CommentSchema,
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
+import {
+  BannedUserByBlogger,
+  BannedUserByBloggerSchema,
+} from '../../../../../libs/db/mongoose/schemes/banned-user-by-blogger.entity';
 
 @Injectable()
 export class BlogBloggerQueryRepository {
@@ -51,6 +58,8 @@ export class BlogBloggerQueryRepository {
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
+    @InjectModel(BannedUserByBloggerSchema.name)
+    private BannedUserByBloggerModel: Model<BannedUserByBloggerSchema>,
     private likeQueryRepository: LikeQueryRepository,
     private jwtHelpers: JwtUtils,
   ) {}
@@ -61,13 +70,13 @@ export class BlogBloggerQueryRepository {
   }: {
     rawPaginationQuery: BlogBloggerApiPaginationQueryDTO;
     accessToken: string;
-  }): Promise<BlogBloggerApiPaginationModel> {
+  }): Promise<BlogBloggerApiPaginationViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const bloggerId: string = accessTokenPayload.userId;
     const blogsWithPagination =
-      async (): Promise<BlogBloggerApiPaginationModel> => {
+      async (): Promise<BlogBloggerApiPaginationViewModel> => {
         let filter: FilterQuery<BlogSchema>;
         const getCorrectBlogsFilter = (): void => {
           if (!rawPaginationQuery.searchNameTerm) {
@@ -87,8 +96,8 @@ export class BlogBloggerQueryRepository {
         const totalBlogsCount: number = await this.BlogModel.countDocuments(
           filter,
         );
-        const additionalPaginationData: PaginationHelpersType =
-          getPaginationHelpers({
+        const additionalPaginationData: PaginationUtilsType =
+          getPaginationUtils({
             pageSize: rawPaginationQuery.pageSize,
             sortBy: rawPaginationQuery.sortBy,
             totalDocumentsCount: totalBlogsCount,
@@ -104,9 +113,9 @@ export class BlogBloggerQueryRepository {
             sort: additionalPaginationData.sortQuery,
           },
         ).lean();
-        const mappedBlogs: BlogBloggerApiModel[] = foundedBlogs.map(
+        const mappedBlogs: BlogBloggerApiViewModel[] = foundedBlogs.map(
           (blogFromDB) => {
-            const mappedBlog: BlogBloggerApiModel = {
+            const mappedBlog: BlogBloggerApiViewModel = {
               id: blogFromDB.id,
               name: blogFromDB.name,
               description: blogFromDB.description,
@@ -117,7 +126,7 @@ export class BlogBloggerQueryRepository {
             return mappedBlog;
           },
         );
-        const paginationBlogsResult: BlogBloggerApiPaginationModel = {
+        const paginationBlogsResult: BlogBloggerApiPaginationViewModel = {
           pagesCount: additionalPaginationData.pagesCount,
           page: Number(rawPaginationQuery.pageNumber),
           pageSize: Number(rawPaginationQuery.pageSize),
@@ -163,7 +172,7 @@ export class BlogBloggerQueryRepository {
         const totalPostsCount: number = await this.PostModel.countDocuments(
           filter,
         );
-        const paginationHelpers: PaginationHelpersType = getPaginationHelpers({
+        const paginationHelpers: PaginationUtilsType = getPaginationUtils({
           pageSize: rawPaginationQuery.pageSize,
           sortBy: rawPaginationQuery.sortBy,
           totalDocumentsCount: totalPostsCount,
@@ -234,7 +243,7 @@ export class BlogBloggerQueryRepository {
   }: {
     paginationQuery: CommentBloggerApiPaginationQueryDTO;
     accessToken: string;
-  }): Promise<CommentBloggerApiPaginationModel> {
+  }): Promise<CommentBloggerApiPaginationViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
@@ -243,15 +252,15 @@ export class BlogBloggerQueryRepository {
       bloggerId: userId,
       hidden: false,
     }).lean();
-    const mappedCommentsToClient: CommentBloggerApiModel[] = [];
+    const mappedCommentsToClient: CommentBloggerApiViewModel[] = [];
     for (const post of foundedPosts) {
       const foundedComments: Comment[] = await this.CommentModel.find({
         postId: post.id,
         hidden: false,
       }).lean();
-      const mappedComments: CommentBloggerApiModel[] = foundedComments.map(
+      const mappedComments: CommentBloggerApiViewModel[] = foundedComments.map(
         (comment) => {
-          const mappedComment: CommentBloggerApiModel = {
+          const mappedComment: CommentBloggerApiViewModel = {
             id: comment.id,
             content: comment.content,
             commentatorInfo: {
@@ -272,18 +281,17 @@ export class BlogBloggerQueryRepository {
       mappedCommentsToClient.push(...mappedComments);
     }
     const allCommentsCount: number = mappedCommentsToClient.length;
-    const additionalPaginationData: PaginationHelpersType =
-      getPaginationHelpers({
-        pageSize: paginationQuery.pageSize,
-        sortBy: paginationQuery.sortBy,
-        totalDocumentsCount: allCommentsCount,
-        pageNumber: paginationQuery.pageNumber,
-        sortDirection: paginationQuery.sortDirection,
-      });
+    const additionalPaginationData: PaginationUtilsType = getPaginationUtils({
+      pageSize: paginationQuery.pageSize,
+      sortBy: paginationQuery.sortBy,
+      totalDocumentsCount: allCommentsCount,
+      pageNumber: paginationQuery.pageNumber,
+      sortDirection: paginationQuery.sortDirection,
+    });
     mappedCommentsToClient.sort((a, b) => {
       return a.createdAt.localeCompare(b.createdAt);
     });
-    const correctCountOfComments: CommentBloggerApiModel[] = [];
+    const correctCountOfComments: CommentBloggerApiViewModel[] = [];
     for (
       let i = additionalPaginationData.howMuchToSkip;
       i < mappedCommentsToClient.length;
@@ -297,12 +305,68 @@ export class BlogBloggerQueryRepository {
         break;
       }
     }
-    const paginationResult: CommentBloggerApiPaginationModel = {
+    const paginationResult: CommentBloggerApiPaginationViewModel = {
       pagesCount: additionalPaginationData.pagesCount,
       page: paginationQuery.pageNumber,
       pageSize: paginationQuery.pageSize,
       totalCount: allCommentsCount,
       items: mappedCommentsToClient,
+    };
+    return paginationResult;
+  }
+
+  async getAllBannedUsersForBlog({
+    paginationQuery,
+    blogId,
+  }: {
+    paginationQuery: BannedUsersBloggerApiPaginationQueryDTO;
+    blogId: string;
+  }): Promise<BannedUserBloggerApiPaginationViewModel> {
+    const filter: FilterQuery<BannedUserByBloggerSchema> = { blogId };
+    if (paginationQuery.searchLoginTerm) {
+      filter.userLogin = {
+        $regex: paginationQuery.searchLoginTerm,
+        $options: 'i',
+      };
+    }
+    const allBannedUsersForBlogQuantity: number =
+      await this.BannedUserByBloggerModel.countDocuments(filter);
+    const paginationUtils: PaginationUtilsType = getPaginationUtils({
+      pageSize: paginationQuery.pageSize,
+      sortBy: paginationQuery.sortBy,
+      sortDirection: paginationQuery.sortDirection,
+      pageNumber: paginationQuery.pageNumber,
+      totalDocumentsCount: allBannedUsersForBlogQuantity,
+    });
+    const allBannedUsersForBlog: BannedUserByBlogger[] =
+      await this.BannedUserByBloggerModel.find(
+        filter,
+        { _id: false },
+        {
+          limit: paginationQuery.pageSize,
+          skip: paginationUtils.howMuchToSkip,
+          sort: paginationUtils.sortQuery,
+        },
+      );
+    const mappedBannedUsersForBlog: BannedUserBloggerApiViewModel[] =
+      allBannedUsersForBlog.map((user) => {
+        const mappedUser: BannedUserBloggerApiViewModel = {
+          id: user.userId,
+          login: user.userLogin,
+          banInfo: {
+            isBanned: true,
+            banDate: user.banDate,
+            banReason: user.banReason,
+          },
+        };
+        return mappedUser;
+      });
+    const paginationResult: BannedUserBloggerApiPaginationViewModel = {
+      pagesCount: paginationUtils.pagesCount,
+      page: paginationQuery.pageNumber,
+      pageSize: paginationQuery.pageSize,
+      totalCount: allBannedUsersForBlogQuantity,
+      items: mappedBannedUsersForBlog,
     };
     return paginationResult;
   }

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogBloggerApiCreateUpdateDTO } from '../../api/models/blog-blogger-api.dto';
-import { BlogBloggerApiModel } from '../../api/models/blog-blogger-api.models';
+import { BlogBloggerApiViewModel } from '../../api/models/blog-blogger-api.models';
 import {
   Blog,
   BlogDocument,
@@ -25,7 +25,7 @@ export class CreateBlogCommand {
 
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase
-  implements ICommandHandler<CreateBlogCommand, BlogBloggerApiModel>
+  implements ICommandHandler<CreateBlogCommand, BlogBloggerApiViewModel>
 {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
@@ -35,7 +35,7 @@ export class CreateBlogUseCase
 
   async execute({
     data: { createBlogDTO, accessToken },
-  }: CreateBlogCommand): Promise<BlogBloggerApiModel> {
+  }: CreateBlogCommand): Promise<BlogBloggerApiViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
@@ -49,7 +49,7 @@ export class CreateBlogUseCase
       createdAt: new Date().toISOString(),
       isMembership: false,
     };
-    const mappedBlog: BlogBloggerApiModel = {
+    const mappedBlog: BlogBloggerApiViewModel = {
       id: newBlog.id,
       name: newBlog.name,
       description: newBlog.description,

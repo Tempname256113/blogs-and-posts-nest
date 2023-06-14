@@ -17,8 +17,8 @@ import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.pay
 import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
 import {
-  getPaginationHelpers,
-  PaginationHelpersType,
+  getPaginationUtils,
+  PaginationUtilsType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { EntityLikesCountType } from '../../../like/application/models/entity-likes-count.model';
 
@@ -116,7 +116,7 @@ export class PostPublicQueryRepository {
         const totalPostsCount: number = await this.PostModel.countDocuments(
           filter,
         );
-        const paginationHelpers: PaginationHelpersType = getPaginationHelpers({
+        const paginationHelpers: PaginationUtilsType = getPaginationUtils({
           pageSize: rawPaginationQuery.pageSize,
           sortBy: rawPaginationQuery.sortBy,
           totalDocumentsCount: totalPostsCount,

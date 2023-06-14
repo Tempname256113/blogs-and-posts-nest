@@ -5,8 +5,8 @@ import {
   BlogSchema,
 } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import {
-  getPaginationHelpers,
-  PaginationHelpersType,
+  getPaginationUtils,
+  PaginationUtilsType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { BlogAdminApiPaginationQueryDTO } from '../../api/models/blog-admin-api.query-dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -44,8 +44,8 @@ export class BlogAdminQueryRepository {
         const totalBlogsCount: number = await this.BlogModel.countDocuments(
           filter,
         );
-        const additionalPaginationData: PaginationHelpersType =
-          getPaginationHelpers({
+        const additionalPaginationData: PaginationUtilsType =
+          getPaginationUtils({
             pageSize: rawPaginationQuery.pageSize,
             sortBy: rawPaginationQuery.sortBy,
             totalDocumentsCount: totalBlogsCount,

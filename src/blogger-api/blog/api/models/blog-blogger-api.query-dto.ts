@@ -12,3 +12,11 @@ export type CommentBloggerApiPaginationQueryDTO = {
   sortBy: string;
   sortDirection: 'asc' | 'desc';
 };
+
+export type BannedUsersBloggerApiPaginationQueryDTO = {
+  searchLoginTerm: string | null;
+  pageNumber: number;
+  pageSize: number;
+  sortBy: string;
+  sortDirection: 'asc' | 'desc';
+};

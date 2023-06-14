@@ -11,8 +11,8 @@ import {
   UserApiPaginationModel,
 } from '../../api/models/user-api.models';
 import {
-  getPaginationHelpers,
-  PaginationHelpersType,
+  getPaginationUtils,
+  PaginationUtilsType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
@@ -76,14 +76,13 @@ export class UserQueryRepository {
       filter = {};
     }
     const allUsersCount: number = await this.UserModel.countDocuments(filter);
-    const additionalPaginationData: PaginationHelpersType =
-      getPaginationHelpers({
-        sortDirection: rawPaginationQuery.sortDirection,
-        sortBy: correctSortBy,
-        pageSize: rawPaginationQuery.pageSize,
-        pageNumber: rawPaginationQuery.pageNumber,
-        totalDocumentsCount: allUsersCount,
-      });
+    const additionalPaginationData: PaginationUtilsType = getPaginationUtils({
+      sortDirection: rawPaginationQuery.sortDirection,
+      sortBy: correctSortBy,
+      pageSize: rawPaginationQuery.pageSize,
+      pageNumber: rawPaginationQuery.pageNumber,
+      totalDocumentsCount: allUsersCount,
+    });
     const foundedUsers: User[] = await this.UserModel.find(
       filter,
       { _id: false },

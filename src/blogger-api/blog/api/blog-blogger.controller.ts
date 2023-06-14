@@ -17,12 +17,14 @@ import {
   BanUserBloggerApiDTO,
 } from './models/blog-blogger-api.dto';
 import {
-  BlogBloggerApiModel,
-  BlogBloggerApiPaginationModel,
-  CommentBloggerApiPaginationModel,
+  BlogBloggerApiViewModel,
+  BlogBloggerApiPaginationViewModel,
+  CommentBloggerApiPaginationViewModel,
+  BannedUserBloggerApiPaginationViewModel,
 } from './models/blog-blogger-api.models';
 import { PostApiModel } from '../../../public-api/post/api/models/post-api.models';
 import {
+  BannedUsersBloggerApiPaginationQueryDTO,
   BlogBloggerApiPaginationQueryDTO,
   CommentBloggerApiPaginationQueryDTO,
 } from './models/blog-blogger-api.query-dto';
@@ -52,10 +54,10 @@ export class BlogBloggerController {
   async createBlog(
     @Body() blogCreateDTO: BlogBloggerApiCreateUpdateDTO,
     @AccessToken() accessToken: string | null,
-  ): Promise<BlogBloggerApiModel> {
-    const createdBlog: BlogBloggerApiModel = await this.commandBus.execute<
+  ): Promise<BlogBloggerApiViewModel> {
+    const createdBlog: BlogBloggerApiViewModel = await this.commandBus.execute<
       CreateBlogCommand,
-      BlogBloggerApiModel
+      BlogBloggerApiViewModel
     >(
       new CreateBlogCommand({
         createBlogDTO: blogCreateDTO,
@@ -99,7 +101,7 @@ export class BlogBloggerController {
     @Query()
     rawPaginationQuery: BlogBloggerApiPaginationQueryDTO,
     @AccessToken() accessToken: string | null,
-  ): Promise<BlogBloggerApiPaginationModel> {
+  ): Promise<BlogBloggerApiPaginationViewModel> {
     const paginationQuery: BlogBloggerApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -107,7 +109,7 @@ export class BlogBloggerController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const blogsWithPagination: BlogBloggerApiPaginationModel =
+    const blogsWithPagination: BlogBloggerApiPaginationViewModel =
       await this.blogQueryRepository.getBlogsWithPagination({
         rawPaginationQuery: paginationQuery,
         accessToken,
@@ -121,19 +123,42 @@ export class BlogBloggerController {
   async getAllCommentsFromAllMyPosts(
     @Query() rawPaginationQuery: CommentBloggerApiPaginationQueryDTO,
     @AccessToken() accessToken: string | null,
-  ): Promise<CommentBloggerApiPaginationModel> {
+  ): Promise<CommentBloggerApiPaginationViewModel> {
     const paginationQuery: CommentBloggerApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const foundedCommentsWithPagination: CommentBloggerApiPaginationModel =
+    const foundedCommentsWithPagination: CommentBloggerApiPaginationViewModel =
       await this.blogQueryRepository.getAllCommentsFromAllPosts({
         paginationQuery,
         accessToken,
       });
     return foundedCommentsWithPagination;
+  }
+
+  @Get('users/blog/:blogId')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAllBannedUsersForBlog(
+    @Query() rawPaginationQuery: BannedUsersBloggerApiPaginationQueryDTO,
+    @Param('blogId') blogId: string,
+    @AccessToken() accessToken: string,
+  ): Promise<BannedUserBloggerApiPaginationViewModel> {
+    const paginationQuery: BannedUsersBloggerApiPaginationQueryDTO = {
+      searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
+      sortBy: rawPaginationQuery.sortBy ?? 'banDate',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+    };
+    const bannedUsersForBlogWithPagination: BannedUserBloggerApiPaginationViewModel =
+      await this.blogQueryRepository.getAllBannedUsersForBlog({
+        paginationQuery,
+        blogId,
+      });
+    return bannedUsersForBlogWithPagination;
   }
 
   @Put('blogs/:blogId')

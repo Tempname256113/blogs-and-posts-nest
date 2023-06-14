@@ -22,8 +22,8 @@ import { Like } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { LikeQueryRepository } from '../../../like/infrastructure/repositories/like.query-repository';
 import { EntityLikesCountType } from '../../../like/application/models/entity-likes-count.model';
 import {
-  getPaginationHelpers,
-  PaginationHelpersType,
+  getPaginationUtils,
+  PaginationUtilsType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { BlogPublicApiPaginationQueryDTO } from '../../api/models/blog-public-api.query-dto';
 import {
@@ -62,7 +62,7 @@ export class BlogPublicQueryRepository {
         const totalBlogsCount: number = await this.BlogModel.countDocuments(
           filter,
         );
-        const additionalData: PaginationHelpersType = getPaginationHelpers({
+        const additionalData: PaginationUtilsType = getPaginationUtils({
           pageSize: rawPaginationQuery.pageSize,
           sortBy: rawPaginationQuery.sortBy,
           totalDocumentsCount: totalBlogsCount,
@@ -137,7 +137,7 @@ export class BlogPublicQueryRepository {
         const totalPostsCount: number = await this.PostModel.countDocuments(
           filter,
         );
-        const paginationHelpers: PaginationHelpersType = getPaginationHelpers({
+        const paginationHelpers: PaginationUtilsType = getPaginationUtils({
           pageSize: rawPaginationQuery.pageSize,
           sortBy: rawPaginationQuery.sortBy,
           totalDocumentsCount: totalPostsCount,
