@@ -336,7 +336,7 @@ export class BlogBloggerQueryRepository {
       page: paginationQuery.pageNumber,
       pageSize: paginationQuery.pageSize,
       totalCount: allCommentsCount,
-      items: mappedCommentsToClient,
+      items: correctCountOfComments,
     };
     return paginationResult;
   }
