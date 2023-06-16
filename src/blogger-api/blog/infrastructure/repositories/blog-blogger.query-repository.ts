@@ -295,10 +295,10 @@ export class BlogBloggerQueryRepository {
                 myStatus: userLikeStatus,
               },
               postInfo: {
-                id: post.id,
-                title: post.title,
                 blogId: post.blogId,
                 blogName: post.blogName,
+                title: post.title,
+                id: post.id,
               },
             };
             return mappedComment;
@@ -329,7 +329,7 @@ export class BlogBloggerQueryRepository {
       }
     }
     correctCountOfCommentsArray.sort((a, b) => {
-      if (a.createdAt > b.createdAt) {
+      if (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) {
         return -1;
       } else {
         return 1;
