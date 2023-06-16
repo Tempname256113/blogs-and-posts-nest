@@ -25,7 +25,7 @@ const AuthModules = [AuthModule, SecurityModule];
         const mongoServerConnectionString: string = new EnvConfiguration()
           .MONGO_URL;
         return {
-          uri: mongoMemoryServerConnectionString,
+          uri: mongoServerConnectionString,
         };
       },
     }),
