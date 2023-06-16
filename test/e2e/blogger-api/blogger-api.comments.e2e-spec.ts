@@ -46,7 +46,7 @@ type UserTestType = Partial<{
   }>;
 }>;
 
-describe('blogger api e2e tests', () => {
+describe('blogger api e2e comments tests', () => {
   let app: INestApplication;
   let httpServer: any;
   const dataForTests: Partial<{

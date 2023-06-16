@@ -36,6 +36,7 @@ import { CreateNewCommentCommand } from '../application/use-cases/create-new-com
 import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
 import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 import { ChangePostLikeStatusCommand } from '../application/use-cases/change-post-like-status.use-case';
+import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 
 @Controller('posts')
 export class PostController {
@@ -104,13 +105,13 @@ export class PostController {
   }
 
   @Post(':postId/comments')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
   async createNewComment(
     @AccessToken() accessToken: string,
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
   ): Promise<CommentViewModel> {
-    if (!accessToken) throw new UnauthorizedException();
     const newComment: CommentViewModel = await this.commandBus.execute<
       CreateNewCommentCommand,
       CommentViewModel
