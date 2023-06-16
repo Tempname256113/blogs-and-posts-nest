@@ -35,14 +35,20 @@ export class BanUnbanBlogUseCase
   }
 
   async banBlog(blogId: string): Promise<void> {
-    await this.BlogModel.updateMany({ id: blogId }, { hidden: true });
+    await this.BlogModel.updateMany(
+      { id: blogId },
+      { hidden: true, isBanned: true, banDate: new Date().toISOString() },
+    );
     await this.PostModel.updateMany({ blogId }, { hidden: true });
     await this.CommentModel.updateMany({ blogId }, { hidden: true });
     await this.LikeModel.updateMany({ blogId }, { hidden: true });
   }
 
   async unbanBlog(blogId: string): Promise<void> {
-    await this.BlogModel.updateMany({ id: blogId }, { hidden: false });
+    await this.BlogModel.updateMany(
+      { id: blogId },
+      { hidden: false, isBanned: false, banDate: null },
+    );
     await this.PostModel.updateMany({ blogId }, { hidden: false });
     await this.CommentModel.updateMany({ blogId }, { hidden: false });
     await this.LikeModel.updateMany({ blogId }, { hidden: false });

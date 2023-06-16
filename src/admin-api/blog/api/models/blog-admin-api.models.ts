@@ -9,6 +9,10 @@ export type BlogAdminApiModel = {
     userId: string;
     userLogin: string;
   };
+  banInfo: {
+    isBanned: boolean;
+    banDate: string;
+  };
 };
 
 export type BlogAdminApiPaginationModel = {

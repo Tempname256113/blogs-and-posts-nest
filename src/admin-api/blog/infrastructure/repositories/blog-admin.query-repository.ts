@@ -74,6 +74,10 @@ export class BlogAdminQueryRepository {
                 userId: blogFromDB.bloggerId,
                 userLogin: blogFromDB.bloggerLogin,
               },
+              banInfo: {
+                isBanned: blogFromDB.isBanned,
+                banDate: blogFromDB.banDate,
+              },
             };
             return mappedBlog;
           },

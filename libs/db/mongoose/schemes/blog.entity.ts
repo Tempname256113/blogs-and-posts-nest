@@ -13,6 +13,8 @@ export type Blog = {
   websiteUrl: string;
   createdAt: string;
   isMembership: boolean;
+  isBanned?: boolean;
+  banDate?: string | null;
   hidden?: boolean;
 };
 
@@ -41,6 +43,12 @@ export class BlogSchema implements Blog {
 
   @Prop()
   isMembership: boolean;
+
+  @Prop({ default: false })
+  isBanned: boolean;
+
+  @Prop({ default: null })
+  banDate: string | null;
 
   @Prop({ default: false })
   hidden: boolean;
