@@ -9,7 +9,11 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/banned-user-by-blogger.entity';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import {
   User,
@@ -81,10 +85,10 @@ export class BanUserBloggerApiUseCase
     const foundedBlog: BlogDocument | null =
       await this.blogsQueryRepository.getBlogById(blogId);
     if (!foundedBlog) {
-      throw new BadRequestException(exceptionFactoryFunction(['blogId']));
+      throw new NotFoundException(exceptionFactoryFunction(['blogId']));
     }
     if (foundedBlog.bloggerId !== bloggerId) {
-      throw new BadRequestException(exceptionFactoryFunction(['blogId']));
+      throw new ForbiddenException(exceptionFactoryFunction(['blogId']));
     }
   }
 
