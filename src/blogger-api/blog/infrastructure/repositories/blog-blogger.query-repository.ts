@@ -316,14 +316,14 @@ export class BlogBloggerQueryRepository {
     });
     const correctCountOfCommentsArray: CommentBloggerApiViewModel[] = [];
     for (
-      let i = additionalPaginationData.howMuchToSkip;
+      let i = additionalPaginationData.howMuchToSkip + 1;
       i < mappedCommentsToClient.length;
       i++
     ) {
       correctCountOfCommentsArray.push(mappedCommentsToClient[i]);
       if (
         i ===
-        additionalPaginationData.howMuchToSkip + paginationQuery.pageSize - 1
+        additionalPaginationData.howMuchToSkip + paginationQuery.pageSize
       ) {
         break;
       }
