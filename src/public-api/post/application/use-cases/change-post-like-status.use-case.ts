@@ -50,6 +50,7 @@ export class ChangePostLikeStatusUseCase
         likeStatus,
         entity: 'post',
         entityId: postId,
+        blogId: foundedPost.blogId,
         userId,
         userLogin,
       }),

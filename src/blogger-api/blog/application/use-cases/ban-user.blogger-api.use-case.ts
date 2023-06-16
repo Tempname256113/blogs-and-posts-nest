@@ -1,9 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  BlogDocument,
-  BlogSchema,
-} from '../../../../../libs/db/mongoose/schemes/blog.entity';
+import { BlogDocument } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { Model } from 'mongoose';
 import {
   BannedUserByBlogger,
@@ -37,7 +34,6 @@ export class BanUserBloggerApiUseCase
   implements ICommandHandler<BanUserBloggerApiCommand, void>
 {
   constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(BannedUserByBloggerSchema.name)
     private BannedUserByBloggerModel: Model<BannedUserByBloggerSchema>,
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,

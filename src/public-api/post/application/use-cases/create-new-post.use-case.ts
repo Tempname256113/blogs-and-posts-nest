@@ -5,10 +5,7 @@ import {
   PostDocument,
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import {
-  BlogDocument,
-  BlogSchema,
-} from '../../../../../libs/db/mongoose/schemes/blog.entity';
+import { BlogDocument } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -24,7 +21,6 @@ export class CreateNewPostUseCase
   implements ICommandHandler<CreateNewPostCommand, Post>
 {
   constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private postRepository: PostRepository,
     private blogQueryRepository: BlogPublicQueryRepository,

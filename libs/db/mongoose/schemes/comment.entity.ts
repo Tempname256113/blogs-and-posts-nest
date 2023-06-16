@@ -1,15 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export class Comment {
+export type Comment = {
   id: string;
   postId: string;
+  blogId: string;
   userId: string;
   userLogin: string;
   content: string;
   createdAt: string;
   hidden?: boolean;
-}
+};
 
 @Schema({ versionKey: false, collection: 'comments' })
 export class CommentSchema implements Comment {
@@ -18,6 +19,9 @@ export class CommentSchema implements Comment {
 
   @Prop()
   postId: string;
+
+  @Prop()
+  blogId: string;
 
   @Prop()
   userId: string;

@@ -1,18 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  CommentDocument,
-  CommentSchema,
-} from '../../../../../libs/db/mongoose/schemes/comment.entity';
+import { CommentDocument } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import {
   ForbiddenException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { CommentRepository } from '../../infrastructure/repositories/comment.repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
+import { CommentQueryRepository } from '../../infrastructure/repositories/comment.query-repository';
 
 export class UpdateCommentCommand {
   constructor(
@@ -29,7 +25,7 @@ export class UpdateCommentUseCase
   implements ICommandHandler<UpdateCommentCommand, void>
 {
   constructor(
-    @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
+    private commentQueryRepository: CommentQueryRepository,
     private commentRepository: CommentRepository,
     private jwtHelpers: JwtUtils,
   ) {}
@@ -42,9 +38,7 @@ export class UpdateCommentUseCase
     if (!accessTokenPayload) throw new UnauthorizedException();
     const userId = accessTokenPayload.userId;
     const foundedComment: CommentDocument | null =
-      await this.CommentModel.findOne({
-        id: commentId,
-      });
+      await this.commentQueryRepository.getCommentDocumentById(commentId);
     if (!foundedComment) {
       throw new NotFoundException();
     }

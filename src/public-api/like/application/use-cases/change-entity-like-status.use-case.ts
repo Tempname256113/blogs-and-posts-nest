@@ -11,6 +11,7 @@ export class ChangeEntityLikeStatusCommand {
     public readonly data: {
       entity: 'post' | 'comment';
       entityId: string;
+      blogId: string;
       userId: string;
       userLogin: string;
       likeStatus: 'Like' | 'Dislike' | 'None';
@@ -27,12 +28,13 @@ export class ChangeEntityLikeStatusUseCase
   ) {}
 
   async execute({
-    data: { entity, entityId, userId, userLogin, likeStatus },
+    data: { entity, entityId, blogId, userId, userLogin, likeStatus },
   }: ChangeEntityLikeStatusCommand): Promise<void> {
     const createReaction = (): LikeDocument => {
       const newReaction: LikeDocument = new this.LikeModel({
         entity,
         entityId,
+        blogId,
         userId,
         userLogin,
         likeStatus,

@@ -18,6 +18,7 @@ export class CommentRepository {
   async deleteComment(commentId: string): Promise<boolean> {
     const deleteCommentResult = await this.CommentModel.deleteOne({
       id: commentId,
+      hidden: false,
     });
     return deleteCommentResult.deletedCount > 0;
   }

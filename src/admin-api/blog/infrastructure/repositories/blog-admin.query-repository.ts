@@ -29,7 +29,7 @@ export class BlogAdminQueryRepository {
         let filter: FilterQuery<BlogSchema>;
         const getCorrectBlogsFilter = (): void => {
           if (!rawPaginationQuery.searchNameTerm) {
-            filter = {};
+            filter = { hidden: false };
           } else {
             filter = {
               name: {

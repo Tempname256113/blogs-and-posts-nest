@@ -1,10 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
 import { PostViewModel } from '../../../../public-api/post/api/models/post-api.models';
-import {
-  BlogDocument,
-  BlogSchema,
-} from '../../../../../libs/db/mongoose/schemes/blog.entity';
+import { BlogDocument } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import {
   ForbiddenException,
   NotFoundException,
@@ -20,7 +17,6 @@ import { Model } from 'mongoose';
 import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { BlogPublicQueryRepository } from '../../../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
 
 export class CreatePostByBlogCommand {
@@ -38,7 +34,6 @@ export class CreatePostByBlogUseCase
   implements ICommandHandler<CreatePostByBlogCommand, PostViewModel>
 {
   constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private blogRepository: BlogRepository,
     private blogQueryRepository: BlogBloggerQueryRepository,

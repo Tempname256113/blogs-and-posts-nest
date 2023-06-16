@@ -5,10 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import {
-  BlogDocument,
-  BlogSchema,
-} from '../../../../../libs/db/mongoose/schemes/blog.entity';
+import { BlogDocument } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import {
   PostDocument,
   PostSchema,
@@ -33,7 +30,6 @@ export class DeletePostByBlogIdUseCase
   implements ICommandHandler<DeletePostByBlogIdCommand, void>
 {
   constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private jwtHelpers: JwtUtils,
     private blogQueryRepository: BlogBloggerQueryRepository,

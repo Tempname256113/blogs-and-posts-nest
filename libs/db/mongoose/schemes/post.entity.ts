@@ -56,6 +56,7 @@ export class PostSchema implements Post {
     const newComment: Comment = {
       id: uuidv4(),
       postId: this.id,
+      blogId: this.blogId,
       userId,
       userLogin,
       content,

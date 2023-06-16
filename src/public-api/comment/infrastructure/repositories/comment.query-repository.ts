@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Comment,
+  CommentDocument,
   CommentSchema,
 } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { FilterQuery, Model } from 'mongoose';
@@ -151,5 +152,15 @@ export class CommentQueryRepository {
       },
     };
     return mappedComment;
+  }
+
+  async getRawCommentById(commentId: string): Promise<Comment | null> {
+    return this.CommentModel.findOne({ id: commentId }).lean();
+  }
+
+  async getCommentDocumentById(
+    commentId: string,
+  ): Promise<CommentDocument | null> {
+    return this.CommentModel.findOne({ id: commentId });
   }
 }
