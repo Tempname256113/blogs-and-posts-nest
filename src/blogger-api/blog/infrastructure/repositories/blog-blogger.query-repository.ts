@@ -314,13 +314,13 @@ export class BlogBloggerQueryRepository {
       pageNumber: paginationQuery.pageNumber,
       sortDirection: paginationQuery.sortDirection,
     });
-    const correctCountOfComments: CommentBloggerApiViewModel[] = [];
+    const correctCountOfCommentsArray: CommentBloggerApiViewModel[] = [];
     for (
       let i = additionalPaginationData.howMuchToSkip;
       i < mappedCommentsToClient.length;
       i++
     ) {
-      correctCountOfComments.push(mappedCommentsToClient[i]);
+      correctCountOfCommentsArray.push(mappedCommentsToClient[i]);
       if (
         i ===
         additionalPaginationData.howMuchToSkip + paginationQuery.pageSize - 1
@@ -328,15 +328,17 @@ export class BlogBloggerQueryRepository {
         break;
       }
     }
-    correctCountOfComments.sort((a, b) => {
-      return a.createdAt.localeCompare(b.createdAt);
+    correctCountOfCommentsArray.sort((a, b) => {
+      if (a.createdAt > b.createdAt) {
+        return 1;
+      }
     });
     const paginationResult: CommentBloggerApiPaginationViewModel = {
       pagesCount: additionalPaginationData.pagesCount,
       page: paginationQuery.pageNumber,
       pageSize: paginationQuery.pageSize,
       totalCount: allCommentsCount,
-      items: correctCountOfComments,
+      items: correctCountOfCommentsArray,
     };
     return paginationResult;
   }
