@@ -270,27 +270,40 @@ export class BlogBloggerQueryRepository {
         postId: post.id,
         hidden: false,
       }).lean();
-      const mappedComments: CommentBloggerApiViewModel[] = foundedComments.map(
-        (comment) => {
-          const mappedComment: CommentBloggerApiViewModel = {
-            id: comment.id,
-            content: comment.content,
-            commentatorInfo: {
-              userId: comment.userId,
-              userLogin: comment.userLogin,
-            },
-            createdAt: comment.createdAt,
-            postInfo: {
-              id: post.id,
-              title: post.title,
-              blogId: post.blogId,
-              blogName: post.blogName,
-            },
-          };
-          return mappedComment;
-        },
-      );
-      mappedCommentsToClient.push(...mappedComments);
+      for (const comment of foundedComments) {
+        const likesCount: { likesCount: number; dislikesCount: number } =
+          await this.likeQueryRepository.getEntityLikesCount(comment.id);
+        const userLikeStatus: 'None' | 'Like' | 'Dislike' =
+          await this.likeQueryRepository.getUserLikeStatus({
+            userId,
+            entityId: comment.id,
+          });
+        const mappedComments: CommentBloggerApiViewModel[] =
+          foundedComments.map((comment) => {
+            const mappedComment: CommentBloggerApiViewModel = {
+              id: comment.id,
+              content: comment.content,
+              commentatorInfo: {
+                userId: comment.userId,
+                userLogin: comment.userLogin,
+              },
+              createdAt: comment.createdAt,
+              postInfo: {
+                id: post.id,
+                title: post.title,
+                blogId: post.blogId,
+                blogName: post.blogName,
+              },
+              likesInfo: {
+                likesCount: likesCount.likesCount,
+                dislikesCount: likesCount.dislikesCount,
+                myStatus: userLikeStatus,
+              },
+            };
+            return mappedComment;
+          });
+        mappedCommentsToClient.push(...mappedComments);
+      }
     }
     const allCommentsCount: number = mappedCommentsToClient.length;
     const additionalPaginationData: PaginationUtilsType = getPaginationUtils({
@@ -350,6 +363,13 @@ export class BlogBloggerQueryRepository {
       pageNumber: paginationQuery.pageNumber,
       totalDocumentsCount: allBannedUsersForBlogQuantity,
     });
+    let sortDir: 1 | -1 = -1;
+    if (paginationQuery.sortDirection === 'asc') sortDir = 1;
+    if (paginationQuery.sortDirection === 'desc') sortDir = -1;
+    let sortQuery: any;
+    if (paginationQuery.sortBy === 'login') {
+      sortQuery = { userLogin: sortDir };
+    }
     const allBannedUsersForBlog: BannedUserByBlogger[] =
       await this.BannedUserByBloggerModel.find(
         filter,
@@ -357,7 +377,7 @@ export class BlogBloggerQueryRepository {
         {
           limit: paginationQuery.pageSize,
           skip: paginationUtils.howMuchToSkip,
-          sort: paginationUtils.sortQuery,
+          sort: sortQuery,
         },
       );
     const mappedBannedUsersForBlog: BannedUserBloggerApiViewModel[] =
@@ -374,10 +394,10 @@ export class BlogBloggerQueryRepository {
         return mappedUser;
       });
     const paginationResult: BannedUserBloggerApiPaginationViewModel = {
-      pagesCount: paginationUtils.pagesCount,
-      page: paginationQuery.pageNumber,
-      pageSize: paginationQuery.pageSize,
-      totalCount: allBannedUsersForBlogQuantity,
+      pagesCount: Number(paginationUtils.pagesCount),
+      page: Number(paginationQuery.pageNumber),
+      pageSize: Number(paginationQuery.pageSize),
+      totalCount: Number(allBannedUsersForBlogQuantity),
       items: mappedBannedUsersForBlog,
     };
     return paginationResult;
