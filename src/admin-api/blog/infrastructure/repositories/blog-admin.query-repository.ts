@@ -29,14 +29,13 @@ export class BlogAdminQueryRepository {
         let filter: FilterQuery<BlogSchema>;
         const getCorrectBlogsFilter = (): void => {
           if (!rawPaginationQuery.searchNameTerm) {
-            filter = { hidden: false };
+            filter = {};
           } else {
             filter = {
               name: {
                 $regex: rawPaginationQuery.searchNameTerm,
                 $options: 'i',
               },
-              hidden: false,
             };
           }
         };
