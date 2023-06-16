@@ -157,6 +157,7 @@ export class BlogBloggerController {
       await this.blogQueryRepository.getAllBannedUsersForBlog({
         paginationQuery,
         blogId,
+        accessToken,
       });
     return bannedUsersForBlogWithPagination;
   }

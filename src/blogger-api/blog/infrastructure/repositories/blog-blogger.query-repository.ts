@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -61,7 +62,7 @@ export class BlogBloggerQueryRepository {
     @InjectModel(BannedUserByBloggerSchema.name)
     private BannedUserByBloggerModel: Model<BannedUserByBloggerSchema>,
     private likeQueryRepository: LikeQueryRepository,
-    private jwtHelpers: JwtUtils,
+    private jwtUtils: JwtUtils,
   ) {}
 
   async getBlogsWithPagination({
@@ -72,7 +73,7 @@ export class BlogBloggerQueryRepository {
     accessToken: string;
   }): Promise<BlogBloggerApiPaginationViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const bloggerId: string = accessTokenPayload.userId;
     const blogsWithPagination =
@@ -164,7 +165,7 @@ export class BlogBloggerQueryRepository {
         return null;
       } else {
         const accessTokenPayload: JwtAccessTokenPayloadType | null =
-          this.jwtHelpers.verifyAccessToken(accessToken);
+          this.jwtUtils.verifyAccessToken(accessToken);
         if (!accessToken) {
           return null;
         } else {
@@ -257,7 +258,7 @@ export class BlogBloggerQueryRepository {
     accessToken: string;
   }): Promise<CommentBloggerApiPaginationViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const userId: string = accessTokenPayload.userId;
     const foundedPosts: Post[] = await this.PostModel.find({
@@ -343,10 +344,30 @@ export class BlogBloggerQueryRepository {
   async getAllBannedUsersForBlog({
     paginationQuery,
     blogId,
+    accessToken,
   }: {
     paginationQuery: BannedUsersBloggerApiPaginationQueryDTO;
     blogId: string;
+    accessToken: string;
   }): Promise<BannedUserBloggerApiPaginationViewModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtUtils.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) {
+      throw new UnauthorizedException();
+    }
+    const checkBlogOwner = async () => {
+      const foundedBlog: Blog | null = await this.BlogModel.findOne({
+        id: blogId,
+        hidden: false,
+      });
+      if (!foundedBlog) {
+        throw new NotFoundException();
+      }
+      if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
+        throw new ForbiddenException();
+      }
+    };
+    await checkBlogOwner();
     const filter: FilterQuery<BannedUserByBloggerSchema> = { blogId };
     if (paginationQuery.searchLoginTerm) {
       filter.userLogin = {
