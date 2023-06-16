@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { PostApiPaginationQueryDTO } from '../../post/api/models/post-api.query-dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
-import { PostApiPaginationModelType } from '../../post/api/models/post-api.models';
+import { PostPaginationViewModel } from '../../post/api/models/post-api.models';
 import { BlogPublicQueryRepository } from '../infrastructure/repositories/blog-public.query-repository';
 import {
   BlogPublicApiModel,
@@ -47,14 +47,14 @@ export class BlogPublicController {
     rawPaginationQuery: PostApiPaginationQueryDTO,
     @Param('blogId') blogId: string,
     @AccessToken() accessToken: string | null,
-  ): Promise<PostApiPaginationModelType> {
+  ): Promise<PostPaginationViewModel> {
     const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const foundedPostsByBlogId: PostApiPaginationModelType =
+    const foundedPostsByBlogId: PostPaginationViewModel =
       await this.blogQueryRepository.getPostsWithPaginationByBlogId({
         rawPaginationQuery: paginationQuery,
         blogId,

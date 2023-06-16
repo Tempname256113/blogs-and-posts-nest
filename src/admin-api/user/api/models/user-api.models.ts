@@ -1,4 +1,4 @@
-export type UserApiModel = {
+export type UserViewModel = {
   id: string;
   login: string;
   email: string;
@@ -10,10 +10,10 @@ export type UserApiModel = {
   };
 };
 
-export type UserApiPaginationModel = {
+export type UserPaginationViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: UserApiModel[];
+  items: UserViewModel[];
 };

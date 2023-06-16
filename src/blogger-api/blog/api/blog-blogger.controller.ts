@@ -22,7 +22,7 @@ import {
   CommentBloggerApiPaginationViewModel,
   BannedUserBloggerApiPaginationViewModel,
 } from './models/blog-blogger-api.models';
-import { PostApiModel } from '../../../public-api/post/api/models/post-api.models';
+import { PostViewModel } from '../../../public-api/post/api/models/post-api.models';
 import {
   BannedUsersBloggerApiPaginationQueryDTO,
   BlogBloggerApiPaginationQueryDTO,
@@ -74,16 +74,16 @@ export class BlogBloggerController {
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: PostCreateUpdateBloggerApiDTO,
     @AccessToken() accessToken: string | null,
-  ): Promise<PostApiModel> {
+  ): Promise<PostViewModel> {
     const mappedCreatePostDTO: PostApiCreateUpdateDTO = {
       title: postCreateDTO.title,
       shortDescription: postCreateDTO.shortDescription,
       content: postCreateDTO.content,
       blogId,
     };
-    const createdPost: PostApiModel = await this.commandBus.execute<
+    const createdPost: PostViewModel = await this.commandBus.execute<
       CreatePostByBlogCommand,
-      PostApiModel
+      PostViewModel
     >(
       new CreatePostByBlogCommand({
         blogId,

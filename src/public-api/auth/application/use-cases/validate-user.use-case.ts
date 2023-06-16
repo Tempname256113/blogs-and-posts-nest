@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { AuthApiLoginDtoType } from '../../api/models/auth-api.dto';
+import { LoginUserDTO } from '../../api/models/auth-api.dto';
 import {
   User,
   UserSchema,
@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 export class ValidateUserCommand {
-  constructor(public readonly loginDTO: AuthApiLoginDtoType) {}
+  constructor(public readonly loginDTO: LoginUserDTO) {}
 }
 
 @CommandHandler(ValidateUserCommand)

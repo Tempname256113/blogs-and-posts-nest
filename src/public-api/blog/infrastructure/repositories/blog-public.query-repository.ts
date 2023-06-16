@@ -11,8 +11,8 @@ import {
   PostSchema,
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import {
-  PostApiModel,
-  PostApiPaginationModelType,
+  PostViewModel,
+  PostPaginationViewModel,
   PostNewestLikeType,
 } from '../../../post/api/models/post-api.models';
 import { PostApiPaginationQueryDTO } from '../../../post/api/models/post-api.query-dto';
@@ -111,7 +111,7 @@ export class BlogPublicQueryRepository {
     rawPaginationQuery: PostApiPaginationQueryDTO;
     blogId: string;
     accessToken: string | null;
-  }): Promise<PostApiPaginationModelType> {
+  }): Promise<PostPaginationViewModel> {
     const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
@@ -132,7 +132,7 @@ export class BlogPublicQueryRepository {
     }).lean();
     if (!foundedBlog) throw new NotFoundException();
     const getPostsWithPagination =
-      async (): Promise<PostApiPaginationModelType> => {
+      async (): Promise<PostPaginationViewModel> => {
         const filter: FilterQuery<PostSchema> = { blogId, hidden: false };
         const totalPostsCount: number = await this.PostModel.countDocuments(
           filter,
@@ -153,7 +153,7 @@ export class BlogPublicQueryRepository {
             sort: paginationHelpers.sortQuery,
           },
         ).lean();
-        const mappedPosts: PostApiModel[] = [];
+        const mappedPosts: PostViewModel[] = [];
         for (const postDocument of foundedPosts) {
           const countOfReactions: EntityLikesCountType =
             await this.likeQueryRepository.getEntityLikesCount(postDocument.id);
@@ -173,7 +173,7 @@ export class BlogPublicQueryRepository {
             };
             mappedNewestLikes.push(mappedLike);
           }
-          const resultPost: PostApiModel = {
+          const resultPost: PostViewModel = {
             id: postDocument.id,
             title: postDocument.title,
             shortDescription: postDocument.shortDescription,
@@ -190,7 +190,7 @@ export class BlogPublicQueryRepository {
           };
           mappedPosts.push(resultPost);
         }
-        const resultPostsPagination: PostApiPaginationModelType = {
+        const resultPostsPagination: PostPaginationViewModel = {
           pagesCount: paginationHelpers.pagesCount,
           page: rawPaginationQuery.pageNumber,
           pageSize: rawPaginationQuery.pageSize,

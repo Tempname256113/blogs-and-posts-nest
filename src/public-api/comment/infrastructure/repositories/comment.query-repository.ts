@@ -11,8 +11,8 @@ import {
   PaginationUtilsType,
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import {
-  CommentApiModel,
-  CommentApiPaginationModel,
+  CommentViewModel,
+  CommentPaginationViewModel,
 } from '../../api/models/comment-api.models';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
@@ -35,7 +35,7 @@ export class CommentQueryRepository {
     paginationQuery: CommentApiPaginationQueryDto;
     postId: string;
     accessToken: string | null;
-  }): Promise<CommentApiPaginationModel> {
+  }): Promise<CommentPaginationViewModel> {
     const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
@@ -64,7 +64,7 @@ export class CommentQueryRepository {
     const foundedComments: Comment[] = await this.CommentModel.find(
       filter,
     ).lean();
-    const arrayWithMappedComments: CommentApiModel[] = [];
+    const arrayWithMappedComments: CommentViewModel[] = [];
     for (const commentDocument of foundedComments) {
       const commentReactionsCount: {
         likesCount: number;
@@ -77,7 +77,7 @@ export class CommentQueryRepository {
           userId,
           entityId: commentDocument.id,
         });
-      const mappedComment: CommentApiModel = {
+      const mappedComment: CommentViewModel = {
         id: commentDocument.id,
         content: commentDocument.content,
         commentatorInfo: {
@@ -93,7 +93,7 @@ export class CommentQueryRepository {
       };
       arrayWithMappedComments.push(mappedComment);
     }
-    const paginationResult: CommentApiPaginationModel = {
+    const paginationResult: CommentPaginationViewModel = {
       pagesCount: additionalPaginationData.pagesCount,
       page: paginationQuery.pageNumber,
       pageSize: paginationQuery.pageSize,
@@ -109,7 +109,7 @@ export class CommentQueryRepository {
   }: {
     commentId: string;
     accessToken: string | null;
-  }): Promise<CommentApiModel> {
+  }): Promise<CommentViewModel> {
     const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
@@ -136,7 +136,7 @@ export class CommentQueryRepository {
         userId,
         entityId: commentId,
       });
-    const mappedComment: CommentApiModel = {
+    const mappedComment: CommentViewModel = {
       id: foundedComment.id,
       content: foundedComment.content,
       commentatorInfo: {

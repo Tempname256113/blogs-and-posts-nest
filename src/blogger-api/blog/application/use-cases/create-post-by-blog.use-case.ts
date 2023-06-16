@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
-import { PostApiModel } from '../../../../public-api/post/api/models/post-api.models';
+import { PostViewModel } from '../../../../public-api/post/api/models/post-api.models';
 import {
   BlogDocument,
   BlogSchema,
@@ -35,7 +35,7 @@ export class CreatePostByBlogCommand {
 
 @CommandHandler(CreatePostByBlogCommand)
 export class CreatePostByBlogUseCase
-  implements ICommandHandler<CreatePostByBlogCommand, PostApiModel>
+  implements ICommandHandler<CreatePostByBlogCommand, PostViewModel>
 {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
@@ -47,7 +47,7 @@ export class CreatePostByBlogUseCase
 
   async execute({
     data: { blogId, createPostDTO, accessToken },
-  }: CreatePostByBlogCommand): Promise<PostApiModel> {
+  }: CreatePostByBlogCommand): Promise<PostViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
@@ -60,7 +60,7 @@ export class CreatePostByBlogUseCase
     const newCreatedPost: Post = foundedBlog.createPost(createPostDTO);
     const newPostModel: PostDocument = new this.PostModel(newCreatedPost);
     await this.blogRepository.saveBlogOrPost(newPostModel);
-    const mappedNewPost: PostApiModel = {
+    const mappedNewPost: PostViewModel = {
       id: newCreatedPost.id,
       title: newCreatedPost.title,
       shortDescription: newCreatedPost.shortDescription,

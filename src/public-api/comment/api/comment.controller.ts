@@ -9,7 +9,7 @@ import {
   Put,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CommentApiModel } from './models/comment-api.models';
+import { CommentViewModel } from './models/comment-api.models';
 import { CommentQueryRepository } from '../infrastructure/repositories/comment.query-repository';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommentApiUpdateDTO } from './models/comment-api.dto';
@@ -30,8 +30,8 @@ export class CommentController {
   async getCommentById(
     @Param('commentId') commentId: string,
     @AccessToken() accessToken: string | null,
-  ): Promise<CommentApiModel> {
-    const foundedComment: CommentApiModel =
+  ): Promise<CommentViewModel> {
+    const foundedComment: CommentViewModel =
       await this.commentQueryRepository.getCommentById({
         commentId,
         accessToken,

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserApiCreateDto } from '../../api/models/user-api.dto';
-import { UserApiModel } from '../../api/models/user-api.models';
+import { UserViewModel } from '../../api/models/user-api.models';
 import { hashSync } from 'bcrypt';
 import {
   User,
@@ -18,14 +18,14 @@ export class CreateUserCommand {
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase
-  implements ICommandHandler<CreateUserCommand, UserApiModel>
+  implements ICommandHandler<CreateUserCommand, UserViewModel>
 {
   constructor(
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     private userRepository: UserRepository,
   ) {}
 
-  async execute({ createUserDTO }: CreateUserCommand): Promise<UserApiModel> {
+  async execute({ createUserDTO }: CreateUserCommand): Promise<UserViewModel> {
     const passwordHash: string = hashSync(createUserDTO.password, 10);
     const newUser: User = {
       id: uuidv4(),
@@ -50,7 +50,7 @@ export class CreateUserUseCase
         banDate: null,
       },
     };
-    const userApiModel: UserApiModel = {
+    const userApiModel: UserViewModel = {
       id: newUser.id,
       login: newUser.accountData.login,
       email: newUser.accountData.email,

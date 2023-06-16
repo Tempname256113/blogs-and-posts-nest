@@ -12,7 +12,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserBanUnbanDTO, UserApiCreateDto } from './models/user-api.dto';
-import { UserApiModel, UserApiPaginationModel } from './models/user-api.models';
+import {
+  UserViewModel,
+  UserPaginationViewModel,
+} from './models/user-api.models';
 import { UserQueryRepository } from '../infrastructure/repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from './models/user-api.query-dto';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
@@ -32,10 +35,10 @@ export class UserAdminController {
   @HttpCode(HttpStatus.CREATED)
   async createUser(
     @Body() createUserDTO: UserApiCreateDto,
-  ): Promise<UserApiModel> {
-    const createdUser: UserApiModel = await this.commandBus.execute<
+  ): Promise<UserViewModel> {
+    const createdUser: UserViewModel = await this.commandBus.execute<
       CreateUserCommand,
-      UserApiModel
+      UserViewModel
     >(new CreateUserCommand(createUserDTO));
     return createdUser;
   }
@@ -57,7 +60,7 @@ export class UserAdminController {
   @HttpCode(HttpStatus.OK)
   async getUsersWithPagination(
     @Query() rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<UserApiPaginationModel> {
+  ): Promise<UserPaginationViewModel> {
     const paginationQuery: IUserApiPaginationQueryDto = {
       searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
       searchEmailTerm: rawPaginationQuery.searchEmailTerm ?? null,
@@ -67,7 +70,7 @@ export class UserAdminController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
       banStatus: rawPaginationQuery.banStatus ?? 'all',
     };
-    const usersWithPagination: UserApiPaginationModel =
+    const usersWithPagination: UserPaginationViewModel =
       await this.userQueryRepository.getUsersWithPagination(paginationQuery);
     return usersWithPagination;
   }

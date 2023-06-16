@@ -1,4 +1,4 @@
-export type PostApiModel = {
+export type PostViewModel = {
   id: string;
   title: string;
   shortDescription: string;
@@ -20,10 +20,10 @@ export type PostNewestLikeType = {
   login: string;
 };
 
-export type PostApiPaginationModelType = {
+export type PostPaginationViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: PostApiModel[];
+  items: PostViewModel[];
 };

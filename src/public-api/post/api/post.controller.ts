@@ -15,15 +15,15 @@ import {
 import { PostApiCreateUpdateDTO } from './models/post-api.dto';
 import { PostPublicQueryRepository } from '../infrastructure/repositories/post.query-repository';
 import {
-  PostApiModel,
-  PostApiPaginationModelType,
+  PostViewModel,
+  PostPaginationViewModel,
 } from './models/post-api.models';
 import { PostApiPaginationQueryDTO } from './models/post-api.query-dto';
 import { Post as PostType } from '../../../../libs/db/mongoose/schemes/post.entity';
 import { CommentApiCreateDto } from '../../comment/api/models/comment-api.dto';
 import {
-  CommentApiModel,
-  CommentApiPaginationModel,
+  CommentViewModel,
+  CommentPaginationViewModel,
 } from '../../comment/api/models/comment-api.models';
 import { CommentApiPaginationQueryDto } from '../../comment/api/models/comment-api.query-dto';
 import { CommentQueryRepository } from '../../comment/infrastructure/repositories/comment.query-repository';
@@ -77,14 +77,14 @@ export class PostController {
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTO,
     @AccessToken() accessToken: string | null,
-  ): Promise<PostApiPaginationModelType> {
+  ): Promise<PostPaginationViewModel> {
     const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const postsWithPagination: PostApiPaginationModelType =
+    const postsWithPagination: PostPaginationViewModel =
       await this.postQueryRepository.getPostsWithPagination({
         rawPaginationQuery: paginationQuery,
         accessToken,
@@ -97,8 +97,8 @@ export class PostController {
   async getPostById(
     @Param('postId') postId: string,
     @AccessToken() accessToken: string | null,
-  ): Promise<PostApiModel> {
-    const foundedPost: PostApiModel | null =
+  ): Promise<PostViewModel> {
+    const foundedPost: PostViewModel | null =
       await this.postQueryRepository.getPostById(postId, accessToken);
     return foundedPost;
   }
@@ -109,11 +109,11 @@ export class PostController {
     @AccessToken() accessToken: string,
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
-  ): Promise<CommentApiModel> {
+  ): Promise<CommentViewModel> {
     if (!accessToken) throw new UnauthorizedException();
-    const newComment: CommentApiModel = await this.commandBus.execute<
+    const newComment: CommentViewModel = await this.commandBus.execute<
       CreateNewCommentCommand,
-      CommentApiModel
+      CommentViewModel
     >(
       new CreateNewCommentCommand({
         postId,
@@ -131,17 +131,17 @@ export class PostController {
     @Query()
     rawPaginationQuery: CommentApiPaginationQueryDto,
     @AccessToken() accessToken: string | null,
-  ): Promise<CommentApiPaginationModel> {
+  ): Promise<CommentPaginationViewModel> {
     const paginationQuery: CommentApiPaginationQueryDto = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const foundedPost: PostApiModel | null =
+    const foundedPost: PostViewModel | null =
       await this.postQueryRepository.getPostById(postId, null);
     if (!foundedPost) throw new NotFoundException();
-    const commentsWithPagination: CommentApiPaginationModel =
+    const commentsWithPagination: CommentPaginationViewModel =
       await this.commentQueryRepository.getCommentsWithPaginationByPostId({
         paginationQuery,
         postId,

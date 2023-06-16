@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentApiModel } from '../../../comment/api/models/comment-api.models';
+import { CommentViewModel } from '../../../comment/api/models/comment-api.models';
 import {
   PostDocument,
   PostSchema,
@@ -37,7 +37,7 @@ export class CreateNewCommentCommand {
 
 @CommandHandler(CreateNewCommentCommand)
 export class CreateNewCommentUseCase
-  implements ICommandHandler<CreateNewCommentCommand, CommentApiModel>
+  implements ICommandHandler<CreateNewCommentCommand, CommentViewModel>
 {
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
@@ -51,7 +51,7 @@ export class CreateNewCommentUseCase
 
   async execute({
     data: { accessToken, content, postId },
-  }: CreateNewCommentCommand): Promise<CommentApiModel> {
+  }: CreateNewCommentCommand): Promise<CommentViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.getAccessTokenPayload(accessToken);
     const userId = accessTokenPayload.userId;
@@ -67,7 +67,7 @@ export class CreateNewCommentUseCase
     });
     const newCommentModel: CommentDocument = new this.CommentModel(newComment);
     await this.commentRepository.saveComment(newCommentModel);
-    const mappedComment: CommentApiModel = {
+    const mappedComment: CommentViewModel = {
       id: newComment.id,
       content: newComment.content,
       commentatorInfo: {

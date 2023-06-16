@@ -7,8 +7,8 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { FilterQuery, Model } from 'mongoose';
 import {
-  PostApiModel,
-  PostApiPaginationModelType,
+  PostViewModel,
+  PostPaginationViewModel,
   PostNewestLikeType,
 } from '../../api/models/post-api.models';
 import { PostApiPaginationQueryDTO } from '../../api/models/post-api.query-dto';
@@ -32,7 +32,7 @@ export class PostPublicQueryRepository {
   async getPostById(
     postId: string,
     accessToken: string | null,
-  ): Promise<PostApiModel | null> {
+  ): Promise<PostViewModel | null> {
     const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
@@ -71,7 +71,7 @@ export class PostPublicQueryRepository {
       };
       newestLikesArray.push(mappedLike);
     }
-    const postToClient: PostApiModel = {
+    const postToClient: PostViewModel = {
       id: foundedPost.id,
       title: foundedPost.title,
       shortDescription: foundedPost.shortDescription,
@@ -95,7 +95,7 @@ export class PostPublicQueryRepository {
   }: {
     rawPaginationQuery: PostApiPaginationQueryDTO;
     accessToken: string | null;
-  }): Promise<PostApiPaginationModelType> {
+  }): Promise<PostPaginationViewModel> {
     const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
@@ -111,7 +111,7 @@ export class PostPublicQueryRepository {
     };
     const userId: string | null = getUserId();
     const getPostsWithPagination =
-      async (): Promise<PostApiPaginationModelType> => {
+      async (): Promise<PostPaginationViewModel> => {
         const filter: FilterQuery<PostSchema> = { hidden: false };
         const totalPostsCount: number = await this.PostModel.countDocuments(
           filter,
@@ -132,7 +132,7 @@ export class PostPublicQueryRepository {
             sort: paginationHelpers.sortQuery,
           },
         ).lean();
-        const mappedPosts: PostApiModel[] = [];
+        const mappedPosts: PostViewModel[] = [];
         for (const postDocument of foundedPosts) {
           const countOfReactions: EntityLikesCountType =
             await this.likeQueryRepository.getEntityLikesCount(postDocument.id);
@@ -152,7 +152,7 @@ export class PostPublicQueryRepository {
             };
             mappedNewestLikes.push(mappedLike);
           }
-          const resultPost: PostApiModel = {
+          const resultPost: PostViewModel = {
             id: postDocument.id,
             title: postDocument.title,
             shortDescription: postDocument.shortDescription,
@@ -169,7 +169,7 @@ export class PostPublicQueryRepository {
           };
           mappedPosts.push(resultPost);
         }
-        const resultPostsPagination: PostApiPaginationModelType = {
+        const resultPostsPagination: PostPaginationViewModel = {
           pagesCount: paginationHelpers.pagesCount,
           page: rawPaginationQuery.pageNumber,
           pageSize: rawPaginationQuery.pageSize,

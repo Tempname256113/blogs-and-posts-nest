@@ -7,8 +7,8 @@ import {
 import { FilterQuery, Model } from 'mongoose';
 import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import {
-  UserApiModel,
-  UserApiPaginationModel,
+  UserViewModel,
+  UserPaginationViewModel,
 } from '../../api/models/user-api.models';
 import {
   getPaginationUtils,
@@ -26,7 +26,7 @@ export class UserQueryRepository {
   ) {}
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<UserApiPaginationModel> {
+  ): Promise<UserPaginationViewModel> {
     let correctSortBy: string = rawPaginationQuery.sortBy;
     switch (rawPaginationQuery.sortBy) {
       case 'login':
@@ -92,8 +92,8 @@ export class UserQueryRepository {
         sort: additionalPaginationData.sortQuery,
       },
     ).lean();
-    const mappedUsers: UserApiModel[] = foundedUsers.map((rawUser) => {
-      const mappedUser: UserApiModel = {
+    const mappedUsers: UserViewModel[] = foundedUsers.map((rawUser) => {
+      const mappedUser: UserViewModel = {
         id: rawUser.id,
         login: rawUser.accountData.login,
         email: rawUser.accountData.email,
@@ -106,7 +106,7 @@ export class UserQueryRepository {
       };
       return mappedUser;
     });
-    const usersPaginationResult: UserApiPaginationModel = {
+    const usersPaginationResult: UserPaginationViewModel = {
       pagesCount: Number(additionalPaginationData.pagesCount),
       page: Number(rawPaginationQuery.pageNumber),
       pageSize: Number(rawPaginationQuery.pageSize),

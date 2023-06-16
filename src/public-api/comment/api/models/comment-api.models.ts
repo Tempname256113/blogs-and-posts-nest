@@ -1,4 +1,4 @@
-export type CommentApiModel = {
+export type CommentViewModel = {
   id: string;
   content: string;
   commentatorInfo: {
@@ -13,10 +13,10 @@ export type CommentApiModel = {
   };
 };
 
-export type CommentApiPaginationModel = {
+export type CommentPaginationViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: CommentApiModel[];
+  items: CommentViewModel[];
 };
