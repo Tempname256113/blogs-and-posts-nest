@@ -110,7 +110,7 @@ export class BanUserBloggerApiUseCase
       id: bannedUserId,
     }).lean();
     if (!foundedUserForBan) {
-      return;
+      throw new NotFoundException();
     }
     if (foundedBannedByBloggerUser) {
       return;
