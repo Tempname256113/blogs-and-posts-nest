@@ -20,6 +20,7 @@ import { DeleteBlogUseCase } from '../../blogger-api/blog/application/use-cases/
 import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
 import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';
 import { BanUserBloggerApiUseCase } from '../../blogger-api/blog/application/use-cases/ban-user.blogger-api.use-case';
+import { BanUnbanBlogUseCase } from '../../admin-api/blog/application/use-cases/ban-unban-blog.use-case';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -30,6 +31,7 @@ const UseCases = [
   DeletePostByBlogIdUseCase,
   BindBlogWithUserUseCase,
   BanUserBloggerApiUseCase,
+  BanUnbanBlogUseCase,
 ];
 
 @Module({

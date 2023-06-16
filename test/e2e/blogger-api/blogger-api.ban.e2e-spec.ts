@@ -99,6 +99,10 @@ describe('blogger api ban functionality tests', () => {
     await createPost();
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   const createCommentWithResponseCheck = async (user: UserTestType) => {
     const response: Response = await createCommentTestFactoryFunction({
       httpServer,
