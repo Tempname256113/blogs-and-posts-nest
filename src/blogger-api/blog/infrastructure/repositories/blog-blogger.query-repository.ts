@@ -314,9 +314,6 @@ export class BlogBloggerQueryRepository {
       pageNumber: paginationQuery.pageNumber,
       sortDirection: paginationQuery.sortDirection,
     });
-    mappedCommentsToClient.sort((a, b) => {
-      return a.createdAt.localeCompare(b.createdAt);
-    });
     const correctCountOfComments: CommentBloggerApiViewModel[] = [];
     for (
       let i = additionalPaginationData.howMuchToSkip;
@@ -331,6 +328,9 @@ export class BlogBloggerQueryRepository {
         break;
       }
     }
+    correctCountOfComments.sort((a, b) => {
+      return a.createdAt.localeCompare(b.createdAt);
+    });
     const paginationResult: CommentBloggerApiPaginationViewModel = {
       pagesCount: additionalPaginationData.pagesCount,
       page: paginationQuery.pageNumber,
