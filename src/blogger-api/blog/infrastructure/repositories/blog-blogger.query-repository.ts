@@ -284,21 +284,21 @@ export class BlogBloggerQueryRepository {
             const mappedComment: CommentBloggerApiViewModel = {
               id: comment.id,
               content: comment.content,
+              createdAt: comment.createdAt,
               commentatorInfo: {
                 userId: comment.userId,
                 userLogin: comment.userLogin,
-              },
-              createdAt: comment.createdAt,
-              postInfo: {
-                id: post.id,
-                title: post.title,
-                blogId: post.blogId,
-                blogName: post.blogName,
               },
               likesInfo: {
                 likesCount: likesCount.likesCount,
                 dislikesCount: likesCount.dislikesCount,
                 myStatus: userLikeStatus,
+              },
+              postInfo: {
+                id: post.id,
+                title: post.title,
+                blogId: post.blogId,
+                blogName: post.blogName,
               },
             };
             return mappedComment;
