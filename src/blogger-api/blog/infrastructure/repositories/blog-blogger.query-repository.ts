@@ -316,9 +316,11 @@ export class BlogBloggerQueryRepository {
     });
     mappedCommentsToClient.sort((a, b) => {
       if (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) {
-        return -1;
-      } else {
-        return 1;
+        if (paginationQuery.sortDirection === 'desc') {
+          return -1;
+        } else if (paginationQuery.sortDirection === 'asc') {
+          return 1;
+        }
       }
     });
     const correctCountOfCommentsArray: CommentBloggerApiViewModel[] =
@@ -327,26 +329,6 @@ export class BlogBloggerQueryRepository {
         additionalPaginationData.howMuchToSkip +
           Number(paginationQuery.pageSize),
       );
-    // for (
-    //   let i = additionalPaginationData.howMuchToSkip + 3;
-    //   i < mappedCommentsToClient.length;
-    //   i++
-    // ) {
-    //   correctCountOfCommentsArray.push(mappedCommentsToClient[i]);
-    //   if (
-    //     i ===
-    //     additionalPaginationData.howMuchToSkip + paginationQuery.pageSize
-    //   ) {
-    //     break;
-    //   }
-    // }
-    // correctCountOfCommentsArray.sort((a, b) => {
-    //   if (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) {
-    //     return -1;
-    //   } else {
-    //     return 1;
-    //   }
-    // });
     const paginationResult: CommentBloggerApiPaginationViewModel = {
       pagesCount: Number(additionalPaginationData.pagesCount),
       page: Number(paginationQuery.pageNumber),
