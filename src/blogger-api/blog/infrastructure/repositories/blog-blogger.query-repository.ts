@@ -316,7 +316,7 @@ export class BlogBloggerQueryRepository {
     });
     const correctCountOfCommentsArray: CommentBloggerApiViewModel[] = [];
     for (
-      let i = additionalPaginationData.howMuchToSkip + 2;
+      let i = additionalPaginationData.howMuchToSkip + 3;
       i < mappedCommentsToClient.length;
       i++
     ) {
