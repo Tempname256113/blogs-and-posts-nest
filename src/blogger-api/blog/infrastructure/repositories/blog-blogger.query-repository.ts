@@ -324,7 +324,8 @@ export class BlogBloggerQueryRepository {
     const correctCountOfCommentsArray: CommentBloggerApiViewModel[] =
       mappedCommentsToClient.slice(
         additionalPaginationData.howMuchToSkip,
-        additionalPaginationData.howMuchToSkip + paginationQuery.pageSize,
+        additionalPaginationData.howMuchToSkip +
+          Number(paginationQuery.pageSize),
       );
     // for (
     //   let i = additionalPaginationData.howMuchToSkip + 3;
