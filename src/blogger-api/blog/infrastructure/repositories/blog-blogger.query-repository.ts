@@ -347,10 +347,10 @@ export class BlogBloggerQueryRepository {
     //   }
     // });
     const paginationResult: CommentBloggerApiPaginationViewModel = {
-      pagesCount: additionalPaginationData.pagesCount,
-      page: paginationQuery.pageNumber,
-      pageSize: paginationQuery.pageSize,
-      totalCount: allCommentsCount,
+      pagesCount: Number(additionalPaginationData.pagesCount),
+      page: Number(paginationQuery.pageNumber),
+      pageSize: Number(paginationQuery.pageSize),
+      totalCount: Number(allCommentsCount),
       items: correctCountOfCommentsArray,
     };
     return paginationResult;
