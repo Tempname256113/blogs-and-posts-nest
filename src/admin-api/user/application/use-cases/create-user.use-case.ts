@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserApiCreateDto } from '../../api/models/user-api.dto';
+import { UserCreateDto } from '../../api/models/user-api.dto';
 import { UserViewModel } from '../../api/models/user-api.models';
 import { hashSync } from 'bcrypt';
 import {
@@ -13,7 +13,7 @@ import { UserRepository } from '../../infrastructure/repositories/user.repositor
 import { v4 as uuidv4 } from 'uuid';
 
 export class CreateUserCommand {
-  constructor(public readonly createUserDTO: UserApiCreateDto) {}
+  constructor(public readonly createUserDTO: UserCreateDto) {}
 }
 
 @CommandHandler(CreateUserCommand)

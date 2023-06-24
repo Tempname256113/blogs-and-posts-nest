@@ -1,11 +1,11 @@
-import { UserApiCreateDto } from '../src/admin-api/user/api/models/user-api.dto';
+import { UserCreateDto } from '../src/admin-api/user/api/models/user-api.dto';
 import request, { Response } from 'supertest';
 
 // credentials for new users
 export const newTestUsersCreateDTO: {
-  user1: UserApiCreateDto;
-  user2: UserApiCreateDto;
-  user3: UserApiCreateDto;
+  user1: UserCreateDto;
+  user2: UserCreateDto;
+  user3: UserCreateDto;
 } = {
   user1: {
     login: 'temp123',
@@ -30,7 +30,7 @@ export const createUserTestFactoryFunction = async ({
   userCreateDTO,
 }: {
   httpServer: any;
-  userCreateDTO: UserApiCreateDto;
+  userCreateDTO: UserCreateDto;
 }): Promise<Response> => {
   const basicAuthLogin = 'admin';
   const basicAuthPass = 'qwerty';

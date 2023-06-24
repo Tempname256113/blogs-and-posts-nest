@@ -1,22 +1,17 @@
-import { UserApiCreateDto } from '../../../../admin-api/user/api/models/user-api.dto';
-import {
-  User,
-  UserDocument,
-  UserSchema,
-} from '../../../../../libs/db/mongoose/schemes/user.entity';
-import { FilterQuery, Model } from 'mongoose';
+import { UserCreateDto } from '../../../../admin-api/user/api/models/user-api.dto';
+import { UserSchema } from '../../../../../libs/db/mongoose/schemes/user.entity';
+import { Model } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
-import { hashSync } from 'bcrypt';
-import { add } from 'date-fns';
 import { InjectModel } from '@nestjs/mongoose';
 import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
 import { UserRepository } from '../../../../admin-api/user/infrastructure/repositories/user.repository';
-import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
 
 export class RegistrationUserCommand {
-  constructor(public readonly createNewUserDTO: UserApiCreateDto) {}
+  constructor(public readonly createNewUserDTO: UserCreateDto) {}
 }
 
 @CommandHandler(RegistrationUserCommand)
@@ -27,64 +22,35 @@ export class RegistrationUserUseCase
     @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     private emailService: NodemailerService,
     private usersRepository: UserRepository,
+    private usersRepositorySQL: UserRepositorySql,
+    private usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
   async execute({ createNewUserDTO }: RegistrationUserCommand): Promise<void> {
     await this.checkUserExistence(createNewUserDTO);
-    const passwordHash: string = hashSync(createNewUserDTO.password, 10);
-    const emailConfirmationCode: string = uuidv4();
-    const newUser: User = {
-      id: uuidv4(),
-      accountData: {
-        login: createNewUserDTO.login,
-        email: createNewUserDTO.email,
-        password: passwordHash,
-        createdAt: new Date().toISOString(),
-      },
-      emailConfirmation: {
-        confirmationCode: emailConfirmationCode,
-        expirationDate: add(new Date(), { days: 3 }).toISOString(),
-        isConfirmed: false,
-      },
-      passwordRecovery: {
-        recoveryCode: null,
-        recoveryStatus: false,
-      },
-    };
-    const newUserModel: UserDocument = new this.UserModel(newUser);
+    const emailConfirmationCode: string =
+      await this.usersRepositorySQL.registrationNewUser(createNewUserDTO);
     this.emailService.sendUserConfirmation(
       createNewUserDTO.email,
       emailConfirmationCode,
     );
-    await this.usersRepository.saveUser(newUserModel);
   }
 
-  async findUserWithSimilarEmailOrLogin(
-    createNewUserDTO: UserApiCreateDto,
-  ): Promise<User | null> {
-    const filter: FilterQuery<UserSchema> = {
-      $or: [
-        { 'accountData.email': createNewUserDTO.email },
-        { 'accountData.login': createNewUserDTO.login },
-      ],
-    };
-    return this.UserModel.findOne(filter).lean();
-  }
-
-  async checkUserExistence(createNewUserDTO: UserApiCreateDto): Promise<void> {
-    const foundedUser: User | null = await this.findUserWithSimilarEmailOrLogin(
-      createNewUserDTO,
-    );
-    let errorField: string | undefined;
+  async checkUserExistence(createNewUserDTO: UserCreateDto): Promise<void> {
+    const foundedUser: { login: string; email: string } | null =
+      await this.usersQueryRepositorySQL.findUserWithSimilarLoginOrEmail(
+        createNewUserDTO,
+      );
+    const errorField: string[] = [];
     if (foundedUser) {
-      if (foundedUser.accountData.email === createNewUserDTO.email) {
-        errorField = 'email';
+      if (foundedUser.email === createNewUserDTO.email) {
+        errorField.push('email');
       }
-      if (foundedUser.accountData.login === createNewUserDTO.login) {
-        errorField = 'login';
+      if (foundedUser.login === createNewUserDTO.login) {
+        errorField.push('login');
       }
     }
-    if (errorField) {
-      throw new BadRequestException(exceptionFactoryFunction([errorField]));
+    if (errorField.length > 0) {
+      throw new BadRequestException(exceptionFactoryFunction([...errorField]));
     }
   }
 }

@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
 import request, { Response } from 'supertest';
-import { UserApiCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
+import { UserCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
 import {
   BlogBloggerApiViewModel,
   CommentBloggerApiViewModel,
@@ -38,7 +38,7 @@ type BlogTestType = Partial<{
 
 type UserTestType = Partial<{
   accessToken: string;
-  credentials: UserApiCreateDto;
+  credentials: UserCreateDto;
   createdUserResponse: UserViewModel;
   blogs: Partial<{
     blog1: BlogTestType;

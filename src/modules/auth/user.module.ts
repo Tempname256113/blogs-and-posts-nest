@@ -10,6 +10,8 @@ import { CreateUserUseCase } from '../../admin-api/user/application/use-cases/cr
 import { DeleteUserByIdUseCase } from '../../admin-api/user/application/use-cases/delete-user-by-id.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
 import { BanUnbanUserUseCase } from '../../admin-api/user/application/use-cases/ban-unban-user.use-case';
+import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { UserRepositorySql } from '../../admin-api/user/infrastructure/repositories/user.repository-sql';
 
 const UseCases = [
   CreateUserUseCase,
@@ -22,11 +24,18 @@ const UseCases = [
   controllers: [UserAdminController],
   providers: [
     UserRepository,
+    UserRepositorySql,
     UserQueryRepository,
+    UserQueryRepositorySQL,
     AuthBasicStrategy,
     EnvConfiguration,
     ...UseCases,
   ],
-  exports: [UserRepository, UserQueryRepository],
+  exports: [
+    UserRepository,
+    UserRepositorySql,
+    UserQueryRepository,
+    UserQueryRepositorySQL,
+  ],
 })
 export class UserModule {}

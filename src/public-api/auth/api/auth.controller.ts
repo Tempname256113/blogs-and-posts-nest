@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserApiCreateDto } from '../../../admin-api/user/api/models/user-api.dto';
+import { UserCreateDto } from '../../../admin-api/user/api/models/user-api.dto';
 import { LocalAuthGuard } from '../../../../libs/auth/passport-strategy/auth-local.strategy';
 import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
 import { User } from '../../../../libs/db/mongoose/schemes/user.entity';
@@ -49,7 +49,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   // @UseGuards(ThrottlerGuard)
   async registrationNewUser(
-    @Body() createNewUserDTO: UserApiCreateDto,
+    @Body() createNewUserDTO: UserCreateDto,
   ): Promise<void> {
     await this.commandBus.execute<RegistrationUserCommand, void>(
       new RegistrationUserCommand(createNewUserDTO),

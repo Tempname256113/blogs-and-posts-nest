@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
-import { UserApiCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
+import { UserCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
 import { UserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
 import {
   BannedUserBloggerApiPaginationViewModel,
@@ -23,7 +23,7 @@ import { BanUserBloggerApiDTO } from '../../../src/blogger-api/blog/api/models/b
 
 type UserTestType = Partial<{
   accessToken: string;
-  credentials: UserApiCreateDto;
+  credentials: UserCreateDto;
   createdUserResponse: UserViewModel;
 }>;
 

@@ -8,10 +8,20 @@ import { SecurityModule } from './modules/auth/security.module';
 import { PostModule } from './modules/product/post.module';
 import { BlogModule } from './modules/product/blog.module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 const ProductModules = [PostModule, BlogModule];
 
 const AuthModules = [AuthModule, SecurityModule];
+
+const envVariables: EnvConfiguration = new EnvConfiguration();
+
+const postgresLocal = {
+  host: envVariables.POSTGRES_LOCAL_HOST,
+  port: Number(envVariables.POSTGRES_LOCAL_PORT),
+  username: envVariables.POSTGRES_LOCAL_USERNAME,
+  password: envVariables.POSTGRES_LOCAL_PASSWORD,
+};
 
 @Module({
   imports: [
@@ -20,14 +30,22 @@ const AuthModules = [AuthModule, SecurityModule];
         const mongoMemoryServer = await MongoMemoryServer.create();
         const mongoMemoryServerConnectionString: string =
           mongoMemoryServer.getUri();
-        const mongoLocalConnectionString: string = new EnvConfiguration()
-          .MONGO_LOCAL;
-        const mongoServerConnectionString: string = new EnvConfiguration()
-          .MONGO_URL;
+        const mongoLocalConnectionString: string = envVariables.MONGO_LOCAL;
+        const mongoServerConnectionString: string = envVariables.MONGO_URL;
         return {
           uri: mongoServerConnectionString,
         };
       },
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: postgresLocal.host,
+      port: postgresLocal.port,
+      username: postgresLocal.username,
+      password: postgresLocal.password,
+      database: 'incubator',
+      autoLoadEntities: false,
+      synchronize: false,
     }),
     MongooseSchemesModule,
     ...ProductModules,

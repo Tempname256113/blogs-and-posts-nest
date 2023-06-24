@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { IsStringWithTrim } from '../../../../../libs/validation/class-validator/string-with-trim.validation-decorator';
 
-export class UserApiCreateDto {
+export class UserCreateDto {
   @IsString()
   @MaxLength(10)
   @MinLength(3)

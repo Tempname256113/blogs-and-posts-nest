@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserBanUnbanDTO, UserApiCreateDto } from './models/user-api.dto';
+import { UserBanUnbanDTO, UserCreateDto } from './models/user-api.dto';
 import {
   UserViewModel,
   UserPaginationViewModel,
@@ -34,7 +34,7 @@ export class UserAdminController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createUser(
-    @Body() createUserDTO: UserApiCreateDto,
+    @Body() createUserDTO: UserCreateDto,
   ): Promise<UserViewModel> {
     const createdUser: UserViewModel = await this.commandBus.execute<
       CreateUserCommand,

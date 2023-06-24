@@ -1,4 +1,4 @@
-import { UserApiCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
+import { UserCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
 import { UserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
 import { INestApplication } from '@nestjs/common';
 import {
@@ -19,7 +19,7 @@ import { AppModule } from '../../../src/app.module';
 
 type UserTestType = Partial<{
   accessToken: string;
-  credentials: UserApiCreateDto;
+  credentials: UserCreateDto;
   createdUserResponse: UserViewModel;
 }>;
 
