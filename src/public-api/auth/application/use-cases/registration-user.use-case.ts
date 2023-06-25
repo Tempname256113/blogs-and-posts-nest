@@ -1,5 +1,8 @@
 import { UserCreateDto } from '../../../../admin-api/user/api/models/user-api.dto';
-import { UserSchema } from '../../../../../libs/db/mongoose/schemes/user.entity';
+import {
+  User,
+  UserSchema,
+} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { Model } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
@@ -36,16 +39,16 @@ export class RegistrationUserUseCase
   }
 
   async checkUserExistence(createNewUserDTO: UserCreateDto): Promise<void> {
-    const foundedUser: { login: string; email: string } | null =
+    const foundedUser: User | null =
       await this.usersQueryRepositorySQL.findUserWithSimilarLoginOrEmail(
         createNewUserDTO,
       );
     const errorField: string[] = [];
     if (foundedUser) {
-      if (foundedUser.email === createNewUserDTO.email) {
+      if (foundedUser.accountData.email === createNewUserDTO.email) {
         errorField.push('email');
       }
-      if (foundedUser.login === createNewUserDTO.login) {
+      if (foundedUser.accountData.login === createNewUserDTO.login) {
         errorField.push('login');
       }
     }

@@ -7,7 +7,7 @@ import { PostSchema } from '../../../../../libs/db/mongoose/schemes/post.entity'
 import { CommentSchema } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { LikeSchema } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import {
-  UserBanStatus,
+  UserBanInfo,
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
 
@@ -50,8 +50,8 @@ export class BanUnbanUserUseCase
     userId: string;
   }): Promise<void> {
     await this.SessionModel.deleteMany({ userId });
-    const updateUserBanStatusDTO: UserBanStatus = {
-      banned: true,
+    const updateUserBanStatusDTO: UserBanInfo = {
+      isBanned: true,
       banReason: banReason,
       banDate: new Date().toISOString(),
     };
@@ -65,8 +65,8 @@ export class BanUnbanUserUseCase
   }
 
   async unbanUser(userId: string): Promise<void> {
-    const updateUserBanStatusDTO: UserBanStatus = {
-      banned: false,
+    const updateUserBanStatusDTO: UserBanInfo = {
+      isBanned: false,
       banReason: null,
       banDate: null,
     };

@@ -20,8 +20,8 @@ class UserPasswordRecovery {
   recoveryStatus: boolean;
 }
 
-export class UserBanStatus {
-  banned: boolean;
+export class UserBanInfo {
+  isBanned: boolean;
   banReason: string | null;
   banDate: string | null;
 }
@@ -35,7 +35,7 @@ export type User = {
   accountData: UserAccountData;
   emailConfirmation: UserEmailConfirmation;
   passwordRecovery: UserPasswordRecovery;
-  banStatus?: UserBanStatus;
+  banInfo?: UserBanInfo;
 };
 
 @Schema({ versionKey: false, collection: 'users' })
@@ -53,7 +53,7 @@ export class UserSchema implements User {
   passwordRecovery: UserPasswordRecovery;
 
   @Prop({ default: { banned: false, banReason: null, banDate: null } })
-  banStatus: UserBanStatus;
+  banInfo: UserBanInfo;
 
   confirmRegistration(): boolean {
     if (new Date().toISOString() > this.emailConfirmation.expirationDate) {

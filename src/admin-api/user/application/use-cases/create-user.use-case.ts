@@ -44,8 +44,8 @@ export class CreateUserUseCase
         recoveryCode: null,
         recoveryStatus: false,
       },
-      banStatus: {
-        banned: false,
+      banInfo: {
+        isBanned: false,
         banReason: null,
         banDate: null,
       },
@@ -56,9 +56,9 @@ export class CreateUserUseCase
       email: newUser.accountData.email,
       createdAt: newUser.accountData.createdAt,
       banInfo: {
-        isBanned: newUser.banStatus.banned,
-        banDate: newUser.banStatus.banDate,
-        banReason: newUser.banStatus.banReason,
+        isBanned: newUser.banInfo.isBanned,
+        banDate: newUser.banInfo.banDate,
+        banReason: newUser.banInfo.banReason,
       },
     };
     const newUserModel: UserDocument = new this.UserModel(newUser);

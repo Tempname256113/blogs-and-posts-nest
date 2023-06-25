@@ -214,8 +214,8 @@ describe('db test', () => {
         recoveryCode: null,
         recoveryStatus: false,
       },
-      banStatus: {
-        banned: false,
+      banInfo: {
+        isBanned: false,
         banReason: null,
         banDate: null,
       },

@@ -99,9 +99,9 @@ export class UserQueryRepository {
         email: rawUser.accountData.email,
         createdAt: rawUser.accountData.createdAt,
         banInfo: {
-          isBanned: rawUser.banStatus.banned,
-          banDate: rawUser.banStatus.banDate,
-          banReason: rawUser.banStatus.banReason,
+          isBanned: rawUser.banInfo.isBanned,
+          banDate: rawUser.banInfo.banDate,
+          banReason: rawUser.banInfo.banReason,
         },
       };
       return mappedUser;
