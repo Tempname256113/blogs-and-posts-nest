@@ -132,6 +132,11 @@ export class JwtUtils {
   }
 }
 
+/* refreshTokenIat и refreshTokenActiveDate
+ * по сути это два одинаковых времени, но
+ * написаны они оба потому что iat в number type,
+ * а activeDate в string (ISOString). чтобы не менять типы
+ * написал так */
 export type CreateNewTokenPairReturnType = {
   newAccessToken: string;
   newRefreshToken: {
@@ -142,6 +147,11 @@ export type CreateNewTokenPairReturnType = {
   };
 };
 
+/* refreshTokenIat и refreshTokenActiveDate
+ * по сути это два одинаковых времени, но
+ * написаны они оба потому что iat в number type,
+ * а activeDate в string (ISOString). чтобы не менять типы
+ * написал так */
 export type CreateRefreshTokenReturnType = {
   refreshToken: string;
   refreshTokenIat: number;

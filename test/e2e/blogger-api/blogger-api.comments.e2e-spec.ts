@@ -183,6 +183,11 @@ describe('blogger api e2e comments tests', () => {
                 blogId: post.createdPost.blogId,
                 blogName: post.createdPost.blogName,
               },
+              likesInfo: {
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: 'None',
+              },
             };
             post.comments[`comment${i}`] = mappedComment;
           }
