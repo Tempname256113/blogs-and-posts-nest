@@ -57,7 +57,7 @@ export class UserQueryRepositorySQL {
     }
   }
 
-  async getUserEmailConfirmationInfoByCode(
+  async getUserEmailInfoByConfirmationCode(
     confirmationEmailCode: string,
   ): Promise<UserEmailInfoType | null> {
     const result: any[] = await this.dataSource.query(
@@ -67,6 +67,31 @@ export class UserQueryRepositorySQL {
     WHERE ueci.confirmation_code = $1
     `,
       [confirmationEmailCode],
+    );
+    if (result.length > 0) {
+      const res = result[0];
+      const userEmailInfo: UserEmailInfoType = {
+        userId: res.user_id,
+        confirmationCode: res.confirmation_code,
+        expirationDate: res.expiration_date,
+        isConfirmed: res.is_confirmed,
+      };
+      return userEmailInfo;
+    } else {
+      return null;
+    }
+  }
+
+  async getUserEmailInfoByEmail(
+    email: string,
+  ): Promise<UserEmailInfoType | null> {
+    const result: any[] = await this.dataSource.query(
+      `
+    SELECT ueci.user_id, ueci.confirmation_code, ueci.expiration_date, ueci.is_confirmed
+    FROM public.users_email_confirmation_info ueci
+    WHERE ueci.user_id = (select "id" from public.users u where u.email = $1)
+    `,
+      [email],
     );
     if (result.length > 0) {
       const res = result[0];

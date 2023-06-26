@@ -26,7 +26,7 @@ export class RegistrationConfirmUseCase
     errorField,
   }: ConfirmRegistrationCommand): Promise<void> {
     const userEmailInfo: UserEmailInfoType | null =
-      await this.usersQueryRepositorySQL.getUserEmailConfirmationInfoByCode(
+      await this.usersQueryRepositorySQL.getUserEmailInfoByConfirmationCode(
         confirmationCode,
       );
     if (

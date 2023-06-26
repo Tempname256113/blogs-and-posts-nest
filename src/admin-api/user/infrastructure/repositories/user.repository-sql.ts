@@ -63,4 +63,24 @@ export class UserRepositorySql {
       [confirmationEmailCode],
     );
   }
+
+  async updateEmailConfirmationCode({
+    newCode,
+    email,
+  }: {
+    newCode: string;
+    email: string;
+  }): Promise<void> {
+    const newExpirationDate: string = add(new Date(), {
+      days: 3,
+    }).toISOString();
+    await this.dataSource.query(
+      `
+    UPDATE public.users_email_confirmation_info
+    SET confirmation_code = $1, expiration_date = $2
+    WHERE user_id = (select "id" from public.users u where u.email = $3)
+    `,
+      [newCode, newExpirationDate, email],
+    );
+  }
 }
