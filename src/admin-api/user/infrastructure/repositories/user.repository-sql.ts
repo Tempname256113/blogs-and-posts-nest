@@ -83,4 +83,21 @@ export class UserRepositorySql {
       [newCode, newExpirationDate, email],
     );
   }
+
+  async setPasswordRecoveryCode({
+    email,
+    passwordRecoveryCode,
+  }: {
+    email: string;
+    passwordRecoveryCode: string;
+  }): Promise<void> {
+    await this.dataSource.query(
+      `
+    UPDATE public.users_password_recovery_info
+    SET recovery_code = $1, recovery_status = true
+    WHERE user_id = (select "id" from public.users u where u.email = $2)
+    `,
+      [passwordRecoveryCode, email],
+    );
+  }
 }
