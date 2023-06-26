@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
-import { UserEmailInfoType } from '../../api/models/user-api.models';
+import {
+  UserEmailInfoType,
+  UserPasswordRecoveryInfoType,
+} from '../../api/models/user-api.models';
 
 @Injectable()
 export class UserQueryRepositorySQL {
@@ -102,6 +105,30 @@ export class UserQueryRepositorySQL {
         isConfirmed: res.is_confirmed,
       };
       return userEmailInfo;
+    } else {
+      return null;
+    }
+  }
+
+  async getUserPasswordRecoveryInfoByRecoveryCode(
+    recoveryCode: string,
+  ): Promise<UserPasswordRecoveryInfoType | null> {
+    const result: any[] = await this.dataSource.query(
+      `
+    SELECT p.user_id, p.recovery_code, p.recovery_status
+    FROM public.users_password_recovery_info p
+    WHERE "recovery_code" = $1
+    `,
+      [recoveryCode],
+    );
+    if (result.length > 0) {
+      const res: any = result[0];
+      const passwordRecoveryInfo: UserPasswordRecoveryInfoType = {
+        userId: res.user_id,
+        recoveryCode: res.recovery_code,
+        recoveryStatus: res.recovery_status,
+      };
+      return passwordRecoveryInfo;
     } else {
       return null;
     }

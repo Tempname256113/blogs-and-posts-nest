@@ -100,4 +100,40 @@ export class UserRepositorySql {
       [passwordRecoveryCode, email],
     );
   }
+
+  async setUserNewPassword({
+    newPassword,
+    userId,
+  }: {
+    newPassword: string;
+    userId: number;
+  }): Promise<void> {
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.query(
+        `
+      UPDATE public.users_password_recovery_info
+      SET "recovery_code" = null, "recovery_status" = false
+      WHERE "user_id" = $1
+      `,
+        [userId],
+      );
+      await queryRunner.query(
+        `
+      UPDATE public.users
+      SET "password" = $1
+      WHERE "id" = $2
+      `,
+        [newPassword, userId],
+      );
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.log(err);
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }

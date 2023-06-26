@@ -24,3 +24,9 @@ export type UserEmailInfoType = {
   expirationDate: string;
   isConfirmed: string;
 };
+
+export type UserPasswordRecoveryInfoType = {
+  userId: number;
+  recoveryCode: string | null;
+  recoveryStatus: boolean;
+};

@@ -1,14 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  UserDocument,
-  UserSchema,
-} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
-import { hashSync } from 'bcrypt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserRepository } from '../../../../admin-api/user/infrastructure/repositories/user.repository';
+import { hash } from 'bcrypt';
+import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { UserPasswordRecoveryInfoType } from '../../../../admin-api/user/api/models/user-api.models';
+import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 
 export class SetNewPasswordCommand {
   constructor(
@@ -25,21 +21,24 @@ export class SetNewPasswordUseCase
   implements ICommandHandler<SetNewPasswordCommand, void>
 {
   constructor(
-    @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
-    private usersRepository: UserRepository,
+    private usersRepositorySQL: UserRepositorySql,
+    private usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
 
   async execute({ data }: SetNewPasswordCommand): Promise<void> {
-    const foundedUser: UserDocument | null = await this.UserModel.findOne({
-      'passwordRecovery.recoveryCode': data.recoveryCode,
-    });
-    if (!foundedUser) {
+    const foundedPasswordRecoveryInfo: UserPasswordRecoveryInfoType | null =
+      await this.usersQueryRepositorySQL.getUserPasswordRecoveryInfoByRecoveryCode(
+        data.recoveryCode,
+      );
+    if (!foundedPasswordRecoveryInfo) {
       throw new BadRequestException(
         exceptionFactoryFunction([data.errorField]),
       );
     }
-    const newPasswordHash: string = hashSync(data.newPassword, 10);
-    foundedUser.setNewPassword(newPasswordHash);
-    await this.usersRepository.saveUser(foundedUser);
+    const newPasswordHash: string = await hash(data.newPassword, 10);
+    await this.usersRepositorySQL.setUserNewPassword({
+      newPassword: newPasswordHash,
+      userId: foundedPasswordRecoveryInfo.userId,
+    });
   }
 }
