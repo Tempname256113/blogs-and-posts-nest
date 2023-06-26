@@ -1,13 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  UserDocument,
-  UserSchema,
-} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserRepository } from '../../../../admin-api/user/infrastructure/repositories/user.repository';
+import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { UserEmailInfoType } from '../../../../admin-api/user/api/models/user-api.models';
 
 export class ConfirmRegistrationCommand {
   constructor(
@@ -21,24 +17,24 @@ export class RegistrationConfirmUseCase
   implements ICommandHandler<ConfirmRegistrationCommand, void>
 {
   constructor(
-    @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
-    private readonly usersRepository: UserRepository,
+    private readonly usersRepositorySQL: UserRepositorySql,
+    private usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
 
   async execute({
     confirmationCode,
     errorField,
   }: ConfirmRegistrationCommand): Promise<void> {
-    const foundedUserByConfirmationCode: UserDocument | null =
-      await this.UserModel.findOne({
-        'emailConfirmation.confirmationCode': confirmationCode,
-      });
+    const userEmailInfo: UserEmailInfoType | null =
+      await this.usersQueryRepositorySQL.getUserEmailConfirmationInfoByCode(
+        confirmationCode,
+      );
     if (
-      !foundedUserByConfirmationCode ||
-      !foundedUserByConfirmationCode.confirmRegistration()
+      !userEmailInfo ||
+      new Date().toISOString() > userEmailInfo.expirationDate
     ) {
       throw new BadRequestException(exceptionFactoryFunction([errorField]));
     }
-    await this.usersRepository.saveUser(foundedUserByConfirmationCode);
+    await this.usersRepositorySQL.confirmRegistration(confirmationCode);
   }
 }

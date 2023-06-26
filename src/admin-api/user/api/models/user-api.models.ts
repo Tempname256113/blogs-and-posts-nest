@@ -17,3 +17,10 @@ export type UserPaginationViewModel = {
   totalCount: number;
   items: UserViewModel[];
 };
+
+export type UserEmailInfoType = {
+  userId: number;
+  confirmationCode: string;
+  expirationDate: string;
+  isConfirmed: string;
+};

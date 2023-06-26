@@ -52,4 +52,15 @@ export class UserRepositorySql {
     }
     return emailConfirmationCode;
   }
+
+  async confirmRegistration(confirmationEmailCode: string): Promise<void> {
+    await this.dataSource.query(
+      `
+    UPDATE public.users_email_confirmation_info
+    SET confirmation_code = null, expiration_date = null, is_confirmed = true
+    WHERE confirmation_code = $1
+    `,
+      [confirmationEmailCode],
+    );
+  }
 }

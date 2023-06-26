@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
+import { UserEmailInfoType } from '../../api/models/user-api.models';
 
 @Injectable()
 export class UserQueryRepositorySQL {
@@ -51,6 +52,31 @@ export class UserQueryRepositorySQL {
         },
       };
       return mappedUser;
+    } else {
+      return null;
+    }
+  }
+
+  async getUserEmailConfirmationInfoByCode(
+    confirmationEmailCode: string,
+  ): Promise<UserEmailInfoType | null> {
+    const result: any[] = await this.dataSource.query(
+      `
+    SELECT ueci.user_id, ueci.confirmation_code, ueci.expiration_date, ueci.is_confirmed
+    FROM public.users_email_confirmation_info ueci
+    WHERE ueci.confirmation_code = $1
+    `,
+      [confirmationEmailCode],
+    );
+    if (result.length > 0) {
+      const res = result[0];
+      const userEmailInfo: UserEmailInfoType = {
+        userId: res.user_id,
+        confirmationCode: res.confirmation_code,
+        expirationDate: res.expiration_date,
+        isConfirmed: res.is_confirmed,
+      };
+      return userEmailInfo;
     } else {
       return null;
     }
