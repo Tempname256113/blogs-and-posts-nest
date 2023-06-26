@@ -4,7 +4,7 @@ import {
   CreateNewTokenPairReturnType,
   JwtUtils,
 } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
+import { AuthRepositorySql } from '../../infrastructure/repositories/auth.repository-sql';
 
 export class LoginUserCommand {
   constructor(
@@ -26,7 +26,7 @@ export class LoginUserUseCase
 {
   constructor(
     private jwtHelpers: JwtUtils,
-    private authRepository: AuthRepository,
+    private authRepositorySQL: AuthRepositorySql,
   ) {}
 
   async execute({
@@ -36,7 +36,7 @@ export class LoginUserUseCase
     newRefreshToken: string;
   }> {
     const { newRefreshToken, newAccessToken } = this.createNewTokensPair(user);
-    await this.authRepository.createNewSession({
+    await this.authRepositorySQL.createNewSession({
       userId: user.id,
       deviceId: newRefreshToken.deviceId,
       refreshTokenIat: newRefreshToken.iat,
