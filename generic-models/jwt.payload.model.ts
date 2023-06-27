@@ -1,14 +1,15 @@
 export type JwtAccessTokenPayloadType = {
-  userId: string;
+  userId: number;
   userLogin: string;
   iat?: number;
   exp: number;
 };
 
 export type JwtRefreshTokenPayloadType = {
-  userId: string;
+  userId: number;
   userLogin: string;
-  deviceId: string;
-  iat: number;
+  deviceId: number;
+  uniqueKey: string;
+  iat?: number;
   exp: number;
 };

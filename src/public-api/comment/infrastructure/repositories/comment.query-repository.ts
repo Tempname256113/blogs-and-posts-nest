@@ -37,7 +37,7 @@ export class CommentQueryRepository {
     postId: string;
     accessToken: string | null;
   }): Promise<CommentPaginationViewModel> {
-    const getUserId = (): string | null => {
+    const getUserId = (): number | null => {
       if (!accessToken) {
         return null;
       } else {
@@ -50,7 +50,7 @@ export class CommentQueryRepository {
         }
       }
     };
-    const userId: string = getUserId();
+    const userId: number = getUserId();
     const filter: FilterQuery<CommentSchema> = { postId, hidden: false };
     const allCommentsCount: number = await this.CommentModel.countDocuments(
       filter,
@@ -111,7 +111,7 @@ export class CommentQueryRepository {
     commentId: string;
     accessToken: string | null;
   }): Promise<CommentViewModel> {
-    const getUserId = (): string | null => {
+    const getUserId = (): number | null => {
       if (!accessToken) {
         return null;
       } else {
@@ -124,7 +124,7 @@ export class CommentQueryRepository {
         }
       }
     };
-    const userId: string = getUserId();
+    const userId: number = getUserId();
     const foundedComment: Comment | null = await this.CommentModel.findOne({
       id: commentId,
       hidden: false,

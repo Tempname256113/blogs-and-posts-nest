@@ -1,10 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
-  CreateNewTokenPairReturnType,
+  CreateNewTokensPairData,
+  CreateNewTokensPairReturnType,
   JwtUtils,
 } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { AuthRepositorySql } from '../../infrastructure/repositories/auth.repository-sql';
+import { randomUUID } from 'crypto';
 
 export class LoginUserCommand {
   constructor(
@@ -25,7 +27,7 @@ export class LoginUserUseCase
     >
 {
   constructor(
-    private jwtHelpers: JwtUtils,
+    private jwtUtils: JwtUtils,
     private authRepositorySQL: AuthRepositorySql,
   ) {}
 
@@ -35,24 +37,28 @@ export class LoginUserUseCase
     newAccessToken: string;
     newRefreshToken: string;
   }> {
-    const { newRefreshToken, newAccessToken } = this.createNewTokensPair(user);
-    await this.authRepositorySQL.createNewSession({
+    const uniqueKey: string = randomUUID();
+    const deviceId: number = await this.authRepositorySQL.createNewSession({
       userId: user.id,
-      deviceId: newRefreshToken.deviceId,
-      refreshTokenIat: newRefreshToken.iat,
+      uniqueKey,
       userIpAddress: clientIpAddress,
       userDeviceTitle: clientDeviceTitle,
     });
+    const { newRefreshToken, newAccessToken } = this.createNewTokensPair({
+      userId: Number(user.id),
+      userLogin: user.accountData.login,
+      deviceId,
+      uniqueKey,
+    });
     return {
       newAccessToken,
-      newRefreshToken: newRefreshToken.refreshToken,
+      newRefreshToken,
     };
   }
 
-  createNewTokensPair(user: User): CreateNewTokenPairReturnType {
-    return this.jwtHelpers.createNewTokenPair({
-      userId: user.id,
-      userLogin: user.accountData.login,
-    });
+  createNewTokensPair(
+    createNewTokensPairDTO: CreateNewTokensPairData,
+  ): CreateNewTokensPairReturnType {
+    return this.jwtUtils.createNewTokensPair(createNewTokensPairDTO);
   }
 }

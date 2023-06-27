@@ -27,7 +27,7 @@ export class DeleteAllSessionsExceptCurrentUseCase
     const allFoundedSessions: Session[] = await this.SessionModel.find({
       userId: reqRefreshTokenPayload.userId,
     }).lean();
-    const deviceIdForDeleteArray: string[] = [];
+    const deviceIdForDeleteArray: number[] = [];
     for (const sessionFromDB of allFoundedSessions) {
       if (sessionFromDB.deviceId !== reqRefreshTokenPayload.deviceId) {
         deviceIdForDeleteArray.push(sessionFromDB.deviceId);

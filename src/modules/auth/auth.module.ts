@@ -16,6 +16,7 @@ import { ResendConfirmationEmailUseCase } from '../../public-api/auth/applicatio
 import { UpdateTokensPairUseCase } from '../../public-api/auth/application/use-cases/update-tokens-pair.use-case';
 import { SendPasswordRecoveryCodeUseCase } from '../../public-api/auth/application/use-cases/send-password-recovery-code.use-case';
 import { SetNewPasswordUseCase } from '../../public-api/auth/application/use-cases/set-new-password.use-case';
+import { AuthRepositorySql } from '../../public-api/auth/infrastructure/repositories/auth.repository-sql';
 
 const UseCases = [
   RegistrationUserUseCase,
@@ -38,6 +39,11 @@ const UseCases = [
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthRepository, AuthLocalStrategy, ...UseCases],
+  providers: [
+    AuthRepository,
+    AuthRepositorySql,
+    AuthLocalStrategy,
+    ...UseCases,
+  ],
 })
 export class AuthModule {}

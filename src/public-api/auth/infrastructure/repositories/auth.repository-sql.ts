@@ -1,28 +1,44 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import {
+  SessionCreateRepositoryDTO,
+  SessionUpdateRepositoryDTO,
+} from './models/auth-repository.dto';
 
 export class AuthRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async createNewSession({
     userId,
-    deviceId,
-    refreshTokenIat,
+    uniqueKey,
     userIpAddress,
     userDeviceTitle,
-  }: {
-    userId: string;
-    refreshTokenIat: number;
-    deviceId: string;
-    userIpAddress: string;
-    userDeviceTitle: string;
-  }): Promise<void> {
+  }: SessionCreateRepositoryDTO): Promise<number> {
+    const result: any[] = await this.dataSource.query(
+      `
+    INSERT INTO public.sessions("user_id", "unique_key", "user_ip_address", "user_device_title")
+    VALUES($1, $2, $3, $4)
+    RETURNING "device_id"
+    `,
+      [userId, uniqueKey, userIpAddress, userDeviceTitle],
+    );
+    const sessionDeviceId: number = result[0].device_id;
+    return sessionDeviceId;
+  }
+
+  async updateSession({
+    uniqueKey,
+    deviceId,
+    userIpAddress,
+    userDeviceTitle,
+  }: SessionUpdateRepositoryDTO): Promise<void> {
     await this.dataSource.query(
       `
-    INSERT INTO public.sessions("user_id", "device_id", "iat", "user_ip_address", "user_device_title")
-    VALUES($1, $2, $3, $4, $5)
+    UPDATE public.sessions
+    SET unique_key = $1, user_ip_address = $2, user_device_title = $3
+    WHERE device_id = $4
     `,
-      [userId, deviceId, refreshTokenIat, userIpAddress, userDeviceTitle],
+      [uniqueKey, userIpAddress, userDeviceTitle, deviceId],
     );
   }
 }

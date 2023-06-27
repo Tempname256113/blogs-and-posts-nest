@@ -33,7 +33,7 @@ export class PostPublicQueryRepository {
     postId: string,
     accessToken: string | null,
   ): Promise<PostViewModel | null> {
-    const getUserId = (): string | null => {
+    const getUserId = (): number | null => {
       if (!accessToken) {
         return null;
       } else {
@@ -46,7 +46,7 @@ export class PostPublicQueryRepository {
         }
       }
     };
-    const userId: string = getUserId();
+    const userId: number = getUserId();
     const postReactionsCount: { likesCount: number; dislikesCount: number } =
       await this.likeQueryRepository.getEntityLikesCount(postId);
     const foundedPost: PostDocument | null = await this.PostModel.findOne({
@@ -96,7 +96,7 @@ export class PostPublicQueryRepository {
     rawPaginationQuery: PostApiPaginationQueryDTO;
     accessToken: string | null;
   }): Promise<PostPaginationViewModel> {
-    const getUserId = (): string | null => {
+    const getUserId = (): number | null => {
       if (!accessToken) {
         return null;
       } else {
@@ -109,7 +109,7 @@ export class PostPublicQueryRepository {
         }
       }
     };
-    const userId: string | null = getUserId();
+    const userId: number | null = getUserId();
     const getPostsWithPagination =
       async (): Promise<PostPaginationViewModel> => {
         const filter: FilterQuery<PostSchema> = { hidden: false };

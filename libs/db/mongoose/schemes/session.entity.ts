@@ -3,8 +3,8 @@ import { HydratedDocument } from 'mongoose';
 import { SessionUpdateRepositoryDTO } from '../../../../src/public-api/auth/infrastructure/repositories/models/auth-repository.dto';
 
 export type Session = {
-  userId: string;
-  deviceId: string;
+  userId: number;
+  deviceId: number;
   iat: number;
   userIpAddress: string;
   userDeviceTitle: string;
@@ -14,10 +14,10 @@ export type Session = {
 @Schema({ versionKey: false, collection: 'sessions' })
 export class SessionSchema implements Session {
   @Prop()
-  userId: string;
+  userId: number;
 
   @Prop()
-  deviceId: string;
+  deviceId: number;
 
   @Prop()
   iat: number;
@@ -31,12 +31,12 @@ export class SessionSchema implements Session {
   @Prop()
   lastActiveDate: string;
 
-  updateSession(updateSessionData: SessionUpdateRepositoryDTO): void {
-    this.iat = updateSessionData.refreshTokenIat;
-    this.userIpAddress = updateSessionData.userIpAddress;
-    this.userDeviceTitle = updateSessionData.userDeviceTitle;
-    this.lastActiveDate = updateSessionData.lastActiveDate;
-  }
+  // updateSession(updateSessionData: SessionUpdateRepositoryDTO): void {
+  //   this.iat = updateSessionData.uniqueKey;
+  //   this.userIpAddress = updateSessionData.userIpAddress;
+  //   this.userDeviceTitle = updateSessionData.userDeviceTitle;
+  //   this.lastActiveDate = updateSessionData.lastActiveDate;
+  // }
 }
 
 export const sessionSchema = SchemaFactory.createForClass(SessionSchema);

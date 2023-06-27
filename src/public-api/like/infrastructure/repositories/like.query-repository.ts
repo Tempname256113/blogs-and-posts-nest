@@ -43,7 +43,7 @@ export class LikeQueryRepository {
     userId,
     entityId,
   }: {
-    userId: string;
+    userId: number;
     entityId: string;
   }): Promise<'Like' | 'Dislike' | 'None'> {
     const filter: FilterQuery<LikeSchema> = { userId, entityId, hidden: false };

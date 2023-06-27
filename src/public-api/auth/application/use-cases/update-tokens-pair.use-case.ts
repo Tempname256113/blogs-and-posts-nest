@@ -1,18 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import {
-  CreateNewTokenPairData,
-  CreateNewTokenPairReturnType,
+  CreateNewTokensPairReturnType,
   JwtUtils,
 } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { SessionUpdateRepositoryDTO } from '../../infrastructure/repositories/models/auth-repository.dto';
-import {
-  SessionDocument,
-  SessionSchema,
-} from '../../../../../libs/db/mongoose/schemes/session.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
+import { randomUUID } from 'crypto';
+import { AuthRepositorySql } from '../../infrastructure/repositories/auth.repository-sql';
 
 export class UpdateTokensPairCommand {
   constructor(
@@ -33,9 +26,8 @@ export class UpdateTokensPairUseCase
     >
 {
   constructor(
-    @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
-    private jwtHelpers: JwtUtils,
-    private authRepository: AuthRepository,
+    private jwtUtils: JwtUtils,
+    private authRepositorySQL: AuthRepositorySql,
   ) {}
 
   async execute({
@@ -44,28 +36,23 @@ export class UpdateTokensPairUseCase
     newAccessToken: string;
     newRefreshToken: string;
   }> {
-    const createNewTokenPairData: CreateNewTokenPairData = {
-      userId: requestRefreshTokenPayload.userId,
-      userLogin: requestRefreshTokenPayload.userLogin,
+    const uniqueKey: string = randomUUID();
+    await this.authRepositorySQL.updateSession({
       deviceId: requestRefreshTokenPayload.deviceId,
-    };
-    const newTokenPair: CreateNewTokenPairReturnType =
-      this.jwtHelpers.createNewTokenPair(createNewTokenPairData);
-    const updateSessionData: SessionUpdateRepositoryDTO = {
-      refreshTokenIat: newTokenPair.newRefreshToken.iat,
+      uniqueKey,
       userIpAddress,
       userDeviceTitle,
-      lastActiveDate: newTokenPair.newRefreshToken.activeDate,
-    };
-    const foundedSessionFromDB: SessionDocument =
-      await this.SessionModel.findOne({
+    });
+    const newTokensPair: CreateNewTokensPairReturnType =
+      this.jwtUtils.createNewTokensPair({
+        userId: requestRefreshTokenPayload.userId,
+        userLogin: requestRefreshTokenPayload.userLogin,
         deviceId: requestRefreshTokenPayload.deviceId,
+        uniqueKey,
       });
-    foundedSessionFromDB.updateSession(updateSessionData);
-    await this.authRepository.saveSession(foundedSessionFromDB);
     return {
-      newAccessToken: newTokenPair.newAccessToken,
-      newRefreshToken: newTokenPair.newRefreshToken.refreshToken,
+      newAccessToken: newTokensPair.newAccessToken,
+      newRefreshToken: newTokensPair.newRefreshToken,
     };
   }
 }

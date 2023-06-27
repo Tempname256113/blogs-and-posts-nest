@@ -11,7 +11,7 @@ export type Post = {
   blogId: string;
   blogName: string;
   createdAt: string;
-  bloggerId: string;
+  bloggerId: number;
   hidden?: boolean;
 };
 
@@ -39,7 +39,7 @@ export class PostSchema implements Post {
   createdAt: string;
 
   @Prop()
-  bloggerId: string;
+  bloggerId: number;
 
   @Prop({ default: false })
   hidden: boolean;
@@ -49,7 +49,7 @@ export class PostSchema implements Post {
     userLogin,
     content,
   }: {
-    userId: string;
+    userId: number;
     userLogin: string;
     content: string;
   }): Comment {

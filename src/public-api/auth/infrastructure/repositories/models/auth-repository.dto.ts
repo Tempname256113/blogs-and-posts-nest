@@ -1,6 +1,13 @@
 export type SessionUpdateRepositoryDTO = {
-  refreshTokenIat: number;
+  deviceId: number;
+  uniqueKey: string;
   userIpAddress: string;
   userDeviceTitle: string;
-  lastActiveDate: string;
+};
+
+export type SessionCreateRepositoryDTO = {
+  userId: string;
+  uniqueKey: string;
+  userIpAddress: string;
+  userDeviceTitle: string;
 };
