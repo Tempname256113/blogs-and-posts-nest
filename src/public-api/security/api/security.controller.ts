@@ -10,16 +10,16 @@ import {
 import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passportjs-req-data.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
-import { SessionSecurityApiModel } from './models/security-api.models';
-import { SecurityQueryRepository } from '../infrastructure/repositories/security.query-repository';
+import { SessionSecurityViewModel } from './models/security-api.models';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteAllSessionsExceptCurrentCommand } from '../application/use-cases/delete-all-sessions.use-case';
 import { DeleteSessionByDeviceIdCommand } from '../application/use-cases/delete-session-by-deviceId.use-case';
+import { SecurityQueryRepositorySQL } from '../infrastructure/repositories/security.query-repository-sql';
 
 @Controller('security')
 export class SecurityController {
   constructor(
-    private securityQueryRepository: SecurityQueryRepository,
+    private readonly securityQueryRepositorySQL: SecurityQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}
   @Get('devices')
@@ -28,9 +28,9 @@ export class SecurityController {
   async getAllActiveSessions(
     @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
-  ): Promise<SessionSecurityApiModel[]> {
-    const sessionArray: SessionSecurityApiModel[] =
-      await this.securityQueryRepository.getAllActiveSessions(
+  ): Promise<SessionSecurityViewModel[]> {
+    const sessionArray: SessionSecurityViewModel[] =
+      await this.securityQueryRepositorySQL.getAllActiveSessions(
         refreshTokenPayload,
       );
     return sessionArray;

@@ -7,6 +7,7 @@ import { SecurityQueryRepository } from '../../public-api/security/infrastructur
 import { DeleteAllSessionsExceptCurrentUseCase } from '../../public-api/security/application/use-cases/delete-all-sessions.use-case';
 import { DeleteSessionByDeviceIdUseCase } from '../../public-api/security/application/use-cases/delete-session-by-deviceId.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
+import { SecurityQueryRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.query-repository-sql';
 
 const UseCases = [
   DeleteAllSessionsExceptCurrentUseCase,
@@ -18,6 +19,7 @@ const UseCases = [
   providers: [
     AuthJwtRefreshTokenStrategy,
     SecurityQueryRepository,
+    SecurityQueryRepositorySQL,
     ...UseCases,
   ],
   controllers: [SecurityController],

@@ -5,7 +5,7 @@ import {
   SessionSchema,
 } from '../../../../../libs/db/mongoose/schemes/session.entity';
 import { Model } from 'mongoose';
-import { SessionSecurityApiModel } from '../../api/models/security-api.models';
+import { SessionSecurityViewModel } from '../../api/models/security-api.models';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 
 @Injectable()
@@ -15,13 +15,13 @@ export class SecurityQueryRepository {
   ) {}
   async getAllActiveSessions(
     refreshTokenPayload: JwtRefreshTokenPayloadType,
-  ): Promise<SessionSecurityApiModel[]> {
+  ): Promise<SessionSecurityViewModel[]> {
     const foundedSessions: Session[] = await this.SessionModel.find({
       userId: refreshTokenPayload.userId,
     }).lean();
-    const mappedSessionArray: SessionSecurityApiModel[] = [];
+    const mappedSessionArray: SessionSecurityViewModel[] = [];
     for (const rawSession of foundedSessions) {
-      const mappedSession: SessionSecurityApiModel = {
+      const mappedSession: SessionSecurityViewModel = {
         ip: rawSession.userIpAddress,
         deviceId: rawSession.deviceId,
         title: rawSession.userDeviceTitle,
