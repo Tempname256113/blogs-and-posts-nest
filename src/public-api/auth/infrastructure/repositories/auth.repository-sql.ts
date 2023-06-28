@@ -41,4 +41,14 @@ export class AuthRepositorySql {
       [uniqueKey, userIpAddress, userDeviceTitle, deviceId],
     );
   }
+
+  async deleteSessionByDeviceId(deviceId: number): Promise<void> {
+    await this.dataSource.query(
+      `
+    DELETE FROM public.sessions s
+    WHERE s.device_id = $1
+    `,
+      [deviceId],
+    );
+  }
 }

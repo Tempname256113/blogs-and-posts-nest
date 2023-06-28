@@ -107,15 +107,13 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthRefreshTokenGuard)
   async logout(
-    @Cookies(CookiesEnum.REFRESH_TOKEN_PROPERTY)
-    refreshToken: string | undefined,
+    @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
+    refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<void> {
-    if (!refreshToken) {
-      throw new UnauthorizedException();
-    }
     await this.commandBus.execute<LogoutCommand, void>(
-      new LogoutCommand(refreshToken),
+      new LogoutCommand(refreshTokenPayload),
     );
   }
 

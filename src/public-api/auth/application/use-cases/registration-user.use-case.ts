@@ -1,17 +1,13 @@
 import { UserCreateDto } from '../../../../admin-api/user/api/models/user-api.dto';
-import {
-  User,
-  UserSchema,
-} from '../../../../../libs/db/mongoose/schemes/user.entity';
-import { Model } from 'mongoose';
+import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
-import { InjectModel } from '@nestjs/mongoose';
 import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
-import { UserRepository } from '../../../../admin-api/user/infrastructure/repositories/user.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { randomUUID } from 'crypto';
+import { add } from 'date-fns';
 
 export class RegistrationUserCommand {
   constructor(public readonly createNewUserDTO: UserCreateDto) {}
@@ -22,16 +18,23 @@ export class RegistrationUserUseCase
   implements ICommandHandler<RegistrationUserCommand, void>
 {
   constructor(
-    @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     private emailService: NodemailerService,
-    private usersRepository: UserRepository,
     private usersRepositorySQL: UserRepositorySql,
     private usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
   async execute({ createNewUserDTO }: RegistrationUserCommand): Promise<void> {
+    const emailConfirmationCode: string = randomUUID();
+    const expirationDateEmailConfirmation: string = add(new Date(), {
+      days: 3,
+    }).toISOString();
     await this.checkUserExistence(createNewUserDTO);
-    const emailConfirmationCode: string =
-      await this.usersRepositorySQL.registrationNewUser(createNewUserDTO);
+    await this.usersRepositorySQL.registrationNewUser({
+      login: createNewUserDTO.login,
+      password: createNewUserDTO.password,
+      email: createNewUserDTO.email,
+      emailConfirmationCode,
+      expirationDateEmailConfirmation,
+    });
     this.emailService.sendUserConfirmation(
       createNewUserDTO.email,
       emailConfirmationCode,

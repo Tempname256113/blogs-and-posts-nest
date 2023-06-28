@@ -17,6 +17,8 @@ import { UpdateTokensPairUseCase } from '../../public-api/auth/application/use-c
 import { SendPasswordRecoveryCodeUseCase } from '../../public-api/auth/application/use-cases/send-password-recovery-code.use-case';
 import { SetNewPasswordUseCase } from '../../public-api/auth/application/use-cases/set-new-password.use-case';
 import { AuthRepositorySql } from '../../public-api/auth/infrastructure/repositories/auth.repository-sql';
+import { AuthJwtRefreshTokenStrategy } from '../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
+import { AuthQueryRepositorySQL } from '../../public-api/auth/infrastructure/repositories/auth.query-repository-sql';
 
 const UseCases = [
   RegistrationUserUseCase,
@@ -42,6 +44,8 @@ const UseCases = [
   providers: [
     AuthRepository,
     AuthRepositorySql,
+    AuthQueryRepositorySQL,
+    AuthJwtRefreshTokenStrategy,
     AuthLocalStrategy,
     ...UseCases,
   ],

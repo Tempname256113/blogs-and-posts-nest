@@ -1,8 +1,6 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, QueryRunner } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { UserCreateDto } from '../../api/models/user-api.dto';
-import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
 import { hash } from 'bcrypt';
 
@@ -10,11 +8,13 @@ import { hash } from 'bcrypt';
 export class UserRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async registrationNewUser(createUserDTO: UserCreateDto): Promise<string> {
-    const emailConfirmationCode: string = randomUUID();
-    const expirationDateEmailConfirmation: string = add(new Date(), {
-      days: 3,
-    }).toISOString();
+  async registrationNewUser(createUserDTO: {
+    login: string;
+    password: string;
+    email: string;
+    emailConfirmationCode: string;
+    expirationDateEmailConfirmation: string;
+  }): Promise<void> {
     const passwordHash: string = await hash(createUserDTO.password, 10);
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -34,7 +34,11 @@ export class UserRepositorySql {
         INSERT INTO public.users_email_confirmation_info(user_id, confirmation_code, expiration_date, is_confirmed)
         VALUES($1, $2, $3, false);
       `,
-        [userId, emailConfirmationCode, expirationDateEmailConfirmation],
+        [
+          userId,
+          createUserDTO.emailConfirmationCode,
+          createUserDTO.expirationDateEmailConfirmation,
+        ],
       );
       await queryRunner.query(
         `
@@ -50,10 +54,9 @@ export class UserRepositorySql {
     } finally {
       await queryRunner.release();
     }
-    return emailConfirmationCode;
   }
 
-  async confirmRegistration(confirmationEmailCode: string): Promise<void> {
+  async confirmUserRegistration(confirmationEmailCode: string): Promise<void> {
     await this.dataSource.query(
       `
     UPDATE public.users_email_confirmation_info

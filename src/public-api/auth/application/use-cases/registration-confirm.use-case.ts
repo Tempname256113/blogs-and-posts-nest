@@ -35,6 +35,6 @@ export class RegistrationConfirmUseCase
     ) {
       throw new BadRequestException(exceptionFactoryFunction([errorField]));
     }
-    await this.usersRepositorySQL.confirmRegistration(confirmationCode);
+    await this.usersRepositorySQL.confirmUserRegistration(confirmationCode);
   }
 }
