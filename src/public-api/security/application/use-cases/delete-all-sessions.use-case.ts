@@ -1,11 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import {
-  Session,
-  SessionSchema,
-} from '../../../../../libs/db/mongoose/schemes/session.entity';
-import { FilterQuery, Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 export class DeleteAllSessionsExceptCurrentCommand {
   constructor(
@@ -17,25 +13,17 @@ export class DeleteAllSessionsExceptCurrentCommand {
 export class DeleteAllSessionsExceptCurrentUseCase
   implements ICommandHandler<DeleteAllSessionsExceptCurrentCommand, void>
 {
-  constructor(
-    @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
-  ) {}
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async execute({
     reqRefreshTokenPayload,
   }: DeleteAllSessionsExceptCurrentCommand): Promise<void> {
-    const allFoundedSessions: Session[] = await this.SessionModel.find({
-      userId: reqRefreshTokenPayload.userId,
-    }).lean();
-    const deviceIdForDeleteArray: number[] = [];
-    for (const sessionFromDB of allFoundedSessions) {
-      if (sessionFromDB.deviceId !== reqRefreshTokenPayload.deviceId) {
-        deviceIdForDeleteArray.push(sessionFromDB.deviceId);
-      }
-    }
-    const filter: FilterQuery<SessionSchema> = {
-      deviceId: { $in: deviceIdForDeleteArray },
-    };
-    await this.SessionModel.deleteMany(filter);
+    await this.dataSource.query(
+      `
+    DELETE FROM public.sessions s
+    WHERE s.user_id = $1 AND s.device_id != $2
+    `,
+      [reqRefreshTokenPayload.userId, reqRefreshTokenPayload.deviceId],
+    );
   }
 }
