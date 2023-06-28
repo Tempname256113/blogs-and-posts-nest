@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
@@ -6,10 +6,16 @@ import {
   UserEmailInfoType,
   UserPasswordRecoveryInfoType,
 } from '../../api/models/user-api.models';
+import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
+import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 
 @Injectable()
 export class UserQueryRepositorySQL {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly jwtUtils: JwtUtils,
+  ) {}
 
   async findUserWithSimilarLoginOrEmail(data: {
     login: string;
@@ -132,5 +138,31 @@ export class UserQueryRepositorySQL {
     } else {
       return null;
     }
+  }
+
+  async getInfoAboutUser(
+    accessToken: string,
+  ): Promise<AuthApiUserInfoType | null> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtUtils.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) {
+      throw new UnauthorizedException();
+    }
+    const result: any[] = await this.dataSource.query(
+      `
+    SELECT u.id, u.login, u.email
+    FROM public.users u
+    WHERE u.id = $1
+    `,
+      [accessTokenPayload.userId],
+    );
+    if (result.length < 1) return null;
+    const res: any = result[0];
+    const mappedUser: AuthApiUserInfoType = {
+      userId: res.id,
+      login: res.login,
+      email: res.email,
+    };
+    return mappedUser;
   }
 }

@@ -21,10 +21,8 @@ import {
   AuthApiEmailPropertyDTO,
   NewPasswordDTO,
 } from './models/auth-api.dto';
-import { Cookies } from '../../../../generic-decorators/cookies.decorator';
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { AuthApiUserInfoType } from './models/auth-api.models';
-import { UserQueryRepository } from '../../../admin-api/user/infrastructure/repositories/user.query-repository';
 import { ClientDeviceTitle } from '../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -38,11 +36,12 @@ import { LogoutCommand } from '../application/use-cases/logout-user.use-case';
 import { UpdateTokensPairCommand } from '../application/use-cases/update-tokens-pair.use-case';
 import { SendPasswordRecoveryCodeCommand } from '../application/use-cases/send-password-recovery-code.use-case';
 import { SetNewPasswordCommand } from '../application/use-cases/set-new-password.use-case';
+import { UserQueryRepositorySQL } from '../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private usersQueryRepository: UserQueryRepository,
+    private readonly usersQueryRepositorySQL: UserQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}
   @Post('registration')
@@ -181,7 +180,7 @@ export class AuthController {
   ): Promise<AuthApiUserInfoType> {
     if (!accessToken) throw new UnauthorizedException();
     const foundedUserInfo: AuthApiUserInfoType | null =
-      await this.usersQueryRepository.getInfoAboutUser(accessToken);
+      await this.usersQueryRepositorySQL.getInfoAboutUser(accessToken);
     if (!foundedUserInfo) throw new UnauthorizedException();
     return foundedUserInfo;
   }
