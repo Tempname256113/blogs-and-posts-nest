@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { SecurityRepositorySQL } from '../../infrastructure/repositories/security.repository-sql';
 
 export class DeleteAllSessionsExceptCurrentCommand {
   constructor(
@@ -13,17 +12,14 @@ export class DeleteAllSessionsExceptCurrentCommand {
 export class DeleteAllSessionsExceptCurrentUseCase
   implements ICommandHandler<DeleteAllSessionsExceptCurrentCommand, void>
 {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(private readonly securityRepositorySQL: SecurityRepositorySQL) {}
 
   async execute({
     reqRefreshTokenPayload,
   }: DeleteAllSessionsExceptCurrentCommand): Promise<void> {
-    await this.dataSource.query(
-      `
-    DELETE FROM public.sessions s
-    WHERE s.user_id = $1 AND s.device_id != $2
-    `,
-      [reqRefreshTokenPayload.userId, reqRefreshTokenPayload.deviceId],
-    );
+    await this.securityRepositorySQL.deleteAllSessionsExceptCurrent({
+      userId: reqRefreshTokenPayload.userId,
+      deviceId: reqRefreshTokenPayload.deviceId,
+    });
   }
 }

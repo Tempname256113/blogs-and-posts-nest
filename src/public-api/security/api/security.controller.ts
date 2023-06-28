@@ -54,7 +54,7 @@ export class SecurityController {
   async deleteSessionByDeviceId(
     @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
-    @Param('deviceId') deviceId: string,
+    @Param('deviceId') deviceId: number,
   ): Promise<void> {
     await this.commandBus.execute<DeleteSessionByDeviceIdCommand, void>(
       new DeleteSessionByDeviceIdCommand({ deviceId, refreshTokenPayload }),

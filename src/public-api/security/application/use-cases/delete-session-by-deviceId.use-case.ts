@@ -1,17 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import {
-  Session,
-  SessionSchema,
-} from '../../../../../libs/db/mongoose/schemes/session.entity';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { SecurityQueryRepositorySQL } from '../../infrastructure/repositories/security.query-repository-sql';
+import { SessionRepositoryType } from '../../../auth/infrastructure/repositories/models/auth-repository.dto';
+import { SecurityRepositorySQL } from '../../infrastructure/repositories/security.repository-sql';
 
 export class DeleteSessionByDeviceIdCommand {
   constructor(
     public readonly data: {
-      deviceId: string;
+      deviceId: number;
       refreshTokenPayload: JwtRefreshTokenPayloadType;
     },
   ) {}
@@ -22,20 +19,19 @@ export class DeleteSessionByDeviceIdUseCase
   implements ICommandHandler<DeleteSessionByDeviceIdCommand, void>
 {
   constructor(
-    @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
+    private readonly securityQueryRepositorySQL: SecurityQueryRepositorySQL,
+    private readonly securityRepositorySQL: SecurityRepositorySQL,
   ) {}
 
   async execute({ data }: DeleteSessionByDeviceIdCommand): Promise<void> {
-    const foundedSessionByDeviceId: Session | null =
-      await this.SessionModel.findOne({
-        deviceId: data.deviceId,
-      }).lean();
+    const foundedSessionByDeviceId: SessionRepositoryType | null =
+      await this.securityQueryRepositorySQL.getSessionByDeviceId(data.deviceId);
     if (!foundedSessionByDeviceId) {
       throw new NotFoundException();
     }
     if (foundedSessionByDeviceId.userId !== data.refreshTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    await this.SessionModel.deleteOne({ deviceId: data.deviceId });
+    await this.securityRepositorySQL.deleteSessionByDeviceId(data.deviceId);
   }
 }
