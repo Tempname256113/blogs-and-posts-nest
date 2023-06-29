@@ -139,4 +139,30 @@ export class UserRepositorySql {
       await queryRunner.release();
     }
   }
+
+  async banUnbanUserById(banUserDTO: {
+    userId: number;
+    banReason?: string;
+    isBanned: boolean;
+  }): Promise<void> {
+    if (banUserDTO.isBanned) {
+      await this.dataSource.query(
+        `
+    UPDATE public.users u
+    SET "is_banned" = true, "ban_reason" = $1, ban_date = now()
+    WHERE "id" = $2
+    `,
+        [banUserDTO.banReason, banUserDTO.userId],
+      );
+    } else {
+      await this.dataSource.query(
+        `
+    UPDATE public.users u
+    SET "is_banned" = false, "ban_reason" = null, ban_date = null
+    WHERE "id" = $1
+    `,
+        [banUserDTO.userId],
+      );
+    }
+  }
 }
