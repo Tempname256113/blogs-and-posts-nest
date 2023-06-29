@@ -1,14 +1,25 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
+import {
+  User,
+  UserSchema,
+} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
   UserEmailInfoType,
+  UserPaginationViewModel,
   UserPasswordRecoveryInfoType,
+  UserViewModel,
 } from '../../api/models/user-api.models';
 import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
+import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
+import { FilterQuery } from 'mongoose';
+import {
+  getPaginationUtils,
+  PaginationUtilsType,
+} from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 
 @Injectable()
 export class UserQueryRepositorySQL {
@@ -164,5 +175,115 @@ export class UserQueryRepositorySQL {
       email: res.email,
     };
     return mappedUser;
+  }
+
+  async getUsersWithPagination(
+    rawPaginationQuery: IUserApiPaginationQueryDto,
+  ): Promise<UserPaginationViewModel> {
+    let correctSortBy: string = rawPaginationQuery.sortBy;
+    switch (rawPaginationQuery.sortBy) {
+      case 'login':
+        correctSortBy = 'u.login';
+        break;
+      case 'email':
+        correctSortBy = 'u.email';
+        break;
+      case 'createdAt':
+        correctSortBy = 'u.created_at';
+        break;
+    }
+    let correctBanStatus: string = rawPaginationQuery.banStatus;
+    switch (rawPaginationQuery.banStatus) {
+      case 'all':
+        correctBanStatus = 'u.is_banned = true OR u.is_banned = false';
+        break;
+      case 'banned':
+        correctBanStatus = 'u.is_banned = true';
+        break;
+      case 'notBanned':
+        correctBanStatus = 'u.is_banned = false';
+        break;
+    }
+    let correctSearchTerm: string | null = null;
+    const createCorrectFilter = (): void => {
+      if (
+        rawPaginationQuery.searchLoginTerm ||
+        rawPaginationQuery.searchEmailTerm
+      ) {
+        correctSearchTerm = '';
+        if (rawPaginationQuery.searchLoginTerm) {
+          correctSearchTerm += `u.login ILIKE %${rawPaginationQuery.searchLoginTerm}%`;
+        }
+        if (rawPaginationQuery.searchEmailTerm) {
+          if (correctSearchTerm) {
+            correctSearchTerm += ` AND u.email ILIKE %${rawPaginationQuery.searchEmailTerm}%`;
+          } else {
+            correctSearchTerm += `u.email ILIKE %${rawPaginationQuery.searchEmailTerm}%`;
+          }
+        }
+      }
+    };
+    createCorrectFilter();
+    const getAllUsersCount = async (): Promise<number> => {
+      if (correctSearchTerm) {
+        const result: any[] = await this.dataSource.query(`
+        SELECT COUNT(*) FROM public.users u
+        WHERE ${correctSearchTerm}
+        `);
+        return result[0].count;
+      } else {
+        const result: any[] = await this.dataSource.query(`
+        SELECT COUNT(*) FROM public.users u
+        `);
+        return result[0].count;
+      }
+    };
+    const allUsersCount: number = await getAllUsersCount();
+    const howMuchToSkip: number =
+      rawPaginationQuery.pageSize * (rawPaginationQuery.pageNumber - 1);
+    const pagesCount: number = Math.ceil(
+      allUsersCount / rawPaginationQuery.pageSize,
+    );
+    const getRawUsers = async (): Promise<any[]> => {
+      if (correctSearchTerm) {
+        return this.dataSource.query(`
+        SELECT u.id, u.login, u.email, u.created_at, u.is_banned, u.ban_date, u.ban_reason
+        FROM public.users u
+        WHERE ${correctSearchTerm} 
+        ORDER BY ${correctSortBy} ${rawPaginationQuery.sortDirection.toUpperCase()}
+        LIMIT ${rawPaginationQuery.pageSize} OFFSET ${howMuchToSkip}
+        `);
+      } else {
+        return this.dataSource.query(`
+        SELECT u.id, u.login, u.email, u.created_at, u.is_banned, u.ban_date, u.ban_reason
+        FROM public.users u 
+        ORDER BY ${correctSortBy} ${rawPaginationQuery.sortDirection.toUpperCase()}
+        LIMIT ${rawPaginationQuery.pageSize} OFFSET ${howMuchToSkip}
+        `);
+      }
+    };
+    const foundedUsers: any[] = await getRawUsers();
+    const mappedUsers: UserViewModel[] = foundedUsers.map((rawUser) => {
+      const mappedUser: UserViewModel = {
+        id: rawUser.id,
+        login: rawUser.login,
+        email: rawUser.email,
+        createdAt: rawUser.created_at,
+        banInfo: {
+          isBanned: rawUser.is_banned,
+          banDate: rawUser.ban_date,
+          banReason: rawUser.ban_reason,
+        },
+      };
+      return mappedUser;
+    });
+    const usersPaginationResult: UserPaginationViewModel = {
+      pagesCount: pagesCount,
+      page: Number(rawPaginationQuery.pageNumber),
+      pageSize: Number(rawPaginationQuery.pageSize),
+      totalCount: allUsersCount,
+      items: mappedUsers,
+    };
+    return usersPaginationResult;
   }
 }

@@ -16,18 +16,18 @@ import {
   UserViewModel,
   UserPaginationViewModel,
 } from './models/user-api.models';
-import { UserQueryRepository } from '../infrastructure/repositories/user.query-repository';
 import { IUserApiPaginationQueryDto } from './models/user-api.query-dto';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/use-cases/create-user.use-case';
 import { DeleteUserByIdCommand } from '../application/use-cases/delete-user-by-id.use-case';
 import { BanUnbanUserCommand } from '../application/use-cases/ban-unban-user.use-case';
+import { UserQueryRepositorySQL } from '../infrastructure/repositories/user.query-repository-sql';
 
 @Controller('sa/users')
 export class UserAdminController {
   constructor(
-    private userQueryRepository: UserQueryRepository,
+    private readonly usersQueryRepositorySQL: UserQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}
   @Post()
@@ -47,7 +47,7 @@ export class UserAdminController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async banUnbanUser(
-    @Param('userId') userId: string,
+    @Param('userId') userId: number,
     @Body() banUnbanDTO: UserBanUnbanDTO,
   ): Promise<void> {
     await this.commandBus.execute<BanUnbanUserCommand, void>(
@@ -71,7 +71,9 @@ export class UserAdminController {
       banStatus: rawPaginationQuery.banStatus ?? 'all',
     };
     const usersWithPagination: UserPaginationViewModel =
-      await this.userQueryRepository.getUsersWithPagination(paginationQuery);
+      await this.usersQueryRepositorySQL.getUsersWithPagination(
+        paginationQuery,
+      );
     return usersWithPagination;
   }
 
