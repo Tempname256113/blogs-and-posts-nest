@@ -7,6 +7,8 @@ import { UserSchema } from '../libs/db/mongoose/schemes/user.entity';
 import { SessionSchema } from '../libs/db/mongoose/schemes/session.entity';
 import { CommentSchema } from '../libs/db/mongoose/schemes/comment.entity';
 import { LikeSchema } from '../libs/db/mongoose/schemes/like.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Controller('testing')
 export class AppController {
@@ -17,6 +19,7 @@ export class AppController {
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     @InjectModel(LikeSchema.name) private LikeModel: Model<LikeSchema>,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -28,6 +31,12 @@ export class AppController {
       this.SessionModel.deleteMany(),
       this.CommentModel.deleteMany(),
       this.LikeModel.deleteMany(),
+      this.dataSource.query(`
+      DELETE FROM public.users_email_confirmation_info
+      DELETE FROM public.users_password_recovery_info
+      DELETE FROM public.sessions
+      DELETE FROM public.users
+      `),
     ]);
   }
 }
