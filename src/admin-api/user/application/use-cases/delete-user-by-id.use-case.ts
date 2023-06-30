@@ -1,21 +1,20 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
-import { UserRepository } from '../../infrastructure/repositories/user.repository';
+import { UserRepositorySql } from '../../infrastructure/repositories/user.repository-sql';
 
 export class DeleteUserByIdCommand {
-  constructor(public readonly userId: string) {}
+  constructor(public readonly userId: number) {}
 }
 
 @CommandHandler(DeleteUserByIdCommand)
 export class DeleteUserByIdUseCase
   implements ICommandHandler<DeleteUserByIdCommand, void>
 {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private readonly usersRepositorySQL: UserRepositorySql) {}
 
   async execute({ userId }: DeleteUserByIdCommand): Promise<void> {
-    const deleteUserStatus: boolean = await this.userRepository.deleteUserById(
-      userId,
-    );
+    const deleteUserStatus: boolean =
+      await this.usersRepositorySQL.deleteUserById(userId);
     if (!deleteUserStatus) throw new NotFoundException();
   }
 }

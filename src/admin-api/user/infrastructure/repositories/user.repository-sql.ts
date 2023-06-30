@@ -213,4 +213,16 @@ export class UserRepositorySql {
       await queryRunner.release();
     }
   }
+
+  async deleteUserById(userId: number): Promise<boolean> {
+    const result: any[] = await this.dataSource.query(
+      `
+    DELETE FROM public.users
+    WHERE "id" = $1
+    RETURNING "id"
+    `,
+      [userId],
+    );
+    return result.length >= 1;
+  }
 }

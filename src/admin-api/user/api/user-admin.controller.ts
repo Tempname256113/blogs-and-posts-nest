@@ -80,7 +80,7 @@ export class UserAdminController {
   @Delete(':userId')
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUserById(@Param('userId') userId: string): Promise<void> {
+  async deleteUserById(@Param('userId') userId: number): Promise<void> {
     await this.commandBus.execute<DeleteUserByIdCommand, void>(
       new DeleteUserByIdCommand(userId),
     );
