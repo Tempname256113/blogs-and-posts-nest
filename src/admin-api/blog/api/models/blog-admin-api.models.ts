@@ -6,7 +6,7 @@ export type BlogAdminApiModel = {
   createdAt: string;
   isMembership: boolean;
   blogOwnerInfo: {
-    userId: string;
+    userId: number;
     userLogin: string;
   };
   banInfo: {

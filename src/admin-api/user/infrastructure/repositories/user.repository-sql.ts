@@ -165,4 +165,52 @@ export class UserRepositorySql {
       );
     }
   }
+
+  async createNewUser(createUserDTO: {
+    login: string;
+    password: string;
+    email: string;
+  }): Promise<{ userId: number; createdAt: string }> {
+    const passwordHash: string = await hash(createUserDTO.password, 10);
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const createdUser: [{ user_id: number; created_at: string }] =
+        await queryRunner.query(
+          `
+        INSERT INTO public.users("login", "password", "email")
+        VALUES($1, $2, $3)
+        RETURNING "id" as "user_id", "created_at"
+      `,
+          [createUserDTO.login, passwordHash, createUserDTO.email],
+        );
+      const userId: number = createdUser[0].user_id;
+      const userCreatedAt: string = createdUser[0].created_at;
+      await queryRunner.query(
+        `
+        INSERT INTO public.users_email_confirmation_info(user_id, confirmation_code, expiration_date, is_confirmed)
+        VALUES($1, null, null, true);
+      `,
+        [userId],
+      );
+      await queryRunner.query(
+        `
+        INSERT INTO public.users_password_recovery_info(user_id, recovery_code, recovery_status)
+        VALUES($1, null, false);
+      `,
+        [userId],
+      );
+      await queryRunner.commitTransaction();
+      return {
+        userId,
+        createdAt: userCreatedAt,
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.log(err);
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }

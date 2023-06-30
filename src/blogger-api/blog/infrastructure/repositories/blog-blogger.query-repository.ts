@@ -75,7 +75,7 @@ export class BlogBloggerQueryRepository {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const bloggerId: string = accessTokenPayload.userId;
+    const bloggerId: number = accessTokenPayload.userId;
     const blogsWithPagination =
       async (): Promise<BlogBloggerApiPaginationViewModel> => {
         // let filter: FilterQuery<BlogSchema>;
@@ -160,7 +160,7 @@ export class BlogBloggerQueryRepository {
     blogId: string;
     accessToken: string | null;
   }): Promise<PostPaginationViewModel> {
-    const getUserId = (): string | null => {
+    const getUserId = (): number | null => {
       if (!accessToken) {
         return null;
       } else {
@@ -173,7 +173,7 @@ export class BlogBloggerQueryRepository {
         }
       }
     };
-    const userId: string | null = getUserId();
+    const userId: number | null = getUserId();
     const foundedBlog: Blog | null = await this.BlogModel.findOne({
       id: blogId,
       hidden: false,
@@ -260,7 +260,7 @@ export class BlogBloggerQueryRepository {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const userId: string = accessTokenPayload.userId;
+    const userId: number = accessTokenPayload.userId;
     const foundedPosts: Post[] = await this.PostModel.find({
       bloggerId: userId,
       hidden: false,

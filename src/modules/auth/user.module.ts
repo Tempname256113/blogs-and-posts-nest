@@ -12,6 +12,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { BanUnbanUserUseCase } from '../../admin-api/user/application/use-cases/ban-unban-user.use-case';
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { UserRepositorySql } from '../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { SecurityRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.repository-sql';
 
 const UseCases = [
   CreateUserUseCase,
@@ -25,6 +26,7 @@ const UseCases = [
   providers: [
     UserRepository,
     UserRepositorySql,
+    SecurityRepositorySQL,
     UserQueryRepository,
     UserQueryRepositorySQL,
     AuthBasicStrategy,

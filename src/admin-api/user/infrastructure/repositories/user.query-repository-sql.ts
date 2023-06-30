@@ -1,10 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import {
-  User,
-  UserSchema,
-} from '../../../../../libs/db/mongoose/schemes/user.entity';
+import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
   UserEmailInfoType,
   UserPaginationViewModel,
@@ -15,11 +12,6 @@ import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
-import { FilterQuery } from 'mongoose';
-import {
-  getPaginationUtils,
-  PaginationUtilsType,
-} from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 
 @Injectable()
 export class UserQueryRepositorySQL {
