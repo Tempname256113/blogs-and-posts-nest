@@ -22,16 +22,11 @@ export class UserRepositorySql {
     try {
       const createdUser: [{ user_id: string }] = await queryRunner.query(
         `
-        INSERT INTO public.users("login", "password", "email", "created_at")
-        VALUES($1, $2, $3, $4)
+        INSERT INTO public.users("login", "password", "email")
+        VALUES($1, $2, $3)
         RETURNING "id" as "user_id";
       `,
-        [
-          createUserDTO.login,
-          passwordHash,
-          createUserDTO.email,
-          new Date().toISOString(),
-        ],
+        [createUserDTO.login, passwordHash, createUserDTO.email],
       );
       const userId: string = createdUser[0].user_id;
       await queryRunner.query(
@@ -176,7 +171,6 @@ export class UserRepositorySql {
     password: string;
     email: string;
   }): Promise<{ userId: number; createdAt: string }> {
-    // commit
     const passwordHash: string = await hash(createUserDTO.password, 10);
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -185,16 +179,11 @@ export class UserRepositorySql {
       const createdUser: [{ user_id: number; created_at: string }] =
         await queryRunner.query(
           `
-        INSERT INTO public.users("login", "password", "email", "created_at")
-        VALUES($1, $2, $3, $4)
+        INSERT INTO public.users("login", "password", "email")
+        VALUES($1, $2, $3)
         RETURNING "id" as "user_id", "created_at"
       `,
-          [
-            createUserDTO.login,
-            passwordHash,
-            createUserDTO.email,
-            new Date().toISOString(),
-          ],
+          [createUserDTO.login, passwordHash, createUserDTO.email],
         );
       const userId: number = createdUser[0].user_id;
       const userCreatedAt: string = createdUser[0].created_at;
