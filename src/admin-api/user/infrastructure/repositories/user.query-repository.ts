@@ -94,7 +94,7 @@ export class UserQueryRepository {
     ).lean();
     const mappedUsers: UserViewModel[] = foundedUsers.map((rawUser) => {
       const mappedUser: UserViewModel = {
-        id: Number(rawUser.id),
+        id: String(rawUser.id),
         login: rawUser.accountData.login,
         email: rawUser.accountData.email,
         createdAt: rawUser.accountData.createdAt,
