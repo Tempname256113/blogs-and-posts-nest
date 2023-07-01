@@ -176,6 +176,7 @@ export class UserRepositorySql {
     password: string;
     email: string;
   }): Promise<{ userId: number; createdAt: string }> {
+    // commit
     const passwordHash: string = await hash(createUserDTO.password, 10);
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
