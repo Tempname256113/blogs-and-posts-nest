@@ -204,18 +204,19 @@ export class UserQueryRepositorySQL {
       ) {
         correctSearchTerm = '';
         if (rawPaginationQuery.searchLoginTerm) {
-          correctSearchTerm += `u.login ILIKE %${rawPaginationQuery.searchLoginTerm}%`;
+          correctSearchTerm += `u.login ILIKE '%${rawPaginationQuery.searchLoginTerm}%'`;
         }
         if (rawPaginationQuery.searchEmailTerm) {
           if (correctSearchTerm) {
-            correctSearchTerm += ` AND u.email ILIKE %${rawPaginationQuery.searchEmailTerm}%`;
+            correctSearchTerm += ` AND u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
           } else {
-            correctSearchTerm += `u.email ILIKE %${rawPaginationQuery.searchEmailTerm}%`;
+            correctSearchTerm += `u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
           }
         }
       }
     };
     createCorrectFilter();
+    console.log(correctSearchTerm);
     const getAllUsersCount = async (): Promise<number> => {
       if (correctSearchTerm) {
         const result: any[] = await this.dataSource.query(`
