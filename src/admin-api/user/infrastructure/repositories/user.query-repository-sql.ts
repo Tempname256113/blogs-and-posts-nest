@@ -257,7 +257,7 @@ export class UserQueryRepositorySQL {
     const foundedUsers: any[] = await getRawUsers();
     const mappedUsers: UserViewModel[] = foundedUsers.map((rawUser) => {
       const mappedUser: UserViewModel = {
-        id: rawUser.id,
+        id: String(rawUser.id),
         login: rawUser.login,
         email: rawUser.email,
         createdAt: rawUser.created_at,
