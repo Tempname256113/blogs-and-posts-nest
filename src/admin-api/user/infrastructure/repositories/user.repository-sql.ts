@@ -225,38 +225,14 @@ export class UserRepositorySql {
   }
 
   async deleteUserById(userId: number): Promise<boolean> {
-    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      const result: any[] = await queryRunner.query(
-        `
+    const result: any[] = await this.dataSource.query(
+      `
     DELETE FROM public.users
     WHERE "id" = $1
     RETURNING "id"
     `,
-        [userId],
-      );
-      await queryRunner.query(
-        `
-      DELETE FROM public.users_email_confirmation_info
-      WHERE "user_id" = $1
-      `,
-        [userId],
-      );
-      await queryRunner.query(
-        `
-      DELETE FROM public.users_password_recovery_info
-      WHERE "user_id" = $1
-      `,
-        [userId],
-      );
-      await queryRunner.commitTransaction();
-      return result.length >= 1;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-    } finally {
-      await queryRunner.release();
-    }
+      [userId],
+    );
+    return result.length >= 1;
   }
 }

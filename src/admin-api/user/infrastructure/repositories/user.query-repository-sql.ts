@@ -275,7 +275,7 @@ export class UserQueryRepositorySQL {
       pagesCount: pagesCount,
       page: Number(rawPaginationQuery.pageNumber),
       pageSize: Number(rawPaginationQuery.pageSize),
-      totalCount: allUsersCount,
+      totalCount: Number(allUsersCount),
       items: mappedUsers,
     };
     return usersPaginationResult;
