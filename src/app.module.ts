@@ -8,7 +8,7 @@ import { SecurityModule } from './modules/auth/security.module';
 import { PostModule } from './modules/product/post.module';
 import { BlogModule } from './modules/product/blog.module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 const ProductModules = [PostModule, BlogModule];
 
@@ -16,11 +16,27 @@ const AuthModules = [AuthModule, SecurityModule];
 
 const envVariables: EnvConfiguration = new EnvConfiguration();
 
-const postgresLocal = {
+const postgresLocal: TypeOrmModuleOptions = {
+  type: 'postgres',
   host: envVariables.POSTGRES_LOCAL_HOST,
   port: Number(envVariables.POSTGRES_LOCAL_PORT),
   username: envVariables.POSTGRES_LOCAL_USERNAME,
   password: envVariables.POSTGRES_LOCAL_PASSWORD,
+  database: 'incubator',
+  autoLoadEntities: false,
+  synchronize: false,
+};
+
+const postgresRemote: TypeOrmModuleOptions = {
+  type: 'postgres',
+  host: envVariables.POSTGRES_REMOTE_HOST,
+  port: Number(envVariables.POSTGRES_REMOTE_PORT),
+  username: envVariables.POSTGRES_REMOTE_USERNAME,
+  password: envVariables.POSTGRES_REMOTE_PASSWORD,
+  database: 'incubator',
+  autoLoadEntities: false,
+  synchronize: false,
+  ssl: true,
 };
 
 @Module({
@@ -37,16 +53,7 @@ const postgresLocal = {
         };
       },
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: postgresLocal.host,
-      port: postgresLocal.port,
-      username: postgresLocal.username,
-      password: postgresLocal.password,
-      database: 'incubator',
-      autoLoadEntities: false,
-      synchronize: false,
-    }),
+    TypeOrmModule.forRoot(postgresRemote),
     MongooseSchemesModule,
     ...ProductModules,
     ...AuthModules,

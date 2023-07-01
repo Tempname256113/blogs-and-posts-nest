@@ -29,6 +29,10 @@ export class EnvConfiguration {
   POSTGRES_LOCAL_PORT: string;
   POSTGRES_LOCAL_USERNAME: string;
   POSTGRES_LOCAL_PASSWORD: string;
+  POSTGRES_REMOTE_HOST: string;
+  POSTGRES_REMOTE_PORT: string;
+  POSTGRES_REMOTE_USERNAME: string;
+  POSTGRES_REMOTE_PASSWORD: string;
   constructor() {
     this.MONGO_URL = process.env.MONGO_URL;
     this.MONGO_LOCAL = process.env.MONGO_LOCAL;
@@ -43,5 +47,9 @@ export class EnvConfiguration {
     this.POSTGRES_LOCAL_PORT = process.env.POSTGRES_LOCAL_PORT;
     this.POSTGRES_LOCAL_USERNAME = process.env.POSTGRES_LOCAL_USERNAME;
     this.POSTGRES_LOCAL_PASSWORD = process.env.POSTGRES_LOCAL_PASSWORD;
+    this.POSTGRES_REMOTE_HOST = process.env.POSTGRES_REMOTE_HOST;
+    this.POSTGRES_REMOTE_PORT = process.env.POSTGRES_REMOTE_PORT;
+    this.POSTGRES_REMOTE_USERNAME = process.env.POSTGRES_REMOTE_USERNAME;
+    this.POSTGRES_REMOTE_PASSWORD = process.env.POSTGRES_REMOTE_PASSWORD;
   }
 }
