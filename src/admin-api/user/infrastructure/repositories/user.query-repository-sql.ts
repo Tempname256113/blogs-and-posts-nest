@@ -204,7 +204,7 @@ export class UserQueryRepositorySQL {
       ) {
         correctSearchTerm = '';
         if (rawPaginationQuery.searchLoginTerm) {
-          correctSearchTerm += `u.login ILIKE '%${rawPaginationQuery.searchLoginTerm}%'`;
+          correctSearchTerm += `u.login LIKE '%${rawPaginationQuery.searchLoginTerm}%'`;
         }
         if (rawPaginationQuery.searchEmailTerm) {
           if (correctSearchTerm) {
