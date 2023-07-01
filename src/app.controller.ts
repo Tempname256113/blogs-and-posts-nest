@@ -33,9 +33,13 @@ export class AppController {
       this.LikeModel.deleteMany(),
       this.dataSource.query(`
       DELETE FROM public.users_email_confirmation_info
+      WHERE 1=1;
       DELETE FROM public.users_password_recovery_info
+      WHERE 1=1;
       DELETE FROM public.sessions
+      WHERE 1=1;
       DELETE FROM public.users
+      WHERE 1=1;
       `),
     ]);
   }
