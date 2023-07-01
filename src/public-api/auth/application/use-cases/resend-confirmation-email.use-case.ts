@@ -1,4 +1,4 @@
-import { ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { randomUUID } from 'crypto';
@@ -14,6 +14,7 @@ export class ResendConfirmationEmailCommand {
   ) {}
 }
 
+@CommandHandler(ResendConfirmationEmailCommand)
 export class ResendConfirmationEmailUseCase
   implements ICommandHandler<ResendConfirmationEmailCommand, void>
 {
