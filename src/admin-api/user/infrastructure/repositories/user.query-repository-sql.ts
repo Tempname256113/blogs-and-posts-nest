@@ -208,9 +208,9 @@ export class UserQueryRepositorySQL {
         }
         if (rawPaginationQuery.searchEmailTerm) {
           if (correctSearchTerm) {
-            correctSearchTerm += ` AND u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
+            correctSearchTerm += ` AND u.email LIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
           } else {
-            correctSearchTerm += `u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
+            correctSearchTerm += `u.email LIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
           }
         }
       }
