@@ -187,7 +187,7 @@ export class UserQueryRepositorySQL {
     let correctBanStatus: string = rawPaginationQuery.banStatus;
     switch (rawPaginationQuery.banStatus) {
       case 'all':
-        correctBanStatus = 'u.is_banned = true OR u.is_banned = false';
+        correctBanStatus = '(u.is_banned = true OR u.is_banned = false)';
         break;
       case 'banned':
         correctBanStatus = 'u.is_banned = true';
@@ -202,21 +202,21 @@ export class UserQueryRepositorySQL {
         rawPaginationQuery.searchLoginTerm ||
         rawPaginationQuery.searchEmailTerm
       ) {
-        correctSearchTerm = '';
+        correctSearchTerm = '(';
         if (rawPaginationQuery.searchLoginTerm) {
-          correctSearchTerm += `u.login LIKE '%${rawPaginationQuery.searchLoginTerm}%'`;
+          correctSearchTerm += `u.login ILIKE '%${rawPaginationQuery.searchLoginTerm}%'`;
         }
         if (rawPaginationQuery.searchEmailTerm) {
           if (correctSearchTerm) {
-            correctSearchTerm += ` AND u.email LIKE '%${rawPaginationQuery.searchEmailTerm}'`;
+            correctSearchTerm += ` OR u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
           } else {
-            correctSearchTerm += `u.email LIKE '%${rawPaginationQuery.searchEmailTerm}'`;
+            correctSearchTerm += `u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
           }
         }
+        correctSearchTerm += ')';
       }
     };
     createCorrectFilter();
-    console.log(correctSearchTerm);
     const getAllUsersCount = async (): Promise<number> => {
       if (correctSearchTerm) {
         const result: any[] = await this.dataSource.query(`
