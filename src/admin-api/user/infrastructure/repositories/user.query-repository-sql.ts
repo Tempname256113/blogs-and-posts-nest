@@ -220,12 +220,13 @@ export class UserQueryRepositorySQL {
       if (correctSearchTerm) {
         const result: any[] = await this.dataSource.query(`
         SELECT COUNT(*) FROM public.users u
-        WHERE ${correctSearchTerm}
+        WHERE ${correctSearchTerm} AND ${correctBanStatus}
         `);
         return result[0].count;
       } else {
         const result: any[] = await this.dataSource.query(`
         SELECT COUNT(*) FROM public.users u
+        WHERE ${correctBanStatus}
         `);
         return result[0].count;
       }
@@ -241,7 +242,7 @@ export class UserQueryRepositorySQL {
         return this.dataSource.query(`
         SELECT u.id, u.login, u.email, u.created_at, u.is_banned, u.ban_date, u.ban_reason
         FROM public.users u
-        WHERE ${correctSearchTerm} 
+        WHERE ${correctSearchTerm} AND ${correctBanStatus}
         ORDER BY ${correctSortBy} ${rawPaginationQuery.sortDirection.toUpperCase()}
         LIMIT ${rawPaginationQuery.pageSize} OFFSET ${howMuchToSkip}
         `);
@@ -249,6 +250,7 @@ export class UserQueryRepositorySQL {
         return this.dataSource.query(`
         SELECT u.id, u.login, u.email, u.created_at, u.is_banned, u.ban_date, u.ban_reason
         FROM public.users u 
+        WHERE ${correctBanStatus}
         ORDER BY ${correctSortBy} ${rawPaginationQuery.sortDirection.toUpperCase()}
         LIMIT ${rawPaginationQuery.pageSize} OFFSET ${howMuchToSkip}
         `);
