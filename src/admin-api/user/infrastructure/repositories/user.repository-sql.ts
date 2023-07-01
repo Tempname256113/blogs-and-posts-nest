@@ -225,6 +225,9 @@ export class UserRepositorySql {
   }
 
   async deleteUserById(userId: number): Promise<boolean> {
+    if (!Number(userId)) {
+      return false;
+    }
     const result: any[] = await this.dataSource.query(
       `
     DELETE FROM public.users
