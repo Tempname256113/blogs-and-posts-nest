@@ -17,7 +17,7 @@ export class CreateUserUseCase
     const newUserData: { userId: number; createdAt: string } =
       await this.usersRepositorySQL.createNewUser(createUserDTO);
     const userApiModel: UserViewModel = {
-      id: newUserData.userId,
+      id: String(newUserData.userId),
       login: createUserDTO.login,
       email: createUserDTO.email,
       createdAt: newUserData.createdAt,
