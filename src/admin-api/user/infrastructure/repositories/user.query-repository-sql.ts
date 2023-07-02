@@ -162,7 +162,7 @@ export class UserQueryRepositorySQL {
     if (result.length < 1) return null;
     const res: any = result[0];
     const mappedUser: AuthApiUserInfoType = {
-      userId: res.id,
+      userId: String(res.id),
       login: res.login,
       email: res.email,
     };
