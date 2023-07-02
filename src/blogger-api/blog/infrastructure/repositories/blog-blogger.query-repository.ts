@@ -286,7 +286,7 @@ export class BlogBloggerQueryRepository {
               content: comment.content,
               createdAt: comment.createdAt,
               commentatorInfo: {
-                userId: comment.userId,
+                userId: String(comment.userId),
                 userLogin: comment.userLogin,
               },
               likesInfo: {

@@ -82,7 +82,7 @@ export class CommentQueryRepository {
         id: commentDocument.id,
         content: commentDocument.content,
         commentatorInfo: {
-          userId: commentDocument.userId,
+          userId: String(commentDocument.userId),
           userLogin: commentDocument.userLogin,
         },
         createdAt: commentDocument.createdAt,
@@ -141,7 +141,7 @@ export class CommentQueryRepository {
       id: foundedComment.id,
       content: foundedComment.content,
       commentatorInfo: {
-        userId: foundedComment.userId,
+        userId: String(foundedComment.userId),
         userLogin: foundedComment.userLogin,
       },
       createdAt: foundedComment.createdAt,

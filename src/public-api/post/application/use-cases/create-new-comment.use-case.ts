@@ -71,7 +71,7 @@ export class CreateNewCommentUseCase
       id: newComment.id,
       content: newComment.content,
       commentatorInfo: {
-        userId: newComment.userId,
+        userId: String(newComment.userId),
         userLogin: newComment.userLogin,
       },
       createdAt: newComment.createdAt,

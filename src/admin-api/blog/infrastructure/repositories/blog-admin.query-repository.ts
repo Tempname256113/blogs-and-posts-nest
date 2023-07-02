@@ -70,7 +70,7 @@ export class BlogAdminQueryRepository {
               createdAt: blogFromDB.createdAt,
               isMembership: blogFromDB.isMembership,
               blogOwnerInfo: {
-                userId: blogFromDB.bloggerId,
+                userId: String(blogFromDB.bloggerId),
                 userLogin: blogFromDB.bloggerLogin,
               },
               banInfo: {
