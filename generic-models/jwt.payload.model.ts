@@ -8,7 +8,7 @@ export type JwtAccessTokenPayloadType = {
 export type JwtRefreshTokenPayloadType = {
   userId: number;
   userLogin: string;
-  deviceId: number;
+  deviceId: string;
   uniqueKey: string;
   iat?: number;
   exp: number;

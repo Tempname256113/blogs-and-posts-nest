@@ -34,7 +34,7 @@ export class AuthJwtRefreshTokenStrategy extends PassportStrategy(Strategy) {
   ): Promise<JwtRefreshTokenPayloadType> {
     const foundedSessionFromDB: SessionRepositoryType =
       await this.authQueryRepository.getSessionByDeviceId(
-        reqRefreshTokenPayload.deviceId,
+        Number(reqRefreshTokenPayload.deviceId),
       );
     if (!foundedSessionFromDB) {
       throw new UnauthorizedException();

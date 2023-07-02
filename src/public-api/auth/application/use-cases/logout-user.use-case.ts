@@ -20,7 +20,7 @@ export class LogoutUserUseCase implements ICommandHandler<LogoutCommand, void> {
   async execute({ refreshTokenPayload }: LogoutCommand): Promise<void> {
     const foundedSessionFromDB: SessionRepositoryType | null =
       await this.authQueryRepositorySQL.getSessionByDeviceId(
-        refreshTokenPayload.deviceId,
+        Number(refreshTokenPayload.deviceId),
       );
     if (
       !foundedSessionFromDB ||
@@ -29,7 +29,7 @@ export class LogoutUserUseCase implements ICommandHandler<LogoutCommand, void> {
       throw new UnauthorizedException();
     }
     await this.authRepositorySQL.deleteSessionByDeviceId(
-      refreshTokenPayload.deviceId,
+      Number(refreshTokenPayload.deviceId),
     );
   }
 }

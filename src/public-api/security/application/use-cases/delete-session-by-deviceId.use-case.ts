@@ -24,6 +24,9 @@ export class DeleteSessionByDeviceIdUseCase
   ) {}
 
   async execute({ data }: DeleteSessionByDeviceIdCommand): Promise<void> {
+    if (!Number(data.deviceId)) {
+      throw new NotFoundException();
+    }
     const foundedSessionByDeviceId: SessionRepositoryType | null =
       await this.securityQueryRepositorySQL.getSessionByDeviceId(data.deviceId);
     if (!foundedSessionByDeviceId) {

@@ -19,7 +19,7 @@ export class DeleteAllSessionsExceptCurrentUseCase
   }: DeleteAllSessionsExceptCurrentCommand): Promise<void> {
     await this.securityRepositorySQL.deleteAllSessionsExceptCurrent({
       userId: reqRefreshTokenPayload.userId,
-      deviceId: reqRefreshTokenPayload.deviceId,
+      deviceId: Number(reqRefreshTokenPayload.deviceId),
     });
   }
 }

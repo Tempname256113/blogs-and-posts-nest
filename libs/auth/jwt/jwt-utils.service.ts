@@ -121,6 +121,6 @@ export type CreateNewTokensPairReturnType = {
 export type CreateNewTokensPairData = {
   userId: number;
   userLogin: string;
-  deviceId: number;
+  deviceId: string;
   uniqueKey: string;
 };

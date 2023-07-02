@@ -1,5 +1,5 @@
 export type SessionUpdateRepositoryDTO = {
-  deviceId: number;
+  deviceId: string;
   uniqueKey: string;
   userIpAddress: string;
   userDeviceTitle: string;
