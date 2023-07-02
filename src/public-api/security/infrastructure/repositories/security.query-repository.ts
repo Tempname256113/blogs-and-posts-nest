@@ -23,7 +23,7 @@ export class SecurityQueryRepository {
     for (const rawSession of foundedSessions) {
       const mappedSession: SessionSecurityViewModel = {
         ip: rawSession.userIpAddress,
-        deviceId: rawSession.deviceId,
+        deviceId: String(rawSession.deviceId),
         title: rawSession.userDeviceTitle,
         lastActiveDate: rawSession.lastActiveDate,
       };
