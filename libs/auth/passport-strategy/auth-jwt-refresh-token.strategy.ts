@@ -16,7 +16,6 @@ const extractRefreshTokenFromCookie = (req: Request): string => {
   if (!reqRefreshToken) {
     return null;
   }
-  console.log(reqRefreshToken);
   return reqRefreshToken;
 };
 

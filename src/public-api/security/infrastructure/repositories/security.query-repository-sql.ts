@@ -14,7 +14,7 @@ export class SecurityQueryRepositorySQL {
   ): Promise<SessionSecurityViewModel[]> {
     const result: any[] = await this.dataSource.query(
       `
-    SELECT s.device_id, s.user_ip_address, s.user_device_title, u.last_active_date
+    SELECT s.device_id, s.user_ip_address, s.user_device_title, s.last_active_date
     FROM public.sessions s
     WHERE s.user_id = $1
     `,

@@ -19,11 +19,13 @@ import { SetNewPasswordUseCase } from '../../public-api/auth/application/use-cas
 import { AuthRepositorySql } from '../../public-api/auth/infrastructure/repositories/auth.repository-sql';
 import { AuthJwtRefreshTokenStrategy } from '../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { AuthQueryRepositorySQL } from '../../public-api/auth/infrastructure/repositories/auth.query-repository-sql';
+import { LogoutUserUseCase } from '../../public-api/auth/application/use-cases/logout-user.use-case';
 
 const UseCases = [
   RegistrationUserUseCase,
   ValidateUserUseCase,
   LoginUserUseCase,
+  LogoutUserUseCase,
   RegistrationConfirmUseCase,
   ResendConfirmationEmailUseCase,
   UpdateTokensPairUseCase,

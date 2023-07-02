@@ -126,7 +126,6 @@ export class AuthController {
     @PassportjsReqDataDecorator<JwtRefreshTokenPayloadType>()
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<{ accessToken: string }> {
-    // console.log(refreshTokenPayload);
     const {
       newAccessToken,
       newRefreshToken,
