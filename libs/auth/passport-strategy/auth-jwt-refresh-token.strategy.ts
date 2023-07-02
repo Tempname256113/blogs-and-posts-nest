@@ -3,14 +3,10 @@ import { Strategy } from 'passport-jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import { JwtRefreshTokenPayloadType } from '../../../generic-models/jwt.payload.model';
-import {
-  Session,
-  SessionSchema,
-} from '../../db/mongoose/schemes/session.entity';
 import { Request } from 'express';
 import { CookiesEnum } from '../../../generic-enums/cookies.enum';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { AuthQueryRepositorySQL } from '../../../src/public-api/auth/infrastructure/repositories/auth.query-repository-sql';
+import { SessionRepositoryType } from '../../../src/public-api/auth/infrastructure/repositories/models/auth-repository.dto';
 
 const refreshTokenSecret = new EnvConfiguration().JWT_SECRET_REFRESH_TOKEN;
 
@@ -20,14 +16,13 @@ const extractRefreshTokenFromCookie = (req: Request): string => {
   if (!reqRefreshToken) {
     return null;
   }
+  console.log(reqRefreshToken);
   return reqRefreshToken;
 };
 
 @Injectable()
 export class AuthJwtRefreshTokenStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
-  ) {
+  constructor(private authQueryRepository: AuthQueryRepositorySQL) {
     super({
       jwtFromRequest: extractRefreshTokenFromCookie,
       ignoreExpiration: false,
@@ -38,14 +33,14 @@ export class AuthJwtRefreshTokenStrategy extends PassportStrategy(Strategy) {
   async validate(
     reqRefreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<JwtRefreshTokenPayloadType> {
-    const foundedSessionFromDB: Session | null =
-      await this.SessionModel.findOne({
-        deviceId: reqRefreshTokenPayload.deviceId,
-      }).lean();
+    const foundedSessionFromDB: SessionRepositoryType =
+      await this.authQueryRepository.getSessionByDeviceId(
+        reqRefreshTokenPayload.deviceId,
+      );
     if (!foundedSessionFromDB) {
       throw new UnauthorizedException();
     }
-    if (reqRefreshTokenPayload.iat !== foundedSessionFromDB.iat) {
+    if (reqRefreshTokenPayload.uniqueKey !== foundedSessionFromDB.uniqueKey) {
       throw new UnauthorizedException();
     }
     return reqRefreshTokenPayload;

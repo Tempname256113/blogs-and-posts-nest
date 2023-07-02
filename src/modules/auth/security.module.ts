@@ -9,6 +9,7 @@ import { DeleteSessionByDeviceIdUseCase } from '../../public-api/security/applic
 import { CqrsModule } from '@nestjs/cqrs';
 import { SecurityQueryRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.query-repository-sql';
 import { SecurityRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.repository-sql';
+import { AuthQueryRepositorySQL } from '../../public-api/auth/infrastructure/repositories/auth.query-repository-sql';
 
 const UseCases = [
   DeleteAllSessionsExceptCurrentUseCase,
@@ -18,6 +19,7 @@ const UseCases = [
 @Module({
   imports: [MongooseSchemesModule, JwtModule, CqrsModule],
   providers: [
+    AuthQueryRepositorySQL,
     AuthJwtRefreshTokenStrategy,
     SecurityRepositorySQL,
     SecurityQueryRepository,
