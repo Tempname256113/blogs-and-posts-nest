@@ -53,7 +53,7 @@ const postgresRemote: TypeOrmModuleOptions = {
         };
       },
     }),
-    TypeOrmModule.forRoot(postgresRemote),
+    TypeOrmModule.forRoot(postgresLocal),
     MongooseSchemesModule,
     ...ProductModules,
     ...AuthModules,
