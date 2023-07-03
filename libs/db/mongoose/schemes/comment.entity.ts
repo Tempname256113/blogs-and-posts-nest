@@ -5,7 +5,7 @@ export type Comment = {
   id: string;
   postId: string;
   blogId: string;
-  userId: number;
+  userId: string;
   userLogin: string;
   content: string;
   createdAt: string;
@@ -24,7 +24,7 @@ export class CommentSchema implements Comment {
   blogId: string;
 
   @Prop()
-  userId: number;
+  userId: string;
 
   @Prop()
   userLogin: string;

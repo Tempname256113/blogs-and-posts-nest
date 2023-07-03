@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogBloggerApiCreateUpdateDTO } from '../../api/models/blog-blogger-api.dto';
 import { BlogBloggerApiViewModel } from '../../api/models/blog-blogger-api.models';
-import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { UnauthorizedException } from '@nestjs/common';
-import { BloggerRepositoryCreatedBlogType } from '../../infrastructure/repositories/models/blog-blogger-repository.models';
+import { BloggerRepositoryCreatedBlogType } from '../../infrastructure/repositories/models/blogger-repository.models';
+import { BloggerBlogRepositorySql } from '../../infrastructure/repositories/blog-blogger.repository-sql';
 
 export class CreateBlogCommand {
   constructor(
@@ -21,7 +21,7 @@ export class CreateBlogUseCase
   implements ICommandHandler<CreateBlogCommand, BlogBloggerApiViewModel>
 {
   constructor(
-    private blogRepository: BlogRepository,
+    private readonly blogRepository: BloggerBlogRepositorySql,
     private jwtUtils: JwtUtils,
   ) {}
 

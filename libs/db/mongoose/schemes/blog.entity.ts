@@ -6,7 +6,7 @@ import { PostApiCreateUpdateDTO } from '../../../../src/public-api/post/api/mode
 
 export type Blog = {
   id: string;
-  bloggerId: number;
+  bloggerId: string;
   bloggerLogin: string;
   name: string;
   description: string;
@@ -24,7 +24,7 @@ export class BlogSchema implements Blog {
   id: string;
 
   @Prop()
-  bloggerId: number;
+  bloggerId: string;
 
   @Prop()
   bloggerLogin: string;

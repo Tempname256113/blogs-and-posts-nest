@@ -1,23 +1,22 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostApiCreateUpdateDTO } from '../../../../public-api/post/api/models/post-api.dto';
 import { PostViewModel } from '../../../../public-api/post/api/models/post-api.models';
-import { BlogDocument } from '../../../../../libs/db/mongoose/schemes/blog.entity';
 import {
   ForbiddenException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import {
-  Post,
-  PostDocument,
-  PostSchema,
-} from '../../../../../libs/db/mongoose/schemes/post.entity';
+import { PostSchema } from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BlogRepository } from '../../infrastructure/repositories/blog.repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
+import { BloggerPostRepositorySQL } from '../../infrastructure/repositories/post-blogger.repository-sql';
+import {
+  BloggerRepositoryBlogType,
+  BloggerRepositoryCreatedPostType,
+} from '../../infrastructure/repositories/models/blogger-repository.models';
+import { BloggerBlogQueryRepositorySQL } from '../../infrastructure/repositories/blog-blogger.query-repository-sql';
 
 export class CreatePostByBlogCommand {
   constructor(
@@ -35,33 +34,37 @@ export class CreatePostByBlogUseCase
 {
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    private blogRepository: BlogRepository,
-    private blogQueryRepository: BlogBloggerQueryRepository,
-    private jwtHelpers: JwtUtils,
+    private readonly postRepository: BloggerPostRepositorySQL,
+    private readonly blogQueryRepository: BloggerBlogQueryRepositorySQL,
+    private jwtUtils: JwtUtils,
   ) {}
 
   async execute({
     data: { blogId, createPostDTO, accessToken },
   }: CreatePostByBlogCommand): Promise<PostViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: BlogDocument | null =
-      await this.blogQueryRepository.getBlogById(blogId);
+    const foundedBlog: BloggerRepositoryBlogType | null =
+      await this.blogQueryRepository.getBlogByIdInternalUse(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    const newCreatedPost: Post = foundedBlog.createPost(createPostDTO);
-    const newPostModel: PostDocument = new this.PostModel(newCreatedPost);
-    await this.blogRepository.saveBlogOrPost(newPostModel);
+    const newCreatedPost: BloggerRepositoryCreatedPostType =
+      await this.postRepository.createPost({
+        blogId: blogId,
+        content: createPostDTO.content,
+        shortDescription: createPostDTO.shortDescription,
+        title: createPostDTO.title,
+      });
     const mappedNewPost: PostViewModel = {
       id: newCreatedPost.id,
       title: newCreatedPost.title,
       shortDescription: newCreatedPost.shortDescription,
       content: newCreatedPost.content,
-      blogId: newCreatedPost.blogId,
-      blogName: newCreatedPost.blogName,
+      blogId: foundedBlog.id,
+      blogName: foundedBlog.name,
       createdAt: newCreatedPost.createdAt,
       extendedLikesInfo: {
         likesCount: 0,

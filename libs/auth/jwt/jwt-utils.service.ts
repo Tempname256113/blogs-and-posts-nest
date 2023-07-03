@@ -50,7 +50,7 @@ export class JwtUtils {
     userId,
     userLogin,
   }: {
-    userId: number;
+    userId: string;
     userLogin: string;
   }): string {
     const accessTokenExpiresIn: number = getUnixTime(
@@ -119,7 +119,7 @@ export type CreateNewTokensPairReturnType = {
 };
 
 export type CreateNewTokensPairData = {
-  userId: number;
+  userId: string;
   userLogin: string;
   deviceId: string;
   uniqueKey: string;

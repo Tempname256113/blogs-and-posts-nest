@@ -46,8 +46,8 @@ export class SecurityQueryRepositorySQL {
     if (result.length < 1) return null;
     const res: any = result[0];
     const session: SessionRepositoryType = {
-      deviceId: res.device_id,
-      userId: res.user_id,
+      deviceId: String(res.device_id),
+      userId: String(res.user_id),
       uniqueKey: res.unique_key,
       userIpAddress: res.user_ip_address,
       userDeviceTitle: res.user_device_title,

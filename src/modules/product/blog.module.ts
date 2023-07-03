@@ -8,7 +8,7 @@ import { BlogPublicController } from '../../public-api/blog/api/blog-public.cont
 import { BlogBloggerController } from '../../blogger-api/blog/api/blog-blogger.controller';
 import { BlogBloggerQueryRepository } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.query-repository';
 import { CreateBlogUseCase } from '../../blogger-api/blog/application/use-cases/create-blog.use-case';
-import { BlogRepository } from '../../blogger-api/blog/infrastructure/repositories/blog.repository';
+import { BloggerBlogRepository } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.repository';
 import { CreatePostByBlogUseCase } from '../../blogger-api/blog/application/use-cases/create-post-by-blog.use-case';
 import { UpdateBlogUseCase } from '../../blogger-api/blog/application/use-cases/update-blog.use-case';
 import { UpdatePostByBlogIdUseCase } from '../../blogger-api/blog/application/use-cases/update-post-by-blogId.use-case';
@@ -21,6 +21,9 @@ import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
 import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';
 import { BanUserBloggerApiUseCase } from '../../blogger-api/blog/application/use-cases/ban-user.blogger-api.use-case';
 import { BanUnbanBlogUseCase } from '../../admin-api/blog/application/use-cases/ban-unban-blog.use-case';
+import { BloggerPostRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/post-blogger.repository-sql';
+import { BloggerBlogRepositorySql } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.repository-sql';
+import { BloggerBlogQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.query-repository-sql';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -42,8 +45,11 @@ const UseCases = [
     BlogAdminController,
   ],
   providers: [
-    BlogRepository,
+    BloggerBlogRepository,
+    BloggerBlogRepositorySql,
+    BloggerPostRepositorySQL,
     BlogPublicQueryRepository,
+    BloggerBlogQueryRepositorySQL,
     BlogBloggerQueryRepository,
     BlogAdminQueryRepository,
     ...UseCases,

@@ -13,8 +13,8 @@ export type SessionCreateRepositoryDTO = {
 };
 
 export type SessionRepositoryType = {
-  deviceId: number;
-  userId: number;
+  deviceId: string;
+  userId: string;
   uniqueKey: string;
   userIpAddress: string;
   userDeviceTitle: string;

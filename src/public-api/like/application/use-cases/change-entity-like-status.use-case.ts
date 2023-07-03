@@ -12,7 +12,7 @@ export class ChangeEntityLikeStatusCommand {
       entity: 'post' | 'comment';
       entityId: string;
       blogId: string;
-      userId: number;
+      userId: string;
       userLogin: string;
       likeStatus: 'Like' | 'Dislike' | 'None';
     },

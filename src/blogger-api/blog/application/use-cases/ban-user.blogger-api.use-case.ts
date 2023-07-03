@@ -79,7 +79,7 @@ export class BanUserBloggerApiUseCase
     bloggerId,
   }: {
     blogId: string;
-    bloggerId: number;
+    bloggerId: string;
   }): Promise<void> {
     /* функция проверяет принадлежит предоставленный блог этому блогеру или нет */
     const foundedBlog: BlogDocument | null =

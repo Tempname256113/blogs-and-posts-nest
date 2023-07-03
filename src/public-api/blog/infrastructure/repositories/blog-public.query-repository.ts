@@ -112,7 +112,7 @@ export class BlogPublicQueryRepository {
     blogId: string;
     accessToken: string | null;
   }): Promise<PostPaginationViewModel> {
-    const getUserId = (): number | null => {
+    const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
       } else {
@@ -125,7 +125,7 @@ export class BlogPublicQueryRepository {
         }
       }
     };
-    const userId: number | null = getUserId();
+    const userId: string | null = getUserId();
     const foundedBlog: Blog | null = await this.BlogModel.findOne({
       id: blogId,
       hidden: false,

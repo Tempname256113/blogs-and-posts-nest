@@ -45,7 +45,7 @@ export class LoginUserUseCase
       userDeviceTitle: clientDeviceTitle,
     });
     const { newRefreshToken, newAccessToken } = this.createNewTokensPair({
-      userId: Number(user.id),
+      userId: user.id,
       userLogin: user.accountData.login,
       deviceId: String(deviceId),
       uniqueKey,

@@ -10,8 +10,8 @@ export class SecurityRepositorySQL {
     userId,
     deviceId,
   }: {
-    userId: number;
-    deviceId: number;
+    userId: string;
+    deviceId: string;
   }): Promise<void> {
     await this.dataSource.query(
       `

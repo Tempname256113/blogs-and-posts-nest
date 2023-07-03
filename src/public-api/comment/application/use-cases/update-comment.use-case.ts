@@ -36,7 +36,7 @@ export class UpdateCommentUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const userId = accessTokenPayload.userId;
+    const userId: string = accessTokenPayload.userId;
     const foundedComment: CommentDocument | null =
       await this.commentQueryRepository.getCommentDocumentById(commentId);
     if (!foundedComment) {

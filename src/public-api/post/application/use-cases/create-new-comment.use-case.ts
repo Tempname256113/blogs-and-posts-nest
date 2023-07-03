@@ -54,7 +54,7 @@ export class CreateNewCommentUseCase
   }: CreateNewCommentCommand): Promise<CommentViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.getAccessTokenPayload(accessToken);
-    const userId: number = accessTokenPayload.userId;
+    const userId: string = accessTokenPayload.userId;
     const userLogin = accessTokenPayload.userLogin;
     const foundedPost: PostDocument | null =
       await this.postsQueryRepository.getRawPostById(postId);
@@ -97,7 +97,7 @@ export class CreateNewCommentUseCase
     userId,
     blogId,
   }: {
-    userId: number;
+    userId: string;
     blogId: string;
   }): Promise<void> {
     const foundedBannedUserByBlogger: BannedUserByBlogger | null =
