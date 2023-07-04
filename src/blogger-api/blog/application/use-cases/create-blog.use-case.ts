@@ -21,7 +21,7 @@ export class CreateBlogUseCase
   implements ICommandHandler<CreateBlogCommand, BlogBloggerApiViewModel>
 {
   constructor(
-    private readonly blogRepository: BloggerBlogRepositorySql,
+    private readonly blogRepositorySQL: BloggerBlogRepositorySql,
     private jwtUtils: JwtUtils,
   ) {}
 
@@ -32,7 +32,7 @@ export class CreateBlogUseCase
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const createdBlog: BloggerRepositoryCreatedBlogType =
-      await this.blogRepository.createBlog({
+      await this.blogRepositorySQL.createBlog({
         bloggerId: accessTokenPayload.userId,
         name: createBlogDTO.name,
         description: createBlogDTO.description,

@@ -26,8 +26,8 @@ export class UpdateBlogUseCase
   implements ICommandHandler<UpdateBlogCommand, void>
 {
   constructor(
-    private readonly blogQueryRepository: BloggerBlogQueryRepositorySQL,
-    private readonly blogRepository: BloggerBlogRepositorySql,
+    private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
+    private readonly blogRepositorySQL: BloggerBlogRepositorySql,
     private readonly jwtUtils: JwtUtils,
   ) {}
 
@@ -38,12 +38,12 @@ export class UpdateBlogUseCase
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const foundedBlog: BloggerRepositoryBlogType | null =
-      await this.blogQueryRepository.getBlogByIdInternalUse(blogId);
+      await this.blogQueryRepositorySQL.getBlogByIdInternalUse(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    await this.blogRepository.updateBlog({
+    await this.blogRepositorySQL.updateBlog({
       blogId,
       name: updateBlogDTO.name,
       description: updateBlogDTO.description,

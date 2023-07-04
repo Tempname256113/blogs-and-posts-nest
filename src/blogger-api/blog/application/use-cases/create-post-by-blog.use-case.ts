@@ -6,9 +6,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PostSchema } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { BloggerPostRepositorySQL } from '../../infrastructure/repositories/post-blogger.repository-sql';
@@ -33,9 +30,8 @@ export class CreatePostByBlogUseCase
   implements ICommandHandler<CreatePostByBlogCommand, PostViewModel>
 {
   constructor(
-    @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    private readonly postRepository: BloggerPostRepositorySQL,
-    private readonly blogQueryRepository: BloggerBlogQueryRepositorySQL,
+    private readonly postRepositorySQL: BloggerPostRepositorySQL,
+    private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private jwtUtils: JwtUtils,
   ) {}
 
@@ -46,14 +42,14 @@ export class CreatePostByBlogUseCase
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const foundedBlog: BloggerRepositoryBlogType | null =
-      await this.blogQueryRepository.getBlogByIdInternalUse(blogId);
+      await this.blogQueryRepositorySQL.getBlogByIdInternalUse(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
     const newCreatedPost: BloggerRepositoryCreatedPostType =
-      await this.postRepository.createPost({
-        blogId: blogId,
+      await this.postRepositorySQL.createPost({
+        blogId,
         content: createPostDTO.content,
         shortDescription: createPostDTO.shortDescription,
         title: createPostDTO.title,
