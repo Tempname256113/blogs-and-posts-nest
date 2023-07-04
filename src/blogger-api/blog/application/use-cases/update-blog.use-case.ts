@@ -7,13 +7,9 @@ import {
 } from '@nestjs/common';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Blog,
-  BlogSchema,
-} from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import { Model } from 'mongoose';
-import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
+import { BloggerBlogQueryRepositorySQL } from '../../infrastructure/repositories/blog-blogger.query-repository-sql';
+import { BloggerBlogRepositorySql } from '../../infrastructure/repositories/blog-blogger.repository-sql';
+import { BloggerRepositoryBlogType } from '../../infrastructure/repositories/models/blogger-repository.models';
 
 export class UpdateBlogCommand {
   constructor(
@@ -30,24 +26,28 @@ export class UpdateBlogUseCase
   implements ICommandHandler<UpdateBlogCommand, void>
 {
   constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
-    private jwtHelpers: JwtUtils,
-    private blogQueryRepository: BlogBloggerQueryRepository,
+    private readonly blogQueryRepository: BloggerBlogQueryRepositorySQL,
+    private readonly blogRepository: BloggerBlogRepositorySql,
+    private readonly jwtUtils: JwtUtils,
   ) {}
 
   async execute({
     data: { blogId, updateBlogDTO, accessToken },
   }: UpdateBlogCommand): Promise<void> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: Blog | null = await this.blogQueryRepository.getBlogById(
-      blogId,
-    );
+    const foundedBlog: BloggerRepositoryBlogType | null =
+      await this.blogQueryRepository.getBlogByIdInternalUse(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    await this.BlogModel.updateOne({ id: blogId }, updateBlogDTO);
+    await this.blogRepository.updateBlog({
+      blogId,
+      name: updateBlogDTO.name,
+      description: updateBlogDTO.description,
+      websiteUrl: updateBlogDTO.websiteUrl,
+    });
   }
 }

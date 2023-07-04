@@ -1,4 +1,7 @@
-import { BloggerRepositoryCreateBlogDTO } from './models/blogger-repository.dto';
+import {
+  BloggerRepositoryCreateBlogDTO,
+  BloggerRepositoryUpdateBlogDTO,
+} from './models/blogger-repository.dto';
 import { BloggerRepositoryCreatedBlogType } from './models/blogger-repository.models';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -34,5 +37,23 @@ export class BloggerBlogRepositorySql {
       websiteUrl: createBlogDTO.websiteUrl,
       isMembership: result[0].is_membership,
     };
+  }
+
+  async updateBlog(
+    updateBlogDTO: BloggerRepositoryUpdateBlogDTO,
+  ): Promise<void> {
+    await this.dataSource.query(
+      `
+    UPDATE public.blogs
+    SET "name" = $1, "description" = $2, "website_url" = $3
+    WHERE "id" = $4
+    `,
+      [
+        updateBlogDTO.name,
+        updateBlogDTO.description,
+        updateBlogDTO.websiteUrl,
+        updateBlogDTO.blogId,
+      ],
+    );
   }
 }
