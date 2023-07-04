@@ -78,13 +78,10 @@ export class BlogBloggerQueryRepository {
     const bloggerId: string = accessTokenPayload.userId;
     const blogsWithPagination =
       async (): Promise<BlogBloggerApiPaginationViewModel> => {
-        // let filter: FilterQuery<BlogSchema>;
-        // если этот фильтр подойдет, то удалить не нужный
         let correctedFilter: FilterQuery<BlogSchema>;
         const getCorrectBlogsFilter = (): void => {
           if (!rawPaginationQuery.searchNameTerm) {
             correctedFilter = { bloggerId };
-            // filter = { bloggerId, hidden: false };
           } else {
             correctedFilter = {
               bloggerId,
@@ -93,20 +90,11 @@ export class BlogBloggerQueryRepository {
                 $options: 'i',
               },
             };
-            // filter = {
-            //   bloggerId,
-            //   name: {
-            //     $regex: rawPaginationQuery.searchNameTerm,
-            //     $options: 'i',
-            //   },
-            //   hidden: false,
-            // };
           }
         };
         getCorrectBlogsFilter();
         const totalBlogsCount: number = await this.BlogModel.countDocuments(
           correctedFilter,
-          // filter,
         );
         const additionalPaginationData: PaginationUtilsType =
           getPaginationUtils({
@@ -118,7 +106,6 @@ export class BlogBloggerQueryRepository {
           });
         const foundedBlogs: Blog[] = await this.BlogModel.find(
           correctedFilter,
-          // filter,
           { _id: false },
           {
             limit: rawPaginationQuery.pageSize,

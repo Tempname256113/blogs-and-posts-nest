@@ -40,11 +40,13 @@ import { UpdatePostByBlogIdCommand } from '../application/use-cases/update-post-
 import { DeletePostByBlogIdCommand } from '../application/use-cases/delete-post-by-blogId.use-case';
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 import { BanUserBloggerApiCommand } from '../application/use-cases/ban-user.blogger-api.use-case';
+import { BloggerBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-blogger.query-repository-sql';
 
 @Controller('blogger')
 export class BlogBloggerController {
   constructor(
     private blogQueryRepository: BlogBloggerQueryRepository,
+    private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}
 
@@ -110,8 +112,8 @@ export class BlogBloggerController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const blogsWithPagination: BlogBloggerApiPaginationViewModel =
-      await this.blogQueryRepository.getBlogsWithPagination({
-        rawPaginationQuery: paginationQuery,
+      await this.blogQueryRepositorySQL.getBlogsWithPaginationForCurrentUser({
+        paginationQuery,
         accessToken,
       });
     return blogsWithPagination;
