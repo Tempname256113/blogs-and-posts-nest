@@ -5,15 +5,14 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { BlogDocument } from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import {
-  PostDocument,
-  PostSchema,
-} from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
+import { BloggerBlogQueryRepositorySQL } from '../../infrastructure/repositories/blog-blogger.query-repository-sql';
+import { BloggerPostQueryRepositorySQL } from '../../infrastructure/repositories/post-blogger.query-repository-sql';
+import {
+  BloggerRepositoryBlogType,
+  BloggerRepositoryPostType,
+} from '../../infrastructure/repositories/models/blogger-repository.models';
+import { BloggerPostRepositorySQL } from '../../infrastructure/repositories/post-blogger.repository-sql';
 
 export class DeletePostByBlogIdCommand {
   constructor(
@@ -30,29 +29,56 @@ export class DeletePostByBlogIdUseCase
   implements ICommandHandler<DeletePostByBlogIdCommand, void>
 {
   constructor(
-    @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    private jwtHelpers: JwtUtils,
-    private blogQueryRepository: BlogBloggerQueryRepository,
+    private jwtUtils: JwtUtils,
+    private readonly postRepositorySQL: BloggerPostRepositorySQL,
+    private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
+    private readonly postQueryRepositorySQL: BloggerPostQueryRepositorySQL,
   ) {}
 
   async execute({
     data: { blogId, postId, accessToken },
   }: DeletePostByBlogIdCommand): Promise<void> {
+    const accessTokenPayload: JwtAccessTokenPayloadType =
+      this.getAccessTokenPayload(accessToken);
+    await this.checkBlogOwner({ blogId, accessTokenPayload });
+    await this.checkPostOwner({ blogId, postId });
+    await this.postRepositorySQL.deletePostById(postId);
+  }
+
+  getAccessTokenPayload(accessToken: string): JwtAccessTokenPayloadType {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
-    const foundedBlog: BlogDocument | null =
-      await this.blogQueryRepository.getBlogById(blogId);
+    return accessTokenPayload;
+  }
+
+  async checkBlogOwner({
+    blogId,
+    accessTokenPayload,
+  }: {
+    blogId: string;
+    accessTokenPayload: JwtAccessTokenPayloadType;
+  }): Promise<void> {
+    const foundedBlog: BloggerRepositoryBlogType | null =
+      await this.blogQueryRepositorySQL.getBlogByIdInternalUse(blogId);
     if (!foundedBlog) throw new NotFoundException();
     if (foundedBlog.bloggerId !== accessTokenPayload.userId) {
       throw new ForbiddenException();
     }
-    const foundedPost: PostDocument | null =
-      await this.blogQueryRepository.getRawPostById(postId);
+  }
+
+  async checkPostOwner({
+    postId,
+    blogId,
+  }: {
+    postId: string;
+    blogId: string;
+  }): Promise<void> {
+    const foundedPost: BloggerRepositoryPostType | null =
+      await this.postQueryRepositorySQL.getPostByIdInternalUse(postId);
     if (!foundedPost) throw new NotFoundException();
     if (foundedPost.blogId !== blogId) {
       throw new ForbiddenException();
     }
-    await this.PostModel.deleteOne({ id: postId });
   }
 }
