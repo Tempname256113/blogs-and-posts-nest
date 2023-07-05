@@ -24,6 +24,7 @@ import { BanUnbanBlogUseCase } from '../../admin-api/blog/application/use-cases/
 import { BloggerPostRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/post-blogger.repository-sql';
 import { BloggerBlogRepositorySql } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.repository-sql';
 import { BloggerBlogQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.query-repository-sql';
+import { BloggerPostQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/post-blogger.query-repository-sql';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -47,9 +48,10 @@ const UseCases = [
   providers: [
     BloggerBlogRepository,
     BloggerBlogRepositorySql,
-    BloggerPostRepositorySQL,
-    BlogPublicQueryRepository,
     BloggerBlogQueryRepositorySQL,
+    BloggerPostRepositorySQL,
+    BloggerPostQueryRepositorySQL,
+    BlogPublicQueryRepository,
     BlogBloggerQueryRepository,
     BlogAdminQueryRepository,
     ...UseCases,

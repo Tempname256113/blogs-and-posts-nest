@@ -22,7 +22,10 @@ import {
   CommentBloggerApiPaginationViewModel,
   BannedUserBloggerApiPaginationViewModel,
 } from './models/blog-blogger-api.models';
-import { PostViewModel } from '../../../public-api/post/api/models/post-api.models';
+import {
+  PostPaginationViewModel,
+  PostViewModel,
+} from '../../../public-api/post/api/models/post-api.models';
 import {
   BannedUsersBloggerApiPaginationQueryDTO,
   BlogBloggerApiPaginationQueryDTO,
@@ -41,12 +44,15 @@ import { DeletePostByBlogIdCommand } from '../application/use-cases/delete-post-
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 import { BanUserBloggerApiCommand } from '../application/use-cases/ban-user.blogger-api.use-case';
 import { BloggerBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-blogger.query-repository-sql';
+import { PostApiPaginationQueryDTO } from '../../../public-api/post/api/models/post-api.query-dto';
+import { BloggerPostQueryRepositorySQL } from '../infrastructure/repositories/post-blogger.query-repository-sql';
 
 @Controller('blogger')
 export class BlogBloggerController {
   constructor(
     private blogQueryRepository: BlogBloggerQueryRepository,
     private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
+    private readonly postQueryRepositorySQL: BloggerPostQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}
 
@@ -117,6 +123,30 @@ export class BlogBloggerController {
         accessToken,
       });
     return blogsWithPagination;
+  }
+
+  @Get('blogs/:blogId/posts')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  async getPostsWithPaginationByBlogId(
+    @Param('blogId') blogId: string,
+    @Query()
+    rawPaginationQuery: PostApiPaginationQueryDTO,
+    @AccessToken() accessToken: string,
+  ): Promise<PostPaginationViewModel> {
+    const paginationQuery: PostApiPaginationQueryDTO = {
+      pageNumber: rawPaginationQuery.pageNumber ?? 1,
+      pageSize: rawPaginationQuery.pageSize ?? 10,
+      sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
+      sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
+    };
+    const postsWithPagination: PostPaginationViewModel =
+      await this.postQueryRepositorySQL.getPostsWithPaginationByBlogId({
+        paginationQuery,
+        blogId,
+        accessToken,
+      });
+    return postsWithPagination;
   }
 
   @Get('blogs/comments')

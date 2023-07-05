@@ -72,7 +72,7 @@ export class BloggerBlogQueryRepositorySQL {
         };
         getCorrectBlogsFilter();
         let orderBy: string;
-        const getCorrectSortBy = (): void => {
+        const getCorrectOrderBy = (): void => {
           switch (paginationQuery.sortBy) {
             case 'createdAt':
               orderBy = 'b."created_at"';
@@ -85,7 +85,7 @@ export class BloggerBlogQueryRepositorySQL {
               break;
           }
         };
-        getCorrectSortBy();
+        getCorrectOrderBy();
         const blogsCount: [{ count: number }] = await this.dataSource.query(`
         SELECT COUNT(*) 
         FROM public.blogs b
@@ -107,7 +107,7 @@ export class BloggerBlogQueryRepositorySQL {
         const mappedBlogs: BlogBloggerApiViewModel[] = foundedBlogs.map(
           (blogFromDB) => {
             const mappedBlog: BlogBloggerApiViewModel = {
-              id: blogFromDB.id,
+              id: String(blogFromDB.id),
               name: blogFromDB.name,
               description: blogFromDB.description,
               websiteUrl: blogFromDB.website_url,
