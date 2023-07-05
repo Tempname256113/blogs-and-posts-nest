@@ -18,3 +18,10 @@ export type BloggerRepositoryUpdateBlogDTO = {
   description: string;
   websiteUrl: string;
 };
+
+export type BloggerRepositoryUpdatePostDTO = {
+  postId: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+};

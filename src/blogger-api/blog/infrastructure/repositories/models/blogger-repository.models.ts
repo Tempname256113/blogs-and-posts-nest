@@ -28,3 +28,13 @@ export type BloggerRepositoryBlogType = {
   banDate: string | null;
   hidden: boolean;
 };
+
+export type BloggerRepositoryPostType = {
+  id: string;
+  blogId: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  createdAt: string;
+  hidden: boolean;
+};

@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { BloggerRepositoryCreatedPostType } from './models/blogger-repository.models';
-import { BloggerRepositoryCreatePostDTO } from './models/blogger-repository.dto';
+import {
+  BloggerRepositoryCreatePostDTO,
+  BloggerRepositoryUpdatePostDTO,
+} from './models/blogger-repository.dto';
 
 @Injectable()
 export class BloggerPostRepositorySQL {
@@ -33,5 +36,23 @@ export class BloggerPostRepositorySQL {
       content: createPostDTO.content,
       createdAt: result[0].created_at,
     };
+  }
+
+  async updatePostById(
+    postUpdateDTO: BloggerRepositoryUpdatePostDTO,
+  ): Promise<void> {
+    await this.dataSource.query(
+      `
+    UPDATE public.posts
+    SET "title" = $1, "short_description" = $2, "content" = $3
+    WHERE "id" = $4
+    `,
+      [
+        postUpdateDTO.title,
+        postUpdateDTO.shortDescription,
+        postUpdateDTO.content,
+        postUpdateDTO.postId,
+      ],
+    );
   }
 }

@@ -12,14 +12,12 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { PostApiCreateUpdateDTO } from './models/post-api.dto';
 import { PostPublicQueryRepository } from '../infrastructure/repositories/post.query-repository';
 import {
   PostViewModel,
   PostPaginationViewModel,
 } from './models/post-api.models';
 import { PostApiPaginationQueryDTO } from './models/post-api.query-dto';
-import { Post as PostType } from '../../../../libs/db/mongoose/schemes/post.entity';
 import { CommentApiCreateDto } from '../../comment/api/models/comment-api.dto';
 import {
   CommentViewModel,
@@ -29,12 +27,8 @@ import { CommentApiPaginationQueryDto } from '../../comment/api/models/comment-a
 import { CommentQueryRepository } from '../../comment/infrastructure/repositories/comment.query-repository';
 import { LikeDto } from '../../like/api/models/like.dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
-import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateNewPostCommand } from '../application/use-cases/create-new-post.use-case';
 import { CreateNewCommentCommand } from '../application/use-cases/create-new-comment.use-case';
-import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
-import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 import { ChangePostLikeStatusCommand } from '../application/use-cases/change-post-like-status.use-case';
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 
@@ -45,32 +39,6 @@ export class PostController {
     private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,
   ) {}
-  /*@Post()
-  @HttpCode(HttpStatus.CREATED)
-  async createPost(
-    @Body() postCreateDTO: PostApiCreateUpdateDTO,
-  ): Promise<PostApiModel> {
-    const newPost: PostType = await this.commandBus.execute<
-      CreateNewPostCommand,
-      PostType
-    >(new CreateNewPostCommand(postCreateDTO));
-    const postApiModel: PostApiModel = {
-      id: newPost.id,
-      title: newPost.title,
-      shortDescription: newPost.shortDescription,
-      content: newPost.content,
-      blogId: newPost.blogId,
-      blogName: newPost.blogName,
-      createdAt: newPost.createdAt,
-      extendedLikesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: 'None',
-        newestLikes: [],
-      },
-    };
-    return postApiModel;
-  }*/
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -167,25 +135,4 @@ export class PostController {
       }),
     );
   }
-
-  /*@Put(':postId')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(BasicAuthGuard)
-  async updatePost(
-    @Param('postId') postId: string,
-    @Body() postUpdateDTO: PostApiCreateUpdateDTO,
-  ): Promise<void> {
-    await this.commandBus.execute<UpdatePostCommand, void>(
-      new UpdatePostCommand({ postId, postUpdateDTO }),
-    );
-  }*/
-
-  /*@Delete(':postId')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(BasicAuthGuard)
-  async deletePost(@Param('postId') postId: string): Promise<void> {
-    await this.commandBus.execute<DeletePostCommand, void>(
-      new DeletePostCommand(postId),
-    );
-  }*/
 }

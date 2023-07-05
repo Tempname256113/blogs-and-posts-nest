@@ -132,7 +132,7 @@ export class BlogBloggerController {
     @Param('blogId') blogId: string,
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTO,
-    @AccessToken() accessToken: string,
+    @AccessToken() accessToken: string | null,
   ): Promise<PostPaginationViewModel> {
     const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -176,7 +176,7 @@ export class BlogBloggerController {
   async getAllBannedUsersForBlog(
     @Query() rawPaginationQuery: BannedUsersBloggerApiPaginationQueryDTO,
     @Param('blogId') blogId: string,
-    @AccessToken() accessToken: string,
+    @AccessToken() accessToken: string | null,
   ): Promise<BannedUserBloggerApiPaginationViewModel> {
     const paginationQuery: BannedUsersBloggerApiPaginationQueryDTO = {
       searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
@@ -211,25 +211,6 @@ export class BlogBloggerController {
     );
   }
 
-  @Put('users/:userId/ban')
-  @UseGuards(AccessTokenGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async banUser(
-    @Param('userId') bannedUserId: string,
-    @Body() banUserBloggerApiDTO: BanUserBloggerApiDTO,
-    @AccessToken() accessToken: string | null,
-  ): Promise<void> {
-    await this.commandBus.execute<BanUserBloggerApiCommand, void>(
-      new BanUserBloggerApiCommand({
-        bannedUserId,
-        isBanned: banUserBloggerApiDTO.isBanned,
-        banReason: banUserBloggerApiDTO.banReason,
-        blogId: banUserBloggerApiDTO.blogId,
-        accessToken,
-      }),
-    );
-  }
-
   @Put('blogs/:blogId/posts/:postId')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -244,6 +225,25 @@ export class BlogBloggerController {
         blogId,
         postId,
         postUpdateDTO,
+        accessToken,
+      }),
+    );
+  }
+
+  @Put('users/:userId/ban')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async banUser(
+    @Param('userId') bannedUserId: string,
+    @Body() banUserBloggerApiDTO: BanUserBloggerApiDTO,
+    @AccessToken() accessToken: string | null,
+  ): Promise<void> {
+    await this.commandBus.execute<BanUserBloggerApiCommand, void>(
+      new BanUserBloggerApiCommand({
+        bannedUserId,
+        isBanned: banUserBloggerApiDTO.isBanned,
+        banReason: banUserBloggerApiDTO.banReason,
+        blogId: banUserBloggerApiDTO.blogId,
         accessToken,
       }),
     );

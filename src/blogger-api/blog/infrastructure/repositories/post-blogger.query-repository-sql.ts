@@ -14,7 +14,10 @@ import { PostApiPaginationQueryDTO } from '../../../../public-api/post/api/model
 import { BloggerBlogQueryRepositorySQL } from './blog-blogger.query-repository-sql';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import { BloggerRepositoryBlogType } from './models/blogger-repository.models';
+import {
+  BloggerRepositoryBlogType,
+  BloggerRepositoryPostType,
+} from './models/blogger-repository.models';
 
 @Injectable()
 export class BloggerPostQueryRepositorySQL {
@@ -110,5 +113,29 @@ export class BloggerPostQueryRepositorySQL {
       items: mappedPosts,
     };
     return paginationPostsResult;
+  }
+
+  async getPostByIdInternalUse(
+    postId: string,
+  ): Promise<BloggerRepositoryPostType | null> {
+    const result: any[] = await this.dataSource.query(
+      `
+    SELECT *
+    FROM public.posts p
+    WHERE p."id" = $1
+    `,
+      [postId],
+    );
+    if (result.length < 1) return null;
+    const res: any = result[0];
+    return {
+      id: res.id,
+      blogId: res.blog_id,
+      title: res.title,
+      shortDescription: res.short_description,
+      content: res.content,
+      createdAt: res.created_at,
+      hidden: res.hidden,
+    };
   }
 }
