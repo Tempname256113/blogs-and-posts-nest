@@ -10,7 +10,7 @@ import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostRepository } from '../../infrastructure/repositories/post.repository';
-import { BlogPublicQueryRepository } from '../../../blog/infrastructure/repositories/blog-public.query-repository';
+import { PublicBlogQueryRepository } from '../../../blog/infrastructure/repositories/blog-public.query-repository';
 
 export class CreateNewPostCommand {
   constructor(public readonly data: PostApiCreateUpdateDTO) {}
@@ -23,7 +23,7 @@ export class CreateNewPostUseCase
   constructor(
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
     private postRepository: PostRepository,
-    private blogQueryRepository: BlogPublicQueryRepository,
+    private blogQueryRepository: PublicBlogQueryRepository,
   ) {}
 
   async execute({ data: createPostDTO }: CreateNewPostCommand): Promise<Post> {

@@ -54,7 +54,7 @@ import {
 } from '../../../../../libs/db/mongoose/schemes/banned-user-by-blogger.entity';
 
 @Injectable()
-export class BlogBloggerQueryRepository {
+export class BloggerBlogQueryRepository {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,

@@ -38,3 +38,17 @@ export type BloggerRepositoryPostType = {
   createdAt: string;
   hidden: boolean;
 };
+
+export type BloggerRepositoryBannedUserType = {
+  userId: string;
+  blogId: string;
+  banReason: string;
+  banDate: string;
+};
+
+export type BloggerRepositoryUserType = {
+  id: string;
+  login: string;
+  email: string;
+  createdAt: string;
+};

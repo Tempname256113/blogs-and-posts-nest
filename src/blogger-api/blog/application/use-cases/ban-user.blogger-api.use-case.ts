@@ -1,12 +1,4 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectModel } from '@nestjs/mongoose';
-import { BlogDocument } from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import { Model } from 'mongoose';
-import {
-  BannedUserByBlogger,
-  BannedUserByBloggerDocument,
-  BannedUserByBloggerSchema,
-} from '../../../../../libs/db/mongoose/schemes/banned-user-by-blogger.entity';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import {
@@ -15,11 +7,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
+import { BloggerBlogQueryRepositorySQL } from '../../infrastructure/repositories/blog-blogger.query-repository-sql';
+import { BloggerUserRepositorySQL } from '../../infrastructure/repositories/user-blogger.repository-sql';
+import { BloggerUserQueryRepositorySQL } from '../../infrastructure/repositories/user-blogger.query-repository-sql';
 import {
-  User,
-  UserSchema,
-} from '../../../../../libs/db/mongoose/schemes/user.entity';
-import { BlogBloggerQueryRepository } from '../../infrastructure/repositories/blog-blogger.query-repository';
+  BloggerRepositoryBannedUserType,
+  BloggerRepositoryBlogType,
+  BloggerRepositoryUserType,
+} from '../../infrastructure/repositories/models/blogger-repository.models';
 
 export class BanUserBloggerApiCommand {
   constructor(
@@ -38,11 +33,10 @@ export class BanUserBloggerApiUseCase
   implements ICommandHandler<BanUserBloggerApiCommand, void>
 {
   constructor(
-    @InjectModel(BannedUserByBloggerSchema.name)
-    private BannedUserByBloggerModel: Model<BannedUserByBloggerSchema>,
-    @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
     private jwtUtils: JwtUtils,
-    private blogsQueryRepository: BlogBloggerQueryRepository,
+    private readonly blogsQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
+    private readonly usersRepositorySQL: BloggerUserRepositorySQL,
+    private readonly usersQueryRepositorySQL: BloggerUserQueryRepositorySQL,
   ) {}
 
   async execute({
@@ -81,9 +75,12 @@ export class BanUserBloggerApiUseCase
     blogId: string;
     bloggerId: string;
   }): Promise<void> {
+    if (!Number(blogId) || !Number(bloggerId)) {
+      throw new NotFoundException(['blogId']);
+    }
     /* функция проверяет принадлежит предоставленный блог этому блогеру или нет */
-    const foundedBlog: BlogDocument | null =
-      await this.blogsQueryRepository.getBlogById(blogId);
+    const foundedBlog: BloggerRepositoryBlogType | null =
+      await this.blogsQueryRepositorySQL.getBlogByIdInternalUse(blogId);
     if (!foundedBlog) {
       throw new NotFoundException(exceptionFactoryFunction(['blogId']));
     }
@@ -101,30 +98,22 @@ export class BanUserBloggerApiUseCase
     banReason: string;
     blogId: string;
   }): Promise<void> {
-    const foundedBannedByBloggerUser: BannedUserByBlogger | null =
-      await this.BannedUserByBloggerModel.findOne({
+    const foundedBannedByBloggerUser: BloggerRepositoryBannedUserType | null =
+      await this.usersQueryRepositorySQL.getBannedByBloggerUser({
         userId: bannedUserId,
         blogId,
-      }).lean();
-    const foundedUserForBan: User | null = await this.UserModel.findOne({
-      id: bannedUserId,
-    }).lean();
+      });
+    if (foundedBannedByBloggerUser) return;
+    const foundedUserForBan: BloggerRepositoryUserType | null =
+      await this.usersQueryRepositorySQL.getUserById(bannedUserId);
     if (!foundedUserForBan) {
       throw new NotFoundException();
     }
-    if (foundedBannedByBloggerUser) {
-      return;
-    } else {
-      const newBannedUserByBlogger: BannedUserByBloggerDocument =
-        new this.BannedUserByBloggerModel({
-          userId: bannedUserId,
-          userLogin: foundedUserForBan.accountData.login,
-          banReason,
-          blogId,
-          banDate: new Date().toISOString(),
-        });
-      await newBannedUserByBlogger.save();
-    }
+    await this.usersRepositorySQL.banUser({
+      userId: bannedUserId,
+      blogId,
+      banReason,
+    });
   }
 
   async unBanUser({
@@ -134,9 +123,6 @@ export class BanUserBloggerApiUseCase
     bannedUserId: string;
     blogId: string;
   }): Promise<void> {
-    await this.BannedUserByBloggerModel.deleteOne({
-      userId: bannedUserId,
-      blogId,
-    });
+    await this.usersRepositorySQL.unbanUser({ userId: bannedUserId, blogId });
   }
 }

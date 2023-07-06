@@ -27,6 +27,33 @@ export class BloggerPostQueryRepositorySQL {
     private readonly jwtUtils: JwtUtils,
   ) {}
 
+  async getPostByIdInternalUse(
+    postId: string,
+  ): Promise<BloggerRepositoryPostType | null> {
+    if (!Number(postId)) {
+      return null;
+    }
+    const result: any[] = await this.dataSource.query(
+      `
+    SELECT *
+    FROM public.posts p
+    WHERE p."id" = $1 AND p."hidden" = false
+    `,
+      [postId],
+    );
+    if (result.length < 1) return null;
+    const res: any = result[0];
+    return {
+      id: String(res.id),
+      blogId: String(res.blog_id),
+      title: res.title,
+      shortDescription: res.short_description,
+      content: res.content,
+      createdAt: res.created_at,
+      hidden: res.hidden,
+    };
+  }
+
   async getPostsWithPaginationByBlogId({
     blogId,
     paginationQuery,
@@ -113,29 +140,5 @@ export class BloggerPostQueryRepositorySQL {
       items: mappedPosts,
     };
     return paginationPostsResult;
-  }
-
-  async getPostByIdInternalUse(
-    postId: string,
-  ): Promise<BloggerRepositoryPostType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT *
-    FROM public.posts p
-    WHERE p."id" = $1
-    `,
-      [postId],
-    );
-    if (result.length < 1) return null;
-    const res: any = result[0];
-    return {
-      id: res.id,
-      blogId: res.blog_id,
-      title: res.title,
-      shortDescription: res.short_description,
-      content: res.content,
-      createdAt: res.created_at,
-      hidden: res.hidden,
-    };
   }
 }

@@ -38,7 +38,7 @@ import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case
 import { CreatePostByBlogCommand } from '../application/use-cases/create-post-by-blog.use-case';
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case';
-import { BlogBloggerQueryRepository } from '../infrastructure/repositories/blog-blogger.query-repository';
+import { BloggerBlogQueryRepository } from '../infrastructure/repositories/blog-blogger.query-repository';
 import { UpdatePostByBlogIdCommand } from '../application/use-cases/update-post-by-blogId.use-case';
 import { DeletePostByBlogIdCommand } from '../application/use-cases/delete-post-by-blogId.use-case';
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
@@ -50,7 +50,7 @@ import { BloggerPostQueryRepositorySQL } from '../infrastructure/repositories/po
 @Controller('blogger')
 export class BlogBloggerController {
   constructor(
-    private blogQueryRepository: BlogBloggerQueryRepository,
+    private blogQueryRepository: BloggerBlogQueryRepository,
     private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private readonly postQueryRepositorySQL: BloggerPostQueryRepositorySQL,
     private commandBus: CommandBus,

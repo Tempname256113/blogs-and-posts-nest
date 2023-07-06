@@ -32,7 +32,7 @@ import {
 } from '../../api/models/blog-public-api.models';
 
 @Injectable()
-export class BlogPublicQueryRepository {
+export class PublicBlogQueryRepository {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
     @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,

@@ -16,7 +16,7 @@ import {
 } from '../../api/models/blog-admin-api.models';
 
 @Injectable()
-export class BlogAdminQueryRepository {
+export class AdminBlogQueryRepository {
   constructor(
     @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
   ) {}

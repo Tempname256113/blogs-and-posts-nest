@@ -10,7 +10,7 @@ import {
 import { PostApiPaginationQueryDTO } from '../../post/api/models/post-api.query-dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { PostPaginationViewModel } from '../../post/api/models/post-api.models';
-import { BlogPublicQueryRepository } from '../infrastructure/repositories/blog-public.query-repository';
+import { PublicBlogQueryRepository } from '../infrastructure/repositories/blog-public.query-repository';
 import {
   BlogPublicApiModel,
   BlogPublicApiPaginationModel,
@@ -20,7 +20,7 @@ import { BlogDocument } from '../../../../libs/db/mongoose/schemes/blog.entity';
 
 @Controller('blogs')
 export class BlogPublicController {
-  constructor(private blogQueryRepository: BlogPublicQueryRepository) {}
+  constructor(private blogQueryRepository: PublicBlogQueryRepository) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)

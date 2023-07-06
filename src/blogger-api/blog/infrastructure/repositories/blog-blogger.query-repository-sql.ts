@@ -27,7 +27,7 @@ export class BloggerBlogQueryRepositorySQL {
       `
     SELECT *
     FROM public.blogs b
-    WHERE b."id" = $1
+    WHERE b."id" = $1 AND b."hidden" = false
     `,
       [blogId],
     );

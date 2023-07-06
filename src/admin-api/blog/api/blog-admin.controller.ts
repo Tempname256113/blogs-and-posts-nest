@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogAdminQueryRepository } from '../infrastructure/repositories/blog-admin.query-repository';
+import { AdminBlogQueryRepository } from '../infrastructure/repositories/blog-admin.query-repository';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { BlogAdminApiPaginationQueryDTO } from './models/blog-admin-api.query-dto';
 import { BlogBloggerApiPaginationQueryDTO } from '../../../blogger-api/blog/api/models/blog-blogger-api.query-dto';
@@ -22,7 +22,7 @@ import { BanUnbanBlogCommand } from '../application/use-cases/ban-unban-blog.use
 @Controller('sa/blogs')
 export class BlogAdminController {
   constructor(
-    private blogQueryRepository: BlogAdminQueryRepository,
+    private blogQueryRepository: AdminBlogQueryRepository,
     private commandBus: CommandBus,
   ) {}
 
