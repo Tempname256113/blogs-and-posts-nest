@@ -20,7 +20,7 @@ import {
   BlogBloggerApiViewModel,
   BlogBloggerApiPaginationViewModel,
   CommentBloggerApiPaginationViewModel,
-  BannedUserBloggerApiPaginationViewModel,
+  BannedUsersBloggerApiPaginationViewModel,
 } from './models/blog-blogger-api.models';
 import {
   PostPaginationViewModel,
@@ -177,7 +177,7 @@ export class BlogBloggerController {
     @Query() rawPaginationQuery: BannedUsersBloggerApiPaginationQueryDTO,
     @Param('blogId') blogId: string,
     @AccessToken() accessToken: string | null,
-  ): Promise<BannedUserBloggerApiPaginationViewModel> {
+  ): Promise<BannedUsersBloggerApiPaginationViewModel> {
     const paginationQuery: BannedUsersBloggerApiPaginationQueryDTO = {
       searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
       sortBy: rawPaginationQuery.sortBy ?? 'banDate',
@@ -185,7 +185,7 @@ export class BlogBloggerController {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
     };
-    const bannedUsersForBlogWithPagination: BannedUserBloggerApiPaginationViewModel =
+    const bannedUsersForBlogWithPagination: BannedUsersBloggerApiPaginationViewModel =
       await this.blogQueryRepository.getAllBannedUsersForBlog({
         paginationQuery,
         blogId,

@@ -41,7 +41,7 @@ import {
   BlogBloggerApiPaginationViewModel,
   CommentBloggerApiViewModel,
   CommentBloggerApiPaginationViewModel,
-  BannedUserBloggerApiPaginationViewModel,
+  BannedUsersBloggerApiPaginationViewModel,
   BannedUserBloggerApiViewModel,
 } from '../../api/models/blog-blogger-api.models';
 import {
@@ -334,7 +334,7 @@ export class BloggerBlogQueryRepository {
     paginationQuery: BannedUsersBloggerApiPaginationQueryDTO;
     blogId: string;
     accessToken: string;
-  }): Promise<BannedUserBloggerApiPaginationViewModel> {
+  }): Promise<BannedUsersBloggerApiPaginationViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) {
@@ -399,7 +399,7 @@ export class BloggerBlogQueryRepository {
         };
         return mappedUser;
       });
-    const paginationResult: BannedUserBloggerApiPaginationViewModel = {
+    const paginationResult: BannedUsersBloggerApiPaginationViewModel = {
       pagesCount: Number(paginationUtils.pagesCount),
       page: Number(paginationQuery.pageNumber),
       pageSize: Number(paginationQuery.pageSize),

@@ -54,7 +54,7 @@ export type BannedUserBloggerApiViewModel = {
   };
 };
 
-export type BannedUserBloggerApiPaginationViewModel = {
+export type BannedUsersBloggerApiPaginationViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;

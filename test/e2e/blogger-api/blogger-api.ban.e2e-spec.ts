@@ -4,7 +4,7 @@ import { AppModule } from '../../../src/app.module';
 import { UserCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
 import { UserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
 import {
-  BannedUserBloggerApiPaginationViewModel,
+  BannedUsersBloggerApiPaginationViewModel,
   BannedUserBloggerApiViewModel,
   BlogBloggerApiViewModel,
 } from '../../../src/blogger-api/blog/api/models/blog-blogger-api.models';
@@ -174,13 +174,15 @@ describe('blogger api ban functionality tests', () => {
           .get(`/blogger/users/blog/${bloggerBlog.id}`)
           .auth(blogger.accessToken, { type: 'bearer' });
         expect(response.status).toBe(200);
-        expect(response.body).toEqual<BannedUserBloggerApiPaginationViewModel>({
-          page: 1,
-          pageSize: 10,
-          pagesCount: 1,
-          totalCount: bannedUsersArray.length,
-          items: expect.arrayContaining(mappedBannedUsersArray),
-        });
+        expect(response.body).toEqual<BannedUsersBloggerApiPaginationViewModel>(
+          {
+            page: 1,
+            pageSize: 10,
+            pagesCount: 1,
+            totalCount: bannedUsersArray.length,
+            items: expect.arrayContaining(mappedBannedUsersArray),
+          },
+        );
       };
       await getAllBannedUsers();
     });
