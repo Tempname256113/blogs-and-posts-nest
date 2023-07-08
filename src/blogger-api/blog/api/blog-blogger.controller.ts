@@ -46,6 +46,7 @@ import { BanUserBloggerApiCommand } from '../application/use-cases/ban-user.blog
 import { BloggerBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-blogger.query-repository-sql';
 import { PostApiPaginationQueryDTO } from '../../../public-api/post/api/models/post-api.query-dto';
 import { BloggerPostQueryRepositorySQL } from '../infrastructure/repositories/post-blogger.query-repository-sql';
+import { BloggerUserQueryRepositorySQL } from '../infrastructure/repositories/user-blogger.query-repository-sql';
 
 @Controller('blogger')
 export class BlogBloggerController {
@@ -53,6 +54,7 @@ export class BlogBloggerController {
     private blogQueryRepository: BloggerBlogQueryRepository,
     private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private readonly postQueryRepositorySQL: BloggerPostQueryRepositorySQL,
+    private readonly usersQueryRepositorySQL: BloggerUserQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}
 
@@ -186,7 +188,7 @@ export class BlogBloggerController {
       pageSize: rawPaginationQuery.pageSize ?? 10,
     };
     const bannedUsersForBlogWithPagination: BannedUsersBloggerApiPaginationViewModel =
-      await this.blogQueryRepository.getAllBannedUsersForBlog({
+      await this.usersQueryRepositorySQL.getAllBannedUsersForBlog({
         paginationQuery,
         blogId,
         accessToken,
