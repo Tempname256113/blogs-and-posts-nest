@@ -17,10 +17,14 @@ import {
 } from './models/blog-public-api.models';
 import { BlogPublicApiPaginationQueryDTO } from './models/blog-public-api.query-dto';
 import { BlogDocument } from '../../../../libs/db/mongoose/schemes/blog.entity';
+import { PublicBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-public.query-repository-sql';
 
 @Controller('blogs')
 export class BlogPublicController {
-  constructor(private blogQueryRepository: PublicBlogQueryRepository) {}
+  constructor(
+    private blogQueryRepository: PublicBlogQueryRepository,
+    private readonly blogQueryRepositorySQL: PublicBlogQueryRepositorySQL,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -36,7 +40,7 @@ export class BlogPublicController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const blogsWithPagination: BlogPublicApiPaginationModel =
-      await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
+      await this.blogQueryRepositorySQL.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
 

@@ -27,6 +27,7 @@ import { BloggerBlogQueryRepositorySQL } from '../../blogger-api/blog/infrastruc
 import { BloggerPostQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/post-blogger.query-repository-sql';
 import { BloggerUserRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/user-blogger.repository-sql';
 import { BloggerUserQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
+import { PublicBlogQueryRepositorySQL } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository-sql';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -57,7 +58,10 @@ const usersBloggerApiRepositories = [
   BloggerUserQueryRepositorySQL,
 ];
 
-const blogsPublicApiRepositories = [PublicBlogQueryRepository];
+const blogsPublicApiRepositories = [
+  PublicBlogQueryRepository,
+  PublicBlogQueryRepositorySQL,
+];
 
 const blogsAdminApiRepositories = [AdminBlogQueryRepository];
 
