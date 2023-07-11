@@ -70,7 +70,7 @@ export class PostController {
     @AccessToken() accessToken: string | null,
   ): Promise<PostViewModel> {
     const foundedPost: PostViewModel | null =
-      await this.postQueryRepository.getPostById(postId, accessToken);
+      await this.postsQueryRepositorySQL.getPostById(postId, accessToken);
     return foundedPost;
   }
 

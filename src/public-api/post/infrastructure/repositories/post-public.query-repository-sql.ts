@@ -19,6 +19,54 @@ export class PublicPostQueryRepositorySQL {
     private readonly blogQueryRepositorySQL: PublicBlogQueryRepositorySQL,
   ) {}
 
+  async getPostById(
+    postId: string,
+    accessToken: string | null,
+  ): Promise<PostViewModel | null> {
+    const getUserId = (): string | null => {
+      if (!accessToken) {
+        return null;
+      } else {
+        const accessTokenPayload: JwtAccessTokenPayloadType | null =
+          this.jwtUtils.verifyAccessToken(accessToken);
+        if (!accessToken) {
+          return null;
+        } else {
+          return accessTokenPayload.userId;
+        }
+      }
+    };
+    const userId: string = getUserId();
+    const rawFoundedPost: any[] = await this.dataSource.query(
+      `
+    SELECT p."id", p."title", p."short_description", p."content", p."created_at", p."blog_id",
+    b."name" as "blog_name"
+    FROM public.posts p
+    JOIN public.blogs b on p."blog_id" = b."id"
+    WHERE p."id" = $1 AND p."hidden" = false
+    `,
+      [postId],
+    );
+    if (rawFoundedPost.length < 1) throw new NotFoundException();
+    const foundedPost: any = rawFoundedPost[0];
+    const postToClient: PostViewModel = {
+      id: foundedPost.id,
+      title: foundedPost.title,
+      shortDescription: foundedPost.short_description,
+      content: foundedPost.content,
+      blogId: foundedPost.blog_id,
+      blogName: foundedPost.blog_name,
+      createdAt: foundedPost.created_at,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      },
+    };
+    return postToClient;
+  }
+
   async getPostsWithPaginationByBlogId({
     paginationQuery,
     blogId,
