@@ -28,6 +28,7 @@ import { BloggerPostQueryRepositorySQL } from '../../blogger-api/blog/infrastruc
 import { BloggerUserRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/user-blogger.repository-sql';
 import { BloggerUserQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
 import { PublicBlogQueryRepositorySQL } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository-sql';
+import { PublicPostQueryRepositorySQL } from '../../public-api/blog/infrastructure/repositories/post-public.query-repository-sql';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -63,6 +64,8 @@ const blogsPublicApiRepositories = [
   PublicBlogQueryRepositorySQL,
 ];
 
+const postsPublicApiRepositories = [PublicPostQueryRepositorySQL];
+
 const blogsAdminApiRepositories = [AdminBlogQueryRepository];
 
 @Module({
@@ -77,6 +80,7 @@ const blogsAdminApiRepositories = [AdminBlogQueryRepository];
     ...blogsPublicApiRepositories,
     ...blogsAdminApiRepositories,
     ...postsBloggerApiRepositories,
+    ...postsPublicApiRepositories,
     ...usersBloggerApiRepositories,
     ...UseCases,
     AccessTokenGuard,

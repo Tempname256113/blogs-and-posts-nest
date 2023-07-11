@@ -12,18 +12,20 @@ import { AccessToken } from '../../../../generic-decorators/access-token.decorat
 import { PostPaginationViewModel } from '../../post/api/models/post-api.models';
 import { PublicBlogQueryRepository } from '../infrastructure/repositories/blog-public.query-repository';
 import {
-  BlogPublicApiModel,
+  BlogPublicApiViewModel,
   BlogPublicApiPaginationModel,
 } from './models/blog-public-api.models';
 import { BlogPublicApiPaginationQueryDTO } from './models/blog-public-api.query-dto';
 import { BlogDocument } from '../../../../libs/db/mongoose/schemes/blog.entity';
 import { PublicBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-public.query-repository-sql';
+import { PublicPostQueryRepositorySQL } from '../infrastructure/repositories/post-public.query-repository-sql';
 
 @Controller('blogs')
 export class BlogPublicController {
   constructor(
     private blogQueryRepository: PublicBlogQueryRepository,
     private readonly blogQueryRepositorySQL: PublicBlogQueryRepositorySQL,
+    private readonly postQueryRepositorySQL: PublicPostQueryRepositorySQL,
   ) {}
 
   @Get()
@@ -59,8 +61,8 @@ export class BlogPublicController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const foundedPostsByBlogId: PostPaginationViewModel =
-      await this.blogQueryRepository.getPostsWithPaginationByBlogId({
-        rawPaginationQuery: paginationQuery,
+      await this.postQueryRepositorySQL.getPostsWithPaginationByBlogId({
+        paginationQuery,
         blogId,
         accessToken,
       });
@@ -71,11 +73,11 @@ export class BlogPublicController {
   @HttpCode(HttpStatus.OK)
   async getBlogById(
     @Param('blogId') blogId: string,
-  ): Promise<BlogPublicApiModel> {
+  ): Promise<BlogPublicApiViewModel> {
     const foundedBlog: BlogDocument =
       await this.blogQueryRepository.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
-    const mappedBlog: BlogPublicApiModel = {
+    const mappedBlog: BlogPublicApiViewModel = {
       id: foundedBlog.id,
       name: foundedBlog.name,
       description: foundedBlog.description,

@@ -3,13 +3,39 @@ import { DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { BlogPublicApiPaginationQueryDTO } from '../../api/models/blog-public-api.query-dto';
 import {
-  BlogPublicApiModel,
+  BlogPublicApiViewModel,
   BlogPublicApiPaginationModel,
 } from '../../api/models/blog-public-api.models';
 
 @Injectable()
 export class PublicBlogQueryRepositorySQL {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+
+  async getBlogById(blogId: string): Promise<BlogPublicApiViewModel | null> {
+    if (!Number(blogId)) {
+      return null;
+    }
+    const result: any[] = await this.dataSource.query(
+      `
+    SELECT *
+    FROM public.blogs b
+    WHERE b."id" = $1 AND b."hidden" = false
+    `,
+      [blogId],
+    );
+    if (result.length < 1) {
+      return null;
+    }
+    const res: any = result[0];
+    return {
+      id: String(res.id),
+      name: res.name,
+      description: res.description,
+      websiteUrl: res.website_url,
+      createdAt: res.created_at,
+      isMembership: res.is_membership,
+    };
+  }
 
   async getBlogsWithPagination(
     paginationQuery: BlogPublicApiPaginationQueryDTO,
@@ -55,17 +81,19 @@ export class PublicBlogQueryRepositorySQL {
         ORDER BY ${orderBy} ${paginationQuery.sortDirection.toUpperCase()}
         LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
         `);
-    const mappedBlogs: BlogPublicApiModel[] = foundedBlogs.map((blogFromDB) => {
-      const mappedBlog: BlogPublicApiModel = {
-        id: blogFromDB.id,
-        name: blogFromDB.name,
-        description: blogFromDB.description,
-        websiteUrl: blogFromDB.website_url,
-        createdAt: blogFromDB.created_at,
-        isMembership: blogFromDB.is_membership,
-      };
-      return mappedBlog;
-    });
+    const mappedBlogs: BlogPublicApiViewModel[] = foundedBlogs.map(
+      (blogFromDB) => {
+        const mappedBlog: BlogPublicApiViewModel = {
+          id: blogFromDB.id,
+          name: blogFromDB.name,
+          description: blogFromDB.description,
+          websiteUrl: blogFromDB.website_url,
+          createdAt: blogFromDB.created_at,
+          isMembership: blogFromDB.is_membership,
+        };
+        return mappedBlog;
+      },
+    );
     const paginationBlogsResult: BlogPublicApiPaginationModel = {
       pagesCount,
       page: Number(paginationQuery.pageNumber),

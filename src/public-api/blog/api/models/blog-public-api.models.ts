@@ -1,4 +1,4 @@
-export type BlogPublicApiModel = {
+export type BlogPublicApiViewModel = {
   id: string;
   name: string;
   description: string;
@@ -12,5 +12,5 @@ export type BlogPublicApiPaginationModel = {
   page: number;
   pageSize: number;
   totalCount: number;
-  items: BlogPublicApiModel[];
+  items: BlogPublicApiViewModel[];
 };

@@ -27,7 +27,7 @@ import {
 } from '../../../../modules/product/product-additional/get-documents-with-pagination.func';
 import { BlogPublicApiPaginationQueryDTO } from '../../api/models/blog-public-api.query-dto';
 import {
-  BlogPublicApiModel,
+  BlogPublicApiViewModel,
   BlogPublicApiPaginationModel,
 } from '../../api/models/blog-public-api.models';
 
@@ -78,9 +78,9 @@ export class PublicBlogQueryRepository {
             sort: additionalData.sortQuery,
           },
         ).lean();
-        const mappedBlogs: BlogPublicApiModel[] = foundedBlogs.map(
+        const mappedBlogs: BlogPublicApiViewModel[] = foundedBlogs.map(
           (blogFromDB) => {
-            const mappedBlog: BlogPublicApiModel = {
+            const mappedBlog: BlogPublicApiViewModel = {
               id: blogFromDB.id,
               name: blogFromDB.name,
               description: blogFromDB.description,

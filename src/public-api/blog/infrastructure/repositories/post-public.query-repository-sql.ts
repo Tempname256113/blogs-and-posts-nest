@@ -1,81 +1,50 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { PostApiPaginationQueryDTO } from '../../../post/api/models/post-api.query-dto';
 import {
   PostPaginationViewModel,
   PostViewModel,
-} from '../../../../public-api/post/api/models/post-api.models';
-import { PostApiPaginationQueryDTO } from '../../../../public-api/post/api/models/post-api.query-dto';
-import { BloggerBlogQueryRepositorySQL } from './blog-blogger.query-repository-sql';
-import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
+} from '../../../post/api/models/post-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
-import {
-  BloggerRepositoryBlogType,
-  BloggerRepositoryPostType,
-} from './models/blogger-repository.models';
+import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
+import { PublicBlogQueryRepositorySQL } from './blog-public.query-repository-sql';
+import { BlogPublicApiViewModel } from '../../api/models/blog-public-api.models';
 
 @Injectable()
-export class BloggerPostQueryRepositorySQL {
+export class PublicPostQueryRepositorySQL {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
-    private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private readonly jwtUtils: JwtUtils,
+    private readonly blogQueryRepositorySQL: PublicBlogQueryRepositorySQL,
   ) {}
 
-  async getPostByIdInternalUse(
-    postId: string,
-  ): Promise<BloggerRepositoryPostType | null> {
-    if (!Number(postId)) {
-      return null;
-    }
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT *
-    FROM public.posts p
-    WHERE p."id" = $1 AND p."hidden" = false
-    `,
-      [postId],
-    );
-    if (result.length < 1) return null;
-    const res: any = result[0];
-    return {
-      id: String(res.id),
-      blogId: String(res.blog_id),
-      title: res.title,
-      shortDescription: res.short_description,
-      content: res.content,
-      createdAt: res.created_at,
-      hidden: res.hidden,
-    };
-  }
-
   async getPostsWithPaginationByBlogId({
-    blogId,
     paginationQuery,
+    blogId,
     accessToken,
   }: {
-    accessToken: string;
     paginationQuery: PostApiPaginationQueryDTO;
     blogId: string;
+    accessToken: string | null;
   }): Promise<PostPaginationViewModel> {
-    const checkBlogOwner = async (): Promise<void> => {
-      const accessTokenPayload: JwtAccessTokenPayloadType | null =
-        this.jwtUtils.verifyAccessToken(accessToken);
-      if (!accessTokenPayload) throw new UnauthorizedException();
-      const bloggerId: string = accessTokenPayload.userId;
-      const foundedBlogById: BloggerRepositoryBlogType | null =
-        await this.blogQueryRepositorySQL.getBlogByIdInternalUse(blogId);
-      if (!foundedBlogById) throw new NotFoundException();
-      if (bloggerId !== foundedBlogById.bloggerId) {
-        throw new ForbiddenException();
+    const getUserId = (): string | null => {
+      if (!accessToken) {
+        return null;
+      } else {
+        const accessTokenPayload: JwtAccessTokenPayloadType | null =
+          this.jwtUtils.verifyAccessToken(accessToken);
+        if (!accessToken) {
+          return null;
+        } else {
+          return accessTokenPayload.userId;
+        }
       }
     };
-    await checkBlogOwner();
+    const userId: string | null = getUserId();
+    const foundedBlog: BlogPublicApiViewModel | null =
+      await this.blogQueryRepositorySQL.getBlogById(blogId);
+    if (!foundedBlog) throw new NotFoundException();
     let orderBy: string;
     const getCorrectOrderBy = (): void => {
       switch (paginationQuery.sortBy) {
