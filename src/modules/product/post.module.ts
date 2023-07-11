@@ -14,6 +14,8 @@ import { DeletePostUseCase } from '../../public-api/post/application/use-cases/d
 import { ChangePostLikeStatusUseCase } from '../../public-api/post/application/use-cases/change-post-like-status.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PublicBlogQueryRepository } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
+import { PublicPostQueryRepositorySQL } from '../../public-api/post/infrastructure/repositories/post-public.query-repository-sql';
+import { PublicBlogQueryRepositorySQL } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository-sql';
 
 const UseCases = [
   CreateNewPostUseCase,
@@ -34,6 +36,8 @@ const UseCases = [
   controllers: [PostController],
   providers: [
     PostRepository,
+    PublicPostQueryRepositorySQL,
+    PublicBlogQueryRepositorySQL,
     PostPublicQueryRepository,
     PublicBlogQueryRepository,
     IsValidBlogIdConstraint,

@@ -18,7 +18,7 @@ import {
 import { BlogPublicApiPaginationQueryDTO } from './models/blog-public-api.query-dto';
 import { BlogDocument } from '../../../../libs/db/mongoose/schemes/blog.entity';
 import { PublicBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-public.query-repository-sql';
-import { PublicPostQueryRepositorySQL } from '../infrastructure/repositories/post-public.query-repository-sql';
+import { PublicPostQueryRepositorySQL } from '../../post/infrastructure/repositories/post-public.query-repository-sql';
 
 @Controller('blogs')
 export class BlogPublicController {

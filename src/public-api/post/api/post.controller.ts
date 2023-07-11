@@ -31,10 +31,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewCommentCommand } from '../application/use-cases/create-new-comment.use-case';
 import { ChangePostLikeStatusCommand } from '../application/use-cases/change-post-like-status.use-case';
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
+import { PublicPostQueryRepositorySQL } from '../infrastructure/repositories/post-public.query-repository-sql';
 
 @Controller('posts')
 export class PostController {
   constructor(
+    private readonly postsQueryRepositorySQL: PublicPostQueryRepositorySQL,
     private postQueryRepository: PostPublicQueryRepository,
     private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,
@@ -54,8 +56,8 @@ export class PostController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const postsWithPagination: PostPaginationViewModel =
-      await this.postQueryRepository.getPostsWithPagination({
-        rawPaginationQuery: paginationQuery,
+      await this.postsQueryRepositorySQL.getPostsWithPagination({
+        paginationQuery,
         accessToken,
       });
     return postsWithPagination;
