@@ -1,4 +1,4 @@
-export type BlogAdminApiModel = {
+export type AdminApiBlogViewModel = {
   id: string;
   name: string;
   description: string;
@@ -6,19 +6,19 @@ export type BlogAdminApiModel = {
   createdAt: string;
   isMembership: boolean;
   blogOwnerInfo: {
-    userId: string;
-    userLogin: string;
+    userId: string | null;
+    userLogin: string | null;
   };
   banInfo: {
     isBanned: boolean;
-    banDate: string;
+    banDate: string | null;
   };
 };
 
-export type BlogAdminApiPaginationModel = {
+export type AdminApiBlogsPaginationModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: BlogAdminApiModel[];
+  items: AdminApiBlogViewModel[];
 };

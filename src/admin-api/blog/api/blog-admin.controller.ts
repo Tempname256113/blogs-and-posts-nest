@@ -13,16 +13,18 @@ import { AdminBlogQueryRepository } from '../infrastructure/repositories/blog-ad
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { BlogAdminApiPaginationQueryDTO } from './models/blog-admin-api.query-dto';
 import { BlogBloggerApiPaginationQueryDTO } from '../../../blogger-api/blog/api/models/blog-blogger-api.query-dto';
-import { BlogAdminApiPaginationModel } from './models/blog-admin-api.models';
+import { AdminApiBlogsPaginationModel } from './models/blog-admin-api.models';
 import { CommandBus } from '@nestjs/cqrs';
 import { BindBlogWithUserCommand } from '../application/use-cases/bind-blog-with-user.use-case';
 import { BanBlogAdminApiDTO } from './models/blog-admin-api.dto';
 import { BanUnbanBlogCommand } from '../application/use-cases/ban-unban-blog.use-case';
+import { AdminBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-admin.query-repository-sql';
 
 @Controller('sa/blogs')
 export class BlogAdminController {
   constructor(
     private blogQueryRepository: AdminBlogQueryRepository,
+    private readonly blogQueryRepositorySQL: AdminBlogQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}
 
@@ -31,7 +33,7 @@ export class BlogAdminController {
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPagination(
     @Query() rawPaginationQuery: BlogAdminApiPaginationQueryDTO,
-  ): Promise<BlogAdminApiPaginationModel> {
+  ): Promise<AdminApiBlogsPaginationModel> {
     const paginationQuery: BlogBloggerApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -39,8 +41,8 @@ export class BlogAdminController {
       sortBy: rawPaginationQuery.sortBy ?? 'createdAt',
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
-    const blogsWithPagination: BlogAdminApiPaginationModel =
-      await this.blogQueryRepository.getBlogsWithPagination(paginationQuery);
+    const blogsWithPagination: AdminApiBlogsPaginationModel =
+      await this.blogQueryRepositorySQL.getBlogsWithPagination(paginationQuery);
     return blogsWithPagination;
   }
 

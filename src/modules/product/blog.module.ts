@@ -29,6 +29,7 @@ import { BloggerUserRepositorySQL } from '../../blogger-api/blog/infrastructure/
 import { BloggerUserQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
 import { PublicBlogQueryRepositorySQL } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository-sql';
 import { PublicPostQueryRepositorySQL } from '../../public-api/post/infrastructure/repositories/post-public.query-repository-sql';
+import { AdminBlogQueryRepositorySQL } from '../../admin-api/blog/infrastructure/repositories/blog-admin.query-repository-sql';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -66,7 +67,10 @@ const blogsPublicApiRepositories = [
 
 const postsPublicApiRepositories = [PublicPostQueryRepositorySQL];
 
-const blogsAdminApiRepositories = [AdminBlogQueryRepository];
+const blogsAdminApiRepositories = [
+  AdminBlogQueryRepository,
+  AdminBlogQueryRepositorySQL,
+];
 
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],

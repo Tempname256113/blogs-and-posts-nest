@@ -11,8 +11,8 @@ import {
 import { BlogAdminApiPaginationQueryDTO } from '../../api/models/blog-admin-api.query-dto';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  BlogAdminApiModel,
-  BlogAdminApiPaginationModel,
+  AdminApiBlogViewModel,
+  AdminApiBlogsPaginationModel,
 } from '../../api/models/blog-admin-api.models';
 
 @Injectable()
@@ -23,9 +23,9 @@ export class AdminBlogQueryRepository {
 
   async getBlogsWithPagination(
     rawPaginationQuery: BlogAdminApiPaginationQueryDTO,
-  ): Promise<BlogAdminApiPaginationModel> {
+  ): Promise<AdminApiBlogsPaginationModel> {
     const blogsWithPagination =
-      async (): Promise<BlogAdminApiPaginationModel> => {
+      async (): Promise<AdminApiBlogsPaginationModel> => {
         let filter: FilterQuery<BlogSchema>;
         const getCorrectBlogsFilter = (): void => {
           if (!rawPaginationQuery.searchNameTerm) {
@@ -60,9 +60,9 @@ export class AdminBlogQueryRepository {
             sort: additionalPaginationData.sortQuery,
           },
         ).lean();
-        const mappedBlogs: BlogAdminApiModel[] = foundedBlogs.map(
+        const mappedBlogs: AdminApiBlogViewModel[] = foundedBlogs.map(
           (blogFromDB) => {
-            const mappedBlog: BlogAdminApiModel = {
+            const mappedBlog: AdminApiBlogViewModel = {
               id: blogFromDB.id,
               name: blogFromDB.name,
               description: blogFromDB.description,
@@ -81,7 +81,7 @@ export class AdminBlogQueryRepository {
             return mappedBlog;
           },
         );
-        const paginationBlogsResult: BlogAdminApiPaginationModel = {
+        const paginationBlogsResult: AdminApiBlogsPaginationModel = {
           pagesCount: additionalPaginationData.pagesCount,
           page: Number(rawPaginationQuery.pageNumber),
           pageSize: Number(rawPaginationQuery.pageSize),
