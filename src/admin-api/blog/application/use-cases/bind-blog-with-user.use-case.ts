@@ -1,16 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Blog,
-  BlogSchema,
-} from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import { Model } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
-import {
-  User,
-  UserSchema,
-} from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 export class BindBlogWithUserCommand {
   constructor(
@@ -25,36 +17,49 @@ export class BindBlogWithUserCommand {
 export class BindBlogWithUserUseCase
   implements ICommandHandler<BindBlogWithUserCommand, void>
 {
-  constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
-    @InjectModel(UserSchema.name) private UserModel: Model<UserSchema>,
-  ) {}
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async execute({
     data: { blogId, userId },
   }: BindBlogWithUserCommand): Promise<void> {
-    const foundedBlog: Blog | null = await this.BlogModel.findOne({
-      id: blogId,
-    }).lean();
-    const foundedUser: User | null = await this.UserModel.findOne({
-      id: userId,
-    });
     const errorFields: string[] = [];
-    if (!foundedUser || foundedBlog.bloggerId) {
-      errorFields.push('userId');
-    }
-    if (!foundedBlog) {
+    if (!Number(blogId)) errorFields.push('id');
+    if (!Number(userId)) errorFields.push('userId');
+    const rawFoundedBlog: any[] = await this.dataSource.query(
+      `
+    SELECT b."blogger_id"
+    FROM public.blogs b
+    WHERE b."id" = $1
+    `,
+      [blogId],
+    );
+    const rawFoundedUser: any[] = await this.dataSource.query(
+      `
+    SELECT u."id"
+    FROM public.users u
+    WHERE u."id" = $1
+    `,
+      [userId],
+    );
+    let foundedBlogBloggerId: string | null = null;
+    if (rawFoundedBlog.length < 1) {
       errorFields.push('id');
+    } else {
+      foundedBlogBloggerId = rawFoundedBlog[0].blogger_id;
+    }
+    if (rawFoundedUser.length < 1 || foundedBlogBloggerId) {
+      errorFields.push('userId');
     }
     if (errorFields.length > 0) {
       throw new BadRequestException(exceptionFactoryFunction(errorFields));
     }
-    await this.BlogModel.updateOne(
-      { id: blogId },
-      {
-        bloggerId: foundedUser.id,
-        bloggerLogin: foundedUser.accountData.login,
-      },
+    await this.dataSource.query(
+      `
+    UPDATE public.blogs
+    SET "blogger_id" = $1
+    WHERE "id" = $2
+    `,
+      [userId, blogId],
     );
   }
 }

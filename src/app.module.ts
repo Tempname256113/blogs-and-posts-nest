@@ -47,13 +47,13 @@ const postgresRemote: TypeOrmModuleOptions = {
         const mongoMemoryServerConnectionString: string =
           mongoMemoryServer.getUri();
         const mongoLocalConnectionString: string = envVariables.MONGO_LOCAL;
-        const mongoServerConnectionString: string = envVariables.MONGO_URL;
+        const mongoRemoteConnectionString: string = envVariables.MONGO_URL;
         return {
-          uri: mongoServerConnectionString,
+          uri: mongoRemoteConnectionString,
         };
       },
     }),
-    TypeOrmModule.forRoot(postgresLocal),
+    TypeOrmModule.forRoot(postgresRemote),
     MongooseSchemesModule,
     ...ProductModules,
     ...AuthModules,
