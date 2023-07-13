@@ -5,7 +5,7 @@ import {
   JwtUtils,
 } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { randomUUID } from 'crypto';
-import { AuthRepositorySql } from '../../infrastructure/repositories/auth.repository-sql';
+import { AuthRepositorySQL } from '../../infrastructure/repositories/auth.repository-sql';
 
 export class UpdateTokensPairCommand {
   constructor(
@@ -27,7 +27,7 @@ export class UpdateTokensPairUseCase
 {
   constructor(
     private jwtUtils: JwtUtils,
-    private authRepositorySQL: AuthRepositorySql,
+    private authRepositorySQL: AuthRepositorySQL,
   ) {}
 
   async execute({

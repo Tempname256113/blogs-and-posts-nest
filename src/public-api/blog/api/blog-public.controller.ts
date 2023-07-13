@@ -10,20 +10,17 @@ import {
 import { PostApiPaginationQueryDTO } from '../../post/api/models/post-api.query-dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { PostPaginationViewModel } from '../../post/api/models/post-api.models';
-import { PublicBlogQueryRepository } from '../infrastructure/repositories/blog-public.query-repository';
 import {
   BlogPublicApiViewModel,
   BlogPublicApiPaginationModel,
 } from './models/blog-public-api.models';
 import { BlogPublicApiPaginationQueryDTO } from './models/blog-public-api.query-dto';
-import { BlogDocument } from '../../../../libs/db/mongoose/schemes/blog.entity';
 import { PublicBlogQueryRepositorySQL } from '../infrastructure/repositories/blog-public.query-repository-sql';
 import { PublicPostQueryRepositorySQL } from '../../post/infrastructure/repositories/post-public.query-repository-sql';
 
 @Controller('blogs')
 export class BlogPublicController {
   constructor(
-    private blogQueryRepository: PublicBlogQueryRepository,
     private readonly blogQueryRepositorySQL: PublicBlogQueryRepositorySQL,
     private readonly postQueryRepositorySQL: PublicPostQueryRepositorySQL,
   ) {}

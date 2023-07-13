@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { UnauthorizedException } from '@nestjs/common';
 import { SessionRepositoryType } from '../../infrastructure/repositories/models/auth-repository.dto';
-import { AuthRepositorySql } from '../../infrastructure/repositories/auth.repository-sql';
+import { AuthRepositorySQL } from '../../infrastructure/repositories/auth.repository-sql';
 import { AuthQueryRepositorySQL } from '../../infrastructure/repositories/auth.query-repository-sql';
 
 export class LogoutCommand {
@@ -14,7 +14,7 @@ export class LogoutCommand {
 @CommandHandler(LogoutCommand)
 export class LogoutUserUseCase implements ICommandHandler<LogoutCommand, void> {
   constructor(
-    private authRepositorySQL: AuthRepositorySql,
+    private authRepositorySQL: AuthRepositorySQL,
     private authQueryRepositorySQL: AuthQueryRepositorySQL,
   ) {}
   async execute({ refreshTokenPayload }: LogoutCommand): Promise<void> {

@@ -5,7 +5,7 @@ import {
   SessionUpdateRepositoryDTO,
 } from './models/auth-repository.dto';
 
-export class AuthRepositorySql {
+export class AuthRepositorySQL {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async createNewSession({

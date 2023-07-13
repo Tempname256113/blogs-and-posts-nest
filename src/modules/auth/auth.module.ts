@@ -16,7 +16,7 @@ import { ResendConfirmationEmailUseCase } from '../../public-api/auth/applicatio
 import { UpdateTokensPairUseCase } from '../../public-api/auth/application/use-cases/update-tokens-pair.use-case';
 import { SendPasswordRecoveryCodeUseCase } from '../../public-api/auth/application/use-cases/send-password-recovery-code.use-case';
 import { SetNewPasswordUseCase } from '../../public-api/auth/application/use-cases/set-new-password.use-case';
-import { AuthRepositorySql } from '../../public-api/auth/infrastructure/repositories/auth.repository-sql';
+import { AuthRepositorySQL } from '../../public-api/auth/infrastructure/repositories/auth.repository-sql';
 import { AuthJwtRefreshTokenStrategy } from '../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { AuthQueryRepositorySQL } from '../../public-api/auth/infrastructure/repositories/auth.query-repository-sql';
 import { LogoutUserUseCase } from '../../public-api/auth/application/use-cases/logout-user.use-case';
@@ -45,7 +45,7 @@ const UseCases = [
   controllers: [AuthController],
   providers: [
     AuthRepository,
-    AuthRepositorySql,
+    AuthRepositorySQL,
     AuthQueryRepositorySQL,
     AuthJwtRefreshTokenStrategy,
     AuthLocalStrategy,

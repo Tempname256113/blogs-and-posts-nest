@@ -5,7 +5,7 @@ import {
   CreateNewTokensPairReturnType,
   JwtUtils,
 } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { AuthRepositorySql } from '../../infrastructure/repositories/auth.repository-sql';
+import { AuthRepositorySQL } from '../../infrastructure/repositories/auth.repository-sql';
 import { randomUUID } from 'crypto';
 
 export class LoginUserCommand {
@@ -28,7 +28,7 @@ export class LoginUserUseCase
 {
   constructor(
     private jwtUtils: JwtUtils,
-    private authRepositorySQL: AuthRepositorySql,
+    private authRepositorySQL: AuthRepositorySQL,
   ) {}
 
   async execute({
@@ -45,7 +45,7 @@ export class LoginUserUseCase
       userDeviceTitle: clientDeviceTitle,
     });
     const { newRefreshToken, newAccessToken } = this.createNewTokensPair({
-      userId: user.id,
+      userId: String(user.id),
       userLogin: user.accountData.login,
       deviceId: String(deviceId),
       uniqueKey,
