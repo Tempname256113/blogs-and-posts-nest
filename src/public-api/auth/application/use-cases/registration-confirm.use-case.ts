@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
-import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { UserRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
 import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { UserEmailInfoType } from '../../../../admin-api/user/api/models/user-api.models';
 
@@ -17,7 +17,7 @@ export class RegistrationConfirmUseCase
   implements ICommandHandler<ConfirmRegistrationCommand, void>
 {
   constructor(
-    private readonly usersRepositorySQL: UserRepositorySql,
+    private readonly usersRepositorySQL: UserRepositorySQL,
     private usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
 

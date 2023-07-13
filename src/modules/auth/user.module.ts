@@ -11,7 +11,7 @@ import { DeleteUserByIdUseCase } from '../../admin-api/user/application/use-case
 import { CqrsModule } from '@nestjs/cqrs';
 import { BanUnbanUserUseCase } from '../../admin-api/user/application/use-cases/ban-unban-user.use-case';
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
-import { UserRepositorySql } from '../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { UserRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.repository-sql';
 import { SecurityRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.repository-sql';
 
 const UseCases = [
@@ -25,7 +25,7 @@ const UseCases = [
   controllers: [UserAdminController],
   providers: [
     UserRepository,
-    UserRepositorySql,
+    UserRepositorySQL,
     SecurityRepositorySQL,
     UserQueryRepository,
     UserQueryRepositorySQL,
@@ -35,7 +35,7 @@ const UseCases = [
   ],
   exports: [
     UserRepository,
-    UserRepositorySql,
+    UserRepositorySQL,
     UserQueryRepository,
     UserQueryRepositorySQL,
   ],

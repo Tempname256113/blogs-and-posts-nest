@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserCreateDto } from '../../api/models/user-api.dto';
 import { UserViewModel } from '../../api/models/user-api.models';
-import { UserRepositorySql } from '../../infrastructure/repositories/user.repository-sql';
+import { UserRepositorySQL } from '../../infrastructure/repositories/user.repository-sql';
 
 export class CreateUserCommand {
   constructor(public readonly createUserDTO: UserCreateDto) {}
@@ -11,7 +11,7 @@ export class CreateUserCommand {
 export class CreateUserUseCase
   implements ICommandHandler<CreateUserCommand, UserViewModel>
 {
-  constructor(private readonly usersRepositorySQL: UserRepositorySql) {}
+  constructor(private readonly usersRepositorySQL: UserRepositorySQL) {}
 
   async execute({ createUserDTO }: CreateUserCommand): Promise<UserViewModel> {
     const newUserData: { userId: number; createdAt: string } =

@@ -5,7 +5,7 @@ import { add } from 'date-fns';
 import { hash } from 'bcrypt';
 
 @Injectable()
-export class UserRepositorySql {
+export class UserRepositorySQL {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async registrationNewUser(createUserDTO: {

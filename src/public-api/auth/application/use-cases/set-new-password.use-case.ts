@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { hash } from 'bcrypt';
-import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { UserRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
 import { UserPasswordRecoveryInfoType } from '../../../../admin-api/user/api/models/user-api.models';
 import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 
@@ -21,7 +21,7 @@ export class SetNewPasswordUseCase
   implements ICommandHandler<SetNewPasswordCommand, void>
 {
   constructor(
-    private usersRepositorySQL: UserRepositorySql,
+    private usersRepositorySQL: UserRepositorySQL,
     private usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
 

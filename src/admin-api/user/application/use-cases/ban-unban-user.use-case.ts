@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserBanUnbanDTO } from '../../api/models/user-api.dto';
 import { SecurityRepositorySQL } from '../../../../public-api/security/infrastructure/repositories/security.repository-sql';
-import { UserRepositorySql } from '../../infrastructure/repositories/user.repository-sql';
+import { UserRepositorySQL } from '../../infrastructure/repositories/user.repository-sql';
 
 export class BanUnbanUserCommand {
   constructor(
@@ -18,7 +18,7 @@ export class BanUnbanUserUseCase
 {
   constructor(
     private readonly securityRepositorySQL: SecurityRepositorySQL,
-    private readonly usersRepositorySQL: UserRepositorySql,
+    private readonly usersRepositorySQL: UserRepositorySQL,
   ) {}
 
   async execute({

@@ -4,7 +4,7 @@ import { exceptionFactoryFunction } from '../../../../../generic-factory-functio
 import { randomUUID } from 'crypto';
 import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
 import { UserEmailInfoType } from '../../../../admin-api/user/api/models/user-api.models';
-import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { UserRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
 import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 
 export class ResendConfirmationEmailCommand {
@@ -19,7 +19,7 @@ export class ResendConfirmationEmailUseCase
   implements ICommandHandler<ResendConfirmationEmailCommand, void>
 {
   constructor(
-    private usersRepositorySQL: UserRepositorySql,
+    private usersRepositorySQL: UserRepositorySQL,
     private usersQueryRepositorySQL: UserQueryRepositorySQL,
     private emailService: NodemailerService,
   ) {}

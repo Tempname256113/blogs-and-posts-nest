@@ -5,7 +5,7 @@ import { exceptionFactoryFunction } from '../../../../../generic-factory-functio
 import { NodemailerService } from '../../../../../libs/email/nodemailer/nodemailer.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
-import { UserRepositorySql } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
+import { UserRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
 import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
 
@@ -19,7 +19,7 @@ export class RegistrationUserUseCase
 {
   constructor(
     private emailService: NodemailerService,
-    private usersRepositorySQL: UserRepositorySql,
+    private usersRepositorySQL: UserRepositorySQL,
     private usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
   async execute({ createNewUserDTO }: RegistrationUserCommand): Promise<void> {

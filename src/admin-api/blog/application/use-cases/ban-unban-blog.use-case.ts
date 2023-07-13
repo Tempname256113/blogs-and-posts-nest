@@ -7,7 +7,7 @@ import { PostSchema } from '../../../../../libs/db/mongoose/schemes/post.entity'
 import { CommentSchema } from '../../../../../libs/db/mongoose/schemes/comment.entity';
 import { LikeSchema } from '../../../../../libs/db/mongoose/schemes/like.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 
 export class BanUnbanBlogCommand {
   constructor(
@@ -38,8 +38,10 @@ export class BanUnbanBlogUseCase
   }
 
   async banBlog(blogId: string): Promise<void> {
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
     const hideBlogs = async (): Promise<void> => {
-      await this.dataSource.query(
+      await queryRunner.query(
         `
       UPDATE public.blogs
       SET "hidden" = true, "is_banned" = true, "ban_date" = now()
@@ -48,9 +50,8 @@ export class BanUnbanBlogUseCase
         [blogId],
       );
     };
-    await hideBlogs();
     const hidePosts = async (): Promise<void> => {
-      await this.dataSource.query(
+      await queryRunner.query(
         `
       UPDATE public.posts
       SET "hidden" = true
@@ -59,7 +60,17 @@ export class BanUnbanBlogUseCase
         [blogId],
       );
     };
-    await hidePosts();
+    await queryRunner.startTransaction();
+    try {
+      await hideBlogs();
+      await hidePosts();
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      console.log(e);
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
     // await this.BlogModel.updateMany(
     //   { id: blogId },
     //   { hidden: true, isBanned: true, banDate: new Date().toISOString() },
@@ -70,8 +81,10 @@ export class BanUnbanBlogUseCase
   }
 
   async unbanBlog(blogId: string): Promise<void> {
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
     const revealBlogs = async (): Promise<void> => {
-      await this.dataSource.query(
+      await queryRunner.query(
         `
       UPDATE public.blogs
       SET "hidden" = false, "is_banned" = false, "ban_date" = null
@@ -80,9 +93,8 @@ export class BanUnbanBlogUseCase
         [blogId],
       );
     };
-    await revealBlogs();
     const revealPosts = async (): Promise<void> => {
-      await this.dataSource.query(
+      await queryRunner.query(
         `
       UPDATE public.posts
       SET "hidden" = false
@@ -91,7 +103,17 @@ export class BanUnbanBlogUseCase
         [blogId],
       );
     };
-    await revealPosts();
+    await queryRunner.startTransaction();
+    try {
+      await revealBlogs();
+      await revealPosts();
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      console.log(e);
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
     // await this.BlogModel.updateMany(
     //   { id: blogId },
     //   { hidden: false, isBanned: false, banDate: null },
