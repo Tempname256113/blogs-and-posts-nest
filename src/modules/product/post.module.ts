@@ -16,6 +16,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PublicBlogQueryRepository } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 import { PublicPostQueryRepositorySQL } from '../../public-api/post/infrastructure/repositories/post-public.query-repository-sql';
 import { PublicBlogQueryRepositorySQL } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository-sql';
+import { BloggerBlogQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.query-repository-sql';
 
 const UseCases = [
   CreateNewPostUseCase,
@@ -24,6 +25,8 @@ const UseCases = [
   DeletePostUseCase,
   ChangePostLikeStatusUseCase,
 ];
+
+const blogsBloggerApiRepositories = [BloggerBlogQueryRepositorySQL];
 
 @Module({
   imports: [
@@ -42,6 +45,7 @@ const UseCases = [
     PublicBlogQueryRepository,
     IsValidBlogIdConstraint,
     ...UseCases,
+    ...blogsBloggerApiRepositories,
   ],
 })
 export class PostModule {}
