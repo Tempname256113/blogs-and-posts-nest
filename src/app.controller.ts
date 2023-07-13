@@ -40,6 +40,12 @@ export class AppController {
       WHERE 1=1;
       DELETE FROM public.users
       WHERE 1=1;
+      DELETE FROM public.banned_users_by_blogger
+      WHERE 1=1;
+      DELETE FROM public.blogs
+      WHERE 1=1;
+      DELETE FROM public.posts
+      WHERE 1=1;
       `),
     ]);
   }
