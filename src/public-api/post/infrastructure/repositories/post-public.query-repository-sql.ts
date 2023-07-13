@@ -50,11 +50,11 @@ export class PublicPostQueryRepositorySQL {
     if (rawFoundedPost.length < 1) throw new NotFoundException();
     const foundedPost: any = rawFoundedPost[0];
     const postToClient: PostViewModel = {
-      id: foundedPost.id,
+      id: String(foundedPost.id),
       title: foundedPost.title,
       shortDescription: foundedPost.short_description,
       content: foundedPost.content,
-      blogId: foundedPost.blog_id,
+      blogId: String(foundedPost.blog_id),
       blogName: foundedPost.blog_name,
       createdAt: foundedPost.created_at,
       extendedLikesInfo: {
