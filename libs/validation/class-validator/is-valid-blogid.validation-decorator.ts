@@ -5,27 +5,26 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { InjectModel } from '@nestjs/mongoose';
-import { Blog, BlogSchema } from '../../db/mongoose/schemes/blog.entity';
-import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { BloggerRepositoryBlogType } from '../../../src/blogger-api/blog/infrastructure/repositories/models/blogger-repository.models';
+import { BloggerBlogQueryRepositorySQL } from '../../../src/blogger-api/blog/infrastructure/repositories/blog-blogger.query-repository-sql';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class IsValidBlogIdConstraint implements ValidatorConstraintInterface {
   constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
   ) {}
   async validate(
     blogId: string,
     validationArguments?: ValidationArguments,
   ): Promise<boolean> {
-    if (typeof blogId !== 'string') {
-      return false;
-    }
-    const foundedBlog: Blog | null = await this.BlogModel.findOne({
-      id: blogId,
-    }).lean();
+    if (!Number(blogId)) return false;
+    const foundedBlog: BloggerRepositoryBlogType | null =
+      await this.blogQueryRepositorySQL.getBlogByIdInternalUse(blogId);
     return !!foundedBlog;
   }
 }

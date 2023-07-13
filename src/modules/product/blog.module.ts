@@ -72,6 +72,8 @@ const blogsAdminApiRepositories = [
   AdminBlogQueryRepositorySQL,
 ];
 
+const classValidatorConstraints = [IsValidBlogIdConstraint];
+
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],
   controllers: [
@@ -87,8 +89,8 @@ const blogsAdminApiRepositories = [
     ...postsPublicApiRepositories,
     ...usersBloggerApiRepositories,
     ...UseCases,
+    ...classValidatorConstraints,
     AccessTokenGuard,
-    IsValidBlogIdConstraint,
   ],
 })
 export class BlogModule {}
