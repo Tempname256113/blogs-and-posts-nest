@@ -84,7 +84,7 @@ export class PublicBlogQueryRepositorySQL {
     const mappedBlogs: BlogPublicApiViewModel[] = foundedBlogs.map(
       (blogFromDB) => {
         const mappedBlog: BlogPublicApiViewModel = {
-          id: blogFromDB.id,
+          id: String(blogFromDB.id),
           name: blogFromDB.name,
           description: blogFromDB.description,
           websiteUrl: blogFromDB.website_url,
