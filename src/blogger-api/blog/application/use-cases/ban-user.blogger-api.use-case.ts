@@ -42,6 +42,9 @@ export class BanUserBloggerApiUseCase
   async execute({
     data: { bannedUserId, isBanned, banReason, blogId, accessToken },
   }: BanUserBloggerApiCommand): Promise<void> {
+    if (!Number(bannedUserId)) {
+      throw new NotFoundException();
+    }
     const accessTokenPayload: JwtAccessTokenPayloadType =
       this.getAccessTokenPayload(accessToken);
     await this.checkBlogOwner({
