@@ -133,7 +133,7 @@ export class BloggerUserQueryRepositorySQL {
     const mappedBannedUsersForBlog: BannedUserBloggerApiViewModel[] =
       allBannedUsersForBlog.map((rawUserBanInfo) => {
         const mappedUser: BannedUserBloggerApiViewModel = {
-          id: rawUserBanInfo.user_id,
+          id: String(rawUserBanInfo.user_id),
           login: rawUserBanInfo.user_login,
           banInfo: {
             isBanned: true,
