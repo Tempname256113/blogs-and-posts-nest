@@ -74,17 +74,9 @@ export class BlogPublicController {
   async getBlogById(
     @Param('blogId') blogId: string,
   ): Promise<BlogPublicApiViewModel> {
-    const foundedBlog: BlogDocument =
-      await this.blogQueryRepository.getBlogById(blogId);
+    const foundedBlog: BlogPublicApiViewModel | null =
+      await this.blogQueryRepositorySQL.getBlogById(blogId);
     if (!foundedBlog) throw new NotFoundException();
-    const mappedBlog: BlogPublicApiViewModel = {
-      id: foundedBlog.id,
-      name: foundedBlog.name,
-      description: foundedBlog.description,
-      websiteUrl: foundedBlog.websiteUrl,
-      createdAt: foundedBlog.createdAt,
-      isMembership: foundedBlog.isMembership,
-    };
-    return mappedBlog;
+    return foundedBlog;
   }
 }
