@@ -55,11 +55,11 @@ export class CreatePostByBlogUseCase
         title: createPostDTO.title,
       });
     const mappedNewPost: PostViewModel = {
-      id: newCreatedPost.id,
+      id: String(newCreatedPost.id),
       title: newCreatedPost.title,
       shortDescription: newCreatedPost.shortDescription,
       content: newCreatedPost.content,
-      blogId: foundedBlog.id,
+      blogId: String(foundedBlog.id),
       blogName: foundedBlog.name,
       createdAt: newCreatedPost.createdAt,
       extendedLikesInfo: {
