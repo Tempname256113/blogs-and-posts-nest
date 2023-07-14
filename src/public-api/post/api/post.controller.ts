@@ -70,7 +70,7 @@ export class PostController {
     @AccessToken() accessToken: string | null,
   ): Promise<PostViewModel> {
     const foundedPost: PostViewModel | null =
-      await this.postsQueryRepositorySQL.getPostById(postId, accessToken);
+      await this.postsQueryRepositorySQL.getPostById({ postId, accessToken });
     return foundedPost;
   }
 
@@ -78,7 +78,7 @@ export class PostController {
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
   async createNewComment(
-    @AccessToken() accessToken: string,
+    @AccessToken() accessToken: string | null,
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
   ): Promise<CommentViewModel> {

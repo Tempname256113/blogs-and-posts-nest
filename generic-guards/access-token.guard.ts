@@ -7,11 +7,16 @@ import {
 import { Request } from 'express';
 import { JwtUtils } from '../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../generic-models/jwt.payload.model';
+import { UserQueryRepositorySQL } from '../src/admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { User } from '../libs/db/mongoose/schemes/user.entity';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
-  constructor(private jwtHelpers: JwtUtils) {}
-  canActivate(context: ExecutionContext): boolean {
+  constructor(
+    private readonly jwtHelpers: JwtUtils,
+    private readonly usersQueryRepository: UserQueryRepositorySQL,
+  ) {}
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     if (!request.headers.authorization) throw new UnauthorizedException();
     const headersAuthorization: string[] =
@@ -22,6 +27,11 @@ export class AccessTokenGuard implements CanActivate {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtHelpers.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
+    const foundedUserByLogin: User | null =
+      await this.usersQueryRepository.findUserWithSimilarLoginOrEmail({
+        login: accessTokenPayload.userLogin,
+      });
+    if (!foundedUserByLogin) throw new UnauthorizedException();
     return true;
   }
 }

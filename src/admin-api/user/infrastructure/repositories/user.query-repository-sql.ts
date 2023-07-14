@@ -22,7 +22,7 @@ export class UserQueryRepositorySQL {
 
   async findUserWithSimilarLoginOrEmail(data: {
     login: string;
-    email: string;
+    email?: string;
   }): Promise<User | null> {
     const result: any[] = await this.dataSource.query(
       `
@@ -41,7 +41,7 @@ export class UserQueryRepositorySQL {
     if (result.length > 0) {
       const rawUser: any = result[0];
       const mappedUser: User = {
-        id: rawUser.id,
+        id: String(rawUser.id),
         accountData: {
           login: rawUser.login,
           password: rawUser.password,

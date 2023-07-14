@@ -1,29 +1,21 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentViewModel } from '../../../comment/api/models/comment-api.models';
 import {
-  PostDocument,
-  PostSchema,
-} from '../../../../../libs/db/mongoose/schemes/post.entity';
-import {
   ForbiddenException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import {
-  Comment,
-  CommentDocument,
-  CommentSchema,
-} from '../../../../../libs/db/mongoose/schemes/comment.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CommentRepository } from '../../../comment/infrastructure/repositories/comment.repository';
-import { PostPublicQueryRepository } from '../../infrastructure/repositories/post.query-repository';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import {
-  BannedUserByBlogger,
-  BannedUserByBloggerSchema,
-} from '../../../../../libs/db/mongoose/schemes/banned-user-by-blogger.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
+import { BloggerUserQueryRepositorySQL } from '../../../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
+import { BloggerRepositoryBannedUserType } from '../../../../blogger-api/blog/infrastructure/repositories/models/blogger-repository.models';
+import { PublicCommentRepositorySql } from '../../../comment/infrastructure/repositories/comment-public.repository-sql';
+import { PublicPostQueryRepositorySQL } from '../../infrastructure/repositories/post-public.query-repository-sql';
+import { PostViewModel } from '../../api/models/post-api.models';
 
 export class CreateNewCommentCommand {
   constructor(
@@ -40,12 +32,11 @@ export class CreateNewCommentUseCase
   implements ICommandHandler<CreateNewCommentCommand, CommentViewModel>
 {
   constructor(
-    @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
-    @InjectModel(BannedUserByBloggerSchema.name)
-    private BannedUserByBloggerModel: Model<BannedUserByBloggerSchema>,
-    private commentRepository: CommentRepository,
-    private postsQueryRepository: PostPublicQueryRepository,
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly usersAdminApiQueryRepositorySQL: UserQueryRepositorySQL,
+    private readonly usersBloggerApiQueryRepositorySQL: BloggerUserQueryRepositorySQL,
+    private readonly commentsPublicApiRepositorySQL: PublicCommentRepositorySql,
+    private readonly postsPublicApiRepositorySQL: PublicPostQueryRepositorySQL,
     private jwtUtils: JwtUtils,
   ) {}
 
@@ -55,26 +46,65 @@ export class CreateNewCommentUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.getAccessTokenPayload(accessToken);
     const userId: string = accessTokenPayload.userId;
-    const userLogin = accessTokenPayload.userLogin;
-    const foundedPost: PostDocument | null =
-      await this.postsQueryRepository.getRawPostById(postId);
-    if (!foundedPost) throw new NotFoundException();
-    await this.checkUserBannedOrNot({ userId, blogId: foundedPost.blogId });
-    const newComment: Comment = foundedPost.createComment({
+    const userLogin: string = accessTokenPayload.userLogin;
+    const foundedPost: PostViewModel = await this.getPostById({
+      postId,
+      accessToken,
+    });
+    await this.checkUserBannedByBloggerOrNot({
+      userId,
+      blogId: foundedPost.blogId,
+    });
+    await this.checkUserBannedOrNot(userLogin);
+    return this.createComment({
+      postId,
       userId,
       userLogin,
       content,
     });
-    const newCommentModel: CommentDocument = new this.CommentModel(newComment);
-    await this.commentRepository.saveComment(newCommentModel);
+  }
+
+  async getPostById({
+    postId,
+    accessToken,
+  }: {
+    postId: string;
+    accessToken: string;
+  }): Promise<PostViewModel> {
+    const foundedPost: PostViewModel | null =
+      await this.postsPublicApiRepositorySQL.getPostById({
+        postId,
+        accessToken,
+      });
+    if (!foundedPost) throw new NotFoundException();
+    return foundedPost;
+  }
+
+  async createComment({
+    postId,
+    userId,
+    userLogin,
+    content,
+  }: {
+    postId: string;
+    userId: string;
+    userLogin: string;
+    content: string;
+  }): Promise<CommentViewModel> {
+    const newCreatedCommentData =
+      await this.commentsPublicApiRepositorySQL.createNewComment({
+        postId,
+        userId,
+        content,
+      });
     const mappedComment: CommentViewModel = {
-      id: newComment.id,
-      content: newComment.content,
+      id: String(newCreatedCommentData.createdCommentId),
+      content,
       commentatorInfo: {
-        userId: String(newComment.userId),
-        userLogin: newComment.userLogin,
+        userId: String(userId),
+        userLogin,
       },
-      createdAt: newComment.createdAt,
+      createdAt: newCreatedCommentData.commentCreatedAt,
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
@@ -93,19 +123,31 @@ export class CreateNewCommentUseCase
     return accessTokenPayload;
   }
 
-  async checkUserBannedOrNot({
+  async checkUserBannedByBloggerOrNot({
     userId,
     blogId,
   }: {
     userId: string;
     blogId: string;
   }): Promise<void> {
-    const foundedBannedUserByBlogger: BannedUserByBlogger | null =
-      await this.BannedUserByBloggerModel.findOne({
+    const foundedBannedUserByBlogger: BloggerRepositoryBannedUserType | null =
+      await this.usersBloggerApiQueryRepositorySQL.getBannedByBloggerUser({
         userId,
         blogId,
       });
     if (foundedBannedUserByBlogger) {
+      throw new ForbiddenException();
+    }
+  }
+
+  async checkUserBannedOrNot(userLogin: string): Promise<void> {
+    const foundedUser: User | null =
+      await this.usersAdminApiQueryRepositorySQL.findUserWithSimilarLoginOrEmail(
+        {
+          login: userLogin,
+        },
+      );
+    if (foundedUser.banInfo.isBanned) {
       throw new ForbiddenException();
     }
   }

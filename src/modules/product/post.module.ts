@@ -17,6 +17,9 @@ import { PublicBlogQueryRepository } from '../../public-api/blog/infrastructure/
 import { PublicPostQueryRepositorySQL } from '../../public-api/post/infrastructure/repositories/post-public.query-repository-sql';
 import { PublicBlogQueryRepositorySQL } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository-sql';
 import { BloggerBlogQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.query-repository-sql';
+import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { BloggerUserQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
+import { PublicCommentRepositorySql } from '../../public-api/comment/infrastructure/repositories/comment-public.repository-sql';
 
 const UseCases = [
   CreateNewPostUseCase,
@@ -27,6 +30,12 @@ const UseCases = [
 ];
 
 const blogsBloggerApiRepositories = [BloggerBlogQueryRepositorySQL];
+
+const usersBloggerApiRepositories = [BloggerUserQueryRepositorySQL];
+
+const usersAdminApiRepositories = [UserQueryRepositorySQL];
+
+const commentsPublicApiRepositories = [PublicCommentRepositorySql];
 
 @Module({
   imports: [
@@ -46,6 +55,9 @@ const blogsBloggerApiRepositories = [BloggerBlogQueryRepositorySQL];
     IsValidBlogIdConstraint,
     ...UseCases,
     ...blogsBloggerApiRepositories,
+    ...usersBloggerApiRepositories,
+    ...usersAdminApiRepositories,
+    ...commentsPublicApiRepositories,
   ],
 })
 export class PostModule {}

@@ -19,10 +19,13 @@ export class PublicPostQueryRepositorySQL {
     private readonly blogQueryRepositorySQL: PublicBlogQueryRepositorySQL,
   ) {}
 
-  async getPostById(
-    postId: string,
-    accessToken: string | null,
-  ): Promise<PostViewModel | null> {
+  async getPostById({
+    postId,
+    accessToken,
+  }: {
+    postId: string;
+    accessToken: string | null;
+  }): Promise<PostViewModel | null> {
     const getUserId = (): string | null => {
       if (!accessToken) {
         return null;
