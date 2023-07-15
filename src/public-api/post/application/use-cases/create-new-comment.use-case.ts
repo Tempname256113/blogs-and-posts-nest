@@ -11,7 +11,7 @@ import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructur
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BloggerUserQueryRepositorySQL } from '../../../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
 import { BloggerRepositoryBannedUserType } from '../../../../blogger-api/blog/infrastructure/repositories/models/blogger-repository.models';
-import { PublicCommentRepositorySql } from '../../../comment/infrastructure/repositories/comment-public.repository-sql';
+import { PublicCommentRepositorySQL } from '../../../comment/infrastructure/repositories/comment-public.repository-sql';
 import { PublicPostQueryRepositorySQL } from '../../infrastructure/repositories/post-public.query-repository-sql';
 import { PostViewModel } from '../../api/models/post-api.models';
 
@@ -32,7 +32,7 @@ export class CreateNewCommentUseCase
   constructor(
     private readonly usersAdminApiQueryRepositorySQL: UserQueryRepositorySQL,
     private readonly usersBloggerApiQueryRepositorySQL: BloggerUserQueryRepositorySQL,
-    private readonly commentsPublicApiRepositorySQL: PublicCommentRepositorySql,
+    private readonly commentsPublicApiRepositorySQL: PublicCommentRepositorySQL,
     private readonly postsPublicApiRepositorySQL: PublicPostQueryRepositorySQL,
     private jwtUtils: JwtUtils,
   ) {}

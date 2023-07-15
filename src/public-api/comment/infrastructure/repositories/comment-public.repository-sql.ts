@@ -3,7 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 @Injectable()
-export class PublicCommentRepositorySql {
+export class PublicCommentRepositorySQL {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async createNewComment({
@@ -27,6 +27,23 @@ export class PublicCommentRepositorySql {
       createdCommentId: String(result[0].id),
       commentCreatedAt: result[0].created_at,
     };
+  }
+
+  async updateComment({
+    commentId,
+    content,
+  }: {
+    commentId: string;
+    content: string;
+  }): Promise<void> {
+    await this.dataSource.query(
+      `
+    UPDATE public.comments
+    SET "content" = $1
+    WHERE "id" = $2
+    `,
+      [content, commentId],
+    );
   }
 
   async commentChangeLikeStatus({

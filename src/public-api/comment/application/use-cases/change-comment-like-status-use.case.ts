@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { PublicCommentRepositorySql } from '../../infrastructure/repositories/comment-public.repository-sql';
+import { PublicCommentRepositorySQL } from '../../infrastructure/repositories/comment-public.repository-sql';
 import { CommentViewModel } from '../../api/models/comment-api.models';
 import { PublicCommentQueryRepositorySQL } from '../../infrastructure/repositories/comment-public.query-repository-sql';
 
@@ -21,7 +21,7 @@ export class ChangeCommentLikeStatusUseCase
   implements ICommandHandler<ChangeCommentLikeStatusCommand, void>
 {
   constructor(
-    private readonly commentRepositorySQL: PublicCommentRepositorySql,
+    private readonly commentRepositorySQL: PublicCommentRepositorySQL,
     private readonly commentQueryRepositorySQL: PublicCommentQueryRepositorySQL,
     private jwtUtils: JwtUtils,
   ) {}

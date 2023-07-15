@@ -11,7 +11,7 @@ import { ChangeCommentLikeStatusUseCase } from '../../public-api/comment/applica
 import { CqrsModule } from '@nestjs/cqrs';
 import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
-import { PublicCommentRepositorySql } from '../../public-api/comment/infrastructure/repositories/comment-public.repository-sql';
+import { PublicCommentRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.repository-sql';
 import { PublicCommentQueryRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.query-repository-sql';
 
 const UseCases = [
@@ -26,7 +26,7 @@ const UseCases = [
   providers: [
     CommentRepository,
     CommentQueryRepository,
-    PublicCommentRepositorySql,
+    PublicCommentRepositorySQL,
     PublicCommentQueryRepositorySQL,
     ...UseCases,
     UserQueryRepositorySQL,
