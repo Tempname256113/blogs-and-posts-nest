@@ -1,10 +1,10 @@
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Comment } from '../../../../../libs/db/mongoose/schemes/comment.entity';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { ChangeEntityLikeStatusCommand } from '../../../like/application/use-cases/change-entity-like-status.use-case';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { CommentQueryRepository } from '../../infrastructure/repositories/comment.query-repository';
+import { PublicCommentRepositorySql } from '../../infrastructure/repositories/comment-public.repository-sql';
+import { CommentViewModel } from '../../api/models/comment-api.models';
+import { PublicCommentQueryRepositorySQL } from '../../infrastructure/repositories/comment-public.query-repository-sql';
 
 export class ChangeCommentLikeStatusCommand {
   constructor(
@@ -21,33 +21,33 @@ export class ChangeCommentLikeStatusUseCase
   implements ICommandHandler<ChangeCommentLikeStatusCommand, void>
 {
   constructor(
-    private commentQueryRepository: CommentQueryRepository,
-    private commandBus: CommandBus,
-    private jwtHelpers: JwtUtils,
+    private readonly commentRepositorySQL: PublicCommentRepositorySql,
+    private readonly commentQueryRepositorySQL: PublicCommentQueryRepositorySQL,
+    private jwtUtils: JwtUtils,
   ) {}
 
   async execute({
     data: { commentId, reaction, accessToken },
   }: ChangeCommentLikeStatusCommand): Promise<void> {
+    if (!Number(commentId)) {
+      throw new NotFoundException();
+    }
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const userId = accessTokenPayload.userId;
-    const userLogin = accessTokenPayload.userLogin;
-    const foundedComment: Comment | null =
-      await this.commentQueryRepository.getRawCommentById(commentId);
+    const foundedComment: CommentViewModel | null =
+      await this.commentQueryRepositorySQL.getCommentById({
+        commentId,
+        userId,
+      });
     if (!foundedComment) {
       throw new NotFoundException();
     }
-    await this.commandBus.execute(
-      new ChangeEntityLikeStatusCommand({
-        likeStatus: reaction,
-        userId,
-        userLogin,
-        entityId: commentId,
-        blogId: foundedComment.blogId,
-        entity: 'comment',
-      }),
-    );
+    await this.commentRepositorySQL.commentChangeLikeStatus({
+      commentId,
+      userId,
+      likeStatus: reaction,
+    });
   }
 }

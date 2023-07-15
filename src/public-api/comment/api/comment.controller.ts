@@ -8,6 +8,7 @@ import {
   Param,
   Put,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentViewModel } from './models/comment-api.models';
 import { CommentQueryRepository } from '../infrastructure/repositories/comment.query-repository';
@@ -18,6 +19,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { DeleteCommentCommand } from '../application/use-cases/delete-comment.use-case';
 import { UpdateCommentCommand } from '../application/use-cases/update-comment.use-case';
 import { ChangeCommentLikeStatusCommand } from '../application/use-cases/change-comment-like-status-use.case';
+import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 
 @Controller('comments')
 export class CommentController {
@@ -72,13 +74,13 @@ export class CommentController {
   }
 
   @Put(':commentId/like-status')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async changeLikeStatus(
     @Param('commentId') commentId: string,
     @Body() { likeStatus }: LikeDto,
-    @AccessToken() accessToken: string,
+    @AccessToken() accessToken: string | null,
   ): Promise<void> {
-    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<ChangeCommentLikeStatusCommand, void>(
       new ChangeCommentLikeStatusCommand({
         commentId,

@@ -7,8 +7,6 @@ import {
 } from '@nestjs/common';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { BloggerUserQueryRepositorySQL } from '../../../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
@@ -32,7 +30,6 @@ export class CreateNewCommentUseCase
   implements ICommandHandler<CreateNewCommentCommand, CommentViewModel>
 {
   constructor(
-    @InjectDataSource() private readonly dataSource: DataSource,
     private readonly usersAdminApiQueryRepositorySQL: UserQueryRepositorySQL,
     private readonly usersBloggerApiQueryRepositorySQL: BloggerUserQueryRepositorySQL,
     private readonly commentsPublicApiRepositorySQL: PublicCommentRepositorySql,

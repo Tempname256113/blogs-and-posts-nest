@@ -9,6 +9,10 @@ import { DeleteCommentUseCase } from '../../public-api/comment/application/use-c
 import { UpdateCommentUseCase } from '../../public-api/comment/application/use-cases/update-comment.use-case';
 import { ChangeCommentLikeStatusUseCase } from '../../public-api/comment/application/use-cases/change-comment-like-status-use.case';
 import { CqrsModule } from '@nestjs/cqrs';
+import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
+import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { PublicCommentRepositorySql } from '../../public-api/comment/infrastructure/repositories/comment-public.repository-sql';
+import { PublicCommentQueryRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.query-repository-sql';
 
 const UseCases = [
   DeleteCommentUseCase,
@@ -19,7 +23,15 @@ const UseCases = [
 @Module({
   imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],
   controllers: [CommentController],
-  providers: [CommentRepository, CommentQueryRepository, ...UseCases],
+  providers: [
+    CommentRepository,
+    CommentQueryRepository,
+    PublicCommentRepositorySql,
+    PublicCommentQueryRepositorySQL,
+    ...UseCases,
+    UserQueryRepositorySQL,
+    AccessTokenGuard,
+  ],
   exports: [CommentRepository, CommentQueryRepository],
 })
 export class CommentModule {}
