@@ -46,6 +46,16 @@ export class PublicCommentRepositorySQL {
     );
   }
 
+  async deleteComment(commentId: string): Promise<void> {
+    await this.dataSource.query(
+      `
+    DELETE FROM public.comments
+    WHERE "id" = $1
+    `,
+      [commentId],
+    );
+  }
+
   async commentChangeLikeStatus({
     commentId,
     userId,
