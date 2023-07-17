@@ -1,15 +1,10 @@
-import {
-  Post,
-  PostSchema,
-} from '../../../../../libs/db/mongoose/schemes/post.entity';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { ChangeEntityLikeStatusCommand } from '../../../like/application/use-cases/change-entity-like-status.use-case';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { PostPublicQueryRepository } from '../../infrastructure/repositories/post.query-repository';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
+import { PublicPostQueryRepositorySQL } from '../../infrastructure/repositories/post-public.query-repository-sql';
+import { PostViewModel } from '../../api/models/post-api.models';
+import { PublicPostRepositorySQL } from '../../infrastructure/repositories/post-public.repository-sql';
 
 export class ChangePostLikeStatusCommand {
   constructor(
@@ -26,34 +21,27 @@ export class ChangePostLikeStatusUseCase
   implements ICommandHandler<ChangePostLikeStatusCommand, void>
 {
   constructor(
-    @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    private commandBus: CommandBus,
-    private postQueryRepository: PostPublicQueryRepository,
-    private jwtHelpers: JwtUtils,
+    private readonly postQueryRepositorySQL: PublicPostQueryRepositorySQL,
+    private readonly postRepositorySQL: PublicPostRepositorySQL,
+    private jwtUtils: JwtUtils,
   ) {}
 
   async execute({
     data: { postId, likeStatus, accessToken },
   }: ChangePostLikeStatusCommand): Promise<void> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const userId = accessTokenPayload.userId;
-    const userLogin = accessTokenPayload.userLogin;
-    const foundedPost: Post | null =
-      await this.postQueryRepository.getRawPostById(postId);
+    const foundedPost: PostViewModel | null =
+      await this.postQueryRepositorySQL.getPostById({ postId, accessToken });
     if (!foundedPost) {
       throw new NotFoundException();
     }
-    await this.commandBus.execute(
-      new ChangeEntityLikeStatusCommand({
-        likeStatus,
-        entity: 'post',
-        entityId: postId,
-        blogId: foundedPost.blogId,
-        userId,
-        userLogin,
-      }),
-    );
+    await this.postRepositorySQL.postChangeLikeStatus({
+      postId,
+      userId,
+      likeStatus,
+    });
   }
 }
