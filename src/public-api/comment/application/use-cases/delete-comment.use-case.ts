@@ -35,7 +35,7 @@ export class DeleteCommentUseCase
     const userId = accessTokenPayload.userId;
     const foundedComment: CommentViewModel | null =
       await this.commentQueryRepositorySQL.getCommentById({
-        userId,
+        accessToken,
         commentId,
       });
     if (!foundedComment) {

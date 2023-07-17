@@ -40,7 +40,7 @@ export class UpdateCommentUseCase
     const foundedComment: CommentViewModel | null =
       await this.commentQueryRepositorySQL.getCommentById({
         commentId,
-        userId,
+        accessToken,
       });
     if (!foundedComment) {
       throw new NotFoundException();

@@ -13,8 +13,8 @@ import { User } from '../libs/db/mongoose/schemes/user.entity';
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
   constructor(
-    private readonly jwtHelpers: JwtUtils,
-    private readonly usersQueryRepository: UserQueryRepositorySQL,
+    private readonly jwtUtils: JwtUtils,
+    private readonly usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
@@ -25,10 +25,10 @@ export class AccessTokenGuard implements CanActivate {
     if (!headersAuthorization[1]) throw new UnauthorizedException();
     const accessToken: string = headersAuthorization[1];
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
-      this.jwtHelpers.verifyAccessToken(accessToken);
+      this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const foundedUserByLogin: User | null =
-      await this.usersQueryRepository.findUserWithSimilarLoginOrEmail({
+      await this.usersQueryRepositorySQL.findUserWithSimilarLoginOrEmail({
         login: accessTokenPayload.userLogin,
       });
     if (!foundedUserByLogin) throw new UnauthorizedException();

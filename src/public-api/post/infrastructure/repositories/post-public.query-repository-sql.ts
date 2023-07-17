@@ -26,20 +26,9 @@ export class PublicPostQueryRepositorySQL {
     postId: string;
     accessToken: string | null;
   }): Promise<PostViewModel | null> {
-    const getUserId = (): string | null => {
-      if (!accessToken) {
-        return null;
-      } else {
-        const accessTokenPayload: JwtAccessTokenPayloadType | null =
-          this.jwtUtils.verifyAccessToken(accessToken);
-        if (!accessToken) {
-          return null;
-        } else {
-          return accessTokenPayload.userId;
-        }
-      }
-    };
-    const userId: string = getUserId();
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtUtils.verifyAccessToken(accessToken);
+    const userId: string | null = accessTokenPayload?.userId;
     const rawFoundedPost: any[] = await this.dataSource.query(
       `
     SELECT p."id", p."title", p."short_description", p."content", p."created_at", p."blog_id",
