@@ -20,6 +20,7 @@ import { BloggerBlogQueryRepositorySQL } from '../../blogger-api/blog/infrastruc
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { BloggerUserQueryRepositorySQL } from '../../blogger-api/blog/infrastructure/repositories/user-blogger.query-repository-sql';
 import { PublicCommentRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.repository-sql';
+import { PublicCommentQueryRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.query-repository-sql';
 
 const UseCases = [
   CreateNewPostUseCase,
@@ -35,7 +36,10 @@ const usersBloggerApiRepositories = [BloggerUserQueryRepositorySQL];
 
 const usersAdminApiRepositories = [UserQueryRepositorySQL];
 
-const commentsPublicApiRepositories = [PublicCommentRepositorySQL];
+const commentsPublicApiRepositories = [
+  PublicCommentRepositorySQL,
+  PublicCommentQueryRepositorySQL,
+];
 
 @Module({
   imports: [

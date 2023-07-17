@@ -32,11 +32,13 @@ import { CreateNewCommentCommand } from '../application/use-cases/create-new-com
 import { ChangePostLikeStatusCommand } from '../application/use-cases/change-post-like-status.use-case';
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 import { PublicPostQueryRepositorySQL } from '../infrastructure/repositories/post-public.query-repository-sql';
+import { PublicCommentQueryRepositorySQL } from '../../comment/infrastructure/repositories/comment-public.query-repository-sql';
 
 @Controller('posts')
 export class PostController {
   constructor(
     private readonly postsQueryRepositorySQL: PublicPostQueryRepositorySQL,
+    private readonly commentsQueryRepositorySQL: PublicCommentQueryRepositorySQL,
     private postQueryRepository: PostPublicQueryRepository,
     private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,
@@ -110,10 +112,13 @@ export class PostController {
       sortDirection: rawPaginationQuery.sortDirection ?? 'desc',
     };
     const foundedPost: PostViewModel | null =
-      await this.postQueryRepository.getPostById(postId, null);
+      await this.postsQueryRepositorySQL.getPostById({
+        postId,
+        accessToken: null,
+      });
     if (!foundedPost) throw new NotFoundException();
     const commentsWithPagination: CommentPaginationViewModel =
-      await this.commentQueryRepository.getCommentsWithPaginationByPostId({
+      await this.commentsQueryRepositorySQL.getAllCommentsForSpecifiedPost({
         paginationQuery,
         postId,
         accessToken,
