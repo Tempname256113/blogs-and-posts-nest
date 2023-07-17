@@ -9,10 +9,8 @@ import {
   Post,
   Put,
   Query,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { PostPublicQueryRepository } from '../infrastructure/repositories/post.query-repository';
 import {
   PostViewModel,
   PostPaginationViewModel,
@@ -24,7 +22,6 @@ import {
   CommentPaginationViewModel,
 } from '../../comment/api/models/comment-api.models';
 import { CommentApiPaginationQueryDto } from '../../comment/api/models/comment-api.query-dto';
-import { CommentQueryRepository } from '../../comment/infrastructure/repositories/comment.query-repository';
 import { LikeDto } from '../../like/api/models/like.dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
@@ -39,8 +36,6 @@ export class PostController {
   constructor(
     private readonly postsQueryRepositorySQL: PublicPostQueryRepositorySQL,
     private readonly commentsQueryRepositorySQL: PublicCommentQueryRepositorySQL,
-    private postQueryRepository: PostPublicQueryRepository,
-    private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,
   ) {}
 
@@ -73,6 +68,7 @@ export class PostController {
   ): Promise<PostViewModel> {
     const foundedPost: PostViewModel | null =
       await this.postsQueryRepositorySQL.getPostById({ postId, accessToken });
+    if (!foundedPost) throw new NotFoundException();
     return foundedPost;
   }
 
@@ -127,13 +123,13 @@ export class PostController {
   }
 
   @Put(':postId/like-status')
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async changeLikeStatus(
     @Param('postId') postId: string,
     @Body() { likeStatus }: LikeDto,
-    @AccessToken() accessToken: string,
+    @AccessToken() accessToken: string | null,
   ): Promise<void> {
-    if (!accessToken) throw new UnauthorizedException();
     await this.commandBus.execute<ChangePostLikeStatusCommand, void>(
       new ChangePostLikeStatusCommand({
         postId,
