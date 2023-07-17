@@ -31,39 +31,32 @@ export class PublicCommentQueryRepositorySQL {
       currentUserReactionQuery = `(
       SELECT cl."like_status"
       FROM public.comments_likes cl
-      WHERE cl."comment_id" = c."id" AND cl."user_id" = $1)
+      WHERE cl."comment_id" = c."id" AND cl."user_id" = $1 AND cl."hidden" = false)
       as "current_user_reaction"`;
     } else {
       currentUserReactionQuery = `(SELECT null) as "current_user_reaction"`;
     }
-    const commentResult: any[] = await this.dataSource.query(
+    const rawFoundedComment: any[] = await this.dataSource.query(
       `
     SELECT c."id" as "comment_id", c."content", c."created_at", c."user_id" as "commentator_id",
-    (SELECT u."login" FROM public.users u WHERE u."id" = c."user_id") as "commentator_login",
+    u."login" as "commentator_login",
     ${currentUserReactionQuery}
+    (SELECT COUNT(*) FROM public.comments_likes cl2
+     WHERE cl2."comment_id" = c."id" AND cl2."like_status" = true AND cl2."hidden" = false) as "likes_count",
+    (SELECT COUNT(*) FROM public.comments_likes cl3
+     WHERE cl3."comment_id" = c."id" AND cl3."like_status" = false AND cl3."hidden" = false) as "dislikes_count"
     FROM public.comments c
-    WHERE c."id" = $2
+    JOIN public.users u ON u."id" = c."user_id"
+    WHERE c."id" = $2 AND c."hidden" = false
     `,
       [userId, commentId],
     );
-    if (commentResult.length < 1) {
+    if (rawFoundedComment.length < 1) {
       return null;
     }
-    const reactionsCountResult: any[] = await this.dataSource.query(
-      `
-    SELECT count(*) as "likes_count",
-    (SELECT count(*)
-    FROM public.comments_likes cl 
-    WHERE cl."comment_id" = $1 AND cl."like_status" = false) as "dislikes_count"
-    FROM public.comments_likes cl
-    WHERE cl."comment_id" = $1 AND cl."like_status" = true
-    `,
-      [commentId],
-    );
-    const commentRes: any = commentResult[0];
-    const reactionsRes: any = reactionsCountResult[0];
+    const foundedComment: any = rawFoundedComment[0];
     let currentUserReaction: 'Like' | 'Dislike' | 'None';
-    switch (commentRes.current_user_reaction) {
+    switch (foundedComment.current_user_reaction) {
       case true:
         currentUserReaction = 'Like';
         break;
@@ -75,16 +68,16 @@ export class PublicCommentQueryRepositorySQL {
         break;
     }
     const mappedComment: CommentViewModel = {
-      id: commentRes.comment_id,
-      content: commentRes.content,
+      id: foundedComment.comment_id,
+      content: foundedComment.content,
       commentatorInfo: {
-        userId: commentRes.commentator_id,
-        userLogin: commentRes.commentator_login,
+        userId: foundedComment.commentator_id,
+        userLogin: foundedComment.commentator_login,
       },
-      createdAt: commentRes.created_at,
+      createdAt: foundedComment.created_at,
       likesInfo: {
-        likesCount: reactionsRes.likes_count,
-        dislikesCount: reactionsRes.dislikes_count,
+        likesCount: foundedComment.likes_count,
+        dislikesCount: foundedComment.dislikes_count,
         myStatus: currentUserReaction,
       },
     };
@@ -108,14 +101,14 @@ export class PublicCommentQueryRepositorySQL {
       currentUserReactionQuery = `(
       SELECT cl."like_status"
       FROM public.comments_likes cl
-      WHERE cl."comment_id" = c."id" AND cl."user_id" = $1)
+      WHERE cl."comment_id" = c."id" AND cl."user_id" = $1 AND cl."hidden" = false)
       as "current_user_reaction"`;
     } else {
       currentUserReactionQuery = `(SELECT null) as "current_user_reaction"`;
     }
     const commentsCount: any[] = await this.dataSource.query(
       `
-    SELECT COUNT(*) 
+    SELECT COUNT(*)
     FROM public.comments c
     WHERE c."post_id" = $1 AND c."hidden" = false
     `,
@@ -127,66 +120,60 @@ export class PublicCommentQueryRepositorySQL {
     );
     const howMuchToSkip: number =
       paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
-    const commentsResult: any[] = await this.dataSource.query(
+    const rawFoundedComments: any[] = await this.dataSource.query(
       `
     SELECT c."id" as "comment_id", c."content", c."created_at", c."user_id" as "commentator_id",
-    (SELECT u."login" FROM public.users u WHERE u."id" = c."user_id") as "commentator_login",
+    u."login" as "commentator_login"
     ${currentUserReactionQuery}
+    (SELECT COUNT(*) FROM public.comments_likes cl2
+     WHERE cl2."comment_id" = c."id" AND cl2."like_status" = true AND cl2."hidden" = false) as "likes_count",
+    (SELECT COUNT(*) FROM public.comments_likes cl3
+     WHERE cl3."comment_id" = c."id" AND cl3."like_status" = false AND cl3."hidden" = false) as "dislikes_count"
     FROM public.comments c
+    JOIN public.users u ON u."id" = c."user_id"
     WHERE c."post_id" = $2 AND c."hidden" = false
     ORDER BY c."created_at" ${paginationQuery.sortDirection.toUpperCase()}
     LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
     `,
       [userId, postId],
     );
-    const arrayWithMappedComments: CommentViewModel[] = [];
-    for (const rawComment of commentsResult) {
-      const reactionsCountResult: any[] = await this.dataSource.query(
-        `
-    SELECT count(*) as "likes_count",
-    (SELECT count(*)
-    FROM public.comments_likes cl 
-    WHERE cl."comment_id" = $1 AND cl."like_status" = false) as "dislikes_count"
-    FROM public.comments_likes cl
-    WHERE cl."comment_id" = $1 AND cl."like_status" = true
-    `,
-        [rawComment.comment_id],
-      );
-      const reactionsRes: any = reactionsCountResult[0];
-      let myStatus: 'Like' | 'Dislike' | 'None';
-      switch (rawComment.current_user_reaction) {
-        case true:
-          myStatus = 'Like';
-          break;
-        case false:
-          myStatus = 'Dislike';
-          break;
-        case null:
-          myStatus = 'None';
-          break;
-      }
-      const mappedComment: CommentViewModel = {
-        id: String(rawComment.comment_id),
-        content: rawComment.content,
-        commentatorInfo: {
-          userId: String(rawComment.commentator_id),
-          userLogin: rawComment.commentator_login,
-        },
-        createdAt: rawComment.created_at,
-        likesInfo: {
-          likesCount: reactionsRes.likes_count,
-          dislikesCount: reactionsRes.dislikes_count,
-          myStatus,
-        },
-      };
-      arrayWithMappedComments.push(mappedComment);
-    }
+    const mappedComments: CommentViewModel[] = rawFoundedComments.map(
+      (rawComment) => {
+        let myStatus: 'Like' | 'Dislike' | 'None';
+        switch (rawComment.current_user_reaction) {
+          case true:
+            myStatus = 'Like';
+            break;
+          case false:
+            myStatus = 'Dislike';
+            break;
+          case null:
+            myStatus = 'None';
+            break;
+        }
+        const mappedComment: CommentViewModel = {
+          id: String(rawComment.comment_id),
+          content: rawComment.content,
+          commentatorInfo: {
+            userId: String(rawComment.commentator_id),
+            userLogin: rawComment.commentator_login,
+          },
+          createdAt: rawComment.created_at,
+          likesInfo: {
+            likesCount: rawComment.likes_count,
+            dislikesCount: rawComment.dislikes_count,
+            myStatus,
+          },
+        };
+        return mappedComment;
+      },
+    );
     const paginationResult: CommentPaginationViewModel = {
       pagesCount: Number(pagesCount),
       page: Number(paginationQuery.pageNumber),
       pageSize: Number(paginationQuery.pageSize),
       totalCount: Number(totalCommentsCount),
-      items: arrayWithMappedComments,
+      items: mappedComments,
     };
     return paginationResult;
   }

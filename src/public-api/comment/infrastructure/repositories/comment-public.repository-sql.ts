@@ -101,7 +101,7 @@ export class PublicCommentRepositorySQL {
         `
       SELECT * 
       FROM public.comments_likes cl
-      WHERE cl."comment_id" = $1 AND cl."user_id" = $2
+      WHERE cl."comment_id" = $1 AND cl."user_id" = $2 AND cl."hidden" = false
       `,
         [commentId, userId],
       );
