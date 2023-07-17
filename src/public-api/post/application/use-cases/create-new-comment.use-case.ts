@@ -14,6 +14,8 @@ import { BloggerRepositoryBannedUserType } from '../../../../blogger-api/blog/in
 import { PublicCommentRepositorySQL } from '../../../comment/infrastructure/repositories/comment-public.repository-sql';
 import { PublicPostQueryRepositorySQL } from '../../infrastructure/repositories/post-public.query-repository-sql';
 import { PostViewModel } from '../../api/models/post-api.models';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 export class CreateNewCommentCommand {
   constructor(
@@ -34,7 +36,8 @@ export class CreateNewCommentUseCase
     private readonly usersBloggerApiQueryRepositorySQL: BloggerUserQueryRepositorySQL,
     private readonly commentsPublicApiRepositorySQL: PublicCommentRepositorySQL,
     private readonly postsPublicApiRepositorySQL: PublicPostQueryRepositorySQL,
-    private jwtUtils: JwtUtils,
+    private readonly jwtUtils: JwtUtils,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   async execute({
@@ -44,6 +47,20 @@ export class CreateNewCommentUseCase
       this.getAccessTokenPayload(accessToken);
     const userId: string = accessTokenPayload.userId;
     const userLogin: string = accessTokenPayload.userLogin;
+    const checkUserBanStatus = async () => {
+      const foundedBannedUser: [{ is_banned: boolean }] =
+        await this.dataSource.query(
+          `
+    SELECT u."is_banned"
+    FROM public.users u
+    WHERE u."id" = $1
+    `,
+          [userId],
+        );
+      if (foundedBannedUser.length < 1) throw new UnauthorizedException();
+      if (foundedBannedUser[0].is_banned) throw new ForbiddenException();
+    };
+    await checkUserBanStatus();
     const foundedPost: PostViewModel = await this.getPostById({
       postId,
       accessToken,
