@@ -46,6 +46,12 @@ export class AppController {
       WHERE 1=1;
       DELETE FROM public.posts
       WHERE 1=1;
+      DELETE FROM public.comments
+      WHERE 1=1;
+      DELETE FROM public.comments_likes
+      WHERE 1=1;
+      DELETE FROM public.posts_likes
+      WHERE 1=1;
       `),
     ]);
   }
