@@ -52,7 +52,6 @@ export class BanUnbanUserUseCase
     SELECT b."id"
     FROM public.blogs b
     WHERE b."blogger_id" = $1
-    RETURNING "id"
     `,
       [userId],
     );
@@ -104,7 +103,6 @@ export class BanUnbanUserUseCase
     SELECT b."id"
     FROM public.blogs b
     WHERE b."blogger_id" = $1
-    RETURNING "id"
     `,
       [userId],
     );
