@@ -49,31 +49,35 @@ export class BanUnbanUserUseCase
     });
     const rawBlogsId: { id: number }[] = await this.dataSource.query(
       `
-    SELECT b."id"
-    FROM public.blogs b
-    WHERE b."blogger_id" = $1
-    `,
+        SELECT b."id"
+        FROM public.blogs b
+        WHERE b."blogger_id" = $1
+        `,
       [userId],
     );
     const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
-    const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
-      `
-    UPDATE public.posts
-    SET "hidden" = true
-    WHERE "blog_id" IN (${blogsId})
-    RETURNING "id"
-    `,
-    );
-    const postsId: number[] = rawPostsId[0].map((rawPost) =>
-      Number(rawPost.id),
-    );
-    await this.dataSource.query(
-      `
-    UPDATE public.comments
-    SET "hidden" = true
-    WHERE "post_id" IN (${postsId})
-    `,
-    );
+    if (blogsId.length > 0) {
+      const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
+        `
+        UPDATE public.posts
+        SET "hidden" = true
+        WHERE "blog_id" IN (${blogsId})
+        RETURNING "id"
+        `,
+      );
+      const postsId: number[] = rawPostsId[0].map((rawPost) =>
+        Number(rawPost.id),
+      );
+      if (postsId.length > 0) {
+        await this.dataSource.query(
+          `
+        UPDATE public.comments
+        SET "hidden" = true
+        WHERE "post_id" IN (${postsId})
+        `,
+        );
+      }
+    }
     await this.dataSource.query(
       `
     UPDATE public.comments_likes
@@ -102,31 +106,35 @@ export class BanUnbanUserUseCase
     });
     const rawBlogsId: { id: number }[] = await this.dataSource.query(
       `
-    SELECT b."id"
-    FROM public.blogs b
-    WHERE b."blogger_id" = $1
-    `,
+        SELECT b."id"
+        FROM public.blogs b
+        WHERE b."blogger_id" = $1
+        `,
       [userId],
     );
     const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
-    const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
-      `
-    UPDATE public.posts
-    SET "hidden" = false
-    WHERE "blog_id" IN (${blogsId})
-    RETURNING "id"
-    `,
-    );
-    const postsId: number[] = rawPostsId[0].map((rawPost) =>
-      Number(rawPost.id),
-    );
-    await this.dataSource.query(
-      `
-    UPDATE public.comments
-    SET "hidden" = false
-    WHERE "post_id" IN (${postsId})
-    `,
-    );
+    if (blogsId.length > 0) {
+      const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
+        `
+        UPDATE public.posts
+        SET "hidden" = false
+        WHERE "blog_id" IN (${blogsId})
+        RETURNING "id"
+        `,
+      );
+      const postsId: number[] = rawPostsId[0].map((rawPost) =>
+        Number(rawPost.id),
+      );
+      if (postsId.length > 0) {
+        await this.dataSource.query(
+          `
+            UPDATE public.comments
+            SET "hidden" = false
+            WHERE "post_id" IN (${postsId})
+           `,
+        );
+      }
+    }
     await this.dataSource.query(
       `
     UPDATE public.comments_likes
