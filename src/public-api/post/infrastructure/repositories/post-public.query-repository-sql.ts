@@ -35,7 +35,7 @@ export class PublicPostQueryRepositorySQL {
       currentUserReactionQuery = `(
       SELECT pl."like_status"
       FROM public.posts_likes pl
-      WHERE pl."post_id" = p."id" AND pl."user_id" = $1 AND pl."hidden" = false)
+      WHERE pl."post_id" = p."id" AND pl."user_id" = '${userId}' AND pl."hidden" = false)
       as "current_user_reaction",`;
     } else {
       currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
@@ -101,8 +101,8 @@ export class PublicPostQueryRepositorySQL {
       blogName: foundedPost.blog_name,
       createdAt: foundedPost.created_at,
       extendedLikesInfo: {
-        likesCount: foundedPost.likes_count,
-        dislikesCount: foundedPost.dislikes_count,
+        likesCount: Number(foundedPost.likes_count),
+        dislikesCount: Number(foundedPost.dislikes_count),
         myStatus,
         newestLikes: mappedNewestLikes,
       },
@@ -127,7 +127,7 @@ export class PublicPostQueryRepositorySQL {
       currentUserReactionQuery = `(
       SELECT pl."like_status"
       FROM public.posts_likes pl
-      WHERE pl."post_id" = p."id" AND pl."user_id" = $1 AND pl."hidden" = false)
+      WHERE pl."post_id" = p."id" AND pl."user_id" = '${userId}' AND pl."hidden" = false)
       as "current_user_reaction",`;
     } else {
       currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
@@ -222,8 +222,8 @@ export class PublicPostQueryRepositorySQL {
         blogName: rawPost.blog_name,
         createdAt: rawPost.created_at,
         extendedLikesInfo: {
-          likesCount: rawPost.likes_count,
-          dislikesCount: rawPost.dislikes_count,
+          likesCount: Number(rawPost.likes_count),
+          dislikesCount: Number(rawPost.dislikes_count),
           myStatus,
           newestLikes: mappedNewestLikes,
         },
@@ -255,7 +255,7 @@ export class PublicPostQueryRepositorySQL {
       currentUserReactionQuery = `(
       SELECT pl."like_status"
       FROM public.posts_likes pl
-      WHERE pl."post_id" = p."id" AND pl."user_id" = $1 AND pl."hidden" = false)
+      WHERE pl."post_id" = p."id" AND pl."user_id" = '${userId}' AND pl."hidden" = false)
       as "current_user_reaction",`;
     } else {
       currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
@@ -345,8 +345,8 @@ export class PublicPostQueryRepositorySQL {
         blogName: rawPost.blog_name,
         createdAt: rawPost.created_at,
         extendedLikesInfo: {
-          likesCount: rawPost.likes_count,
-          dislikesCount: rawPost.dislikes_count,
+          likesCount: Number(rawPost.likes_count),
+          dislikesCount: Number(rawPost.dislikes_count),
           myStatus,
           newestLikes: mappedNewestLikes,
         },
