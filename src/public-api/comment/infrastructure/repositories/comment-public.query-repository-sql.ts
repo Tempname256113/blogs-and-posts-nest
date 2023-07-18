@@ -31,7 +31,7 @@ export class PublicCommentQueryRepositorySQL {
       currentUserReactionQuery = `(
       SELECT cl."like_status"
       FROM public.comments_likes cl
-      WHERE cl."comment_id" = c."id" AND cl."user_id" = $1 AND cl."hidden" = false)
+      WHERE cl."comment_id" = c."id" AND cl."user_id" = '${userId}' AND cl."hidden" = false)
       as "current_user_reaction",`;
     } else {
       currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
@@ -47,9 +47,9 @@ export class PublicCommentQueryRepositorySQL {
      WHERE cl3."comment_id" = c."id" AND cl3."like_status" = false AND cl3."hidden" = false) as "dislikes_count"
     FROM public.comments c
     JOIN public.users u ON u."id" = c."user_id"
-    WHERE c."id" = $2 AND c."hidden" = false
+    WHERE c."id" = $1 AND c."hidden" = false
     `,
-      [userId, commentId],
+      [commentId],
     );
     if (rawFoundedComment.length < 1) {
       return null;
@@ -101,7 +101,7 @@ export class PublicCommentQueryRepositorySQL {
       currentUserReactionQuery = `(
       SELECT cl."like_status"
       FROM public.comments_likes cl
-      WHERE cl."comment_id" = c."id" AND cl."user_id" = $1 AND cl."hidden" = false)
+      WHERE cl."comment_id" = c."id" AND cl."user_id" = '${userId}' AND cl."hidden" = false)
       as "current_user_reaction",`;
     } else {
       currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
@@ -131,11 +131,11 @@ export class PublicCommentQueryRepositorySQL {
      WHERE cl3."comment_id" = c."id" AND cl3."like_status" = false AND cl3."hidden" = false) as "dislikes_count"
     FROM public.comments c
     JOIN public.users u ON u."id" = c."user_id"
-    WHERE c."post_id" = $2 AND c."hidden" = false
+    WHERE c."post_id" = $1 AND c."hidden" = false
     ORDER BY c."created_at" ${paginationQuery.sortDirection.toUpperCase()}
     LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
     `,
-      [userId, postId],
+      [postId],
     );
     const mappedComments: CommentViewModel[] = rawFoundedComments.map(
       (rawComment) => {
