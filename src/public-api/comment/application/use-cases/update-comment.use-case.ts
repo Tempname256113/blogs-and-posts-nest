@@ -33,6 +33,9 @@ export class UpdateCommentUseCase
   async execute({
     data: { commentId, content, accessToken },
   }: UpdateCommentCommand): Promise<void> {
+    if (!Number(commentId)) {
+      throw new NotFoundException();
+    }
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
