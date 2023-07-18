@@ -55,23 +55,25 @@ export class BanUnbanUserUseCase
     `,
       [userId],
     );
-    const blogsId: string[] = rawBlogsId.map((rawBlog) => {
-      return String(rawBlog.id);
-    });
-    const rawPostsId: { id: number }[] = await this.dataSource.query(`
+    const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
+    const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
+      `
     UPDATE public.posts
     SET "hidden" = true
-    WHERE "blog_id" = ANY (ARRAY ${blogsId})
+    WHERE "blog_id" IN (${blogsId})
     RETURNING "id"
-    `);
-    const postsId: string[] = rawPostsId.map((rawPost) => {
-      return String(rawPost.id);
-    });
-    await this.dataSource.query(`
+    `,
+    );
+    const postsId: number[] = rawPostsId[0].map((rawPost) =>
+      Number(rawPost.id),
+    );
+    await this.dataSource.query(
+      `
     UPDATE public.comments
     SET "hidden" = true
-    WHERE "post_id" = ANY (ARRAY ${postsId})
-    `);
+    WHERE "post_id" IN (${postsId})
+    `,
+    );
     await this.dataSource.query(
       `
     UPDATE public.comments_likes
@@ -106,23 +108,25 @@ export class BanUnbanUserUseCase
     `,
       [userId],
     );
-    const blogsId: string[] = rawBlogsId.map((rawBlog) => {
-      return String(rawBlog.id);
-    });
-    const rawPostsId: { id: number }[] = await this.dataSource.query(`
+    const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
+    const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
+      `
     UPDATE public.posts
     SET "hidden" = false
-    WHERE "blog_id" = ANY (ARRAY ${blogsId})
+    WHERE "blog_id" IN (${blogsId})
     RETURNING "id"
-    `);
-    const postsId: string[] = rawPostsId.map((rawPost) => {
-      return String(rawPost.id);
-    });
-    await this.dataSource.query(`
+    `,
+    );
+    const postsId: number[] = rawPostsId[0].map((rawPost) =>
+      Number(rawPost.id),
+    );
+    await this.dataSource.query(
+      `
     UPDATE public.comments
     SET "hidden" = false
-    WHERE "post_id" = ANY (ARRAY ${postsId})
-    `);
+    WHERE "post_id" IN (${postsId})
+    `,
+    );
     await this.dataSource.query(
       `
     UPDATE public.comments_likes

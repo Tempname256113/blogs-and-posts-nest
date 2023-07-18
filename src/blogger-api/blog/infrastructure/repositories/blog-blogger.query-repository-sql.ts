@@ -161,7 +161,7 @@ export class BloggerBlogQueryRepositorySQL {
     }[] = await this.dataSource.query(`
     SELECT p."id" as "post_id"
     FROM public.posts p
-    WHERE p."blog_id" = ANY (ARRAY ${blogsId}) AND p."hidden" = false
+    WHERE p."blog_id" = IN (${blogsId}) AND p."hidden" = false
     `);
     const postsId: string[] = rawFoundedPosts.map((rawPost) => {
       return String(rawPost.post_id);
@@ -170,7 +170,7 @@ export class BloggerBlogQueryRepositorySQL {
       `
     SELECT COUNT(*)
     FROM public.comments c
-    WHERE c."post_id" = ANY (ARRAY ${postsId}) AND c."hidden" = false
+    WHERE c."post_id" = IN (${postsId}) AND c."hidden" = false
     `,
     );
     const totalCommentsCount: number = commentsCount[0].count;
@@ -193,7 +193,7 @@ export class BloggerBlogQueryRepositorySQL {
     JOIN public.users u ON u."id" = c."user_id"
     JOIN public.posts p ON p."id" = c."post_id"
     JOIN public.blogs b ON b."id" = p."blog_id"
-    WHERE c."post_id" = ANY (ARRAY ${postsId}) AND c."hidden" = false
+    WHERE c."post_id" = IN (${postsId}) AND c."hidden" = false
     ORDER BY c."created_at" ${paginationQuery.sortDirection.toUpperCase()}
     LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
     `,
