@@ -27,6 +27,9 @@ export class PublicPostQueryRepositorySQL {
     postId: string;
     accessToken: string | null;
   }): Promise<PostViewModel | null> {
+    if (!Number(postId)) {
+      throw new NotFoundException();
+    }
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
     const userId: string | null = accessTokenPayload?.userId;
