@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
@@ -47,6 +47,9 @@ export class PublicCommentRepositorySQL {
   }
 
   async deleteComment(commentId: string): Promise<void> {
+    if (!Number(commentId)) {
+      throw new NotFoundException();
+    }
     await this.dataSource.query(
       `
     DELETE FROM public.comments
