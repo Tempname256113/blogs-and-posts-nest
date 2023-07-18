@@ -19,7 +19,7 @@ export class PublicCommentRepositorySQL {
       `
     INSERT INTO public."comments"("post_id", "user_id", "content")
     VALUES($1, $2, $3)
-    RETURNING "id"
+    RETURNING "id", "created_at"
     `,
       [postId, userId, content],
     );
