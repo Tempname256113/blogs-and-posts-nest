@@ -36,14 +36,14 @@ export class PublicPostQueryRepositorySQL {
       SELECT pl."like_status"
       FROM public.posts_likes pl
       WHERE pl."post_id" = p."id" AND pl."user_id" = $1 AND pl."hidden" = false)
-      as "current_user_reaction"`;
+      as "current_user_reaction",`;
     } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction"`;
+      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
     }
     const rawFoundedPost: any[] = await this.dataSource.query(
       `
     SELECT p."id", p."title", p."short_description", p."content", p."created_at", p."blog_id",
-    b."name" as "blog_name"
+    b."name" as "blog_name",
     ${currentUserReactionQuery}
     (SELECT COUNT(*) FROM public.posts_likes pl2
      WHERE pl2."post_id" = p."id" AND pl2."like_status" = true AND pl2."hidden" = false) as "likes_count",
@@ -128,9 +128,9 @@ export class PublicPostQueryRepositorySQL {
       SELECT pl."like_status"
       FROM public.posts_likes pl
       WHERE pl."post_id" = p."id" AND pl."user_id" = $1 AND pl."hidden" = false)
-      as "current_user_reaction"`;
+      as "current_user_reaction",`;
     } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction"`;
+      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
     }
     const foundedBlog: BlogPublicApiViewModel | null =
       await this.blogQueryRepositorySQL.getBlogById(blogId);
@@ -164,7 +164,7 @@ export class PublicPostQueryRepositorySQL {
     const rawFoundedPosts: any[] = await this.dataSource.query(
       `
     SELECT p."id", p."title", p."short_description", p."content", p."created_at", p."blog_id",
-    b."name" as "blog_name"
+    b."name" as "blog_name",
     ${currentUserReactionQuery}
     (SELECT COUNT(*) FROM public.posts_likes pl2
      WHERE pl2."post_id" = p."id" AND pl2."like_status" = true AND pl2."hidden" = false) as "likes_count",
@@ -256,9 +256,9 @@ export class PublicPostQueryRepositorySQL {
       SELECT pl."like_status"
       FROM public.posts_likes pl
       WHERE pl."post_id" = p."id" AND pl."user_id" = $1 AND pl."hidden" = false)
-      as "current_user_reaction"`;
+      as "current_user_reaction",`;
     } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction"`;
+      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
     }
     let orderBy: string;
     const getCorrectOrderBy = (): void => {
@@ -288,7 +288,7 @@ export class PublicPostQueryRepositorySQL {
     const rawFoundedPosts: any[] = await this.dataSource.query(
       `
     SELECT p."id", p."title", p."short_description", p."content", p."created_at", p."blog_id",
-    b."name" as "blog_name"
+    b."name" as "blog_name",
     ${currentUserReactionQuery}
     (SELECT COUNT(*) FROM public.posts_likes pl2
      WHERE pl2."post_id" = p."id" AND pl2."like_status" = true AND pl2."hidden" = false) as "likes_count",
