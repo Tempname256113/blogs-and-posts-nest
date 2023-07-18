@@ -32,9 +32,9 @@ export class PublicCommentQueryRepositorySQL {
       SELECT cl."like_status"
       FROM public.comments_likes cl
       WHERE cl."comment_id" = c."id" AND cl."user_id" = $1 AND cl."hidden" = false)
-      as "current_user_reaction"`;
+      as "current_user_reaction",`;
     } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction"`;
+      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
     }
     const rawFoundedComment: any[] = await this.dataSource.query(
       `
@@ -68,10 +68,10 @@ export class PublicCommentQueryRepositorySQL {
         break;
     }
     const mappedComment: CommentViewModel = {
-      id: foundedComment.comment_id,
+      id: String(foundedComment.comment_id),
       content: foundedComment.content,
       commentatorInfo: {
-        userId: foundedComment.commentator_id,
+        userId: String(foundedComment.commentator_id),
         userLogin: foundedComment.commentator_login,
       },
       createdAt: foundedComment.created_at,
@@ -102,9 +102,9 @@ export class PublicCommentQueryRepositorySQL {
       SELECT cl."like_status"
       FROM public.comments_likes cl
       WHERE cl."comment_id" = c."id" AND cl."user_id" = $1 AND cl."hidden" = false)
-      as "current_user_reaction"`;
+      as "current_user_reaction",`;
     } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction"`;
+      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
     }
     const commentsCount: any[] = await this.dataSource.query(
       `
@@ -123,7 +123,7 @@ export class PublicCommentQueryRepositorySQL {
     const rawFoundedComments: any[] = await this.dataSource.query(
       `
     SELECT c."id" as "comment_id", c."content", c."created_at", c."user_id" as "commentator_id",
-    u."login" as "commentator_login"
+    u."login" as "commentator_login",
     ${currentUserReactionQuery}
     (SELECT COUNT(*) FROM public.comments_likes cl2
      WHERE cl2."comment_id" = c."id" AND cl2."like_status" = true AND cl2."hidden" = false) as "likes_count",
