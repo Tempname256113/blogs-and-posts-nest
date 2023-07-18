@@ -76,8 +76,8 @@ export class PublicCommentQueryRepositorySQL {
       },
       createdAt: foundedComment.created_at,
       likesInfo: {
-        likesCount: foundedComment.likes_count,
-        dislikesCount: foundedComment.dislikes_count,
+        likesCount: Number(foundedComment.likes_count),
+        dislikesCount: Number(foundedComment.dislikes_count),
         myStatus: currentUserReaction,
       },
     };
@@ -160,8 +160,8 @@ export class PublicCommentQueryRepositorySQL {
           },
           createdAt: rawComment.created_at,
           likesInfo: {
-            likesCount: rawComment.likes_count,
-            dislikesCount: rawComment.dislikes_count,
+            likesCount: Number(rawComment.likes_count),
+            dislikesCount: Number(rawComment.dislikes_count),
             myStatus,
           },
         };
