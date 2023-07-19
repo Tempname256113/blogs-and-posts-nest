@@ -156,6 +156,16 @@ export class BloggerBlogQueryRepositorySQL {
     const blogsId: string[] = rawFoundedBlogs.map((rawBlog) => {
       return String(rawBlog.blog_id);
     });
+    if (blogsId.length < 1) {
+      const paginationResult: CommentBloggerApiPaginationViewModel = {
+        pagesCount: 0,
+        page: Number(paginationQuery.pageNumber),
+        pageSize: Number(paginationQuery.pageSize),
+        totalCount: 0,
+        items: [],
+      };
+      return paginationResult;
+    }
     const rawFoundedPosts: {
       post_id: number;
     }[] = await this.dataSource.query(`
