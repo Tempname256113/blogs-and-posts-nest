@@ -21,7 +21,7 @@ const extractRefreshTokenFromCookie = (req: Request): string => {
 
 @Injectable()
 export class AuthJwtRefreshTokenStrategy extends PassportStrategy(Strategy) {
-  constructor(private authQueryRepository: AuthQueryRepositorySQL) {
+  constructor(private authQueryRepositorySQL: AuthQueryRepositorySQL) {
     super({
       jwtFromRequest: extractRefreshTokenFromCookie,
       ignoreExpiration: false,
@@ -33,7 +33,7 @@ export class AuthJwtRefreshTokenStrategy extends PassportStrategy(Strategy) {
     reqRefreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<JwtRefreshTokenPayloadType> {
     const foundedSessionFromDB: SessionRepositoryType =
-      await this.authQueryRepository.getSessionByDeviceId(
+      await this.authQueryRepositorySQL.getSessionByDeviceId(
         Number(reqRefreshTokenPayload.deviceId),
       );
     if (!foundedSessionFromDB) {
