@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Put,
   UnauthorizedException,
@@ -35,11 +36,12 @@ export class CommentController {
     @Param('commentId') commentId: string,
     @AccessToken() accessToken: string | null,
   ): Promise<CommentViewModel> {
-    const foundedComment: CommentViewModel =
+    const foundedComment: CommentViewModel | null =
       await this.commentQueryRepositorySQL.getCommentById({
         commentId,
         accessToken,
       });
+    if (!foundedComment) throw new NotFoundException();
     return foundedComment;
   }
 

@@ -79,7 +79,7 @@ export class PublicPostQueryRepositorySQL {
     SELECT pl."added_at", pl."user_id", u."login"
     FROM public.posts_likes pl
     JOIN public.users u ON u."id" = pl."user_id"
-    WHERE pl."post_id" = $1 AND pl."hidden" = false
+    WHERE pl."post_id" = $1 AND pl."hidden" = false AND pl."like_status" = true
     ORDER BY pl."added_at" DESC
     LIMIT 3 OFFSET 0
     `,
@@ -200,7 +200,7 @@ export class PublicPostQueryRepositorySQL {
         SELECT pl."added_at", pl."user_id", u."login"
         FROM public.posts_likes pl
         JOIN public.users u ON u."id" = pl."user_id"
-        WHERE pl."post_id" = $1 AND pl."hidden" = false
+        WHERE pl."post_id" = $1 AND pl."hidden" = false AND pl."like_status" = true
         ORDER BY pl."added_at" DESC
         LIMIT 3 OFFSET 0
         `,
@@ -323,7 +323,7 @@ export class PublicPostQueryRepositorySQL {
         SELECT pl."added_at", pl."user_id", u."login"
         FROM public.posts_likes pl
         JOIN public.users u ON u."id" = pl."user_id"
-        WHERE pl."post_id" = $1 AND pl."hidden" = false
+        WHERE pl."post_id" = $1 AND pl."hidden" = false AND pl."like_status" = true
         ORDER BY pl."added_at" DESC
         LIMIT 3 OFFSET 0
         `,
