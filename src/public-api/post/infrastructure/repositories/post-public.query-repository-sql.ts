@@ -272,6 +272,8 @@ export class PublicPostQueryRepositorySQL {
         case 'title':
           orderBy = 'p."title"';
           break;
+        case 'blogName':
+          orderBy = 'b.name';
       }
     };
     getCorrectOrderBy();
