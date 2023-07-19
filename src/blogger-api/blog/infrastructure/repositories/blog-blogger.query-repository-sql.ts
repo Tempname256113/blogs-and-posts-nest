@@ -145,6 +145,13 @@ export class BloggerBlogQueryRepositorySQL {
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const userId: string = accessTokenPayload.userId;
+    const notFoundPaginationResult: CommentBloggerApiPaginationViewModel = {
+      pagesCount: 0,
+      page: Number(paginationQuery.pageNumber),
+      pageSize: Number(paginationQuery.pageSize),
+      totalCount: 0,
+      items: [],
+    };
     const rawFoundedBlogs: { blog_id: number }[] = await this.dataSource.query(
       `
     SELECT b."id" as "blog_id"
@@ -157,14 +164,7 @@ export class BloggerBlogQueryRepositorySQL {
       return String(rawBlog.blog_id);
     });
     if (blogsId.length < 1) {
-      const paginationResult: CommentBloggerApiPaginationViewModel = {
-        pagesCount: 0,
-        page: Number(paginationQuery.pageNumber),
-        pageSize: Number(paginationQuery.pageSize),
-        totalCount: 0,
-        items: [],
-      };
-      return paginationResult;
+      return notFoundPaginationResult;
     }
     const rawFoundedPosts: {
       post_id: number;
@@ -176,6 +176,9 @@ export class BloggerBlogQueryRepositorySQL {
     const postsId: string[] = rawFoundedPosts.map((rawPost) => {
       return String(rawPost.post_id);
     });
+    if (postsId.length < 1) {
+      return notFoundPaginationResult;
+    }
     const commentsCount: any[] = await this.dataSource.query(
       `
     SELECT COUNT(*)
