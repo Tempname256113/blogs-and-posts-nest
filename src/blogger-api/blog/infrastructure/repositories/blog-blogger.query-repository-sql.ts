@@ -229,21 +229,21 @@ export class BloggerBlogQueryRepositorySQL {
         const mappedComment: CommentBloggerApiViewModel = {
           id: String(rawComment.comment_id),
           content: rawComment.content,
+          createdAt: rawComment.created_at,
           commentatorInfo: {
             userId: String(rawComment.commentator_id),
             userLogin: rawComment.commentator_login,
           },
-          createdAt: rawComment.created_at,
           likesInfo: {
-            likesCount: rawComment.likes_count,
-            dislikesCount: rawComment.dislikes_count,
+            likesCount: Number(rawComment.likes_count),
+            dislikesCount: Number(rawComment.dislikes_count),
             myStatus,
           },
           postInfo: {
-            id: String(rawComment.post_id),
-            title: rawComment.post_title,
             blogId: String(rawComment.blog_id),
             blogName: rawComment.blog_name,
+            title: rawComment.post_title,
+            id: String(rawComment.post_id),
           },
         };
         return mappedComment;
