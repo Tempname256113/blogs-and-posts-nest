@@ -57,7 +57,7 @@ export class BanUnbanUserUseCase
     );
     const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
     if (blogsId.length > 0) {
-      const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
+      await this.dataSource.query(
         `
         UPDATE public.posts
         SET "hidden" = true
@@ -65,19 +65,15 @@ export class BanUnbanUserUseCase
         RETURNING "id"
         `,
       );
-      const postsId: number[] = rawPostsId[0].map((rawPost) =>
-        Number(rawPost.id),
-      );
-      if (postsId.length > 0) {
-        await this.dataSource.query(
-          `
+    }
+    await this.dataSource.query(
+      `
         UPDATE public.comments
         SET "hidden" = true
-        WHERE "post_id" IN (${postsId})
+        WHERE "user_id" = $1
         `,
-        );
-      }
-    }
+      [userId],
+    );
     await this.dataSource.query(
       `
     UPDATE public.comments_likes
@@ -114,7 +110,7 @@ export class BanUnbanUserUseCase
     );
     const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
     if (blogsId.length > 0) {
-      const rawPostsId: [{ id: number }[]] = await this.dataSource.query(
+      await this.dataSource.query(
         `
         UPDATE public.posts
         SET "hidden" = false
@@ -122,19 +118,15 @@ export class BanUnbanUserUseCase
         RETURNING "id"
         `,
       );
-      const postsId: number[] = rawPostsId[0].map((rawPost) =>
-        Number(rawPost.id),
-      );
-      if (postsId.length > 0) {
-        await this.dataSource.query(
-          `
+    }
+    await this.dataSource.query(
+      `
             UPDATE public.comments
             SET "hidden" = false
-            WHERE "post_id" IN (${postsId})
+            WHERE "user_id" = $1
            `,
-        );
-      }
-    }
+      [userId],
+    );
     await this.dataSource.query(
       `
     UPDATE public.comments_likes
