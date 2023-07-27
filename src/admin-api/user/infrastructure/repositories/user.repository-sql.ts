@@ -1,52 +1,77 @@
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, QueryRunner } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { add } from 'date-fns';
-import { hash } from 'bcrypt';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
+import { UserEmailConfirmInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-email-confirm-info-sql.entity';
+import { UserPasswordRecoveryInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-password-recovery-info-sql.entity';
 
 @Injectable()
 export class UserRepositorySQL {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    @InjectRepository(UserSQLEntity)
+    private readonly userEntity: Repository<UserSQLEntity>,
+    @InjectRepository(UserEmailConfirmInfoSQLEntity)
+    private readonly userEmailConfirmInfoEntity: Repository<UserEmailConfirmInfoSQLEntity>,
+    @InjectRepository(UserPasswordRecoveryInfoSQLEntity)
+    private readonly userPasswordRecoveryInfoEntity: Repository<UserPasswordRecoveryInfoSQLEntity>,
+  ) {}
 
   async registrationNewUser(createUserDTO: {
     login: string;
     password: string;
     email: string;
     emailConfirmationCode: string;
-    expirationDateEmailConfirmation: string;
+    emailConfirmExpirationDate: string;
   }): Promise<void> {
-    const passwordHash: string = await hash(createUserDTO.password, 10);
+    const createNewUser = (): UserSQLEntity => {
+      const newCreatedUser: UserSQLEntity = new UserSQLEntity();
+      newCreatedUser.login = createUserDTO.login;
+      newCreatedUser.password = createUserDTO.password;
+      newCreatedUser.email = createUserDTO.password;
+      newCreatedUser.createdAt = new Date().toISOString();
+      newCreatedUser.isBanned = false;
+      newCreatedUser.banReason = null;
+      newCreatedUser.banDate = null;
+      return newCreatedUser;
+    };
+    const newCreatedUser: UserSQLEntity = createNewUser();
+
+    const createUserEmailConfirmationInfo =
+      (): UserEmailConfirmInfoSQLEntity => {
+        const userEmailConfirmationInfo: UserEmailConfirmInfoSQLEntity =
+          new UserEmailConfirmInfoSQLEntity();
+        userEmailConfirmationInfo.confirmationCode =
+          createUserDTO.emailConfirmationCode;
+        userEmailConfirmationInfo.expirationDate =
+          createUserDTO.emailConfirmExpirationDate;
+        userEmailConfirmationInfo.isConfirmed = false;
+        userEmailConfirmationInfo.user = newCreatedUser;
+        return userEmailConfirmationInfo;
+      };
+    const userEmailConfirmationInfo: UserEmailConfirmInfoSQLEntity =
+      createUserEmailConfirmationInfo();
+
+    const createUserPasswordRecoveryInfo =
+      (): UserPasswordRecoveryInfoSQLEntity => {
+        const userPasswordRecoveryInfo: UserPasswordRecoveryInfoSQLEntity =
+          new UserPasswordRecoveryInfoSQLEntity();
+        userPasswordRecoveryInfo.recoveryCode = null;
+        userPasswordRecoveryInfo.recoveryStatus = false;
+        userPasswordRecoveryInfo.user = newCreatedUser;
+        return userPasswordRecoveryInfo;
+      };
+    const userPasswordRecoveryInfo: UserPasswordRecoveryInfoSQLEntity =
+      createUserPasswordRecoveryInfo();
+
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const createdUser: [{ user_id: string }] = await queryRunner.query(
-        `
-        INSERT INTO public.users("login", "password", "email")
-        VALUES($1, $2, $3)
-        RETURNING "id" as "user_id";
-      `,
-        [createUserDTO.login, passwordHash, createUserDTO.email],
-      );
-      const userId: string = createdUser[0].user_id;
-      await queryRunner.query(
-        `
-        INSERT INTO public.users_email_confirmation_info(user_id, confirmation_code, expiration_date, is_confirmed)
-        VALUES($1, $2, $3, false);
-      `,
-        [
-          userId,
-          createUserDTO.emailConfirmationCode,
-          createUserDTO.expirationDateEmailConfirmation,
-        ],
-      );
-      await queryRunner.query(
-        `
-        INSERT INTO public.users_password_recovery_info(user_id, recovery_code, recovery_status)
-        VALUES($1, null, false);
-      `,
-        [userId],
-      );
+      await this.userEntity.save(newCreatedUser);
+      await this.userEmailConfirmInfoEntity.save(userEmailConfirmationInfo);
+      await this.userPasswordRecoveryInfoEntity.save(userPasswordRecoveryInfo);
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -171,7 +196,6 @@ export class UserRepositorySQL {
     password: string;
     email: string;
   }): Promise<{ userId: number; createdAt: string }> {
-    const passwordHash: string = await hash(createUserDTO.password, 10);
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -183,7 +207,7 @@ export class UserRepositorySQL {
         VALUES($1, $2, $3)
         RETURNING "id" as "user_id", "created_at"
       `,
-          [createUserDTO.login, passwordHash, createUserDTO.email],
+          [createUserDTO.login, createUserDTO.password, createUserDTO.email],
         );
       const userId: number = createdUser[0].user_id;
       const userCreatedAt: string = createdUser[0].created_at;

@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { UserModule } from './user.module';
 import { AuthController } from '../../public-api/auth/api/auth.controller';
 import { NodemailerModule } from '../../../libs/email/nodemailer/nodemailer.module';
-import { AuthRepository } from '../../public-api/auth/infrastructure/repositories/auth.repository';
 import { AuthLocalStrategy } from '../../../libs/auth/passport-strategy/auth-local.strategy';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
@@ -44,7 +43,6 @@ const UseCases = [
   ],
   controllers: [AuthController],
   providers: [
-    AuthRepository,
     AuthRepositorySQL,
     AuthQueryRepositorySQL,
     AuthJwtRefreshTokenStrategy,

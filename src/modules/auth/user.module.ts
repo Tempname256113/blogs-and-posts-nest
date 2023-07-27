@@ -13,6 +13,7 @@ import { BanUnbanUserUseCase } from '../../admin-api/user/application/use-cases/
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { UserRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.repository-sql';
 import { SecurityRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.repository-sql';
+import { TypeormEntitiesModule } from '../../../libs/db/typeorm-sql/typeorm.entities-module';
 
 const UseCases = [
   CreateUserUseCase,
@@ -21,7 +22,12 @@ const UseCases = [
 ];
 
 @Module({
-  imports: [MongooseSchemesModule, JwtModule, CqrsModule],
+  imports: [
+    MongooseSchemesModule,
+    JwtModule,
+    CqrsModule,
+    TypeormEntitiesModule,
+  ],
   controllers: [UserAdminController],
   providers: [
     UserRepository,

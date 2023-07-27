@@ -8,6 +8,7 @@ import { UserQueryRepositorySQL } from '../../../../admin-api/user/infrastructur
 import { UserRepositorySQL } from '../../../../admin-api/user/infrastructure/repositories/user.repository-sql';
 import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
+import { hash } from 'bcrypt';
 
 export class RegistrationUserCommand {
   constructor(public readonly createNewUserDTO: UserCreateDto) {}
@@ -24,16 +25,17 @@ export class RegistrationUserUseCase
   ) {}
   async execute({ createNewUserDTO }: RegistrationUserCommand): Promise<void> {
     const emailConfirmationCode: string = randomUUID();
-    const expirationDateEmailConfirmation: string = add(new Date(), {
+    const emailConfirmExpirationDate: string = add(new Date(), {
       days: 3,
     }).toISOString();
     await this.checkUserExistence(createNewUserDTO);
+    const passwordHash: string = await hash(createNewUserDTO.password, 10);
     await this.usersRepositorySQL.registrationNewUser({
       login: createNewUserDTO.login,
-      password: createNewUserDTO.password,
+      password: passwordHash,
       email: createNewUserDTO.email,
       emailConfirmationCode,
-      expirationDateEmailConfirmation,
+      emailConfirmExpirationDate,
     });
     this.emailService.sendUserConfirmation(
       createNewUserDTO.email,

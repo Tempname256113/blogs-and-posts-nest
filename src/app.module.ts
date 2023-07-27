@@ -23,8 +23,8 @@ const postgresLocal: TypeOrmModuleOptions = {
   username: envVariables.POSTGRES_LOCAL_USERNAME,
   password: envVariables.POSTGRES_LOCAL_PASSWORD,
   database: 'incubator',
-  autoLoadEntities: false,
-  synchronize: false,
+  autoLoadEntities: true,
+  synchronize: true,
 };
 
 const postgresRemote: TypeOrmModuleOptions = {
@@ -34,8 +34,8 @@ const postgresRemote: TypeOrmModuleOptions = {
   username: envVariables.POSTGRES_REMOTE_USERNAME,
   password: envVariables.POSTGRES_REMOTE_PASSWORD,
   database: 'incubator',
-  autoLoadEntities: false,
-  synchronize: false,
+  autoLoadEntities: true,
+  synchronize: true,
   ssl: true,
 };
 
