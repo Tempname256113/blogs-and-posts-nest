@@ -18,7 +18,7 @@ export class RegistrationConfirmUseCase
 {
   constructor(
     private readonly usersRepositorySQL: UserRepositorySQL,
-    private usersQueryRepositorySQL: UserQueryRepositorySQL,
+    private readonly usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
 
   async execute({

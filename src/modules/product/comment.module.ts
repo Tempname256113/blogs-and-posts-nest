@@ -13,6 +13,7 @@ import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { PublicCommentRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.repository-sql';
 import { PublicCommentQueryRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.query-repository-sql';
+import { TypeormEntitiesModule } from '../../../libs/db/typeorm-sql/typeorm.entities-module';
 
 const UseCases = [
   DeleteCommentUseCase,
@@ -21,7 +22,13 @@ const UseCases = [
 ];
 
 @Module({
-  imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],
+  imports: [
+    MongooseSchemesModule,
+    TypeormEntitiesModule,
+    LikeModule,
+    JwtModule,
+    CqrsModule,
+  ],
   controllers: [CommentController],
   providers: [
     CommentRepository,

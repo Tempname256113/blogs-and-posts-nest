@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
   UserEmailInfoType,
@@ -12,11 +12,14 @@ import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
+import { UserEmailConfirmInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-email-confirm-info-sql.entity';
 
 @Injectable()
 export class UserQueryRepositorySQL {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(UserEmailConfirmInfoSQLEntity)
+    private readonly userEmailConfirmInfoEntity: Repository<UserEmailConfirmInfoSQLEntity>,
     private readonly jwtUtils: JwtUtils,
   ) {}
 
@@ -72,26 +75,18 @@ export class UserQueryRepositorySQL {
   async getUserEmailInfoByConfirmationCode(
     confirmationEmailCode: string,
   ): Promise<UserEmailInfoType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT ueci.user_id, ueci.confirmation_code, ueci.expiration_date, ueci.is_confirmed
-    FROM public.users_email_confirmation_info ueci
-    WHERE ueci.confirmation_code = $1
-    `,
-      [confirmationEmailCode],
-    );
-    if (result.length > 0) {
-      const res = result[0];
-      const userEmailInfo: UserEmailInfoType = {
-        userId: res.user_id,
-        confirmationCode: res.confirmation_code,
-        expirationDate: res.expiration_date,
-        isConfirmed: res.is_confirmed,
-      };
-      return userEmailInfo;
-    } else {
-      return null;
-    }
+    const foundedInfo: UserEmailConfirmInfoSQLEntity | null =
+      await this.userEmailConfirmInfoEntity.findOneBy({
+        confirmationCode: confirmationEmailCode,
+      });
+    if (!foundedInfo) return null;
+    const mappedInfo: UserEmailInfoType = {
+      userId: foundedInfo.userId,
+      confirmationCode: foundedInfo.confirmationCode,
+      isConfirmed: foundedInfo.isConfirmed,
+      expirationDate: foundedInfo.expirationDate,
+    };
+    return mappedInfo;
   }
 
   async getUserEmailInfoByEmail(

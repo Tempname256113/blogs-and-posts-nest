@@ -22,7 +22,7 @@ export type UserEmailInfoType = {
   userId: number;
   confirmationCode: string;
   expirationDate: string;
-  isConfirmed: string;
+  isConfirmed: boolean;
 };
 
 export type UserPasswordRecoveryInfoType = {

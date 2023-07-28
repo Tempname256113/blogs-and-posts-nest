@@ -19,6 +19,7 @@ import { AuthRepositorySQL } from '../../public-api/auth/infrastructure/reposito
 import { AuthJwtRefreshTokenStrategy } from '../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { AuthQueryRepositorySQL } from '../../public-api/auth/infrastructure/repositories/auth.query-repository-sql';
 import { LogoutUserUseCase } from '../../public-api/auth/application/use-cases/logout-user.use-case';
+import { TypeormEntitiesModule } from '../../../libs/db/typeorm-sql/typeorm.entities-module';
 
 const UseCases = [
   RegistrationUserUseCase,
@@ -35,6 +36,7 @@ const UseCases = [
 @Module({
   imports: [
     MongooseSchemesModule,
+    TypeormEntitiesModule,
     NodemailerModule,
     JwtModule,
     ThrottlerModule.forRoot({ ttl: 10, limit: 5 }),

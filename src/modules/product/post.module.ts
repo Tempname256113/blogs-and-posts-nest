@@ -16,6 +16,7 @@ import { BloggerUserQueryRepositorySQL } from '../../blogger-api/blog/infrastruc
 import { PublicCommentRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.repository-sql';
 import { PublicCommentQueryRepositorySQL } from '../../public-api/comment/infrastructure/repositories/comment-public.query-repository-sql';
 import { PublicPostRepositorySQL } from '../../public-api/post/infrastructure/repositories/post-public.repository-sql';
+import { TypeormEntitiesModule } from '../../../libs/db/typeorm-sql/typeorm.entities-module';
 
 const UseCases = [CreateNewCommentUseCase, ChangePostLikeStatusUseCase];
 
@@ -40,6 +41,7 @@ const blogsPublicApiRepositories = [PublicBlogQueryRepositorySQL];
 @Module({
   imports: [
     MongooseSchemesModule,
+    TypeormEntitiesModule,
     LikeModule,
     JwtModule,
     CommentModule,

@@ -31,6 +31,7 @@ import { PublicBlogQueryRepositorySQL } from '../../public-api/blog/infrastructu
 import { PublicPostQueryRepositorySQL } from '../../public-api/post/infrastructure/repositories/post-public.query-repository-sql';
 import { AdminBlogQueryRepositorySQL } from '../../admin-api/blog/infrastructure/repositories/blog-admin.query-repository-sql';
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { TypeormEntitiesModule } from '../../../libs/db/typeorm-sql/typeorm.entities-module';
 
 const UseCases = [
   CreateBlogUseCase,
@@ -78,7 +79,13 @@ const usersAdminApiRepositories = [UserQueryRepositorySQL];
 const classValidatorConstraints = [IsValidBlogIdConstraint];
 
 @Module({
-  imports: [MongooseSchemesModule, LikeModule, JwtModule, CqrsModule],
+  imports: [
+    MongooseSchemesModule,
+    TypeormEntitiesModule,
+    LikeModule,
+    JwtModule,
+    CqrsModule,
+  ],
   controllers: [
     BlogPublicController,
     BlogBloggerController,
