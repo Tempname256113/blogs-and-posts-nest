@@ -12,8 +12,8 @@ export class SendPasswordRecoveryCodeUseCase
   implements ICommandHandler<SendPasswordRecoveryCodeCommand, void>
 {
   constructor(
-    private usersRepositorySQL: UserRepositorySQL,
-    private emailService: NodemailerService,
+    private readonly usersRepositorySQL: UserRepositorySQL,
+    private readonly emailService: NodemailerService,
   ) {}
 
   async execute({ email }: SendPasswordRecoveryCodeCommand): Promise<void> {

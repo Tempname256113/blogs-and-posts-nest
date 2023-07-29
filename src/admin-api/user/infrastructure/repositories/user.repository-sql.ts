@@ -1,5 +1,11 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, QueryRunner, Repository } from 'typeorm';
+import {
+  DataSource,
+  QueryBuilder,
+  QueryRunner,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { add } from 'date-fns';
 import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
@@ -115,14 +121,22 @@ export class UserRepositorySQL {
     email: string;
     passwordRecoveryCode: string;
   }): Promise<void> {
-    await this.dataSource.query(
-      `
-    UPDATE public.users_password_recovery_info
-    SET recovery_code = $1, recovery_status = true
-    WHERE user_id = (select "id" from public.users u where u.email = $2)
-    `,
-      [passwordRecoveryCode, email],
-    );
+    const queryBuilder: SelectQueryBuilder<UserPasswordRecoveryInfoSQLEntity> =
+      await this.dataSource.createQueryBuilder();
+    await queryBuilder
+      .update(UserPasswordRecoveryInfoSQLEntity)
+      .set({ recoveryCode: passwordRecoveryCode, recoveryStatus: true })
+      .where(
+        'public.user_password_recovery_info."userId" = ' +
+          queryBuilder
+            .subQuery()
+            .select('u.id')
+            .from(UserSQLEntity, 'u')
+            .where('u.email = :email')
+            .getQuery(),
+      )
+      .setParameter('email', email)
+      .execute();
   }
 
   async setUserNewPassword({
