@@ -26,7 +26,7 @@ export class SessionSQLEntity {
   userDeviceTitle: string;
 
   @Column({ type: 'timestamp', default: new Date().toISOString() })
-  lastActiveDate: Date;
+  lastActiveDate: string;
 
   @ManyToOne(() => UserSQLEntity, (user) => user.sessions, { cascade: true })
   @JoinColumn({ name: 'userId' })

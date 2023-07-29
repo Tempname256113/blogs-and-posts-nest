@@ -1,12 +1,17 @@
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   SessionCreateRepositoryDTO,
   SessionUpdateRepositoryDTO,
 } from './models/auth-repository.dto';
+import { SessionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/session-sql.entity';
 
 export class AuthRepositorySQL {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    @InjectRepository(SessionSQLEntity)
+    private readonly sessionEntity: Repository<SessionSQLEntity>,
+  ) {}
 
   async createNewSession({
     userId,
@@ -14,16 +19,14 @@ export class AuthRepositorySQL {
     userIpAddress,
     userDeviceTitle,
   }: SessionCreateRepositoryDTO): Promise<number> {
-    const result: any[] = await this.dataSource.query(
-      `
-    INSERT INTO public.sessions("user_id", "unique_key", "user_ip_address", "user_device_title")
-    VALUES($1, $2, $3, $4)
-    RETURNING "device_id"
-    `,
-      [userId, uniqueKey, userIpAddress, userDeviceTitle],
-    );
-    const sessionDeviceId: number = result[0].device_id;
-    return sessionDeviceId;
+    const newSession: SessionSQLEntity = new SessionSQLEntity();
+    newSession.userId = Number(userId);
+    newSession.uniqueKey = uniqueKey;
+    newSession.userIpAddress = userIpAddress;
+    newSession.userDeviceTitle = userDeviceTitle;
+    newSession.lastActiveDate = new Date().toISOString();
+    await this.sessionEntity.save(newSession);
+    return newSession.deviceId;
   }
 
   async updateSession({
