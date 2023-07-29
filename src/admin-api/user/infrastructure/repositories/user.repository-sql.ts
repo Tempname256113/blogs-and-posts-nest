@@ -150,22 +150,11 @@ export class UserRepositorySQL {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await queryRunner.query(
-        `
-      UPDATE public.users_password_recovery_info
-      SET "recovery_code" = null, "recovery_status" = false
-      WHERE "user_id" = $1
-      `,
-        [userId],
-      );
-      await queryRunner.query(
-        `
-      UPDATE public.users
-      SET "password" = $1
-      WHERE "id" = $2
-      `,
-        [newPassword, userId],
-      );
+      await this.userPasswordRecoveryInfoEntity.update(userId, {
+        recoveryCode: null,
+        recoveryStatus: false,
+      });
+      await this.userEntity.update(userId, { password: newPassword });
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();

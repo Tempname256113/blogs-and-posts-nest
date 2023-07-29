@@ -21,8 +21,8 @@ export class SetNewPasswordUseCase
   implements ICommandHandler<SetNewPasswordCommand, void>
 {
   constructor(
-    private usersRepositorySQL: UserRepositorySQL,
-    private usersQueryRepositorySQL: UserQueryRepositorySQL,
+    private readonly usersRepositorySQL: UserRepositorySQL,
+    private readonly usersQueryRepositorySQL: UserQueryRepositorySQL,
   ) {}
 
   async execute({ data }: SetNewPasswordCommand): Promise<void> {

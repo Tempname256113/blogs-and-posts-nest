@@ -13,6 +13,7 @@ import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.pay
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import { UserEmailConfirmInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-email-confirm-info-sql.entity';
+import { UserPasswordRecoveryInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-password-recovery-info-sql.entity';
 
 @Injectable()
 export class UserQueryRepositorySQL {
@@ -20,6 +21,8 @@ export class UserQueryRepositorySQL {
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(UserEmailConfirmInfoSQLEntity)
     private readonly userEmailConfirmInfoEntity: Repository<UserEmailConfirmInfoSQLEntity>,
+    @InjectRepository(UserPasswordRecoveryInfoSQLEntity)
+    private readonly userPasswordRecoveryInfoEntity: Repository<UserPasswordRecoveryInfoSQLEntity>,
     private readonly jwtUtils: JwtUtils,
   ) {}
 
@@ -117,25 +120,15 @@ export class UserQueryRepositorySQL {
   async getUserPasswordRecoveryInfoByRecoveryCode(
     recoveryCode: string,
   ): Promise<UserPasswordRecoveryInfoType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT p.user_id, p.recovery_code, p.recovery_status
-    FROM public.users_password_recovery_info p
-    WHERE "recovery_code" = $1
-    `,
-      [recoveryCode],
-    );
-    if (result.length > 0) {
-      const res: any = result[0];
-      const passwordRecoveryInfo: UserPasswordRecoveryInfoType = {
-        userId: res.user_id,
-        recoveryCode: res.recovery_code,
-        recoveryStatus: res.recovery_status,
-      };
-      return passwordRecoveryInfo;
-    } else {
-      return null;
-    }
+    const foundedInfo: UserPasswordRecoveryInfoSQLEntity | null =
+      await this.userPasswordRecoveryInfoEntity.findOneBy({ recoveryCode });
+    if (!foundedInfo) return null;
+    const passwordRecoveryInfo: UserPasswordRecoveryInfoType = {
+      userId: foundedInfo.userId,
+      recoveryCode: foundedInfo.recoveryCode,
+      recoveryStatus: foundedInfo.recoveryStatus,
+    };
+    return passwordRecoveryInfo;
   }
 
   async getInfoAboutUser(
