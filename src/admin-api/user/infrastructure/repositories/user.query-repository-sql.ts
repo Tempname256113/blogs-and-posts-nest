@@ -24,6 +24,8 @@ export class UserQueryRepositorySQL {
     private readonly userEmailConfirmInfoEntity: Repository<UserEmailConfirmInfoSQLEntity>,
     @InjectRepository(UserPasswordRecoveryInfoSQLEntity)
     private readonly userPasswordRecoveryInfoEntity: Repository<UserPasswordRecoveryInfoSQLEntity>,
+    @InjectRepository(UserSQLEntity)
+    private readonly userEntity: Repository<UserSQLEntity>,
     private readonly jwtUtils: JwtUtils,
   ) {}
 
@@ -144,20 +146,14 @@ export class UserQueryRepositorySQL {
     if (!accessTokenPayload) {
       throw new UnauthorizedException();
     }
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT u.id, u.login, u.email
-    FROM public.users u
-    WHERE u.id = $1
-    `,
-      [accessTokenPayload.userId],
-    );
-    if (result.length < 1) return null;
-    const res: any = result[0];
+    const result: UserSQLEntity | null = await this.userEntity.findOneBy({
+      id: Number(accessTokenPayload.userId),
+    });
+    if (!result) return null;
     const mappedUser: AuthApiUserInfoType = {
-      userId: String(res.id),
-      login: res.login,
-      email: res.email,
+      userId: String(result.id),
+      login: result.login,
+      email: result.email,
     };
     return mappedUser;
   }
