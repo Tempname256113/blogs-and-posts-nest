@@ -14,8 +14,8 @@ export class LogoutCommand {
 @CommandHandler(LogoutCommand)
 export class LogoutUserUseCase implements ICommandHandler<LogoutCommand, void> {
   constructor(
-    private authRepositorySQL: AuthRepositorySQL,
-    private authQueryRepositorySQL: AuthQueryRepositorySQL,
+    private readonly authRepositorySQL: AuthRepositorySQL,
+    private readonly authQueryRepositorySQL: AuthQueryRepositorySQL,
   ) {}
   async execute({ refreshTokenPayload }: LogoutCommand): Promise<void> {
     const foundedSessionFromDB: SessionRepositoryType | null =

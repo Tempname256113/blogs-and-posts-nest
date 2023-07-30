@@ -1,33 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { SessionRepositoryType } from './models/auth-repository.dto';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SessionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/session-sql.entity';
 
 @Injectable()
 export class AuthQueryRepositorySQL {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(SessionSQLEntity)
+    private readonly sessionEntity: Repository<SessionSQLEntity>,
+  ) {}
 
   async getSessionByDeviceId(
     deviceId: number,
   ): Promise<SessionRepositoryType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT * FROM public.sessions s
-    WHERE s.device_id = $1
-    `,
-      [deviceId],
-    );
-    if (result.length < 1) {
-      return null;
-    }
-    const res: any = result[0];
+    const result: SessionSQLEntity | null = await this.sessionEntity.findOneBy({
+      deviceId,
+    });
+    if (!result) return null;
     const session: SessionRepositoryType = {
-      deviceId: res.device_id,
-      userId: res.user_id,
-      uniqueKey: res.unique_key,
-      userIpAddress: res.user_ip_address,
-      userDeviceTitle: res.user_device_title,
-      lastActiveDate: res.last_active_date,
+      deviceId: String(result.deviceId),
+      userId: String(result.userId),
+      uniqueKey: result.uniqueKey,
+      userIpAddress: result.userIpAddress,
+      userDeviceTitle: result.userDeviceTitle,
+      lastActiveDate: result.lastActiveDate,
     };
     return session;
   }

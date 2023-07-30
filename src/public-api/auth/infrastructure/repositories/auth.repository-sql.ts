@@ -1,5 +1,5 @@
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import {
   SessionCreateRepositoryDTO,
   SessionUpdateRepositoryDTO,
@@ -8,7 +8,6 @@ import { SessionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/us
 
 export class AuthRepositorySQL {
   constructor(
-    @InjectDataSource() private dataSource: DataSource,
     @InjectRepository(SessionSQLEntity)
     private readonly sessionEntity: Repository<SessionSQLEntity>,
   ) {}
@@ -44,12 +43,6 @@ export class AuthRepositorySQL {
   }
 
   async deleteSessionByDeviceId(deviceId: number): Promise<void> {
-    await this.dataSource.query(
-      `
-    DELETE FROM public.sessions s
-    WHERE s.device_id = $1
-    `,
-      [deviceId],
-    );
+    await this.sessionEntity.delete(deviceId);
   }
 }
