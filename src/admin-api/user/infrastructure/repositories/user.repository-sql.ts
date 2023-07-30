@@ -104,14 +104,22 @@ export class UserRepositorySQL {
     const newExpirationDate: string = add(new Date(), {
       days: 3,
     }).toISOString();
-    await this.dataSource.query(
-      `
-    UPDATE public.users_email_confirmation_info
-    SET confirmation_code = $1, expiration_date = $2
-    WHERE user_id = (select "id" from public.users u where u.email = $3)
-    `,
-      [newCode, newExpirationDate, email],
-    );
+    const queryBuilder: SelectQueryBuilder<UserEmailConfirmInfoSQLEntity> =
+      await this.dataSource.createQueryBuilder();
+    await queryBuilder
+      .update(UserEmailConfirmInfoSQLEntity)
+      .set({ confirmationCode: newCode, expirationDate: newExpirationDate })
+      .where(
+        'public.users_email_confirmation_info_typeorm."userId" = ' +
+          queryBuilder
+            .subQuery()
+            .select('u.id')
+            .from(UserSQLEntity, 'u')
+            .where('u.email = :email')
+            .getQuery(),
+      )
+      .setParameter('email', email)
+      .execute();
   }
 
   async setPasswordRecoveryCode({
@@ -127,7 +135,7 @@ export class UserRepositorySQL {
       .update(UserPasswordRecoveryInfoSQLEntity)
       .set({ recoveryCode: passwordRecoveryCode, recoveryStatus: true })
       .where(
-        'public.user_password_recovery_info."userId" = ' +
+        'public.users_password_recovery_info_typeorm."userId" = ' +
           queryBuilder
             .subQuery()
             .select('u.id')

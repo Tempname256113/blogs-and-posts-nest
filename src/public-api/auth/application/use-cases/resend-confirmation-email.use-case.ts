@@ -19,16 +19,16 @@ export class ResendConfirmationEmailUseCase
   implements ICommandHandler<ResendConfirmationEmailCommand, void>
 {
   constructor(
-    private usersRepositorySQL: UserRepositorySQL,
-    private usersQueryRepositorySQL: UserQueryRepositorySQL,
-    private emailService: NodemailerService,
+    private readonly usersRepositorySQL: UserRepositorySQL,
+    private readonly usersQueryRepositorySQL: UserQueryRepositorySQL,
+    private readonly emailService: NodemailerService,
   ) {}
   async execute({
     email,
     errorField,
   }: ResendConfirmationEmailCommand): Promise<void> {
     const userEmailInfo: UserEmailInfoType | null =
-      await this.usersQueryRepositorySQL.getUserEmailInfoByEmail(email);
+      await this.usersQueryRepositorySQL.getUserEmailConfirmInfoByEmail(email);
     if (!userEmailInfo || userEmailInfo.isConfirmed) {
       throw new BadRequestException(exceptionFactoryFunction([errorField]));
     }

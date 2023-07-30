@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
   UserEmailInfoType,
@@ -14,6 +14,7 @@ import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import { UserEmailConfirmInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-email-confirm-info-sql.entity';
 import { UserPasswordRecoveryInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-password-recovery-info-sql.entity';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 @Injectable()
 export class UserQueryRepositorySQL {
@@ -92,29 +93,33 @@ export class UserQueryRepositorySQL {
     return mappedInfo;
   }
 
-  async getUserEmailInfoByEmail(
+  async getUserEmailConfirmInfoByEmail(
     email: string,
   ): Promise<UserEmailInfoType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT ueci.user_id, ueci.confirmation_code, ueci.expiration_date, ueci.is_confirmed
-    FROM public.users_email_confirmation_info ueci
-    WHERE ueci.user_id = (select "id" from public.users u where u.email = $1)
-    `,
-      [email],
-    );
-    if (result.length > 0) {
-      const res = result[0];
-      const userEmailInfo: UserEmailInfoType = {
-        userId: res.user_id,
-        confirmationCode: res.confirmation_code,
-        expirationDate: res.expiration_date,
-        isConfirmed: res.is_confirmed,
-      };
-      return userEmailInfo;
-    } else {
-      return null;
-    }
+    const queryBuilder: SelectQueryBuilder<UserEmailConfirmInfoSQLEntity> =
+      await this.dataSource.createQueryBuilder();
+    const result: UserEmailConfirmInfoSQLEntity | null = await queryBuilder
+      .select('ueci')
+      .from(UserEmailConfirmInfoSQLEntity, 'ueci')
+      .where(
+        'ueci."userId" = ' +
+          queryBuilder
+            .subQuery()
+            .select('u.id')
+            .from(UserSQLEntity, 'u')
+            .where('u.email = :email')
+            .getQuery(),
+      )
+      .setParameter('email', email)
+      .getOne();
+    if (!result) return null;
+    const userEmailConfirmInfo: UserEmailInfoType = {
+      userId: result.userId,
+      confirmationCode: result.confirmationCode,
+      expirationDate: result.expirationDate,
+      isConfirmed: result.isConfirmed,
+    };
+    return userEmailConfirmInfo;
   }
 
   async getUserPasswordRecoveryInfoByRecoveryCode(
