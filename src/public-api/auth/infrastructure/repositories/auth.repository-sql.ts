@@ -35,14 +35,12 @@ export class AuthRepositorySQL {
     userIpAddress,
     userDeviceTitle,
   }: SessionUpdateRepositoryDTO): Promise<void> {
-    await this.dataSource.query(
-      `
-    UPDATE public.sessions
-    SET unique_key = $1, user_ip_address = $2, user_device_title = $3, last_active_date = now()
-    WHERE device_id = $4
-    `,
-      [uniqueKey, userIpAddress, userDeviceTitle, deviceId],
-    );
+    await this.sessionEntity.update(deviceId, {
+      uniqueKey,
+      userIpAddress,
+      userDeviceTitle,
+      lastActiveDate: new Date().toISOString(),
+    });
   }
 
   async deleteSessionByDeviceId(deviceId: number): Promise<void> {

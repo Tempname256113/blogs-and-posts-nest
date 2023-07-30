@@ -26,8 +26,8 @@ export class UpdateTokensPairUseCase
     >
 {
   constructor(
-    private jwtUtils: JwtUtils,
-    private authRepositorySQL: AuthRepositorySQL,
+    private readonly jwtUtils: JwtUtils,
+    private readonly authRepositorySQL: AuthRepositorySQL,
   ) {}
 
   async execute({
