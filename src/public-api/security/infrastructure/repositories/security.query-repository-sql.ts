@@ -37,22 +37,17 @@ export class SecurityQueryRepositorySQL {
   async getSessionByDeviceId(
     deviceId: number,
   ): Promise<SessionRepositoryType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT * FROM public.sessions s
-    WHERE s.device_id = $1
-    `,
-      [deviceId],
-    );
-    if (result.length < 1) return null;
-    const res: any = result[0];
+    const result: SessionSQLEntity | null = await this.sessionEntity.findOneBy({
+      deviceId,
+    });
+    if (!result) return null;
     const session: SessionRepositoryType = {
-      deviceId: String(res.device_id),
-      userId: String(res.user_id),
-      uniqueKey: res.unique_key,
-      userIpAddress: res.user_ip_address,
-      userDeviceTitle: res.user_device_title,
-      lastActiveDate: res.last_active_date,
+      deviceId: String(result.deviceId),
+      userId: String(result.userId),
+      uniqueKey: result.uniqueKey,
+      userIpAddress: result.userIpAddress,
+      userDeviceTitle: result.userDeviceTitle,
+      lastActiveDate: result.lastActiveDate,
     };
     return session;
   }

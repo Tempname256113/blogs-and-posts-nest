@@ -35,12 +35,6 @@ export class SecurityRepositorySQL {
   }
 
   async deleteSessionByDeviceId(deviceId: number): Promise<void> {
-    await this.dataSource.query(
-      `
-    DELETE FROM public.sessions s
-    WHERE s.device_id = $1
-    `,
-      [deviceId],
-    );
+    await this.sessionEntity.delete(deviceId);
   }
 }
