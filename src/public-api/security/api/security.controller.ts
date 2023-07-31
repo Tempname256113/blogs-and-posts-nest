@@ -12,7 +12,7 @@ import { PassportjsReqDataDecorator } from '../../../../generic-decorators/passp
 import { JwtRefreshTokenPayloadType } from '../../../../generic-models/jwt.payload.model';
 import { SessionSecurityViewModel } from './models/security-api.models';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeleteAllSessionsExceptCurrentCommand } from '../application/use-cases/delete-all-sessions.use-case';
+import { DeleteAllSessionsExceptCurrentCommand } from '../application/use-cases/delete-all-sessions-except-current.use-case';
 import { DeleteSessionByDeviceIdCommand } from '../application/use-cases/delete-session-by-deviceId.use-case';
 import { SecurityQueryRepositorySQL } from '../infrastructure/repositories/security.query-repository-sql';
 

@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
+import { SessionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/session-sql.entity';
 
 @Injectable()
 export class SecurityRepositorySQL {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(SessionSQLEntity)
+    private readonly sessionEntity: Repository<SessionSQLEntity>,
+  ) {}
 
   async deleteAllSessionsExceptCurrent({
     userId,
@@ -13,13 +18,10 @@ export class SecurityRepositorySQL {
     userId: string;
     deviceId: string;
   }): Promise<void> {
-    await this.dataSource.query(
-      `
-    DELETE FROM public.sessions s
-    WHERE s.user_id = $1 AND s.device_id != $2
-    `,
-      [userId, deviceId],
-    );
+    await this.sessionEntity.delete({
+      userId: Number(userId),
+      deviceId: Not(Number(deviceId)),
+    });
   }
 
   async deleteAllSessionsByUserId(userId: number): Promise<void> {

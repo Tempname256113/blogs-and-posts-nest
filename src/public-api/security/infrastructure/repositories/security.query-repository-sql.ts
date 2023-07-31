@@ -20,16 +20,17 @@ export class SecurityQueryRepositorySQL {
     const result: SessionSQLEntity[] = await this.sessionEntity.findBy({
       userId: Number(refreshTokenPayload.userId),
     });
-    const mappedSessionArray: SessionSecurityViewModel[] = [];
-    for (const rawSession of result) {
-      const mappedSession: SessionSecurityViewModel = {
-        ip: rawSession.userIpAddress,
-        deviceId: String(rawSession.deviceId),
-        title: rawSession.userDeviceTitle,
-        lastActiveDate: rawSession.lastActiveDate,
-      };
-      mappedSessionArray.push(mappedSession);
-    }
+    const mappedSessionArray: SessionSecurityViewModel[] = result.map(
+      (rawSession) => {
+        const mappedSession: SessionSecurityViewModel = {
+          ip: rawSession.userIpAddress,
+          deviceId: String(rawSession.deviceId),
+          title: rawSession.userDeviceTitle,
+          lastActiveDate: rawSession.lastActiveDate,
+        };
+        return mappedSession;
+      },
+    );
     return mappedSessionArray;
   }
 

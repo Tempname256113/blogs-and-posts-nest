@@ -4,7 +4,7 @@ import { SecurityController } from '../../public-api/security/api/security.contr
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { AuthJwtRefreshTokenStrategy } from '../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { SecurityQueryRepository } from '../../public-api/security/infrastructure/repositories/security.query-repository';
-import { DeleteAllSessionsExceptCurrentUseCase } from '../../public-api/security/application/use-cases/delete-all-sessions.use-case';
+import { DeleteAllSessionsExceptCurrentUseCase } from '../../public-api/security/application/use-cases/delete-all-sessions-except-current.use-case';
 import { DeleteSessionByDeviceIdUseCase } from '../../public-api/security/application/use-cases/delete-session-by-deviceId.use-case';
 import { CqrsModule } from '@nestjs/cqrs';
 import { SecurityQueryRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.query-repository-sql';
