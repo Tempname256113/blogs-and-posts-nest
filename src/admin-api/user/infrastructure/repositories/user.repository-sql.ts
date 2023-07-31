@@ -177,23 +177,17 @@ export class UserRepositorySQL {
     isBanned: boolean;
   }): Promise<void> {
     if (banUserDTO.isBanned) {
-      await this.dataSource.query(
-        `
-    UPDATE public.users u
-    SET "is_banned" = true, "ban_reason" = $1, ban_date = now()
-    WHERE "id" = $2
-    `,
-        [banUserDTO.banReason, banUserDTO.userId],
-      );
+      await this.userEntity.update(banUserDTO.userId, {
+        isBanned: true,
+        banReason: banUserDTO.banReason,
+        banDate: new Date().toISOString(),
+      });
     } else {
-      await this.dataSource.query(
-        `
-    UPDATE public.users u
-    SET "is_banned" = false, "ban_reason" = null, ban_date = null
-    WHERE "id" = $1
-    `,
-        [banUserDTO.userId],
-      );
+      await this.userEntity.update(banUserDTO.userId, {
+        isBanned: false,
+        banReason: null,
+        banDate: null,
+      });
     }
   }
 
