@@ -10,6 +10,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { SecurityQueryRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.query-repository-sql';
 import { SecurityRepositorySQL } from '../../public-api/security/infrastructure/repositories/security.repository-sql';
 import { AuthQueryRepositorySQL } from '../../public-api/auth/infrastructure/repositories/auth.query-repository-sql';
+import { TypeormEntitiesModule } from '../../../libs/db/typeorm-sql/typeorm.entities-module';
 
 const UseCases = [
   DeleteAllSessionsExceptCurrentUseCase,
@@ -17,7 +18,12 @@ const UseCases = [
 ];
 
 @Module({
-  imports: [MongooseSchemesModule, JwtModule, CqrsModule],
+  imports: [
+    MongooseSchemesModule,
+    TypeormEntitiesModule,
+    JwtModule,
+    CqrsModule,
+  ],
   providers: [
     AuthQueryRepositorySQL,
     AuthJwtRefreshTokenStrategy,

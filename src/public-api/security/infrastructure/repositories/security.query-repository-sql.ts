@@ -1,32 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { JwtRefreshTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { SessionSecurityViewModel } from '../../api/models/security-api.models';
 import { SessionRepositoryType } from '../../../auth/infrastructure/repositories/models/auth-repository.dto';
+import { SessionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/session-sql.entity';
 
 @Injectable()
 export class SecurityQueryRepositorySQL {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(SessionSQLEntity)
+    private readonly sessionEntity: Repository<SessionSQLEntity>,
+  ) {}
 
   async getAllActiveSessions(
     refreshTokenPayload: JwtRefreshTokenPayloadType,
   ): Promise<SessionSecurityViewModel[]> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT s.device_id, s.user_ip_address, s.user_device_title, s.last_active_date
-    FROM public.sessions s
-    WHERE s.user_id = $1
-    `,
-      [refreshTokenPayload.userId],
-    );
+    const result: SessionSQLEntity[] = await this.sessionEntity.findBy({
+      userId: Number(refreshTokenPayload.userId),
+    });
     const mappedSessionArray: SessionSecurityViewModel[] = [];
     for (const rawSession of result) {
       const mappedSession: SessionSecurityViewModel = {
-        ip: rawSession.user_ip_address,
-        deviceId: String(rawSession.device_id),
-        title: rawSession.user_device_title,
-        lastActiveDate: rawSession.last_active_date,
+        ip: rawSession.userIpAddress,
+        deviceId: String(rawSession.deviceId),
+        title: rawSession.userDeviceTitle,
+        lastActiveDate: rawSession.lastActiveDate,
       };
       mappedSessionArray.push(mappedSession);
     }
