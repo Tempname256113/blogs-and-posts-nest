@@ -1,6 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  DataSource,
+  FindOperator,
+  ILike,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
   UserEmailInfoType,
@@ -161,102 +167,71 @@ export class UserQueryRepositorySQL {
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
   ): Promise<UserPaginationViewModel> {
-    let correctSortBy: string = rawPaginationQuery.sortBy;
-    switch (rawPaginationQuery.sortBy) {
-      case 'login':
-        correctSortBy = 'u.login';
-        break;
-      case 'email':
-        correctSortBy = 'u.email';
-        break;
-      case 'createdAt':
-        correctSortBy = 'u.created_at';
-        break;
-    }
-    let correctBanStatus: string = rawPaginationQuery.banStatus;
-    switch (rawPaginationQuery.banStatus) {
-      case 'all':
-        correctBanStatus = '(u.is_banned = true OR u.is_banned = false)';
-        break;
-      case 'banned':
-        correctBanStatus = 'u.is_banned = true';
-        break;
-      case 'notBanned':
-        correctBanStatus = 'u.is_banned = false';
-        break;
-    }
-    let correctSearchTerm: string | null = null;
+    const queryBuilder: SelectQueryBuilder<UserSQLEntity> =
+      await this.dataSource.createQueryBuilder(UserSQLEntity, 'u');
+    queryBuilder.select();
+    const createCorrectOrderBy = (): void => {
+      const sortDirection: 'ASC' | 'DESC' =
+        rawPaginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
+      switch (rawPaginationQuery.sortBy) {
+        case 'login':
+          queryBuilder.orderBy({ 'u.login': sortDirection });
+          break;
+        case 'email':
+          queryBuilder.orderBy({ 'u.email': sortDirection });
+          break;
+        case 'createdAt':
+          queryBuilder.orderBy({ 'u.createdAt': sortDirection });
+          break;
+      }
+    };
+    createCorrectOrderBy();
     const createCorrectFilter = (): void => {
-      if (
-        rawPaginationQuery.searchLoginTerm ||
-        rawPaginationQuery.searchEmailTerm
-      ) {
-        correctSearchTerm = '(';
-        if (rawPaginationQuery.searchLoginTerm) {
-          correctSearchTerm += `u.login ILIKE '%${rawPaginationQuery.searchLoginTerm}%'`;
-        }
-        if (rawPaginationQuery.searchEmailTerm) {
-          if (correctSearchTerm) {
-            correctSearchTerm += ` OR u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
-          } else {
-            correctSearchTerm += `u.email ILIKE '%${rawPaginationQuery.searchEmailTerm}%'`;
-          }
-        }
-        correctSearchTerm += ')';
+      const filterQuery: Partial<
+        Record<keyof UserSQLEntity, FindOperator<string>>
+      >[] = [];
+      switch (rawPaginationQuery.banStatus) {
+        case 'banned':
+          queryBuilder.where({ isBanned: true });
+          break;
+        case 'notBanned':
+          queryBuilder.where({ isBanned: false });
+          break;
+      }
+      if (rawPaginationQuery.searchLoginTerm) {
+        filterQuery.push({
+          login: ILike(`%${rawPaginationQuery.searchLoginTerm}%`),
+        });
+      }
+      if (rawPaginationQuery.searchEmailTerm) {
+        filterQuery.push({
+          email: ILike(`%${rawPaginationQuery.searchEmailTerm}%`),
+        });
+      }
+      if (filterQuery.length > 0) {
+        queryBuilder.andWhere(filterQuery);
       }
     };
     createCorrectFilter();
-    const getAllUsersCount = async (): Promise<number> => {
-      if (correctSearchTerm) {
-        const result: any[] = await this.dataSource.query(`
-        SELECT COUNT(*) FROM public.users u
-        WHERE ${correctSearchTerm} AND ${correctBanStatus}
-        `);
-        return result[0].count;
-      } else {
-        const result: any[] = await this.dataSource.query(`
-        SELECT COUNT(*) FROM public.users u
-        WHERE ${correctBanStatus}
-        `);
-        return result[0].count;
-      }
-    };
-    const allUsersCount: number = await getAllUsersCount();
     const howMuchToSkip: number =
       rawPaginationQuery.pageSize * (rawPaginationQuery.pageNumber - 1);
+    queryBuilder.offset(howMuchToSkip);
+    queryBuilder.limit(rawPaginationQuery.pageSize);
+    const [foundedUsers, allUsersCount]: [UserSQLEntity[], number] =
+      await queryBuilder.getManyAndCount();
     const pagesCount: number = Math.ceil(
       allUsersCount / rawPaginationQuery.pageSize,
     );
-    const getRawUsers = async (): Promise<any[]> => {
-      if (correctSearchTerm) {
-        return this.dataSource.query(`
-        SELECT u.id, u.login, u.email, u.created_at, u.is_banned, u.ban_date, u.ban_reason
-        FROM public.users u
-        WHERE ${correctSearchTerm} AND ${correctBanStatus}
-        ORDER BY ${correctSortBy} ${rawPaginationQuery.sortDirection.toUpperCase()}
-        LIMIT ${rawPaginationQuery.pageSize} OFFSET ${howMuchToSkip}
-        `);
-      } else {
-        return this.dataSource.query(`
-        SELECT u.id, u.login, u.email, u.created_at, u.is_banned, u.ban_date, u.ban_reason
-        FROM public.users u 
-        WHERE ${correctBanStatus}
-        ORDER BY ${correctSortBy} ${rawPaginationQuery.sortDirection.toUpperCase()}
-        LIMIT ${rawPaginationQuery.pageSize} OFFSET ${howMuchToSkip}
-        `);
-      }
-    };
-    const foundedUsers: any[] = await getRawUsers();
     const mappedUsers: UserViewModel[] = foundedUsers.map((rawUser) => {
       const mappedUser: UserViewModel = {
         id: String(rawUser.id),
         login: rawUser.login,
         email: rawUser.email,
-        createdAt: rawUser.created_at,
+        createdAt: rawUser.createdAt,
         banInfo: {
-          isBanned: rawUser.is_banned,
-          banDate: rawUser.ban_date,
-          banReason: rawUser.ban_reason,
+          isBanned: rawUser.isBanned,
+          banDate: rawUser.banDate,
+          banReason: rawUser.banReason,
         },
       };
       return mappedUser;
