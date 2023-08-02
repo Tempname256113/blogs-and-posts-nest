@@ -1,6 +1,7 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   DataSource,
+  DeleteResult,
   QueryRunner,
   Repository,
   SelectQueryBuilder,
@@ -260,14 +261,7 @@ export class UserRepositorySQL {
     if (!Number(userId)) {
       return false;
     }
-    const result: any[] = await this.dataSource.query(
-      `
-    DELETE FROM public.users
-    WHERE "id" = $1
-    RETURNING "id"
-    `,
-      [userId],
-    );
-    return result.length >= 1;
+    const result: DeleteResult = await this.userEntity.delete(userId);
+    return result.affected > 0;
   }
 }
