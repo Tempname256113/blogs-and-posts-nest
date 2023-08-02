@@ -17,8 +17,8 @@ export class JwtUtils {
     private envConfig: EnvConfiguration,
     private jwtService: JwtService,
   ) {
-    this.refreshTokenExpiresIn = { months: 20 };
-    this.accessTokenExpiresIn = { months: 10 };
+    this.refreshTokenExpiresIn = { seconds: 20 };
+    this.accessTokenExpiresIn = { seconds: 10 };
     this.refreshTokenSecret = this.envConfig.JWT_SECRET_REFRESH_TOKEN;
     this.accessTokenSecret = this.envConfig.JWT_SECRET_ACCESS_TOKEN;
   }
