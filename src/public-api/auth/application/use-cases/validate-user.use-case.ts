@@ -12,7 +12,9 @@ export class ValidateUserCommand {
 export class ValidateUserUseCase
   implements ICommandHandler<ValidateUserCommand, User | null>
 {
-  constructor(private usersQueryRepositorySQL: UserQueryRepositorySQL) {}
+  constructor(
+    private readonly usersQueryRepositorySQL: UserQueryRepositorySQL,
+  ) {}
 
   async execute({ loginDTO }: ValidateUserCommand): Promise<User | null> {
     const foundedUser: User | null =

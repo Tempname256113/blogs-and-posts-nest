@@ -24,6 +24,7 @@ export class UserEmailConfirmInfoSQLEntity {
 
   @OneToOne(() => UserSQLEntity, (user) => user.emailConfirmationInfo, {
     onDelete: 'CASCADE',
+    cascade: true,
   })
   @JoinColumn({ name: 'userId' })
   user: Relation<UserSQLEntity>;

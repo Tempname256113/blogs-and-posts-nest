@@ -21,6 +21,7 @@ export class UserPasswordRecoveryInfoSQLEntity {
 
   @OneToOne(() => UserSQLEntity, (user) => user.passwordRecoveryInfo, {
     onDelete: 'CASCADE',
+    cascade: true,
   })
   @JoinColumn({ name: 'userId' })
   user: Relation<UserSQLEntity>;

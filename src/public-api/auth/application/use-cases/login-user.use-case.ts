@@ -7,6 +7,7 @@ import {
 } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { AuthRepositorySQL } from '../../infrastructure/repositories/auth.repository-sql';
 import { randomUUID } from 'crypto';
+import { UnauthorizedException } from '@nestjs/common';
 
 export class LoginUserCommand {
   constructor(
@@ -37,6 +38,7 @@ export class LoginUserUseCase
     newAccessToken: string;
     newRefreshToken: string;
   }> {
+    if (user.banInfo.isBanned) throw new UnauthorizedException();
     const uniqueKey: string = randomUUID();
     const deviceId: number = await this.authRepositorySQL.createNewSession({
       userId: user.id,

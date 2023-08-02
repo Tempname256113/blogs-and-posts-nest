@@ -30,6 +30,7 @@ export class SessionSQLEntity {
 
   @ManyToOne(() => UserSQLEntity, (user) => user.sessions, {
     onDelete: 'CASCADE',
+    cascade: true,
   })
   @JoinColumn({ name: 'userId' })
   user: Relation<UserSQLEntity>;
