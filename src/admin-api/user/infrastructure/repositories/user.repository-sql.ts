@@ -34,7 +34,7 @@ export class UserRepositorySQL {
       const newCreatedUser: UserSQLEntity = new UserSQLEntity();
       newCreatedUser.login = createUserDTO.login;
       newCreatedUser.password = createUserDTO.password;
-      newCreatedUser.email = createUserDTO.password;
+      newCreatedUser.email = createUserDTO.email;
       newCreatedUser.createdAt = new Date().toISOString();
       newCreatedUser.isBanned = false;
       newCreatedUser.banReason = null;
@@ -196,39 +196,57 @@ export class UserRepositorySQL {
     password: string;
     email: string;
   }): Promise<{ userId: number; createdAt: string }> {
+    const createNewUser = (): UserSQLEntity => {
+      const newCreatedUser: UserSQLEntity = new UserSQLEntity();
+      newCreatedUser.login = createUserDTO.login;
+      newCreatedUser.password = createUserDTO.password;
+      newCreatedUser.email = createUserDTO.email;
+      newCreatedUser.createdAt = new Date().toISOString();
+      newCreatedUser.isBanned = false;
+      newCreatedUser.banReason = null;
+      newCreatedUser.banDate = null;
+      return newCreatedUser;
+    };
+    const newCreatedUser: UserSQLEntity = createNewUser();
+
+    const createUserEmailConfirmationInfo =
+      (): UserEmailConfirmInfoSQLEntity => {
+        const userEmailConfirmationInfo: UserEmailConfirmInfoSQLEntity =
+          new UserEmailConfirmInfoSQLEntity();
+        userEmailConfirmationInfo.confirmationCode = null;
+        userEmailConfirmationInfo.expirationDate = null;
+        userEmailConfirmationInfo.isConfirmed = true;
+        userEmailConfirmationInfo.user = newCreatedUser;
+        return userEmailConfirmationInfo;
+      };
+    const userEmailConfirmationInfo: UserEmailConfirmInfoSQLEntity =
+      createUserEmailConfirmationInfo();
+
+    const createUserPasswordRecoveryInfo =
+      (): UserPasswordRecoveryInfoSQLEntity => {
+        const userPasswordRecoveryInfo: UserPasswordRecoveryInfoSQLEntity =
+          new UserPasswordRecoveryInfoSQLEntity();
+        userPasswordRecoveryInfo.recoveryCode = null;
+        userPasswordRecoveryInfo.recoveryStatus = false;
+        userPasswordRecoveryInfo.user = newCreatedUser;
+        return userPasswordRecoveryInfo;
+      };
+    const userPasswordRecoveryInfo: UserPasswordRecoveryInfoSQLEntity =
+      createUserPasswordRecoveryInfo();
+
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const createdUser: [{ user_id: number; created_at: string }] =
-        await queryRunner.query(
-          `
-        INSERT INTO public.users("login", "password", "email")
-        VALUES($1, $2, $3)
-        RETURNING "id" as "user_id", "created_at"
-      `,
-          [createUserDTO.login, createUserDTO.password, createUserDTO.email],
-        );
-      const userId: number = createdUser[0].user_id;
-      const userCreatedAt: string = createdUser[0].created_at;
-      await queryRunner.query(
-        `
-        INSERT INTO public.users_email_confirmation_info(user_id, confirmation_code, expiration_date, is_confirmed)
-        VALUES($1, null, null, true);
-      `,
-        [userId],
+      const createdUser: UserSQLEntity = await this.userEntity.save(
+        newCreatedUser,
       );
-      await queryRunner.query(
-        `
-        INSERT INTO public.users_password_recovery_info(user_id, recovery_code, recovery_status)
-        VALUES($1, null, false);
-      `,
-        [userId],
-      );
+      await this.userEmailConfirmInfoEntity.save(userEmailConfirmationInfo);
+      await this.userPasswordRecoveryInfoEntity.save(userPasswordRecoveryInfo);
       await queryRunner.commitTransaction();
       return {
-        userId,
-        createdAt: userCreatedAt,
+        userId: createdUser.id,
+        createdAt: createdUser.createdAt,
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
