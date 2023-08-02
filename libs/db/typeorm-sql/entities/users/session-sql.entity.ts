@@ -28,7 +28,9 @@ export class SessionSQLEntity {
   @Column({ type: 'timestamp', default: new Date().toISOString() })
   lastActiveDate: string;
 
-  @ManyToOne(() => UserSQLEntity, (user) => user.sessions, { cascade: true })
+  @ManyToOne(() => UserSQLEntity, (user) => user.sessions, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user: Relation<UserSQLEntity>;
 }

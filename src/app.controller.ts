@@ -7,8 +7,12 @@ import { UserSchema } from '../libs/db/mongoose/schemes/user.entity';
 import { SessionSchema } from '../libs/db/mongoose/schemes/session.entity';
 import { CommentSchema } from '../libs/db/mongoose/schemes/comment.entity';
 import { LikeSchema } from '../libs/db/mongoose/schemes/like.entity';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserSQLEntity } from '../libs/db/typeorm-sql/entities/users/user-sql.entity';
+import { SessionSQLEntity } from '../libs/db/typeorm-sql/entities/users/session-sql.entity';
+import { UserEmailConfirmInfoSQLEntity } from '../libs/db/typeorm-sql/entities/users/user-email-confirm-info-sql.entity';
+import { UserPasswordRecoveryInfoSQLEntity } from '../libs/db/typeorm-sql/entities/users/user-password-recovery-info-sql.entity';
 
 @Controller('testing')
 export class AppController {
@@ -19,7 +23,14 @@ export class AppController {
     @InjectModel(SessionSchema.name) private SessionModel: Model<SessionSchema>,
     @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
     @InjectModel(LikeSchema.name) private LikeModel: Model<LikeSchema>,
-    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(UserSQLEntity)
+    private readonly userEntity: Repository<UserSQLEntity>,
+    @InjectRepository(UserEmailConfirmInfoSQLEntity)
+    private readonly userEmailConfirmInfoEntity: Repository<UserEmailConfirmInfoSQLEntity>,
+    @InjectRepository(UserPasswordRecoveryInfoSQLEntity)
+    private readonly userPasswordRecoveryInfoEntity: Repository<UserPasswordRecoveryInfoSQLEntity>,
+    @InjectRepository(SessionSQLEntity)
+    private readonly sessionEntity: Repository<SessionSQLEntity>,
   ) {}
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -31,28 +42,10 @@ export class AppController {
       this.SessionModel.deleteMany(),
       this.CommentModel.deleteMany(),
       this.LikeModel.deleteMany(),
-      this.dataSource.query(`
-      DELETE FROM public.users_email_confirmation_info
-      WHERE 1=1;
-      DELETE FROM public.users_password_recovery_info
-      WHERE 1=1;
-      DELETE FROM public.sessions
-      WHERE 1=1;
-      DELETE FROM public.users
-      WHERE 1=1;
-      DELETE FROM public.banned_users_by_blogger
-      WHERE 1=1;
-      DELETE FROM public.blogs
-      WHERE 1=1;
-      DELETE FROM public.posts
-      WHERE 1=1;
-      DELETE FROM public.comments
-      WHERE 1=1;
-      DELETE FROM public.comments_likes
-      WHERE 1=1;
-      DELETE FROM public.posts_likes
-      WHERE 1=1;
-      `),
+      this.userEntity.delete({}),
+      this.userEmailConfirmInfoEntity.delete({}),
+      this.userPasswordRecoveryInfoEntity.delete({}),
+      this.sessionEntity.delete({}),
     ]);
   }
 }

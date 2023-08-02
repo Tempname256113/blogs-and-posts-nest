@@ -9,6 +9,7 @@ import { PostModule } from './modules/product/post.module';
 import { BlogModule } from './modules/product/blog.module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeormEntitiesModule } from '../libs/db/typeorm-sql/typeorm.entities-module';
 
 const ProductModules = [PostModule, BlogModule];
 
@@ -55,6 +56,7 @@ const postgresRemote: TypeOrmModuleOptions = {
     }),
     TypeOrmModule.forRoot(postgresRemote),
     MongooseSchemesModule,
+    TypeormEntitiesModule,
     ...ProductModules,
     ...AuthModules,
   ],
