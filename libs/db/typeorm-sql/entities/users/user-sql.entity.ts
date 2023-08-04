@@ -1,14 +1,18 @@
 import {
   Column,
   Entity,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  JoinTable,
   Relation,
 } from 'typeorm';
 import { UserEmailConfirmInfoSQLEntity } from './user-email-confirm-info-sql.entity';
 import { UserPasswordRecoveryInfoSQLEntity } from './user-password-recovery-info-sql.entity';
 import { SessionSQLEntity } from './session-sql.entity';
+import { BlogSQLEntity } from '../blog-sql.entity';
+import { CommentSQLEntity } from '../comment-sql.entity';
 
 @Entity({ name: 'users_typeorm' })
 export class UserSQLEntity {
@@ -44,4 +48,20 @@ export class UserSQLEntity {
 
   @OneToMany(() => SessionSQLEntity, (session) => session.user)
   sessions: Relation<SessionSQLEntity[]>;
+
+  @OneToMany(() => BlogSQLEntity, (blog) => blog.blogger)
+  blogs: Relation<BlogSQLEntity[]>;
+
+  @ManyToMany(() => BlogSQLEntity, (blog) => blog.bannedUsers, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'banned_users_by_blogger_typeorm',
+    joinColumn: { name: 'userId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'blogId', referencedColumnName: 'id' },
+  })
+  bannedInBlogs: Relation<BlogSQLEntity[]>;
+
+  @OneToMany(() => CommentSQLEntity, (comment) => comment.user)
+  comments: Relation<CommentSQLEntity[]>;
 }

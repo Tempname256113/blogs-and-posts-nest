@@ -38,7 +38,6 @@ export class LoginUserUseCase
     newAccessToken: string;
     newRefreshToken: string;
   }> {
-    if (user.banInfo.isBanned) throw new UnauthorizedException();
     const uniqueKey: string = randomUUID();
     const deviceId: number = await this.authRepositorySQL.createNewSession({
       userId: user.id,
