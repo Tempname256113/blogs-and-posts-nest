@@ -22,7 +22,7 @@ export class CreateBlogUseCase
 {
   constructor(
     private readonly blogRepositorySQL: BloggerBlogRepositorySql,
-    private jwtUtils: JwtUtils,
+    private readonly jwtUtils: JwtUtils,
   ) {}
 
   async execute({
