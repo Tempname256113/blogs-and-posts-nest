@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { BloggerRepositoryBlogType } from './models/blogger-repository.models';
 import {
   BlogBloggerApiPaginationQueryDTO,
@@ -14,11 +14,14 @@ import {
 } from '../../api/models/blog-blogger-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
+import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-sql.entity';
 
 @Injectable()
 export class BloggerBlogQueryRepositorySQL {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(BlogSQLEntity)
+    private readonly blogEntity: Repository<BlogSQLEntity>,
     private readonly jwtUtils: JwtUtils,
   ) {}
 
@@ -28,29 +31,21 @@ export class BloggerBlogQueryRepositorySQL {
     if (!Number(blogId)) {
       return null;
     }
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT *
-    FROM public.blogs b
-    WHERE b."id" = $1 AND b."hidden" = false
-    `,
-      [blogId],
-    );
-    if (result.length < 1) {
-      return null;
-    }
-    const res: any = result[0];
+    const foundedBlog: BlogSQLEntity | null = await this.blogEntity.findOneBy({
+      id: Number(blogId),
+      hidden: false,
+    });
     return {
-      id: String(res.id),
-      bloggerId: String(res.blogger_id),
-      name: res.name,
-      description: res.description,
-      websiteUrl: res.website_url,
-      createdAt: res.created_at,
-      isMembership: res.is_membership,
-      isBanned: res.is_banned,
-      banDate: res.ban_date,
-      hidden: res.hidden,
+      id: String(foundedBlog.id),
+      bloggerId: String(foundedBlog.bloggerId),
+      name: foundedBlog.name,
+      description: foundedBlog.description,
+      websiteUrl: foundedBlog.websiteUrl,
+      createdAt: foundedBlog.createdAt,
+      isMembership: foundedBlog.isMembership,
+      isBanned: foundedBlog.isBanned,
+      banDate: foundedBlog.banDate,
+      hidden: foundedBlog.hidden,
     };
   }
 

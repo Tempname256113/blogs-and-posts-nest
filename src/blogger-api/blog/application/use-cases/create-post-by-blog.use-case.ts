@@ -32,7 +32,7 @@ export class CreatePostByBlogUseCase
   constructor(
     private readonly postRepositorySQL: BloggerPostRepositorySQL,
     private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
-    private jwtUtils: JwtUtils,
+    private readonly jwtUtils: JwtUtils,
   ) {}
 
   async execute({

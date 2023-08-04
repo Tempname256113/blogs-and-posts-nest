@@ -1,40 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { BloggerRepositoryCreatedPostType } from './models/blogger-repository.models';
 import {
   BloggerRepositoryCreatePostDTO,
   BloggerRepositoryUpdatePostDTO,
 } from './models/blogger-repository.dto';
+import { PostSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/post-sql.entity';
 
 @Injectable()
 export class BloggerPostRepositorySQL {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(PostSQLEntity)
+    private readonly postEntity: Repository<PostSQLEntity>,
+  ) {}
 
   async createPost(
     createPostDTO: BloggerRepositoryCreatePostDTO,
   ): Promise<BloggerRepositoryCreatedPostType> {
-    const result: [{ post_id: number; created_at: string }] =
-      await this.dataSource.query(
-        `
-    INSERT INTO public.posts("blog_id", "title", "short_description", "content")
-    VALUES($1, $2, $3, $4)
-    RETURNING "id" as "post_id", "created_at"
-    `,
-        [
-          createPostDTO.blogId,
-          createPostDTO.title,
-          createPostDTO.shortDescription,
-          createPostDTO.content,
-        ],
-      );
+    const newPost: PostSQLEntity = new PostSQLEntity();
+    newPost.blogId = Number(createPostDTO.blogId);
+    newPost.title = createPostDTO.title;
+    newPost.shortDescription = createPostDTO.shortDescription;
+    newPost.content = createPostDTO.content;
+    newPost.createdAt = new Date().toISOString();
+    newPost.hidden = false;
+
+    const newCreatedPost: PostSQLEntity = await this.postEntity.save(newPost);
     return {
-      id: String(result[0].post_id),
-      blogId: String(createPostDTO.blogId),
-      title: createPostDTO.title,
-      shortDescription: createPostDTO.shortDescription,
-      content: createPostDTO.content,
-      createdAt: result[0].created_at,
+      id: String(newCreatedPost.id),
+      blogId: String(newCreatedPost.blogId),
+      title: newCreatedPost.title,
+      shortDescription: newCreatedPost.shortDescription,
+      content: newCreatedPost.content,
+      createdAt: newCreatedPost.createdAt,
     };
   }
 
