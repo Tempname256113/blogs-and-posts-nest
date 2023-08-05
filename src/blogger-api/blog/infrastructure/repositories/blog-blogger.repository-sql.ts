@@ -44,19 +44,11 @@ export class BloggerBlogRepositorySql {
   async updateBlog(
     updateBlogDTO: BloggerRepositoryUpdateBlogDTO,
   ): Promise<void> {
-    await this.dataSource.query(
-      `
-    UPDATE public.blogs
-    SET "name" = $1, "description" = $2, "website_url" = $3
-    WHERE "id" = $4
-    `,
-      [
-        updateBlogDTO.name,
-        updateBlogDTO.description,
-        updateBlogDTO.websiteUrl,
-        updateBlogDTO.blogId,
-      ],
-    );
+    await this.blogEntity.update(updateBlogDTO.blogId, {
+      name: updateBlogDTO.name,
+      description: updateBlogDTO.description,
+      websiteUrl: updateBlogDTO.websiteUrl,
+    });
   }
 
   async deleteBlogById(blogId: string): Promise<void> {
