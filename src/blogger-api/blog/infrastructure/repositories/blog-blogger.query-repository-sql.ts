@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { BloggerRepositoryBlogType } from './models/blogger-repository.models';
 import {
   BlogBloggerApiPaginationQueryDTO,
@@ -15,6 +15,9 @@ import {
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-sql.entity';
+import { PostSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/post-sql.entity';
+import { CommentSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/comment-sql.entity';
+import { LikeSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/like-sql.entity';
 
 @Injectable()
 export class BloggerBlogQueryRepositorySQL {
@@ -22,6 +25,10 @@ export class BloggerBlogQueryRepositorySQL {
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(BlogSQLEntity)
     private readonly blogEntity: Repository<BlogSQLEntity>,
+    @InjectRepository(PostSQLEntity)
+    private readonly postEntity: Repository<PostSQLEntity>,
+    @InjectRepository(CommentSQLEntity)
+    private readonly commentEntity: Repository<CommentSQLEntity>,
     private readonly jwtUtils: JwtUtils,
   ) {}
 
@@ -147,70 +154,120 @@ export class BloggerBlogQueryRepositorySQL {
       totalCount: 0,
       items: [],
     };
-    const rawFoundedBlogs: { blog_id: number }[] = await this.dataSource.query(
-      `
-    SELECT b."id" as "blog_id"
-    FROM public.blogs b
-    WHERE b."blogger_id" = $1 AND b."hidden" = false
-    `,
-      [userId],
-    );
-    const blogsId: string[] = rawFoundedBlogs.map((rawBlog) => {
-      return String(rawBlog.blog_id);
+    const getBlogsId = async (): Promise<string[]> => {
+      const queryBuilder: SelectQueryBuilder<BlogSQLEntity> =
+        await this.dataSource.createQueryBuilder(BlogSQLEntity, 'b');
+      const rawFoundedBlogs: { id: number }[] = await queryBuilder
+        .select('b.id')
+        .where('b.bloggerId = :bloggerId AND b.hidden = false', {
+          bloggerId: Number(userId),
+        })
+        .getMany();
+      const blogsId: string[] = rawFoundedBlogs.map((rawBlog) => {
+        return String(rawBlog.id);
+      });
+      return blogsId;
+    };
+    const getPostsId = async (): Promise<string[]> => {
+      const queryBuilder: SelectQueryBuilder<PostSQLEntity> =
+        await this.dataSource.createQueryBuilder(PostSQLEntity, 'p');
+      const blogsId: string[] = await getBlogsId();
+      if (blogsId.length < 1) return [];
+      const rawFoundedPosts: { id: number }[] = await queryBuilder
+        .select('p.id')
+        .where('p.blogId IN (:...blogsId) AND p.hidden = false', { blogsId })
+        .getMany();
+      const postsId: string[] = rawFoundedPosts.map((rawPost) => {
+        return String(rawPost.id);
+      });
+      return postsId;
+    };
+    const postsId: string[] = await getPostsId();
+    if (postsId.length < 1) return notFoundPaginationResult;
+    const totalCommentsCount: number = await this.commentEntity.countBy({
+      postId: In(postsId),
+      hidden: false,
     });
-    if (blogsId.length < 1) {
-      return notFoundPaginationResult;
-    }
-    const rawFoundedPosts: {
-      post_id: number;
-    }[] = await this.dataSource.query(`
-    SELECT p."id" as "post_id"
-    FROM public.posts p
-    WHERE p."blog_id" IN (${blogsId}) AND p."hidden" = false
-    `);
-    const postsId: string[] = rawFoundedPosts.map((rawPost) => {
-      return String(rawPost.post_id);
-    });
-    if (postsId.length < 1) {
-      return notFoundPaginationResult;
-    }
-    const commentsCount: any[] = await this.dataSource.query(
-      `
-    SELECT COUNT(*)
-    FROM public.comments c
-    WHERE c."post_id" IN (${postsId}) AND c."hidden" = false
-    `,
-    );
-    const totalCommentsCount: number = commentsCount[0].count;
     const pagesCount: number = Math.ceil(
       totalCommentsCount / paginationQuery.pageSize,
     );
     const howMuchToSkip: number =
       paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
-    const rawFoundedComments: any[] = await this.dataSource.query(
-      `
-    SELECT c."id" as "comment_id", c."content", c."created_at", c."user_id" as "commentator_id",
-    u."login" as "commentator_login", p."id" as "post_id", p."title" as "post_title", p."blog_id",
-    b."name" as "blog_name",
-    (SELECT cl."like_status" FROM public.comments_likes cl WHERE cl."comment_id" = c."id" AND cl."user_id" = $1 AND cl."hidden" = false) as "current_user_reaction",
-    (SELECT COUNT(*) FROM public.comments_likes cl2
-     WHERE cl2."comment_id" = c."id" AND cl2."like_status" = true AND cl2."hidden" = false) as "likes_count",
-    (SELECT COUNT(*) FROM public.comments_likes cl3
-     WHERE cl3."comment_id" = c."id" AND cl3."like_status" = false AND cl3."hidden" = false) as "dislikes_count"
-    FROM public.comments c
-    JOIN public.users u ON u."id" = c."user_id"
-    JOIN public.posts p ON p."id" = c."post_id"
-    JOIN public.blogs b ON b."id" = p."blog_id"
-    WHERE c."post_id" IN (${postsId}) AND c."hidden" = false
-    ORDER BY c."created_at" ${paginationQuery.sortDirection.toUpperCase()}
-    LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
-    `,
-      [userId],
-    );
+    const getRawComments = async (): Promise<
+      {
+        c_id: number;
+        c_userId: number;
+        c_content: string;
+        c_createdAt: string;
+        u_login: string;
+        p_id: number;
+        p_blogId: number;
+        p_title: string;
+        b_name: string;
+        currentUserReaction: boolean;
+        likesCount: string;
+        dislikesCount: string;
+      }[]
+    > => {
+      const correctOrderDirection: 'ASC' | 'DESC' =
+        paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
+      const queryBuilder = await this.dataSource.createQueryBuilder(
+        CommentSQLEntity,
+        'c',
+      );
+      const getCurrentUserLikeStatus = (
+        subQuery?: SelectQueryBuilder<any>,
+      ): SelectQueryBuilder<any> => {
+        return subQuery
+          .select('l.likeStatus')
+          .from(LikeSQLEntity, 'l')
+          .where(
+            'l.commentId = c.id AND l.userId = :userId AND l.hidden = false',
+            { userId },
+          );
+      };
+      const getReactionsCount = (
+        reaction: boolean,
+      ): ((subQuery: SelectQueryBuilder<any>) => SelectQueryBuilder<any>) => {
+        return (subQuery: SelectQueryBuilder<any>): SelectQueryBuilder<any> => {
+          return subQuery
+            .select('COUNT(*)')
+            .from(LikeSQLEntity, 'l')
+            .where(
+              `l.commentId = c.id AND l.likeStatus = ${reaction} AND l.hidden = false`,
+            );
+        };
+      };
+      return queryBuilder
+        .select([
+          'c.id',
+          'c.content',
+          'c.createdAt',
+          'c.userId',
+          'u.login',
+          'p.id',
+          'p.title',
+          'p.blogId',
+          'b.name',
+        ])
+        .addSelect(getCurrentUserLikeStatus, 'currentUserReaction')
+        .addSelect(getReactionsCount(true), 'likesCount')
+        .addSelect(getReactionsCount(false), 'dislikesCount')
+        .innerJoin('c.user', 'u')
+        .innerJoin('c.post', 'p')
+        .innerJoin('p.blog', 'b')
+        .where('c.postId IN (:...postsId) AND c.hidden = false', { postsId })
+        .orderBy('c.createdAt', correctOrderDirection)
+        .limit(paginationQuery.pageSize)
+        .offset(howMuchToSkip)
+        .getRawMany();
+    };
+    const rawFoundedComments: Awaited<ReturnType<typeof getRawComments>> =
+      await getRawComments();
     const mappedComments: CommentBloggerApiViewModel[] = rawFoundedComments.map(
       (rawComment) => {
         let myStatus: 'Like' | 'Dislike' | 'None';
-        switch (rawComment.current_user_reaction) {
+        switch (rawComment.currentUserReaction) {
           case true:
             myStatus = 'Like';
             break;
@@ -222,23 +279,23 @@ export class BloggerBlogQueryRepositorySQL {
             break;
         }
         const mappedComment: CommentBloggerApiViewModel = {
-          id: String(rawComment.comment_id),
-          content: rawComment.content,
-          createdAt: rawComment.created_at,
+          id: String(rawComment.c_id),
+          content: rawComment.c_content,
+          createdAt: rawComment.c_createdAt,
           commentatorInfo: {
-            userId: String(rawComment.commentator_id),
-            userLogin: rawComment.commentator_login,
+            userId: String(rawComment.c_userId),
+            userLogin: rawComment.u_login,
           },
           likesInfo: {
-            likesCount: Number(rawComment.likes_count),
-            dislikesCount: Number(rawComment.dislikes_count),
+            likesCount: Number(rawComment.likesCount),
+            dislikesCount: Number(rawComment.dislikesCount),
             myStatus,
           },
           postInfo: {
-            blogId: String(rawComment.blog_id),
-            blogName: rawComment.blog_name,
-            title: rawComment.post_title,
-            id: String(rawComment.post_id),
+            blogId: String(rawComment.p_blogId),
+            blogName: rawComment.b_name,
+            title: rawComment.p_title,
+            id: String(rawComment.p_id),
           },
         };
         return mappedComment;
