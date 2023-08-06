@@ -67,73 +67,68 @@ export class BloggerBlogQueryRepositorySQL {
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const bloggerId: string = accessTokenPayload.userId;
-    const blogsWithPagination =
-      async (): Promise<BlogBloggerApiPaginationViewModel> => {
-        let filter: string;
-        const getCorrectBlogsFilter = (): void => {
-          if (paginationQuery.searchNameTerm) {
-            filter = `b."name" ILIKE '%${paginationQuery.searchNameTerm}%' AND b."blogger_id" = '${bloggerId}'`;
-          } else {
-            filter = `b."blogger_id" = '${bloggerId}'`;
-          }
+    const queryBuilder: SelectQueryBuilder<BlogSQLEntity> =
+      await this.dataSource.createQueryBuilder(BlogSQLEntity, 'b');
+    queryBuilder.select('b');
+    const getCorrectBlogsFilter = (): void => {
+      if (paginationQuery.searchNameTerm) {
+        queryBuilder.where('b.name ILIKE :name AND b.bloggerId = :bloggerId', {
+          name: `%${paginationQuery.searchNameTerm}%`,
+          bloggerId: Number(bloggerId),
+        });
+      } else {
+        queryBuilder.where('b.bloggerId = :bloggerId', {
+          bloggerId: Number(bloggerId),
+        });
+      }
+    };
+    getCorrectBlogsFilter();
+    const getCorrectOrderBy = (): void => {
+      const correctSortDirection: 'ASC' | 'DESC' =
+        paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
+      switch (paginationQuery.sortBy) {
+        case 'createdAt':
+          queryBuilder.orderBy('b.createdAt', correctSortDirection);
+          break;
+        case 'name':
+          queryBuilder.orderBy('b.name', correctSortDirection);
+          break;
+        case 'description':
+          queryBuilder.orderBy('b.description', correctSortDirection);
+          break;
+      }
+    };
+    getCorrectOrderBy();
+    const howMuchToSkip: number =
+      paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
+    queryBuilder.limit(paginationQuery.pageSize);
+    queryBuilder.offset(howMuchToSkip);
+    const [foundedBlogs, totalBlogsCount] =
+      await queryBuilder.getManyAndCount();
+    const pagesCount: number = Math.ceil(
+      totalBlogsCount / paginationQuery.pageSize,
+    );
+    const mappedBlogs: BlogBloggerApiViewModel[] = foundedBlogs.map(
+      (blogFromDB) => {
+        const mappedBlog: BlogBloggerApiViewModel = {
+          id: String(blogFromDB.id),
+          name: blogFromDB.name,
+          description: blogFromDB.description,
+          websiteUrl: blogFromDB.websiteUrl,
+          createdAt: blogFromDB.createdAt,
+          isMembership: blogFromDB.isMembership,
         };
-        getCorrectBlogsFilter();
-        let orderBy: string;
-        const getCorrectOrderBy = (): void => {
-          switch (paginationQuery.sortBy) {
-            case 'createdAt':
-              orderBy = 'b."created_at"';
-              break;
-            case 'name':
-              orderBy = 'b."name"';
-              break;
-            case 'description':
-              orderBy = 'b."description';
-              break;
-          }
-        };
-        getCorrectOrderBy();
-        const blogsCount: [{ count: number }] = await this.dataSource.query(`
-        SELECT COUNT(*) 
-        FROM public.blogs b
-        WHERE ${filter}
-        `);
-        const totalBlogsCount: number = blogsCount[0].count;
-        const howMuchToSkip: number =
-          paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
-        const pagesCount: number = Math.ceil(
-          totalBlogsCount / paginationQuery.pageSize,
-        );
-        const foundedBlogs: any[] = await this.dataSource.query(`
-        SELECT b."id", b."name", b."description", b."website_url", b."created_at", b."is_membership" 
-        FROM public.blogs b
-        WHERE ${filter}
-        ORDER BY ${orderBy} ${paginationQuery.sortDirection.toUpperCase()}
-        LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
-        `);
-        const mappedBlogs: BlogBloggerApiViewModel[] = foundedBlogs.map(
-          (blogFromDB) => {
-            const mappedBlog: BlogBloggerApiViewModel = {
-              id: String(blogFromDB.id),
-              name: blogFromDB.name,
-              description: blogFromDB.description,
-              websiteUrl: blogFromDB.website_url,
-              createdAt: blogFromDB.created_at,
-              isMembership: blogFromDB.is_membership,
-            };
-            return mappedBlog;
-          },
-        );
-        const paginationBlogsResult: BlogBloggerApiPaginationViewModel = {
-          pagesCount,
-          page: Number(paginationQuery.pageNumber),
-          pageSize: Number(paginationQuery.pageSize),
-          totalCount: Number(totalBlogsCount),
-          items: mappedBlogs,
-        };
-        return paginationBlogsResult;
-      };
-    return blogsWithPagination();
+        return mappedBlog;
+      },
+    );
+    const paginationBlogsResult: BlogBloggerApiPaginationViewModel = {
+      pagesCount,
+      page: Number(paginationQuery.pageNumber),
+      pageSize: Number(paginationQuery.pageSize),
+      totalCount: Number(totalBlogsCount),
+      items: mappedBlogs,
+    };
+    return paginationBlogsResult;
   }
 
   async getAllCommentsFromAllPosts({
