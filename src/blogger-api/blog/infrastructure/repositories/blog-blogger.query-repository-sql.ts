@@ -186,8 +186,6 @@ export class BloggerBlogQueryRepositorySQL {
     const pagesCount: number = Math.ceil(
       totalCommentsCount / paginationQuery.pageSize,
     );
-    const howMuchToSkip: number =
-      paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
     const getRawComments = async (): Promise<
       {
         c_id: number;
@@ -204,6 +202,8 @@ export class BloggerBlogQueryRepositorySQL {
         dislikesCount: string;
       }[]
     > => {
+      const howMuchToSkip: number =
+        paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
       const correctOrderDirection: 'ASC' | 'DESC' =
         paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
       const queryBuilder = await this.dataSource.createQueryBuilder(
@@ -211,8 +211,8 @@ export class BloggerBlogQueryRepositorySQL {
         'c',
       );
       const getCurrentUserLikeStatus = (
-        subQuery?: SelectQueryBuilder<any>,
-      ): SelectQueryBuilder<any> => {
+        subQuery?: SelectQueryBuilder<LikeSQLEntity>,
+      ): SelectQueryBuilder<LikeSQLEntity> => {
         return subQuery
           .select('l.likeStatus')
           .from(LikeSQLEntity, 'l')
@@ -223,13 +223,18 @@ export class BloggerBlogQueryRepositorySQL {
       };
       const getReactionsCount = (
         reaction: boolean,
-      ): ((subQuery: SelectQueryBuilder<any>) => SelectQueryBuilder<any>) => {
-        return (subQuery: SelectQueryBuilder<any>): SelectQueryBuilder<any> => {
+      ): ((
+        subQuery: SelectQueryBuilder<LikeSQLEntity>,
+      ) => SelectQueryBuilder<LikeSQLEntity>) => {
+        return (
+          subQuery: SelectQueryBuilder<LikeSQLEntity>,
+        ): SelectQueryBuilder<LikeSQLEntity> => {
           return subQuery
             .select('COUNT(*)')
             .from(LikeSQLEntity, 'l')
             .where(
-              `l.commentId = c.id AND l.likeStatus = ${reaction} AND l.hidden = false`,
+              `l.commentId = c.id AND l.likeStatus = :likeStatus AND l.hidden = false`,
+              { likeStatus: reaction },
             );
         };
       };
