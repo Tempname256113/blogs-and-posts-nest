@@ -1,15 +1,13 @@
-import { BadRequestErrorModelType } from '../generic-models/bad-request.error-model';
-
-type errorObject = {
-  message: string;
-  field: string;
-};
+import {
+  BadRequestErrorModelType,
+  ErrorObjType,
+} from '../generic-models/bad-request.error-model';
 
 export const exceptionFactoryFunction = (
   errorFields: string[],
 ): BadRequestErrorModelType => {
-  const mappedErrorsArray: errorObject[] = errorFields.map((field) => {
-    const errorObj: errorObject = {
+  const mappedErrorsArray: ErrorObjType[] = errorFields.map((field) => {
+    const errorObj: ErrorObjType = {
       message: 'invalid data',
       field,
     };

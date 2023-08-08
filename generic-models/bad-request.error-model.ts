@@ -1,6 +1,8 @@
 export type BadRequestErrorModelType = {
-  errorsMessages: {
-    message: string;
-    field: string;
-  }[];
+  errorsMessages: ErrorObjType[];
+};
+
+export type ErrorObjType = {
+  message: string;
+  field: string;
 };

@@ -6,7 +6,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { BloggerBlogQueryRepositorySQL } from '../../infrastructure/repositories/blog-blogger.query-repository-sql';
 import { BloggerUserRepositorySQL } from '../../infrastructure/repositories/user-blogger.repository-sql';
 import { BloggerUserQueryRepositorySQL } from '../../infrastructure/repositories/user-blogger.query-repository-sql';
@@ -33,7 +32,7 @@ export class BanUserBloggerApiUseCase
   implements ICommandHandler<BanUserBloggerApiCommand, void>
 {
   constructor(
-    private jwtUtils: JwtUtils,
+    private readonly jwtUtils: JwtUtils,
     private readonly blogsQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private readonly usersRepositorySQL: BloggerUserRepositorySQL,
     private readonly usersQueryRepositorySQL: BloggerUserQueryRepositorySQL,
@@ -79,16 +78,16 @@ export class BanUserBloggerApiUseCase
     bloggerId: string;
   }): Promise<void> {
     if (!Number(blogId) || !Number(bloggerId)) {
-      throw new NotFoundException(['blogId']);
+      throw new NotFoundException();
     }
     /* функция проверяет принадлежит предоставленный блог этому блогеру или нет */
     const foundedBlog: BloggerRepositoryBlogType | null =
       await this.blogsQueryRepositorySQL.getBlogByIdInternalUse(blogId);
     if (!foundedBlog) {
-      throw new NotFoundException(exceptionFactoryFunction(['blogId']));
+      throw new NotFoundException();
     }
     if (foundedBlog.bloggerId !== bloggerId) {
-      throw new ForbiddenException(exceptionFactoryFunction(['blogId']));
+      throw new ForbiddenException();
     }
   }
 

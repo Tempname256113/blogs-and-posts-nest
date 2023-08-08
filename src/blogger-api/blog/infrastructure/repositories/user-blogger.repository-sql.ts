@@ -1,35 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { BannedUsersByBloggerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/banned-users-by-blogger-sql.entity';
 
 @Injectable()
 export class BloggerUserRepositorySQL {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(BannedUsersByBloggerSQLEntity)
+    private readonly bannedUsersByBloggerEntity: Repository<BannedUsersByBloggerSQLEntity>,
+  ) {}
 
   async banUser(banUserDTO: {
     userId: string;
     blogId: string;
     banReason: string;
   }): Promise<void> {
-    await this.dataSource.query(
-      `
-    INSERT INTO public.banned_users_by_blogger("user_id", "blog_id", "ban_reason")
-    VALUES($1, $2, $3)
-    `,
-      [banUserDTO.userId, banUserDTO.blogId, banUserDTO.banReason],
-    );
+    await this.bannedUsersByBloggerEntity.insert({
+      userId: Number(banUserDTO.userId),
+      blogId: Number(banUserDTO.blogId),
+      banReason: banUserDTO.banReason,
+      banDate: new Date().toISOString(),
+    });
   }
 
   async unbanUser(unbanUserDTO: {
     userId: string;
     blogId: string;
   }): Promise<void> {
-    await this.dataSource.query(
-      `
-    DELETE FROM public.banned_users_by_blogger
-    WHERE "user_id" = $1 AND "blog_id" = $2
-    `,
-      [unbanUserDTO.userId, unbanUserDTO.blogId],
-    );
+    await this.bannedUsersByBloggerEntity.delete({
+      userId: Number(unbanUserDTO.userId),
+      blogId: Number(unbanUserDTO.blogId),
+    });
   }
 }

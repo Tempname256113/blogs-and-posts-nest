@@ -1,5 +1,5 @@
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   ForbiddenException,
   Injectable,
@@ -19,11 +19,17 @@ import {
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { BloggerBlogQueryRepositorySQL } from './blog-blogger.query-repository-sql';
+import { BannedUsersByBloggerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/banned-users-by-blogger-sql.entity';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 @Injectable()
 export class BloggerUserQueryRepositorySQL {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(BannedUsersByBloggerSQLEntity)
+    private readonly bannedUsersByBloggerEntity: Repository<BannedUsersByBloggerSQLEntity>,
+    @InjectRepository(UserSQLEntity)
+    private readonly userEntity: Repository<UserSQLEntity>,
     private readonly jwtUtils: JwtUtils,
     private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
   ) {}
@@ -35,40 +41,30 @@ export class BloggerUserQueryRepositorySQL {
     userId: string;
     blogId: string;
   }): Promise<BloggerRepositoryBannedUserType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT * 
-    FROM public.banned_users_by_blogger bubb
-    WHERE bubb."user_id" = $1 AND bubb."blog_id" = $2
-    `,
-      [userId, blogId],
-    );
-    if (result.length < 1) return null;
-    const res: any = result[0];
+    const foundedBannedUser: BannedUsersByBloggerSQLEntity | null =
+      await this.bannedUsersByBloggerEntity.findOneBy({
+        userId: Number(userId),
+        blogId: Number(blogId),
+      });
+    if (!foundedBannedUser) return null;
     return {
-      userId: String(res.user_id),
-      blogId: String(res.blog_id),
-      banReason: res.ban_reason,
-      banDate: res.ban_date,
+      userId: String(foundedBannedUser.userId),
+      blogId: String(foundedBannedUser.blogId),
+      banReason: foundedBannedUser.banReason,
+      banDate: foundedBannedUser.banDate,
     };
   }
 
   async getUserById(userId: string): Promise<BloggerRepositoryUserType | null> {
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT u."id", u."login", u."email", u."created_at"
-    FROM public.users u
-    WHERE u."id" = $1
-    `,
-      [userId],
-    );
-    if (result.length < 1) return null;
-    const res: any = result[0];
+    const foundedUser: UserSQLEntity | null = await this.userEntity.findOneBy({
+      id: Number(userId),
+    });
+    if (!foundedUser) return null;
     return {
-      id: String(res.id),
-      login: res.login,
-      email: res.email,
-      createdAt: res.created_at,
+      id: String(foundedUser.id),
+      login: foundedUser.login,
+      email: foundedUser.email,
+      createdAt: foundedUser.createdAt,
     };
   }
 
