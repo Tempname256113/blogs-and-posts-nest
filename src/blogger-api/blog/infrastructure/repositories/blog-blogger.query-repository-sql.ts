@@ -42,6 +42,7 @@ export class BloggerBlogQueryRepositorySQL {
       id: Number(blogId),
       hidden: false,
     });
+    if (!foundedBlog) return null;
     return {
       id: String(foundedBlog.id),
       bloggerId: String(foundedBlog.bloggerId),

@@ -29,7 +29,7 @@ export class DeletePostByBlogIdUseCase
   implements ICommandHandler<DeletePostByBlogIdCommand, void>
 {
   constructor(
-    private jwtUtils: JwtUtils,
+    private readonly jwtUtils: JwtUtils,
     private readonly postRepositorySQL: BloggerPostRepositorySQL,
     private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private readonly postQueryRepositorySQL: BloggerPostQueryRepositorySQL,

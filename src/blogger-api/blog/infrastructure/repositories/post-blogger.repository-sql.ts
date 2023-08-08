@@ -49,12 +49,6 @@ export class BloggerPostRepositorySQL {
   }
 
   async deletePostById(postId: string): Promise<void> {
-    await this.dataSource.query(
-      `
-    DELETE FROM public.posts
-    WHERE "id" = $1
-    `,
-      [postId],
-    );
+    await this.postEntity.delete(postId);
   }
 }
