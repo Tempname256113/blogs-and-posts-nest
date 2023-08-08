@@ -1,5 +1,5 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import {
   ForbiddenException,
   Injectable,
@@ -96,49 +96,71 @@ export class BloggerUserQueryRepositorySQL {
       }
     };
     await checkBlogOwner();
-    let filter = `bubb."blog_id" = ${blogId}`;
+    let filter = `bu.blogId = :blogId`;
     if (paginationQuery.searchLoginTerm) {
-      filter += ` AND u."login" ILIKE '%${paginationQuery.searchLoginTerm}%'`;
+      filter += ` AND u.login ILIKE '%${paginationQuery.searchLoginTerm}%'`;
     }
-    const bannedUsersForBlog: [{ count: number }] = await this.dataSource
-      .query(`
-    SELECT COUNT (*)
-    FROM public.banned_users_by_blogger bubb
-    JOIN public.users u on bubb."user_id" = u."id"
-    WHERE ${filter}
-    `);
-    const allBannedUsersForBlogQuantity: number = bannedUsersForBlog[0].count;
-    const howMuchToSkip: number =
-      paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
-    const pagesCount: number = Math.ceil(
-      allBannedUsersForBlogQuantity / paginationQuery.pageSize,
-    );
-    let orderBy = 'bubb."ban_date"';
-    if (paginationQuery.sortBy === 'login') {
-      orderBy = 'u."login"';
-    }
-    const allBannedUsersForBlog: any[] = await this.dataSource.query(`
-    SELECT bubb."user_id", bubb."ban_reason", bubb."ban_date",
-    u."login" as "user_login"
-    FROM public.banned_users_by_blogger bubb
-    JOIN public.users u on bubb."user_id" = u."id"
-    WHERE ${filter}
-    ORDER BY ${orderBy} ${paginationQuery.sortDirection.toUpperCase()}
-    LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
-    `);
+    const getBannedUsersQuantity = async (): Promise<number> => {
+      const queryBuilder: SelectQueryBuilder<BannedUsersByBloggerSQLEntity> =
+        await this.dataSource.createQueryBuilder(
+          BannedUsersByBloggerSQLEntity,
+          'bu',
+        );
+      return queryBuilder
+        .innerJoin(UserSQLEntity, 'u', 'bu.userId = u.id')
+        .where(filter, { blogId })
+        .getCount();
+    };
+    const getRawBannedUsers = async (): Promise<
+      {
+        bu_userId: number;
+        bu_banReason: string;
+        bu_banDate: string;
+        u_login: string;
+      }[]
+    > => {
+      const queryBuilder: SelectQueryBuilder<BannedUsersByBloggerSQLEntity> =
+        await this.dataSource.createQueryBuilder(
+          BannedUsersByBloggerSQLEntity,
+          'bu',
+        );
+      let orderBy = 'bu.banDate';
+      if (paginationQuery.sortBy === 'login') {
+        orderBy = 'u.login';
+      }
+      const howMuchToSkip: number =
+        paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
+      const correctOrderDirection: 'ASC' | 'DESC' =
+        paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
+      return queryBuilder
+        .select(['bu.userId', 'bu.banReason', 'bu.banDate', 'u.login'])
+        .innerJoin(UserSQLEntity, 'u', 'bu.userId = u.id')
+        .where(filter, { blogId })
+        .orderBy(orderBy, correctOrderDirection)
+        .limit(paginationQuery.pageSize)
+        .offset(howMuchToSkip)
+        .getRawMany();
+    };
+    const allBannedUsersForBlog: Awaited<ReturnType<typeof getRawBannedUsers>> =
+      await getRawBannedUsers();
     const mappedBannedUsersForBlog: BannedUserBloggerApiViewModel[] =
       allBannedUsersForBlog.map((rawUserBanInfo) => {
         const mappedUser: BannedUserBloggerApiViewModel = {
-          id: String(rawUserBanInfo.user_id),
-          login: rawUserBanInfo.user_login,
+          id: String(rawUserBanInfo.bu_userId),
+          login: rawUserBanInfo.u_login,
           banInfo: {
             isBanned: true,
-            banDate: rawUserBanInfo.ban_date,
-            banReason: rawUserBanInfo.ban_reason,
+            banDate: rawUserBanInfo.bu_banDate,
+            banReason: rawUserBanInfo.bu_banReason,
           },
         };
         return mappedUser;
       });
+    const allBannedUsersForBlogQuantity: number =
+      await getBannedUsersQuantity();
+    const pagesCount: number = Math.ceil(
+      allBannedUsersForBlogQuantity / paginationQuery.pageSize,
+    );
     const paginationResult: BannedUsersBloggerApiPaginationViewModel = {
       pagesCount: Number(pagesCount),
       page: Number(paginationQuery.pageNumber),
