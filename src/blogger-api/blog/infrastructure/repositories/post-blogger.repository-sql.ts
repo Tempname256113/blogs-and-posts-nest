@@ -41,19 +41,11 @@ export class BloggerPostRepositorySQL {
   async updatePostById(
     postUpdateDTO: BloggerRepositoryUpdatePostDTO,
   ): Promise<void> {
-    await this.dataSource.query(
-      `
-    UPDATE public.posts
-    SET "title" = $1, "short_description" = $2, "content" = $3
-    WHERE "id" = $4
-    `,
-      [
-        postUpdateDTO.title,
-        postUpdateDTO.shortDescription,
-        postUpdateDTO.content,
-        postUpdateDTO.postId,
-      ],
-    );
+    await this.postEntity.update(postUpdateDTO.postId, {
+      title: postUpdateDTO.title,
+      shortDescription: postUpdateDTO.shortDescription,
+      content: postUpdateDTO.content,
+    });
   }
 
   async deletePostById(postId: string): Promise<void> {

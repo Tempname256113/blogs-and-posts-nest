@@ -40,24 +40,19 @@ export class BloggerPostQueryRepositorySQL {
     if (!Number(postId)) {
       return null;
     }
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT *
-    FROM public.posts p
-    WHERE p."id" = $1 AND p."hidden" = false
-    `,
-      [postId],
-    );
-    if (result.length < 1) return null;
-    const res: any = result[0];
+    const foundedPost: PostSQLEntity | null = await this.postEntity.findOneBy({
+      id: Number(postId),
+      hidden: false,
+    });
+    if (!foundedPost) return null;
     return {
-      id: String(res.id),
-      blogId: String(res.blog_id),
-      title: res.title,
-      shortDescription: res.short_description,
-      content: res.content,
-      createdAt: res.created_at,
-      hidden: res.hidden,
+      id: String(foundedPost.id),
+      blogId: String(foundedPost.blogId),
+      title: foundedPost.title,
+      shortDescription: foundedPost.shortDescription,
+      content: foundedPost.content,
+      createdAt: foundedPost.createdAt,
+      hidden: foundedPost.hidden,
     };
   }
 

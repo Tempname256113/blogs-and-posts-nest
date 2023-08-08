@@ -31,7 +31,7 @@ export class UpdatePostByBlogIdUseCase
   implements ICommandHandler<UpdatePostByBlogIdCommand, void>
 {
   constructor(
-    private jwtUtils: JwtUtils,
+    private readonly jwtUtils: JwtUtils,
     private readonly blogQueryRepositorySQL: BloggerBlogQueryRepositorySQL,
     private readonly postQueryRepositorySQL: BloggerPostQueryRepositorySQL,
     private readonly postRepositorySQL: BloggerPostRepositorySQL,
