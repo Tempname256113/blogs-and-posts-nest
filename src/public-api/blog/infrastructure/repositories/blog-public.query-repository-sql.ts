@@ -26,25 +26,20 @@ export class PublicBlogQueryRepositorySQL {
     if (!Number(blogId)) {
       return null;
     }
-    const result: any[] = await this.dataSource.query(
-      `
-    SELECT *
-    FROM public.blogs b
-    WHERE b."id" = $1 AND b."hidden" = false
-    `,
-      [blogId],
-    );
-    if (result.length < 1) {
+    const foundedBlog: BlogSQLEntity | null = await this.blogEntity.findOneBy({
+      id: Number(blogId),
+      hidden: false,
+    });
+    if (!foundedBlog) {
       return null;
     }
-    const res: any = result[0];
     return {
-      id: String(res.id),
-      name: res.name,
-      description: res.description,
-      websiteUrl: res.website_url,
-      createdAt: res.created_at,
-      isMembership: res.is_membership,
+      id: String(foundedBlog.id),
+      name: foundedBlog.name,
+      description: foundedBlog.description,
+      websiteUrl: foundedBlog.websiteUrl,
+      createdAt: foundedBlog.createdAt,
+      isMembership: foundedBlog.isMembership,
     };
   }
 
@@ -77,18 +72,18 @@ export class PublicBlogQueryRepositorySQL {
       }
     };
     getCorrectOrderBy();
-    const totalBlogsCount: number = await this.blogEntity.countBy(filter);
     const howMuchToSkip: number =
       paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
+    const [foundedBlogs, totalBlogsCount]: [BlogSQLEntity[], number] =
+      await this.blogEntity.findAndCount({
+        where: filter,
+        order: orderBy,
+        take: paginationQuery.pageSize,
+        skip: howMuchToSkip,
+      });
     const pagesCount: number = Math.ceil(
       totalBlogsCount / paginationQuery.pageSize,
     );
-    const foundedBlogs: BlogSQLEntity[] = await this.blogEntity.find({
-      where: filter,
-      order: orderBy,
-      take: paginationQuery.pageSize,
-      skip: howMuchToSkip,
-    });
     const mappedBlogs: BlogPublicApiViewModel[] = foundedBlogs.map(
       (blogFromDB) => {
         const mappedBlog: BlogPublicApiViewModel = {

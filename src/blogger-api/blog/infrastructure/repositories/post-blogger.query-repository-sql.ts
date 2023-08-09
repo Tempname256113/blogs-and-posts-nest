@@ -21,6 +21,7 @@ import {
 } from './models/blogger-repository.models';
 import { PostSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/post-sql.entity';
 import { LikeSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/like-sql.entity';
+import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-sql.entity';
 
 @Injectable()
 export class BloggerPostQueryRepositorySQL {
@@ -87,29 +88,28 @@ export class BloggerPostQueryRepositorySQL {
         p_createdAt: string;
         p_blogId: number;
         b_name: string;
-        currentUserReaction: boolean;
+        currentUserReaction: boolean | null;
         likesCount: string;
         dislikesCount: string;
       }[]
     > => {
-      const howMuchToSkip: number =
-        paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
       const getCorrectOrderQuery = (): {
         sortQuery: string;
         sortDirection: 'ASC' | 'DESC';
       } => {
         const correctSortDirection: 'ASC' | 'DESC' =
           paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
-        if (paginationQuery.sortBy === 'createdAt') {
-          return {
-            sortQuery: 'p.createdAt',
-            sortDirection: correctSortDirection,
-          };
-        } else if (paginationQuery.sortBy === 'title') {
-          return {
-            sortQuery: 'p.title',
-            sortDirection: correctSortDirection,
-          };
+        switch (paginationQuery.sortBy) {
+          case 'createdAt':
+            return {
+              sortQuery: 'p.createdAt',
+              sortDirection: correctSortDirection,
+            };
+          case 'title':
+            return {
+              sortQuery: 'p.title',
+              sortDirection: correctSortDirection,
+            };
         }
       };
       const getCurrentUserReaction = (
@@ -142,10 +142,10 @@ export class BloggerPostQueryRepositorySQL {
             );
         };
       };
-      const {
-        sortQuery: correctSortQuery,
-        sortDirection: correctSortDirection,
-      } = getCorrectOrderQuery();
+      const orderQuery: ReturnType<typeof getCorrectOrderQuery> =
+        getCorrectOrderQuery();
+      const howMuchToSkip: number =
+        paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
       const queryBuilder: SelectQueryBuilder<PostSQLEntity> =
         await this.dataSource.createQueryBuilder(PostSQLEntity, 'p');
       return queryBuilder
@@ -161,9 +161,9 @@ export class BloggerPostQueryRepositorySQL {
         .addSelect(getCurrentUserReaction, 'currentUserReaction')
         .addSelect(getReactionsCount(true), 'likesCount')
         .addSelect(getReactionsCount(false), 'dislikesCount')
-        .innerJoin('p.blog', 'b', 'p.blogId = b.id')
+        .innerJoin(BlogSQLEntity, 'b', 'p.blogId = b.id')
         .where('p.blogId = :blogId AND p.hidden = false', { blogId })
-        .orderBy(correctSortQuery, correctSortDirection)
+        .orderBy(orderQuery.sortQuery, orderQuery.sortDirection)
         .limit(paginationQuery.pageSize)
         .offset(howMuchToSkip)
         .getRawMany();

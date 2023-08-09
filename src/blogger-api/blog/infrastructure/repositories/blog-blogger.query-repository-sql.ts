@@ -1,6 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  DataSource,
+  FindOperator,
+  FindOptionsOrder,
+  ILike,
+  In,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { BloggerRepositoryBlogType } from './models/blogger-repository.models';
 import {
   BlogBloggerApiPaginationQueryDTO,
@@ -18,6 +26,7 @@ import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-
 import { PostSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/post-sql.entity';
 import { CommentSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/comment-sql.entity';
 import { LikeSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/like-sql.entity';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 @Injectable()
 export class BloggerBlogQueryRepositorySQL {
@@ -68,44 +77,41 @@ export class BloggerBlogQueryRepositorySQL {
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const bloggerId: string = accessTokenPayload.userId;
-    const queryBuilder: SelectQueryBuilder<BlogSQLEntity> =
-      await this.dataSource.createQueryBuilder(BlogSQLEntity, 'b');
-    queryBuilder.select('b');
+    const filter: Pick<
+      Partial<BlogSQLEntity>,
+      Exclude<keyof BlogSQLEntity, 'name'>
+    > & { name?: FindOperator<string> } = {};
     const getCorrectBlogsFilter = (): void => {
+      filter.bloggerId = Number(bloggerId);
       if (paginationQuery.searchNameTerm) {
-        queryBuilder.where('b.name ILIKE :name AND b.bloggerId = :bloggerId', {
-          name: `%${paginationQuery.searchNameTerm}%`,
-          bloggerId: Number(bloggerId),
-        });
-      } else {
-        queryBuilder.where('b.bloggerId = :bloggerId', {
-          bloggerId: Number(bloggerId),
-        });
+        filter.name = ILike(`%${paginationQuery.searchNameTerm}%`);
       }
     };
     getCorrectBlogsFilter();
+    const orderBy: FindOptionsOrder<BlogSQLEntity> = {};
     const getCorrectOrderBy = (): void => {
-      const correctSortDirection: 'ASC' | 'DESC' =
-        paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
       switch (paginationQuery.sortBy) {
         case 'createdAt':
-          queryBuilder.orderBy('b.createdAt', correctSortDirection);
+          orderBy.createdAt = paginationQuery.sortDirection;
           break;
         case 'name':
-          queryBuilder.orderBy('b.name', correctSortDirection);
+          orderBy.name = paginationQuery.sortDirection;
           break;
         case 'description':
-          queryBuilder.orderBy('b.description', correctSortDirection);
+          orderBy.description = paginationQuery.sortDirection;
           break;
       }
     };
     getCorrectOrderBy();
     const howMuchToSkip: number =
       paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
-    queryBuilder.limit(paginationQuery.pageSize);
-    queryBuilder.offset(howMuchToSkip);
-    const [foundedBlogs, totalBlogsCount] =
-      await queryBuilder.getManyAndCount();
+    const [foundedBlogs, totalBlogsCount]: [BlogSQLEntity[], number] =
+      await this.blogEntity.findAndCount({
+        where: filter,
+        order: orderBy,
+        take: paginationQuery.pageSize,
+        skip: howMuchToSkip,
+      });
     const pagesCount: number = Math.ceil(
       totalBlogsCount / paginationQuery.pageSize,
     );
@@ -180,13 +186,6 @@ export class BloggerBlogQueryRepositorySQL {
     };
     const postsId: string[] = await getPostsId();
     if (postsId.length < 1) return notFoundPaginationResult;
-    const totalCommentsCount: number = await this.commentEntity.countBy({
-      postId: In(postsId),
-      hidden: false,
-    });
-    const pagesCount: number = Math.ceil(
-      totalCommentsCount / paginationQuery.pageSize,
-    );
     const getRawComments = async (): Promise<
       {
         c_id: number;
@@ -198,19 +197,11 @@ export class BloggerBlogQueryRepositorySQL {
         p_blogId: number;
         p_title: string;
         b_name: string;
-        currentUserReaction: boolean;
+        currentUserReaction: boolean | null;
         likesCount: string;
         dislikesCount: string;
       }[]
     > => {
-      const howMuchToSkip: number =
-        paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
-      const correctOrderDirection: 'ASC' | 'DESC' =
-        paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
-      const queryBuilder = await this.dataSource.createQueryBuilder(
-        CommentSQLEntity,
-        'c',
-      );
       const getCurrentUserLikeStatus = (
         subQuery?: SelectQueryBuilder<LikeSQLEntity>,
       ): SelectQueryBuilder<LikeSQLEntity> => {
@@ -239,6 +230,14 @@ export class BloggerBlogQueryRepositorySQL {
             );
         };
       };
+      const queryBuilder = await this.dataSource.createQueryBuilder(
+        CommentSQLEntity,
+        'c',
+      );
+      const howMuchToSkip: number =
+        paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
+      const correctOrderDirection: 'ASC' | 'DESC' =
+        paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
       return queryBuilder
         .select([
           'c.id',
@@ -254,9 +253,9 @@ export class BloggerBlogQueryRepositorySQL {
         .addSelect(getCurrentUserLikeStatus, 'currentUserReaction')
         .addSelect(getReactionsCount(true), 'likesCount')
         .addSelect(getReactionsCount(false), 'dislikesCount')
-        .innerJoin('c.user', 'u')
-        .innerJoin('c.post', 'p')
-        .innerJoin('p.blog', 'b')
+        .innerJoin(UserSQLEntity, 'u', 'c.userId = u.id')
+        .innerJoin(PostSQLEntity, 'p', 'c.postId = p.id')
+        .innerJoin(BlogSQLEntity, 'b', 'p.blogId = b.id')
         .where('c.postId IN (:...postsId) AND c.hidden = false', { postsId })
         .orderBy('c.createdAt', correctOrderDirection)
         .limit(paginationQuery.pageSize)
@@ -265,6 +264,13 @@ export class BloggerBlogQueryRepositorySQL {
     };
     const rawFoundedComments: Awaited<ReturnType<typeof getRawComments>> =
       await getRawComments();
+    const totalCommentsCount: number = await this.commentEntity.countBy({
+      postId: In(postsId),
+      hidden: false,
+    });
+    const pagesCount: number = Math.ceil(
+      totalCommentsCount / paginationQuery.pageSize,
+    );
     const mappedComments: CommentBloggerApiViewModel[] = rawFoundedComments.map(
       (rawComment) => {
         let myStatus: 'Like' | 'Dislike' | 'None';
