@@ -1,15 +1,26 @@
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import {
+  DataSource,
+  FindOperator,
+  FindOptionsOrder,
+  ILike,
+  Repository,
+} from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { BlogPublicApiPaginationQueryDTO } from '../../api/models/blog-public-api.query-dto';
 import {
   BlogPublicApiViewModel,
   BlogPublicApiPaginationModel,
 } from '../../api/models/blog-public-api.models';
+import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-sql.entity';
 
 @Injectable()
 export class PublicBlogQueryRepositorySQL {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(BlogSQLEntity)
+    private readonly blogEntity: Repository<BlogSQLEntity>,
+  ) {}
 
   async getBlogById(blogId: string): Promise<BlogPublicApiViewModel | null> {
     if (!Number(blogId)) {
@@ -40,56 +51,53 @@ export class PublicBlogQueryRepositorySQL {
   async getBlogsWithPagination(
     paginationQuery: BlogPublicApiPaginationQueryDTO,
   ): Promise<BlogPublicApiPaginationModel> {
-    let filter: string;
+    const filter: Pick<
+      Partial<BlogSQLEntity>,
+      Exclude<keyof BlogSQLEntity, 'name'>
+    > & { name?: FindOperator<string> } = {};
     const getCorrectFilter = (): void => {
-      filter = `b."hidden" = false`;
+      filter.hidden = false;
       if (paginationQuery.searchNameTerm) {
-        filter += ` AND b."name" ILIKE '%${paginationQuery.searchNameTerm}%'`;
+        filter.name = ILike(`%${paginationQuery.searchNameTerm}%`);
       }
     };
     getCorrectFilter();
-    let orderBy: string;
+    const orderBy: FindOptionsOrder<BlogSQLEntity> = {};
     const getCorrectOrderBy = (): void => {
       switch (paginationQuery.sortBy) {
         case 'createdAt':
-          orderBy = 'b."created_at"';
+          orderBy.createdAt = paginationQuery.sortDirection;
           break;
         case 'name':
-          orderBy = 'b."name"';
+          orderBy.name = paginationQuery.sortDirection;
           break;
         case 'description':
-          orderBy = 'b."description';
+          orderBy.description = paginationQuery.sortDirection;
           break;
       }
     };
     getCorrectOrderBy();
-    const blogsCount: [{ count: number }] = await this.dataSource.query(`
-    SELECT COUNT(*)
-    FROM public.blogs b
-    WHERE ${filter}
-    `);
-    const totalBlogsCount: number = blogsCount[0].count;
+    const totalBlogsCount: number = await this.blogEntity.countBy(filter);
     const howMuchToSkip: number =
       paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
     const pagesCount: number = Math.ceil(
       totalBlogsCount / paginationQuery.pageSize,
     );
-    const foundedBlogs: any[] = await this.dataSource.query(`
-        SELECT b."id", b."name", b."description", b."website_url", b."created_at", b."is_membership" 
-        FROM public.blogs b
-        WHERE ${filter}
-        ORDER BY ${orderBy} ${paginationQuery.sortDirection.toUpperCase()}
-        LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
-        `);
+    const foundedBlogs: BlogSQLEntity[] = await this.blogEntity.find({
+      where: filter,
+      order: orderBy,
+      take: paginationQuery.pageSize,
+      skip: howMuchToSkip,
+    });
     const mappedBlogs: BlogPublicApiViewModel[] = foundedBlogs.map(
       (blogFromDB) => {
         const mappedBlog: BlogPublicApiViewModel = {
           id: String(blogFromDB.id),
           name: blogFromDB.name,
           description: blogFromDB.description,
-          websiteUrl: blogFromDB.website_url,
-          createdAt: blogFromDB.created_at,
-          isMembership: blogFromDB.is_membership,
+          websiteUrl: blogFromDB.websiteUrl,
+          createdAt: blogFromDB.createdAt,
+          isMembership: blogFromDB.isMembership,
         };
         return mappedBlog;
       },
