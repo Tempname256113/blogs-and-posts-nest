@@ -1,5 +1,5 @@
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import {
   CommentPaginationViewModel,
@@ -8,11 +8,18 @@ import {
 import { CommentApiPaginationQueryDto } from '../../api/models/comment-api.query-dto';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
+import { CommentSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/comment-sql.entity';
+import { LikeSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/like-sql.entity';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 @Injectable()
 export class PublicCommentQueryRepositorySQL {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(CommentSQLEntity)
+    private readonly commentEntity: Repository<CommentSQLEntity>,
+    @InjectRepository(LikeSQLEntity)
+    private readonly likeEntity: Repository<LikeSQLEntity>,
     private readonly jwtUtils: JwtUtils,
   ) {}
 
@@ -25,38 +32,58 @@ export class PublicCommentQueryRepositorySQL {
   }): Promise<CommentViewModel | null> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
-    const userId: string | null = accessTokenPayload?.userId;
-    let currentUserReactionQuery: string;
-    if (userId) {
-      currentUserReactionQuery = `(
-      SELECT cl."like_status"
-      FROM public.comments_likes cl
-      WHERE cl."comment_id" = c."id" AND cl."user_id" = '${userId}' AND cl."hidden" = false)
-      as "current_user_reaction",`;
-    } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
-    }
-    const rawFoundedComment: any[] = await this.dataSource.query(
-      `
-    SELECT c."id" as "comment_id", c."content", c."created_at", c."user_id" as "commentator_id",
-    u."login" as "commentator_login",
-    ${currentUserReactionQuery}
-    (SELECT COUNT(*) FROM public.comments_likes cl2
-     WHERE cl2."comment_id" = c."id" AND cl2."like_status" = true AND cl2."hidden" = false) as "likes_count",
-    (SELECT COUNT(*) FROM public.comments_likes cl3
-     WHERE cl3."comment_id" = c."id" AND cl3."like_status" = false AND cl3."hidden" = false) as "dislikes_count"
-    FROM public.comments c
-    JOIN public.users u ON u."id" = c."user_id"
-    WHERE c."id" = $1 AND c."hidden" = false
-    `,
-      [commentId],
-    );
-    if (rawFoundedComment.length < 1) {
-      return null;
-    }
-    const foundedComment: any = rawFoundedComment[0];
+    const userId: string | undefined = accessTokenPayload?.userId;
+    const getCurrentUserReaction = (
+      subQuery: SelectQueryBuilder<LikeSQLEntity>,
+    ): SelectQueryBuilder<LikeSQLEntity> => {
+      return subQuery
+        .select('l.likeStatus')
+        .from(LikeSQLEntity, 'l')
+        .where(
+          'l.commentId = c.id AND l.userId = :userId AND l.hidden = false',
+          { userId },
+        );
+    };
+    const getReactionsCount = (
+      reaction: boolean,
+    ): ((
+      subQuery: SelectQueryBuilder<LikeSQLEntity>,
+    ) => SelectQueryBuilder<LikeSQLEntity>) => {
+      return (
+        subQuery: SelectQueryBuilder<LikeSQLEntity>,
+      ): SelectQueryBuilder<LikeSQLEntity> => {
+        return subQuery
+          .select('COUNT(*)')
+          .from(LikeSQLEntity, 'l')
+          .where(
+            'l.commentId = c.id AND l.likeStatus = :likeStatus AND l.hidden = false',
+            { likeStatus: reaction },
+          );
+      };
+    };
+    const queryBuilder: SelectQueryBuilder<CommentSQLEntity> =
+      await this.dataSource.createQueryBuilder(CommentSQLEntity, 'c');
+    const foundedComment:
+      | {
+          c_id: number;
+          c_content: string;
+          c_createdAt: string;
+          c_userId: number;
+          u_login: string;
+          currentUserReaction: boolean | null;
+          likesCount: string;
+          dislikesCount: string;
+        }
+      | undefined = await queryBuilder
+      .select(['c.id', 'c.content', 'c.createdAt', 'c.userId', 'u.login'])
+      .addSelect(getCurrentUserReaction, 'currentUserReaction')
+      .addSelect(getReactionsCount(true), 'likesCount')
+      .addSelect(getReactionsCount(false), 'dislikesCount')
+      .innerJoin(UserSQLEntity, 'u', 'c.userId = u.id')
+      .where('c.id = :commentId AND c.hidden = false', { commentId })
+      .getRawOne();
     let currentUserReaction: 'Like' | 'Dislike' | 'None';
-    switch (foundedComment.current_user_reaction) {
+    switch (foundedComment.currentUserReaction) {
       case true:
         currentUserReaction = 'Like';
         break;
@@ -68,16 +95,16 @@ export class PublicCommentQueryRepositorySQL {
         break;
     }
     const mappedComment: CommentViewModel = {
-      id: String(foundedComment.comment_id),
-      content: foundedComment.content,
+      id: String(foundedComment.c_id),
+      content: foundedComment.c_content,
       commentatorInfo: {
-        userId: String(foundedComment.commentator_id),
-        userLogin: foundedComment.commentator_login,
+        userId: String(foundedComment.c_userId),
+        userLogin: foundedComment.u_login,
       },
-      createdAt: foundedComment.created_at,
+      createdAt: foundedComment.c_createdAt,
       likesInfo: {
-        likesCount: Number(foundedComment.likes_count),
-        dislikesCount: Number(foundedComment.dislikes_count),
+        likesCount: Number(foundedComment.likesCount),
+        dislikesCount: Number(foundedComment.dislikesCount),
         myStatus: currentUserReaction,
       },
     };
