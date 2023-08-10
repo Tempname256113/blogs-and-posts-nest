@@ -1,8 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-sql.entity';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 export class BindBlogWithUserCommand {
   constructor(
@@ -17,49 +19,40 @@ export class BindBlogWithUserCommand {
 export class BindBlogWithUserUseCase
   implements ICommandHandler<BindBlogWithUserCommand, void>
 {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(BlogSQLEntity)
+    private readonly blogEntity: Repository<BlogSQLEntity>,
+    @InjectRepository(UserSQLEntity)
+    private readonly userEntity: Repository<UserSQLEntity>,
+  ) {}
 
   async execute({
     data: { blogId, userId },
   }: BindBlogWithUserCommand): Promise<void> {
     const errorFields: string[] = [];
-    if (!Number(blogId)) errorFields.push('id');
-    if (!Number(userId)) errorFields.push('userId');
-    const rawFoundedBlog: any[] = await this.dataSource.query(
-      `
-    SELECT b."blogger_id"
-    FROM public.blogs b
-    WHERE b."id" = $1
-    `,
-      [blogId],
-    );
-    const rawFoundedUser: any[] = await this.dataSource.query(
-      `
-    SELECT u."id"
-    FROM public.users u
-    WHERE u."id" = $1
-    `,
-      [userId],
-    );
+    const checkCorrectIds = () => {
+      if (!Number(blogId)) errorFields.push('id');
+      if (!Number(userId)) errorFields.push('userId');
+    };
+    checkCorrectIds();
+    const foundedBlog: BlogSQLEntity | null = await this.blogEntity.findOneBy({
+      id: Number(blogId),
+    });
+    const foundedUser: UserSQLEntity | null = await this.userEntity.findOneBy({
+      id: Number(userId),
+    });
     let foundedBlogBloggerId: string | null = null;
-    if (rawFoundedBlog.length < 1) {
+    if (!foundedBlog) {
       errorFields.push('id');
     } else {
-      foundedBlogBloggerId = rawFoundedBlog[0].blogger_id;
+      foundedBlogBloggerId = String(foundedBlog.bloggerId);
     }
-    if (rawFoundedUser.length < 1 || foundedBlogBloggerId) {
+    if (!foundedUser || foundedBlogBloggerId) {
       errorFields.push('userId');
     }
     if (errorFields.length > 0) {
       throw new BadRequestException(exceptionFactoryFunction(errorFields));
     }
-    await this.dataSource.query(
-      `
-    UPDATE public.blogs
-    SET "blogger_id" = $1
-    WHERE "id" = $2
-    `,
-      [userId, blogId],
-    );
+    await this.blogEntity.update(blogId, { bloggerId: Number(userId) });
   }
 }
