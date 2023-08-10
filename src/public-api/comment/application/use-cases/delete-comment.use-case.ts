@@ -21,9 +21,9 @@ export class DeleteCommentUseCase
   implements ICommandHandler<DeleteCommentCommand, void>
 {
   constructor(
-    private commentQueryRepositorySQL: PublicCommentQueryRepositorySQL,
-    private commentRepositorySQL: PublicCommentRepositorySQL,
-    private jwtUtils: JwtUtils,
+    private readonly commentQueryRepositorySQL: PublicCommentQueryRepositorySQL,
+    private readonly commentRepositorySQL: PublicCommentRepositorySQL,
+    private readonly jwtUtils: JwtUtils,
   ) {}
 
   async execute({

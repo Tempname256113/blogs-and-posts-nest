@@ -51,13 +51,7 @@ export class PublicCommentRepositorySQL {
     if (!Number(commentId)) {
       throw new NotFoundException();
     }
-    await this.dataSource.query(
-      `
-    DELETE FROM public.comments
-    WHERE "id" = $1
-    `,
-      [commentId],
-    );
+    await this.commentEntity.delete(commentId);
   }
 
   async commentChangeLikeStatus({
