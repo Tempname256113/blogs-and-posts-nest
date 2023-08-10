@@ -44,14 +44,7 @@ export class PublicCommentRepositorySQL {
     commentId: string;
     content: string;
   }): Promise<void> {
-    await this.dataSource.query(
-      `
-    UPDATE public.comments
-    SET "content" = $1
-    WHERE "id" = $2
-    `,
-      [content, commentId],
-    );
+    await this.commentEntity.update(commentId, { content });
   }
 
   async deleteComment(commentId: string): Promise<void> {
