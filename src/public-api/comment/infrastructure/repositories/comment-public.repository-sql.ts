@@ -1,10 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { CommentSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/comment-sql.entity';
+import { LikeSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/like-sql.entity';
 
 @Injectable()
 export class PublicCommentRepositorySQL {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(CommentSQLEntity)
+    private readonly commentEntity: Repository<CommentSQLEntity>,
+    @InjectRepository(LikeSQLEntity)
+    private readonly likeEntity: Repository<LikeSQLEntity>,
+  ) {}
 
   async createNewComment({
     postId,
@@ -68,47 +76,41 @@ export class PublicCommentRepositorySQL {
     userId: string;
     likeStatus: 'None' | 'Like' | 'Dislike';
   }): Promise<void> {
-    const updateReaction = async (likeStatus: boolean) => {
-      await this.dataSource.query(
-        `
-      UPDATE public.comments_likes
-      SET like_status = $1, added_at = now()
-      WHERE comment_id = $2 AND user_id = $3
-      `,
-        [likeStatus, commentId, userId],
+    const updateReaction = async (likeStatus: boolean): Promise<void> => {
+      await this.likeEntity.update(
+        {
+          commentId: Number(commentId),
+          userId: Number(userId),
+        },
+        { likeStatus, addedAt: new Date().toISOString() },
       );
     };
-    const createReaction = async (likeStatus: boolean) => {
-      await this.dataSource.query(
-        `
-        INSERT INTO public.comments_likes("comment_id", "user_id", "like_status")
-        VALUES($1, $2, $3)
-        `,
-        [commentId, userId, likeStatus],
-      );
+    const createReaction = async (likeStatus: boolean): Promise<void> => {
+      await this.likeEntity.insert({
+        commentId: Number(commentId),
+        userId: Number(userId),
+        likeStatus,
+        addedAt: new Date().toISOString(),
+        hidden: false,
+      });
     };
-    const deleteReaction = async () => {
-      await this.dataSource.query(
-        `
-      DELETE FROM public.comments_likes
-      WHERE comment_id = $1 AND user_id = $2
-      `,
-        [commentId, userId],
-      );
+    const deleteReaction = async (): Promise<void> => {
+      await this.likeEntity.delete({
+        commentId: Number(commentId),
+        userId: Number(userId),
+      });
     };
     if (likeStatus === 'Like' || likeStatus === 'Dislike') {
       let correctLikeStatus: boolean;
       if (likeStatus === 'Like') correctLikeStatus = true;
       if (likeStatus === 'Dislike') correctLikeStatus = false;
-      const foundedReaction: any[] = await this.dataSource.query(
-        `
-      SELECT * 
-      FROM public.comments_likes cl
-      WHERE cl."comment_id" = $1 AND cl."user_id" = $2 AND cl."hidden" = false
-      `,
-        [commentId, userId],
-      );
-      if (foundedReaction.length > 0) {
+      const foundedReaction: LikeSQLEntity | null =
+        await this.likeEntity.findOneBy({
+          commentId: Number(commentId),
+          userId: Number(userId),
+          hidden: false,
+        });
+      if (foundedReaction) {
         await updateReaction(correctLikeStatus);
       } else {
         await createReaction(correctLikeStatus);

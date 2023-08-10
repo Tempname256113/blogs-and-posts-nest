@@ -82,6 +82,7 @@ export class PublicCommentQueryRepositorySQL {
       .innerJoin(UserSQLEntity, 'u', 'c.userId = u.id')
       .where('c.id = :commentId AND c.hidden = false', { commentId })
       .getRawOne();
+    if (!foundedComment) return null;
     let currentUserReaction: 'Like' | 'Dislike' | 'None';
     switch (foundedComment.currentUserReaction) {
       case true:

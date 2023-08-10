@@ -9,8 +9,9 @@ import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { PublicCommentRepositorySQL } from '../../infrastructure/repositories/comment-public.repository-sql';
 import { CommentViewModel } from '../../api/models/comment-api.models';
 import { PublicCommentQueryRepositorySQL } from '../../infrastructure/repositories/comment-public.query-repository-sql';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 export class ChangeCommentLikeStatusCommand {
   constructor(
@@ -29,8 +30,10 @@ export class ChangeCommentLikeStatusUseCase
   constructor(
     private readonly commentRepositorySQL: PublicCommentRepositorySQL,
     private readonly commentQueryRepositorySQL: PublicCommentQueryRepositorySQL,
-    private jwtUtils: JwtUtils,
+    private readonly jwtUtils: JwtUtils,
     @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(UserSQLEntity)
+    private readonly userEntity: Repository<UserSQLEntity>,
   ) {}
 
   async execute({
@@ -52,17 +55,10 @@ export class ChangeCommentLikeStatusUseCase
       throw new NotFoundException();
     }
     const checkUserBanStatus = async () => {
-      const foundedBannedUser: [{ is_banned: boolean }] =
-        await this.dataSource.query(
-          `
-    SELECT u."is_banned"
-    FROM public.users u
-    WHERE u."id" = $1
-    `,
-          [userId],
-        );
-      if (foundedBannedUser.length < 1) throw new UnauthorizedException();
-      if (foundedBannedUser[0].is_banned) throw new ForbiddenException();
+      const foundedBannedUser: UserSQLEntity | null =
+        await this.userEntity.findOneBy({ id: Number(userId) });
+      if (!foundedBannedUser) throw new UnauthorizedException();
+      if (foundedBannedUser.isBanned) throw new ForbiddenException();
     };
     await checkUserBanStatus();
     await this.commentRepositorySQL.commentChangeLikeStatus({
