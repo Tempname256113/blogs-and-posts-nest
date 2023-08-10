@@ -39,38 +39,71 @@ export class PublicPostQueryRepositorySQL {
     }
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
-    const userId: string | null = accessTokenPayload?.userId;
-    let currentUserReactionQuery: string;
-    if (userId) {
-      currentUserReactionQuery = `(
-      SELECT pl."like_status"
-      FROM public.posts_likes pl
-      WHERE pl."post_id" = p."id" AND pl."user_id" = '${userId}' AND pl."hidden" = false)
-      as "current_user_reaction",`;
-    } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
-    }
-    const rawFoundedPost: any[] = await this.dataSource.query(
-      `
-    SELECT p."id", p."title", p."short_description", p."content", p."created_at", p."blog_id",
-    b."name" as "blog_name",
-    ${currentUserReactionQuery}
-    (SELECT COUNT(*) FROM public.posts_likes pl2
-     WHERE pl2."post_id" = p."id" AND pl2."like_status" = true AND pl2."hidden" = false) as "likes_count",
-    (SELECT COUNT(*) FROM public.posts_likes pl3
-     WHERE pl3."post_id" = p."id" AND pl3."like_status" = false AND pl3."hidden" = false) as "dislikes_count"
-    FROM public.posts p
-    JOIN public.blogs b on p."blog_id" = b."id"
-    WHERE p."id" = $1 AND p."hidden" = false
-    `,
-      [postId],
-    );
-    if (rawFoundedPost.length < 1) {
+    const userId: string | undefined = accessTokenPayload?.userId;
+    const getCurrentUserReaction = (
+      subQuery: SelectQueryBuilder<LikeSQLEntity>,
+    ): SelectQueryBuilder<LikeSQLEntity> => {
+      return subQuery
+        .select('l.likeStatus')
+        .from(LikeSQLEntity, 'l')
+        .where(
+          'l.postId = :postId AND l.userId = :userId AND l.hidden = false',
+          { postId, userId },
+        );
+    };
+    const getReactionsCount = (
+      reaction: boolean,
+    ): ((
+      subQuery: SelectQueryBuilder<LikeSQLEntity>,
+    ) => SelectQueryBuilder<LikeSQLEntity>) => {
+      return (
+        subQuery: SelectQueryBuilder<LikeSQLEntity>,
+      ): SelectQueryBuilder<LikeSQLEntity> => {
+        return subQuery
+          .select('COUNT(*)')
+          .from(LikeSQLEntity, 'l')
+          .where(
+            'l.postId = :postId AND l.likeStatus = :likeStatus AND l.hidden = false',
+            { postId, likeStatus: reaction },
+          );
+      };
+    };
+    const queryBuilder: SelectQueryBuilder<PostSQLEntity> =
+      await this.dataSource.createQueryBuilder(PostSQLEntity, 'p');
+    const rawFoundedPost:
+      | {
+          p_id: number;
+          p_title: string;
+          p_shortDescription: string;
+          p_content: string;
+          p_createdAt: string;
+          p_blogId: number;
+          b_name: string;
+          currentUserReaction: boolean | null;
+          likesCount: string;
+          dislikesCount: string;
+        }
+      | undefined = await queryBuilder
+      .select([
+        'p.id',
+        'p.title',
+        'p.shortDescription',
+        'p.content',
+        'p.createdAt',
+        'p.blogId',
+        'b.name',
+      ])
+      .addSelect(getCurrentUserReaction, 'currentUserReaction')
+      .addSelect(getReactionsCount(true), 'likesCount')
+      .addSelect(getReactionsCount(false), 'dislikesCount')
+      .innerJoin(BlogSQLEntity, 'b', 'p.blogId = b.id')
+      .where('p.id = :postId AND p.hidden = false', { postId })
+      .getRawOne();
+    if (!rawFoundedPost) {
       return null;
     }
-    const foundedPost: any = rawFoundedPost[0];
     let myStatus: 'Like' | 'Dislike' | 'None';
-    switch (foundedPost.current_user_reaction) {
+    switch (rawFoundedPost.currentUserReaction) {
       case true:
         myStatus = 'Like';
         break;
@@ -81,38 +114,34 @@ export class PublicPostQueryRepositorySQL {
         myStatus = 'None';
         break;
     }
-    const rawNewestLikes: any[] = await this.dataSource.query(
-      `
-    SELECT pl."added_at", pl."user_id", u."login"
-    FROM public.posts_likes pl
-    JOIN public.users u ON u."id" = pl."user_id"
-    WHERE pl."post_id" = $1 AND pl."hidden" = false AND pl."like_status" = true
-    ORDER BY pl."added_at" DESC
-    LIMIT 3 OFFSET 0
-    `,
-      [postId],
-    );
+    const rawNewestLikes: LikeSQLEntity[] = await this.likeEntity.find({
+      relations: ['user'],
+      where: { postId: Number(postId), hidden: false, likeStatus: true },
+      order: { addedAt: 'DESC' },
+      take: 3,
+      skip: 0,
+    });
     const mappedNewestLikes: PostNewestLikeType[] = rawNewestLikes.map(
       (rawNewestLike) => {
         const mappedNewestLike: PostNewestLikeType = {
-          addedAt: rawNewestLike.added_at,
-          userId: String(rawNewestLike.user_id),
-          login: rawNewestLike.login,
+          addedAt: rawNewestLike.addedAt,
+          userId: String(rawNewestLike.userId),
+          login: rawNewestLike.user.login,
         };
         return mappedNewestLike;
       },
     );
     const postToClient: PostViewModel = {
-      id: String(foundedPost.id),
-      title: foundedPost.title,
-      shortDescription: foundedPost.short_description,
-      content: foundedPost.content,
-      blogId: String(foundedPost.blog_id),
-      blogName: foundedPost.blog_name,
-      createdAt: foundedPost.created_at,
+      id: String(rawFoundedPost.p_id),
+      title: rawFoundedPost.p_title,
+      shortDescription: rawFoundedPost.p_shortDescription,
+      content: rawFoundedPost.p_content,
+      blogId: String(rawFoundedPost.p_blogId),
+      blogName: rawFoundedPost.b_name,
+      createdAt: rawFoundedPost.p_createdAt,
       extendedLikesInfo: {
-        likesCount: Number(foundedPost.likes_count),
-        dislikesCount: Number(foundedPost.dislikes_count),
+        likesCount: Number(rawFoundedPost.likesCount),
+        dislikesCount: Number(rawFoundedPost.dislikesCount),
         myStatus,
         newestLikes: mappedNewestLikes,
       },
