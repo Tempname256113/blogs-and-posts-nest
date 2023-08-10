@@ -23,17 +23,16 @@ export class PublicCommentRepositorySQL {
     userId: string;
     content: string;
   }): Promise<{ createdCommentId: string; commentCreatedAt: string }> {
-    const result: any[] = await this.dataSource.query(
-      `
-    INSERT INTO public."comments"("post_id", "user_id", "content")
-    VALUES($1, $2, $3)
-    RETURNING "id", "created_at"
-    `,
-      [postId, userId, content],
-    );
+    const newComment: CommentSQLEntity = new CommentSQLEntity();
+    newComment.postId = Number(postId);
+    newComment.userId = Number(userId);
+    newComment.content = content;
+    newComment.createdAt = new Date().toISOString();
+    newComment.hidden = false;
+    const result: CommentSQLEntity = await this.commentEntity.save(newComment);
     return {
-      createdCommentId: String(result[0].id),
-      commentCreatedAt: result[0].created_at,
+      createdCommentId: String(result.id),
+      commentCreatedAt: result.createdAt,
     };
   }
 
