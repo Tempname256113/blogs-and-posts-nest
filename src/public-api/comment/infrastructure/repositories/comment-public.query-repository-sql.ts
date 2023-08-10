@@ -123,52 +123,72 @@ export class PublicCommentQueryRepositorySQL {
   }): Promise<CommentPaginationViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
       this.jwtUtils.verifyAccessToken(accessToken);
-    const userId: string | null = accessTokenPayload?.userId;
-    let currentUserReactionQuery: string;
-    if (userId) {
-      currentUserReactionQuery = `(
-      SELECT cl."like_status"
-      FROM public.comments_likes cl
-      WHERE cl."comment_id" = c."id" AND cl."user_id" = '${userId}' AND cl."hidden" = false)
-      as "current_user_reaction",`;
-    } else {
-      currentUserReactionQuery = `(SELECT null) as "current_user_reaction",`;
-    }
-    const commentsCount: any[] = await this.dataSource.query(
-      `
-    SELECT COUNT(*)
-    FROM public.comments c
-    WHERE c."post_id" = $1 AND c."hidden" = false
-    `,
-      [postId],
-    );
-    const totalCommentsCount: number = commentsCount[0].count;
+    const userId: string | undefined = accessTokenPayload?.userId;
+    const getCurrentUserReaction = (
+      subQuery: SelectQueryBuilder<LikeSQLEntity>,
+    ): SelectQueryBuilder<LikeSQLEntity> => {
+      return subQuery
+        .select('l.likeStatus')
+        .from(LikeSQLEntity, 'l')
+        .where(
+          'l.commentId = c.id AND l.userId = :userId AND l.hidden = false',
+          { userId },
+        );
+    };
+    const getReactionsCount = (
+      reaction: boolean,
+    ): ((
+      subQuery: SelectQueryBuilder<LikeSQLEntity>,
+    ) => SelectQueryBuilder<LikeSQLEntity>) => {
+      return (
+        subQuery: SelectQueryBuilder<LikeSQLEntity>,
+      ): SelectQueryBuilder<LikeSQLEntity> => {
+        return subQuery
+          .select('COUNT(*)')
+          .from(LikeSQLEntity, 'l')
+          .where(
+            'l.commentId = c.id AND l.likeStatus = :likeStatus AND l.hidden = false',
+            { likeStatus: reaction },
+          );
+      };
+    };
+    const totalCommentsCount: number = await this.commentEntity.countBy({
+      postId: Number(postId),
+      hidden: false,
+    });
     const pagesCount: number = Math.ceil(
       totalCommentsCount / paginationQuery.pageSize,
     );
     const howMuchToSkip: number =
       paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
-    const rawFoundedComments: any[] = await this.dataSource.query(
-      `
-    SELECT c."id" as "comment_id", c."content", c."created_at", c."user_id" as "commentator_id",
-    u."login" as "commentator_login",
-    ${currentUserReactionQuery}
-    (SELECT COUNT(*) FROM public.comments_likes cl2
-     WHERE cl2."comment_id" = c."id" AND cl2."like_status" = true AND cl2."hidden" = false) as "likes_count",
-    (SELECT COUNT(*) FROM public.comments_likes cl3
-     WHERE cl3."comment_id" = c."id" AND cl3."like_status" = false AND cl3."hidden" = false) as "dislikes_count"
-    FROM public.comments c
-    JOIN public.users u ON u."id" = c."user_id"
-    WHERE c."post_id" = $1 AND c."hidden" = false
-    ORDER BY c."created_at" ${paginationQuery.sortDirection.toUpperCase()}
-    LIMIT ${paginationQuery.pageSize} OFFSET ${howMuchToSkip}
-    `,
-      [postId],
-    );
+    const correctSortDirection: 'ASC' | 'DESC' =
+      paginationQuery.sortDirection === 'asc' ? 'ASC' : 'DESC';
+    const queryBuilder: SelectQueryBuilder<CommentSQLEntity> =
+      await this.dataSource.createQueryBuilder(CommentSQLEntity, 'c');
+    const rawFoundedComments: {
+      c_id: number;
+      c_content: string;
+      c_createdAt: string;
+      c_userId: number;
+      u_login: string;
+      currentUserReaction: boolean | null;
+      likesCount: string;
+      dislikesCount: string;
+    }[] = await queryBuilder
+      .select(['c.id', 'c.content', 'c.createdAt', 'c.userId', 'u.login'])
+      .addSelect(getCurrentUserReaction, 'currentUserReaction')
+      .addSelect(getReactionsCount(true), 'likesCount')
+      .addSelect(getReactionsCount(false), 'dislikesCount')
+      .innerJoin(UserSQLEntity, 'u', 'c.userId = u.id')
+      .where('c.postId = :postId AND c.hidden = false', { postId })
+      .orderBy('createdAt', correctSortDirection)
+      .limit(paginationQuery.pageSize)
+      .offset(howMuchToSkip)
+      .getRawMany();
     const mappedComments: CommentViewModel[] = rawFoundedComments.map(
       (rawComment) => {
         let myStatus: 'Like' | 'Dislike' | 'None';
-        switch (rawComment.current_user_reaction) {
+        switch (rawComment.currentUserReaction) {
           case true:
             myStatus = 'Like';
             break;
@@ -180,16 +200,16 @@ export class PublicCommentQueryRepositorySQL {
             break;
         }
         const mappedComment: CommentViewModel = {
-          id: String(rawComment.comment_id),
-          content: rawComment.content,
+          id: String(rawComment.c_id),
+          content: rawComment.c_content,
           commentatorInfo: {
-            userId: String(rawComment.commentator_id),
-            userLogin: rawComment.commentator_login,
+            userId: String(rawComment.c_userId),
+            userLogin: rawComment.u_login,
           },
-          createdAt: rawComment.created_at,
+          createdAt: rawComment.c_createdAt,
           likesInfo: {
-            likesCount: Number(rawComment.likes_count),
-            dislikesCount: Number(rawComment.dislikes_count),
+            likesCount: Number(rawComment.likesCount),
+            dislikesCount: Number(rawComment.dislikesCount),
             myStatus,
           },
         };
