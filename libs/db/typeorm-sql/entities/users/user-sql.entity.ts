@@ -13,6 +13,7 @@ import { UserPasswordRecoveryInfoSQLEntity } from './user-password-recovery-info
 import { SessionSQLEntity } from './session-sql.entity';
 import { BlogSQLEntity } from '../blog-sql.entity';
 import { CommentSQLEntity } from '../comment-sql.entity';
+import { LikeSQLEntity } from '../like-sql.entity';
 
 @Entity({ name: 'users_typeorm' })
 export class UserSQLEntity {
@@ -54,6 +55,7 @@ export class UserSQLEntity {
 
   @ManyToMany(() => BlogSQLEntity, (blog) => blog.bannedUsers, {
     onDelete: 'CASCADE',
+    cascade: true,
   })
   @JoinTable({
     name: 'banned_users_by_blogger_typeorm',
@@ -64,4 +66,7 @@ export class UserSQLEntity {
 
   @OneToMany(() => CommentSQLEntity, (comment) => comment.user)
   comments: Relation<CommentSQLEntity[]>;
+
+  @OneToMany(() => LikeSQLEntity, (like) => like.user)
+  likes: Relation<LikeSQLEntity[]>;
 }

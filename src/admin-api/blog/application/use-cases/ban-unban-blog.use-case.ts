@@ -1,13 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BanBlogAdminApiDTO } from '../../api/models/blog-admin-api.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { BlogSchema } from '../../../../../libs/db/mongoose/schemes/blog.entity';
-import { Model } from 'mongoose';
-import { PostSchema } from '../../../../../libs/db/mongoose/schemes/post.entity';
-import { CommentSchema } from '../../../../../libs/db/mongoose/schemes/comment.entity';
-import { LikeSchema } from '../../../../../libs/db/mongoose/schemes/like.entity';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, QueryRunner } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
+import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-sql.entity';
+import { PostSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/post-sql.entity';
 
 export class BanUnbanBlogCommand {
   constructor(
@@ -20,11 +16,11 @@ export class BanUnbanBlogUseCase
   implements ICommandHandler<BanUnbanBlogCommand, void>
 {
   constructor(
-    @InjectModel(BlogSchema.name) private BlogModel: Model<BlogSchema>,
-    @InjectModel(PostSchema.name) private PostModel: Model<PostSchema>,
-    @InjectModel(CommentSchema.name) private CommentModel: Model<CommentSchema>,
-    @InjectModel(LikeSchema.name) private LikeModel: Model<LikeSchema>,
     @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(BlogSQLEntity)
+    private readonly blogEntity: Repository<BlogSQLEntity>,
+    @InjectRepository(PostSQLEntity)
+    private readonly postEntity: Repository<PostSQLEntity>,
   ) {}
 
   async execute({
@@ -41,25 +37,21 @@ export class BanUnbanBlogUseCase
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     const hideBlogs = async (): Promise<void> => {
-      await queryRunner.query(
-        `
-      UPDATE public.blogs
-      SET "hidden" = true, "is_banned" = true, "ban_date" = now()
-      WHERE id = $1
-      `,
-        [blogId],
-      );
+      await this.blogEntity.update(blogId, {
+        hidden: true,
+        isBanned: true,
+        banDate: new Date().toISOString,
+      });
     };
     const hidePosts = async (): Promise<void> => {
-      await queryRunner.query(
-        `
-      UPDATE public.posts
-      SET "hidden" = true
-      WHERE "blog_id" = $1
-      `,
-        [blogId],
+      await this.postEntity.update(
+        { blogId: Number(blogId) },
+        { hidden: true },
       );
     };
+    /* после скрытия постов я не скрывал лайки и комменты потому что если нет поста
+     * то следовательно не будет его лайков и комментов тоже. по идее должно сработать
+     * если нет, то придется дописывать */
     await queryRunner.startTransaction();
     try {
       await hideBlogs();
@@ -84,23 +76,16 @@ export class BanUnbanBlogUseCase
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     const revealBlogs = async (): Promise<void> => {
-      await queryRunner.query(
-        `
-      UPDATE public.blogs
-      SET "hidden" = false, "is_banned" = false, "ban_date" = null
-      WHERE id = $1
-      `,
-        [blogId],
-      );
+      await this.blogEntity.update(blogId, {
+        hidden: false,
+        isBanned: false,
+        banDate: null,
+      });
     };
     const revealPosts = async (): Promise<void> => {
-      await queryRunner.query(
-        `
-      UPDATE public.posts
-      SET "hidden" = false
-      WHERE "blog_id" = $1
-      `,
-        [blogId],
+      await this.postEntity.update(
+        { blogId: Number(blogId) },
+        { hidden: false },
       );
     };
     await queryRunner.startTransaction();

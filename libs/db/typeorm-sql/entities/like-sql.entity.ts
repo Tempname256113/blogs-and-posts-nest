@@ -35,15 +35,22 @@ export class LikeSQLEntity {
 
   @ManyToOne(() => CommentSQLEntity, (comment) => comment.likes, {
     onDelete: 'CASCADE',
+    cascade: true,
   })
   @JoinColumn({ name: 'commentId' })
   comment: Relation<CommentSQLEntity>;
 
-  @ManyToOne(() => PostSQLEntity, (post) => post.likes, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PostSQLEntity, (post) => post.likes, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   @JoinColumn({ name: 'postId' })
   post: Relation<PostSQLEntity>;
 
-  @ManyToOne(() => UserSQLEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserSQLEntity, (user) => user.likes, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   @JoinColumn({ name: 'userId' })
   user: Relation<UserSQLEntity>;
 }
