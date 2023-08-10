@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CommentController } from '../../public-api/comment/api/comment.controller';
 import { CommentRepository } from '../../public-api/comment/infrastructure/repositories/comment.repository';
-import { CommentQueryRepository } from '../../public-api/comment/infrastructure/repositories/comment.query-repository';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
-import { LikeModule } from './like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { DeleteCommentUseCase } from '../../public-api/comment/application/use-cases/delete-comment.use-case';
 import { UpdateCommentUseCase } from '../../public-api/comment/application/use-cases/update-comment.use-case';
@@ -25,20 +23,18 @@ const UseCases = [
   imports: [
     MongooseSchemesModule,
     TypeormEntitiesModule,
-    LikeModule,
     JwtModule,
     CqrsModule,
   ],
   controllers: [CommentController],
   providers: [
     CommentRepository,
-    CommentQueryRepository,
     PublicCommentRepositorySQL,
     PublicCommentQueryRepositorySQL,
     ...UseCases,
     UserQueryRepositorySQL,
     AccessTokenGuard,
   ],
-  exports: [CommentRepository, CommentQueryRepository],
+  exports: [CommentRepository],
 })
 export class CommentModule {}

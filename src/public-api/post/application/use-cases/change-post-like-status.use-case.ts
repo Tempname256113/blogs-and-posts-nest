@@ -9,8 +9,9 @@ import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.pay
 import { PublicPostQueryRepositorySQL } from '../../infrastructure/repositories/post-public.query-repository-sql';
 import { PostViewModel } from '../../api/models/post-api.models';
 import { PublicPostRepositorySQL } from '../../infrastructure/repositories/post-public.repository-sql';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 export class ChangePostLikeStatusCommand {
   constructor(
@@ -29,8 +30,9 @@ export class ChangePostLikeStatusUseCase
   constructor(
     private readonly postQueryRepositorySQL: PublicPostQueryRepositorySQL,
     private readonly postRepositorySQL: PublicPostRepositorySQL,
-    private jwtUtils: JwtUtils,
-    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly jwtUtils: JwtUtils,
+    @InjectRepository(UserSQLEntity)
+    private readonly userEntity: Repository<UserSQLEntity>,
   ) {}
 
   async execute({
@@ -46,17 +48,10 @@ export class ChangePostLikeStatusUseCase
       throw new NotFoundException();
     }
     const checkUserBanStatus = async () => {
-      const foundedBannedUser: [{ is_banned: boolean }] =
-        await this.dataSource.query(
-          `
-    SELECT u."is_banned"
-    FROM public.users u
-    WHERE u."id" = $1
-    `,
-          [userId],
-        );
-      if (foundedBannedUser.length < 1) throw new UnauthorizedException();
-      if (foundedBannedUser[0].is_banned) throw new ForbiddenException();
+      const foundedBannedUser: UserSQLEntity | null =
+        await this.userEntity.findOneBy({ id: Number(userId) });
+      if (!foundedBannedUser) throw new UnauthorizedException();
+      if (foundedBannedUser.isBanned) throw new ForbiddenException();
     };
     await checkUserBanStatus();
     await this.postRepositorySQL.postChangeLikeStatus({

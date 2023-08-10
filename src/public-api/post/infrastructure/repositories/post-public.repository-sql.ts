@@ -1,10 +1,14 @@
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { LikeSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/like-sql.entity';
 
 @Injectable()
 export class PublicPostRepositorySQL {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(LikeSQLEntity)
+    private readonly likeEntity: Repository<LikeSQLEntity>,
+  ) {}
 
   async postChangeLikeStatus({
     postId,
@@ -15,47 +19,38 @@ export class PublicPostRepositorySQL {
     userId: string;
     likeStatus: 'None' | 'Like' | 'Dislike';
   }): Promise<void> {
-    const updateReaction = async (likeStatus: boolean) => {
-      await this.dataSource.query(
-        `
-      UPDATE public.posts_likes
-      SET like_status = $1, added_at = now()
-      WHERE post_id = $2 AND user_id = $3
-      `,
-        [likeStatus, postId, userId],
+    const updateReaction = async (likeStatus: boolean): Promise<void> => {
+      await this.likeEntity.update(
+        { postId: Number(postId), userId: Number(userId) },
+        { likeStatus, addedAt: new Date().toISOString() },
       );
     };
-    const createReaction = async (likeStatus: boolean) => {
-      await this.dataSource.query(
-        `
-        INSERT INTO public.posts_likes("post_id", "user_id", "like_status")
-        VALUES($1, $2, $3)
-        `,
-        [postId, userId, likeStatus],
-      );
+    const createReaction = async (likeStatus: boolean): Promise<void> => {
+      await this.likeEntity.insert({
+        postId: Number(postId),
+        userId: Number(userId),
+        likeStatus,
+        addedAt: new Date().toISOString(),
+        hidden: false,
+      });
     };
-    const deleteReaction = async () => {
-      await this.dataSource.query(
-        `
-      DELETE FROM public.posts_likes
-      WHERE post_id = $1 AND user_id = $2
-      `,
-        [postId, userId],
-      );
+    const deleteReaction = async (): Promise<void> => {
+      await this.likeEntity.delete({
+        postId: Number(postId),
+        userId: Number(userId),
+      });
     };
     if (likeStatus === 'Like' || likeStatus === 'Dislike') {
       let correctLikeStatus: boolean;
       if (likeStatus === 'Like') correctLikeStatus = true;
       if (likeStatus === 'Dislike') correctLikeStatus = false;
-      const foundedReaction: any[] = await this.dataSource.query(
-        `
-      SELECT * 
-      FROM public.posts_likes pl
-      WHERE pl."post_id" = $1 AND pl."user_id" = $2 AND pl."hidden" = false
-      `,
-        [postId, userId],
-      );
-      if (foundedReaction.length > 0) {
+      const foundedReaction: LikeSQLEntity | null =
+        await this.likeEntity.findOneBy({
+          postId: Number(postId),
+          userId: Number(userId),
+          hidden: false,
+        });
+      if (foundedReaction) {
         await updateReaction(correctLikeStatus);
       } else {
         await createReaction(correctLikeStatus);

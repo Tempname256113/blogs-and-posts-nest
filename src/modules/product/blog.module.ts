@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
-import { PublicBlogQueryRepository } from '../../public-api/blog/infrastructure/repositories/blog-public.query-repository';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
-import { LikeModule } from './like.module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { BlogPublicController } from '../../public-api/blog/api/blog-public.controller';
 import { BlogBloggerController } from '../../blogger-api/blog/api/blog-blogger.controller';
-import { BloggerBlogQueryRepository } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.query-repository';
 import { CreateBlogUseCase } from '../../blogger-api/blog/application/use-cases/create-blog.use-case';
 import { BloggerBlogRepository } from '../../blogger-api/blog/infrastructure/repositories/blog-blogger.repository';
 import { CreatePostByBlogUseCase } from '../../blogger-api/blog/application/use-cases/create-post-by-blog.use-case';
@@ -49,7 +46,6 @@ const blogsBloggerApiRepositories = [
   BloggerBlogRepository,
   BloggerBlogRepositorySql,
   BloggerBlogQueryRepositorySQL,
-  BloggerBlogQueryRepository,
 ];
 
 const postsBloggerApiRepositories = [
@@ -62,10 +58,7 @@ const usersBloggerApiRepositories = [
   BloggerUserQueryRepositorySQL,
 ];
 
-const blogsPublicApiRepositories = [
-  PublicBlogQueryRepository,
-  PublicBlogQueryRepositorySQL,
-];
+const blogsPublicApiRepositories = [PublicBlogQueryRepositorySQL];
 
 const postsPublicApiRepositories = [PublicPostQueryRepositorySQL];
 
@@ -82,7 +75,6 @@ const classValidatorConstraints = [IsValidBlogIdConstraint];
   imports: [
     MongooseSchemesModule,
     TypeormEntitiesModule,
-    LikeModule,
     JwtModule,
     CqrsModule,
   ],

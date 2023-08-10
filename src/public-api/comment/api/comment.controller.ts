@@ -12,7 +12,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommentViewModel } from './models/comment-api.models';
-import { CommentQueryRepository } from '../infrastructure/repositories/comment.query-repository';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommentApiUpdateDTO } from './models/comment-api.dto';
 import { LikeDto } from '../../like/api/models/like.dto';
@@ -27,7 +26,6 @@ import { PublicCommentQueryRepositorySQL } from '../infrastructure/repositories/
 export class CommentController {
   constructor(
     private readonly commentQueryRepositorySQL: PublicCommentQueryRepositorySQL,
-    private commentQueryRepository: CommentQueryRepository,
     private commandBus: CommandBus,
   ) {}
   @Get(':commentId')

@@ -9,8 +9,8 @@ import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { PublicCommentRepositorySQL } from '../../infrastructure/repositories/comment-public.repository-sql';
 import { CommentViewModel } from '../../api/models/comment-api.models';
 import { PublicCommentQueryRepositorySQL } from '../../infrastructure/repositories/comment-public.query-repository-sql';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 export class ChangeCommentLikeStatusCommand {
@@ -31,7 +31,6 @@ export class ChangeCommentLikeStatusUseCase
     private readonly commentRepositorySQL: PublicCommentRepositorySQL,
     private readonly commentQueryRepositorySQL: PublicCommentQueryRepositorySQL,
     private readonly jwtUtils: JwtUtils,
-    @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(UserSQLEntity)
     private readonly userEntity: Repository<UserSQLEntity>,
   ) {}

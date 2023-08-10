@@ -22,7 +22,6 @@ import {
   CommentPaginationViewModel,
 } from '../../comment/api/models/comment-api.models';
 import { CommentApiPaginationQueryDto } from '../../comment/api/models/comment-api.query-dto';
-import { LikeDto } from '../../like/api/models/like.dto';
 import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewCommentCommand } from '../application/use-cases/create-new-comment.use-case';
@@ -30,6 +29,7 @@ import { ChangePostLikeStatusCommand } from '../application/use-cases/change-pos
 import { AccessTokenGuard } from '../../../../generic-guards/access-token.guard';
 import { PublicPostQueryRepositorySQL } from '../infrastructure/repositories/post-public.query-repository-sql';
 import { PublicCommentQueryRepositorySQL } from '../../comment/infrastructure/repositories/comment-public.query-repository-sql';
+import { LikeDto } from '../../like/api/models/like.dto';
 
 @Controller('posts')
 export class PostController {
