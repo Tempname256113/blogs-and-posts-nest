@@ -34,8 +34,6 @@ export class BanUnbanBlogUseCase
   }
 
   async banBlog(blogId: string): Promise<void> {
-    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
     const hideBlogs = async (): Promise<void> => {
       await this.blogEntity.update(blogId, {
         hidden: true,
@@ -52,6 +50,8 @@ export class BanUnbanBlogUseCase
     /* после скрытия постов я не скрывал лайки и комменты потому что если нет поста
      * то следовательно не будет его лайков и комментов тоже. по идее должно сработать
      * если нет, то придется дописывать */
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       await hideBlogs();
@@ -73,8 +73,6 @@ export class BanUnbanBlogUseCase
   }
 
   async unbanBlog(blogId: string): Promise<void> {
-    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
     const revealBlogs = async (): Promise<void> => {
       await this.blogEntity.update(blogId, {
         hidden: false,
@@ -88,6 +86,8 @@ export class BanUnbanBlogUseCase
         { hidden: false },
       );
     };
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       await revealBlogs();

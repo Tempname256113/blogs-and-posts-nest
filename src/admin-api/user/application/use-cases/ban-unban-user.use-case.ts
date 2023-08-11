@@ -2,8 +2,12 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserBanUnbanDTO } from '../../api/models/user-api.dto';
 import { SecurityRepositorySQL } from '../../../../public-api/security/infrastructure/repositories/security.repository-sql';
 import { UserRepositorySQL } from '../../infrastructure/repositories/user.repository-sql';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, In, Repository, SelectQueryBuilder } from 'typeorm';
+import { BlogSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/blog-sql.entity';
+import { PostSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/post-sql.entity';
+import { CommentSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/comment-sql.entity';
+import { LikeSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/like-sql.entity';
 
 export class BanUnbanUserCommand {
   constructor(
@@ -22,6 +26,12 @@ export class BanUnbanUserUseCase
     private readonly securityRepositorySQL: SecurityRepositorySQL,
     private readonly usersRepositorySQL: UserRepositorySQL,
     @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(PostSQLEntity)
+    private readonly postEntity: Repository<PostSQLEntity>,
+    @InjectRepository(CommentSQLEntity)
+    private readonly commentEntity: Repository<CommentSQLEntity>,
+    @InjectRepository(LikeSQLEntity)
+    private readonly likeEntity: Repository<LikeSQLEntity>,
   ) {}
 
   async execute({
@@ -47,49 +57,12 @@ export class BanUnbanUserUseCase
       banReason,
       userId,
     });
-    const rawBlogsId: { id: number }[] = await this.dataSource.query(
-      `
-        SELECT b."id"
-        FROM public.blogs b
-        WHERE b."blogger_id" = $1
-        `,
-      [userId],
-    );
-    const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
+    const blogsId: number[] = await this.getBlogsIds(userId);
     if (blogsId.length > 0) {
-      await this.dataSource.query(
-        `
-        UPDATE public.posts
-        SET "hidden" = true
-        WHERE "blog_id" IN (${blogsId})
-        RETURNING "id"
-        `,
-      );
+      await this.postEntity.update({ blogId: In(blogsId) }, { hidden: true });
     }
-    await this.dataSource.query(
-      `
-        UPDATE public.comments
-        SET "hidden" = true
-        WHERE "user_id" = $1
-        `,
-      [userId],
-    );
-    await this.dataSource.query(
-      `
-    UPDATE public.comments_likes
-    SET "hidden" = true
-    WHERE "user_id" = $1
-    `,
-      [userId],
-    );
-    await this.dataSource.query(
-      `
-    UPDATE public.posts_likes
-    SET "hidden" = true
-    WHERE "user_id" = $1
-    `,
-      [userId],
-    );
+    await this.commentEntity.update({ userId }, { hidden: true });
+    await this.likeEntity.update({ userId }, { hidden: true });
     // await this.PostModel.updateMany({ bloggerId: userId }, { hidden: true });
     // await this.CommentModel.updateMany({ userId }, { hidden: true });
     // await this.LikeModel.updateMany({ userId }, { hidden: true });
@@ -100,51 +73,26 @@ export class BanUnbanUserUseCase
       isBanned: false,
       userId,
     });
-    const rawBlogsId: { id: number }[] = await this.dataSource.query(
-      `
-        SELECT b."id"
-        FROM public.blogs b
-        WHERE b."blogger_id" = $1
-        `,
-      [userId],
-    );
-    const blogsId: number[] = rawBlogsId.map((rawBlog) => Number(rawBlog.id));
+    const blogsId: number[] = await this.getBlogsIds(userId);
     if (blogsId.length > 0) {
-      await this.dataSource.query(
-        `
-        UPDATE public.posts
-        SET "hidden" = false
-        WHERE "blog_id" IN (${blogsId})
-        RETURNING "id"
-        `,
-      );
+      await this.postEntity.update({ blogId: In(blogsId) }, { hidden: false });
     }
-    await this.dataSource.query(
-      `
-            UPDATE public.comments
-            SET "hidden" = false
-            WHERE "user_id" = $1
-           `,
-      [userId],
-    );
-    await this.dataSource.query(
-      `
-    UPDATE public.comments_likes
-    SET "hidden" = false
-    WHERE "user_id" = $1
-    `,
-      [userId],
-    );
-    await this.dataSource.query(
-      `
-    UPDATE public.posts_likes
-    SET "hidden" = false
-    WHERE "user_id" = $1
-    `,
-      [userId],
-    );
+    await this.commentEntity.update({ userId }, { hidden: false });
+    await this.likeEntity.update({ userId }, { hidden: false });
     // await this.PostModel.updateMany({ bloggerId: userId }, { hidden: false });
     // await this.CommentModel.updateMany({ userId }, { hidden: false });
     // await this.LikeModel.updateMany({ userId }, { hidden: false });
+  }
+
+  async getBlogsIds(userId: number): Promise<number[]> {
+    const queryBuilder: SelectQueryBuilder<BlogSQLEntity> =
+      await this.dataSource.createQueryBuilder(BlogSQLEntity, 'b');
+    const rawBlogsIds: { b_id: number }[] = await queryBuilder
+      .select(['b.id'])
+      .where('b.bloggerId = :bloggerId', { bloggerId: userId })
+      .getRawMany();
+    return rawBlogsIds.map((rawBlog) => {
+      return rawBlog.b_id;
+    });
   }
 }
