@@ -56,8 +56,7 @@ export class PublicCommentQueryRepositorySQL {
           .select('COUNT(*)')
           .from(LikeSQLEntity, 'l')
           .where(
-            'l.commentId = c.id AND l.likeStatus = :likeStatus AND l.hidden = false',
-            { likeStatus: reaction },
+            `l.commentId = c.id AND l.likeStatus = ${reaction} AND l.hidden = false`,
           );
       };
     };
@@ -147,8 +146,7 @@ export class PublicCommentQueryRepositorySQL {
           .select('COUNT(*)')
           .from(LikeSQLEntity, 'l')
           .where(
-            'l.commentId = c.id AND l.likeStatus = :likeStatus AND l.hidden = false',
-            { likeStatus: reaction },
+            `l.commentId = c.id AND l.likeStatus = ${reaction} AND l.hidden = false`,
           );
       };
     };
