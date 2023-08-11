@@ -13,6 +13,11 @@ import { UserSQLEntity } from '../libs/db/typeorm-sql/entities/users/user-sql.en
 import { SessionSQLEntity } from '../libs/db/typeorm-sql/entities/users/session-sql.entity';
 import { UserEmailConfirmInfoSQLEntity } from '../libs/db/typeorm-sql/entities/users/user-email-confirm-info-sql.entity';
 import { UserPasswordRecoveryInfoSQLEntity } from '../libs/db/typeorm-sql/entities/users/user-password-recovery-info-sql.entity';
+import { BannedUsersByBloggerSQLEntity } from '../libs/db/typeorm-sql/entities/users/banned-users-by-blogger-sql.entity';
+import { BlogSQLEntity } from '../libs/db/typeorm-sql/entities/blog-sql.entity';
+import { PostSQLEntity } from '../libs/db/typeorm-sql/entities/post-sql.entity';
+import { CommentSQLEntity } from '../libs/db/typeorm-sql/entities/comment-sql.entity';
+import { LikeSQLEntity } from '../libs/db/typeorm-sql/entities/like-sql.entity';
 
 @Controller('testing')
 export class AppController {
@@ -31,6 +36,16 @@ export class AppController {
     private readonly userPasswordRecoveryInfoEntity: Repository<UserPasswordRecoveryInfoSQLEntity>,
     @InjectRepository(SessionSQLEntity)
     private readonly sessionEntity: Repository<SessionSQLEntity>,
+    @InjectRepository(BannedUsersByBloggerSQLEntity)
+    private readonly bannedUsersByBloggerEntity: Repository<BannedUsersByBloggerSQLEntity>,
+    @InjectRepository(BlogSQLEntity)
+    private readonly blogEntity: Repository<BlogSQLEntity>,
+    @InjectRepository(PostSQLEntity)
+    private readonly postEntity: Repository<PostSQLEntity>,
+    @InjectRepository(CommentSQLEntity)
+    private readonly commentEntity: Repository<CommentSQLEntity>,
+    @InjectRepository(LikeSQLEntity)
+    private readonly likeEntity: Repository<LikeSQLEntity>,
   ) {}
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -46,6 +61,11 @@ export class AppController {
       this.userEmailConfirmInfoEntity.delete({}),
       this.userPasswordRecoveryInfoEntity.delete({}),
       this.sessionEntity.delete({}),
+      this.bannedUsersByBloggerEntity.delete({}),
+      this.blogEntity.delete({}),
+      this.postEntity.delete({}),
+      this.commentEntity.delete({}),
+      this.likeEntity.delete({}),
     ]);
   }
 }
