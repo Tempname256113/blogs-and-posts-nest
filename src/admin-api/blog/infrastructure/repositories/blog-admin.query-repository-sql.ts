@@ -27,8 +27,8 @@ export class AdminBlogQueryRepositorySQL {
       let filter = '';
       const additional: { [key: string]: string } = {};
       if (paginationQuery.searchNameTerm) {
-        filter = `WHERE b.name ILIKE :blogName`;
-        additional.blogName = `%${paginationQuery.searchNameTerm}%;`;
+        filter = `b.name ILIKE :blogName`;
+        additional.blogName = `%${paginationQuery.searchNameTerm}%`;
       }
       return {
         query: filter,
