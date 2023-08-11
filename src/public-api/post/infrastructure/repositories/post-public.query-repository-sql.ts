@@ -245,7 +245,7 @@ export class PublicPostQueryRepositorySQL {
         .addSelect(getReactionsCount(true), 'likesCount')
         .addSelect(getReactionsCount(false), 'dislikesCount')
         .innerJoin(BlogSQLEntity, 'b', 'p.blogId = b.id')
-        .where('p.blogId = :blogId AND hidden = false', { blogId })
+        .where('p.blogId = :blogId AND p.hidden = false', { blogId })
         .orderBy(orderQuery.sortQuery, orderQuery.sortDirection)
         .limit(paginationQuery.pageSize)
         .offset(howMuchToSkip)
