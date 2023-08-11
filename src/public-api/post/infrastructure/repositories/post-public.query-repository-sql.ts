@@ -63,8 +63,8 @@ export class PublicPostQueryRepositorySQL {
           .select('COUNT(*)')
           .from(LikeSQLEntity, 'l')
           .where(
-            'l.postId = :postId AND l.likeStatus = :likeStatus AND l.hidden = false',
-            { postId, likeStatus: reaction },
+            `l.postId = :postId AND l.likeStatus = ${reaction} AND l.hidden = false`,
+            { postId },
           );
       };
     };
@@ -201,8 +201,7 @@ export class PublicPostQueryRepositorySQL {
             .select('COUNT(*)')
             .from(LikeSQLEntity, 'l')
             .where(
-              'l.postId = p.id AND l.likeStatus = :reactionStatus AND l.hidden = false',
-              { reactionStatus: reaction },
+              `l.postId = p.id AND l.likeStatus = ${reaction} AND l.hidden = false`,
             );
         };
       };
@@ -350,8 +349,7 @@ export class PublicPostQueryRepositorySQL {
           .select('COUNT(*)')
           .from(LikeSQLEntity, 'l')
           .where(
-            'l.postId = p.id AND l.likeStatus = :likeStatus AND l.hidden = false',
-            { likeStatus: reaction },
+            `l.postId = p.id AND l.likeStatus = ${reaction} AND l.hidden = false`,
           );
       };
     };
