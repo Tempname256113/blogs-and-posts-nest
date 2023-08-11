@@ -38,7 +38,7 @@ export class BanUnbanBlogUseCase
       await this.blogEntity.update(blogId, {
         hidden: true,
         isBanned: true,
-        banDate: new Date().toISOString,
+        banDate: new Date().toISOString(),
       });
     };
     const hidePosts = async (): Promise<void> => {
@@ -50,19 +50,7 @@ export class BanUnbanBlogUseCase
     /* после скрытия постов я не скрывал лайки и комменты потому что если нет поста
      * то следовательно не будет его лайков и комментов тоже. по идее должно сработать
      * если нет, то придется дописывать */
-    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      await hideBlogs();
-      await hidePosts();
-      await queryRunner.commitTransaction();
-    } catch (e) {
-      console.log(e);
-      await queryRunner.rollbackTransaction();
-    } finally {
-      await queryRunner.release();
-    }
+    await Promise.all([hideBlogs(), hidePosts()]);
     // await this.BlogModel.updateMany(
     //   { id: blogId },
     //   { hidden: true, isBanned: true, banDate: new Date().toISOString() },
@@ -86,19 +74,7 @@ export class BanUnbanBlogUseCase
         { hidden: false },
       );
     };
-    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      await revealBlogs();
-      await revealPosts();
-      await queryRunner.commitTransaction();
-    } catch (e) {
-      console.log(e);
-      await queryRunner.rollbackTransaction();
-    } finally {
-      await queryRunner.release();
-    }
+    await Promise.all([revealBlogs(), revealPosts()]);
     // await this.BlogModel.updateMany(
     //   { id: blogId },
     //   { hidden: false, isBanned: false, banDate: null },
