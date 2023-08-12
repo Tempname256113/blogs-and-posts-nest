@@ -28,7 +28,7 @@ export class BlogSQLEntity {
   @Column({ type: 'varchar', length: 100 })
   websiteUrl: string;
 
-  @Column({ type: 'timestamp', default: new Date().toISOString() })
+  @Column({ type: 'timestamp' })
   createdAt: string;
 
   @Column({ type: 'boolean' })

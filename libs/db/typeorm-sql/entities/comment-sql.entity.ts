@@ -25,7 +25,7 @@ export class CommentSQLEntity {
   @Column({ type: 'varchar', length: 300 })
   content: string;
 
-  @Column({ type: 'timestamp', default: new Date().toISOString() })
+  @Column({ type: 'timestamp' })
   createdAt: string;
 
   @Column({ type: 'boolean', default: false })

@@ -8,9 +8,9 @@ export class BannedUsersByBloggerSQLEntity {
   @PrimaryColumn({ type: 'integer' })
   blogId: number;
 
-  @Column({ type: 'varchar', length: 500 })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   banReason: string;
 
-  @Column({ type: 'timestamp', default: new Date().toISOString() })
+  @Column({ type: 'timestamp' })
   banDate: string;
 }

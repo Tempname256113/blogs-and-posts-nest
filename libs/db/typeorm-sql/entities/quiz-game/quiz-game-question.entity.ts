@@ -12,7 +12,7 @@ export class QuizGameQuestionSQLEntity {
   @Column({ type: 'boolean', default: false })
   published: boolean;
 
-  @Column({ type: 'timestamp', default: new Date().toISOString() })
+  @Column({ type: 'timestamp' })
   createdAt: string;
 
   @Column({ type: 'timestamp', nullable: true, default: null })

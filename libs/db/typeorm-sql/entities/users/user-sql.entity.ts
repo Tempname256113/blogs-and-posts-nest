@@ -29,7 +29,7 @@ export class UserSQLEntity {
   @Column({ type: 'varchar', length: 100 })
   password: string;
 
-  @Column({ type: 'timestamp', default: new Date().toISOString() })
+  @Column({ type: 'timestamp' })
   createdAt: string;
 
   @Column({ type: 'boolean', default: false })

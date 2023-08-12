@@ -9,6 +9,8 @@ import { PostSQLEntity } from './entities/post-sql.entity';
 import { BannedUsersByBloggerSQLEntity } from './entities/users/banned-users-by-blogger-sql.entity';
 import { CommentSQLEntity } from './entities/comment-sql.entity';
 import { LikeSQLEntity } from './entities/like-sql.entity';
+import { QuizGameQuestionSQLEntity } from './entities/quiz-game/quiz-game-question.entity';
+import { QuizGameAnswerSQLEntity } from './entities/quiz-game/quiz-game-answer.entity';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { LikeSQLEntity } from './entities/like-sql.entity';
       BannedUsersByBloggerSQLEntity,
       CommentSQLEntity,
       LikeSQLEntity,
+      QuizGameQuestionSQLEntity,
+      QuizGameAnswerSQLEntity,
     ]),
   ],
   exports: [TypeOrmModule],

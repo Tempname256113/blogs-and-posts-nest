@@ -27,7 +27,7 @@ export class LikeSQLEntity {
   @Column({ type: 'boolean' })
   likeStatus: boolean;
 
-  @Column({ type: 'timestamp', default: new Date().toISOString() })
+  @Column({ type: 'timestamp' })
   addedAt: string;
 
   @Column({ type: 'boolean' })
