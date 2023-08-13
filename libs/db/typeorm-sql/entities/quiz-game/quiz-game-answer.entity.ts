@@ -2,7 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { QuizGameQuestionSQLEntity } from './quiz-game-question.entity';
@@ -16,9 +16,9 @@ export class QuizGameAnswerSQLEntity {
   questionId: number;
 
   @Column({ type: 'jsonb' })
-  answer: string | number;
+  answer: (string | number)[];
 
-  @ManyToOne(() => QuizGameQuestionSQLEntity, (question) => question.answers, {
+  @OneToOne(() => QuizGameQuestionSQLEntity, (question) => question.answers, {
     onDelete: 'CASCADE',
     cascade: true,
   })

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { QuizGameAnswerSQLEntity } from './quiz-game-answer.entity';
 
 @Entity({ name: 'quiz_game_question_typeorm' })
@@ -18,6 +18,6 @@ export class QuizGameQuestionSQLEntity {
   @Column({ type: 'timestamp', nullable: true, default: null })
   updatedAt: string | null;
 
-  @OneToMany(() => QuizGameAnswerSQLEntity, (answer) => answer.question)
-  answers: QuizGameAnswerSQLEntity[];
+  @OneToOne(() => QuizGameAnswerSQLEntity, (answer) => answer.question)
+  answers: QuizGameAnswerSQLEntity;
 }

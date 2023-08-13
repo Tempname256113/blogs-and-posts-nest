@@ -10,8 +10,9 @@ import { BlogModule } from './modules/product/blog.module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { TypeormEntitiesModule } from '../libs/db/typeorm-sql/typeorm.entities-module';
+import { QuizModule } from './modules/product/quiz.module';
 
-const ProductModules = [PostModule, BlogModule];
+const ProductModules = [PostModule, BlogModule, QuizModule];
 
 const AuthModules = [AuthModule, SecurityModule];
 
