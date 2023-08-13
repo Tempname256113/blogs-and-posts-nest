@@ -70,10 +70,10 @@ export class AdminQuizGameQueryRepositorySQL {
       },
     );
     return {
-      pagesCount,
-      page: paginationQuery.pageNumber,
-      pageSize: paginationQuery.pageSize,
-      totalCount: totalQuestionsCount,
+      pagesCount: Number(pagesCount),
+      page: Number(paginationQuery.pageNumber),
+      pageSize: Number(paginationQuery.pageSize),
+      totalCount: Number(totalQuestionsCount),
       items: mappedQuestions,
     };
   }
