@@ -18,6 +18,8 @@ import { BlogSQLEntity } from '../libs/db/typeorm-sql/entities/blog-sql.entity';
 import { PostSQLEntity } from '../libs/db/typeorm-sql/entities/post-sql.entity';
 import { CommentSQLEntity } from '../libs/db/typeorm-sql/entities/comment-sql.entity';
 import { LikeSQLEntity } from '../libs/db/typeorm-sql/entities/like-sql.entity';
+import { QuizGameQuestionSQLEntity } from '../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
+import { QuizGameAnswerSQLEntity } from '../libs/db/typeorm-sql/entities/quiz-game/quiz-game-answer.entity';
 
 @Controller('testing')
 export class AppController {
@@ -46,6 +48,10 @@ export class AppController {
     private readonly commentEntity: Repository<CommentSQLEntity>,
     @InjectRepository(LikeSQLEntity)
     private readonly likeEntity: Repository<LikeSQLEntity>,
+    @InjectRepository(QuizGameQuestionSQLEntity)
+    private readonly quizGameQuestionEntity: Repository<QuizGameQuestionSQLEntity>,
+    @InjectRepository(QuizGameAnswerSQLEntity)
+    private readonly quizGameAnswerEntity: Repository<QuizGameAnswerSQLEntity>,
   ) {}
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -66,6 +72,8 @@ export class AppController {
       this.postEntity.delete({}),
       this.commentEntity.delete({}),
       this.likeEntity.delete({}),
+      this.quizGameQuestionEntity.delete({}),
+      this.quizGameAnswerEntity.delete({}),
     ]);
   }
 }
