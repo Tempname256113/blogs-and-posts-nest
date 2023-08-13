@@ -15,10 +15,10 @@ export class QuizGameAnswerSQLEntity {
   @Column({ type: 'integer' })
   questionId: number;
 
-  @Column({ type: 'jsonb' })
-  answer: (string | number)[];
+  @Column({ type: 'jsonb', nullable: true })
+  answers: (string | number)[] | null;
 
-  @OneToOne(() => QuizGameQuestionSQLEntity, (question) => question.answers, {
+  @OneToOne(() => QuizGameQuestionSQLEntity, (question) => question.answer, {
     onDelete: 'CASCADE',
     cascade: true,
   })

@@ -29,7 +29,7 @@ export class AdminQuizGameRepositorySQL {
 
     const newAnswer: QuizGameAnswerSQLEntity = new QuizGameAnswerSQLEntity();
     newAnswer.question = newQuestion;
-    newAnswer.answer = newQuestionAnswers;
+    newAnswer.answers = newQuestionAnswers;
 
     let newCreatedQuestion: QuizGameQuestionSQLEntity;
 

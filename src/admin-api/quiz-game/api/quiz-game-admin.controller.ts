@@ -19,10 +19,14 @@ import {
 } from './models/quiz-game-admin-api.models';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateQuestionCommand } from '../application/use-cases/create-question.use-case';
+import { AdminQuizGameQueryRepositorySQL } from '../infrastructure/repositories/quiz-game-admin.query-repository';
 
 @Controller('sa/quiz/questions')
 export class QuizGameAdminController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly quizGameQueryRepositorySQL: AdminQuizGameQueryRepositorySQL,
+  ) {}
   @Get()
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -37,20 +41,9 @@ export class QuizGameAdminController {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
       pageSize: rawPaginationQuery.pageSize ?? 10,
     };
-    return {
-      page: 0,
-      pageSize: 0,
-      pagesCount: 0,
-      totalCount: 0,
-      items: {
-        body: '',
-        correctAnswers: [0],
-        createdAt: '',
-        published: true,
-        updatedAt: ',',
-        id: '',
-      },
-    };
+    return this.quizGameQueryRepositorySQL.getAllQuestionsWithPagination(
+      paginationQuery,
+    );
   }
 
   @Post()

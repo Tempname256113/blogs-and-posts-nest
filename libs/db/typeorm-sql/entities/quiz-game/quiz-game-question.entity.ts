@@ -19,5 +19,5 @@ export class QuizGameQuestionSQLEntity {
   updatedAt: string | null;
 
   @OneToOne(() => QuizGameAnswerSQLEntity, (answer) => answer.question)
-  answers: QuizGameAnswerSQLEntity;
+  answer: QuizGameAnswerSQLEntity;
 }
