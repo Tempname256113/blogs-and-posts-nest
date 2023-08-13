@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { PostController } from '../../public-api/post/api/post.controller';
-import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
 import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { CommentModule } from './comment.module';
 import { IsValidBlogIdConstraint } from '../../../libs/validation/class-validator/is-valid-blogid.validation-decorator';
@@ -38,13 +37,7 @@ const postsPublicApiRepositories = [
 const blogsPublicApiRepositories = [PublicBlogQueryRepositorySQL];
 
 @Module({
-  imports: [
-    MongooseSchemesModule,
-    TypeormEntitiesModule,
-    JwtModule,
-    CommentModule,
-    CqrsModule,
-  ],
+  imports: [TypeormEntitiesModule, JwtModule, CommentModule, CqrsModule],
   controllers: [PostController],
   providers: [
     IsValidBlogIdConstraint,

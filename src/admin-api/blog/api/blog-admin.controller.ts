@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AdminBlogQueryRepository } from '../infrastructure/repositories/blog-admin.query-repository';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { BlogAdminApiPaginationQueryDTO } from './models/blog-admin-api.query-dto';
 import { BlogBloggerApiPaginationQueryDTO } from '../../../blogger-api/blog/api/models/blog-blogger-api.query-dto';
@@ -23,7 +22,6 @@ import { AdminBlogQueryRepositorySQL } from '../infrastructure/repositories/blog
 @Controller('sa/blogs')
 export class BlogAdminController {
   constructor(
-    private blogQueryRepository: AdminBlogQueryRepository,
     private readonly blogQueryRepositorySQL: AdminBlogQueryRepositorySQL,
     private commandBus: CommandBus,
   ) {}

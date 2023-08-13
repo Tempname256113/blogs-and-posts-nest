@@ -35,6 +35,5 @@ const UseCases = [
     UserQueryRepositorySQL,
     AccessTokenGuard,
   ],
-  exports: [CommentRepository],
 })
 export class CommentModule {}

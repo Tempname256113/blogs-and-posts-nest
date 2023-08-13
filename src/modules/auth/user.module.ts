@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { UserAdminController } from '../../admin-api/user/api/user-admin.controller';
-import { UserRepository } from '../../admin-api/user/infrastructure/repositories/user.repository';
-import { UserQueryRepository } from '../../admin-api/user/infrastructure/repositories/user.query-repository';
 import { AuthBasicStrategy } from '../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { EnvConfiguration } from '../../../app-configuration/environment/env-configuration';
 import { MongooseSchemesModule } from '../../../libs/db/mongoose/mongoose.schemes-module';
@@ -30,20 +28,13 @@ const UseCases = [
   ],
   controllers: [UserAdminController],
   providers: [
-    UserRepository,
     UserRepositorySQL,
     SecurityRepositorySQL,
-    UserQueryRepository,
     UserQueryRepositorySQL,
     AuthBasicStrategy,
     EnvConfiguration,
     ...UseCases,
   ],
-  exports: [
-    UserRepository,
-    UserRepositorySQL,
-    UserQueryRepository,
-    UserQueryRepositorySQL,
-  ],
+  exports: [UserRepositorySQL, UserQueryRepositorySQL],
 })
 export class UserModule {}
