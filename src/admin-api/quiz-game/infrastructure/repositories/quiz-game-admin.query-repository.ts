@@ -77,4 +77,23 @@ export class AdminQuizGameQueryRepositorySQL {
       items: mappedQuestions,
     };
   }
+
+  async getQuestionById(
+    questionId: string,
+  ): Promise<QuizGameAdminApiViewModel | null> {
+    const foundedQuizGameQuestion: QuizGameQuestionSQLEntity | null =
+      await this.quizGameQuestionEntity.findOne({
+        where: { id: Number(questionId) },
+        relations: ['answer'],
+      });
+    if (!foundedQuizGameQuestion) return null;
+    return {
+      id: String(foundedQuizGameQuestion.id),
+      body: foundedQuizGameQuestion.body,
+      published: foundedQuizGameQuestion.published,
+      correctAnswers: foundedQuizGameQuestion.answer.answers,
+      createdAt: foundedQuizGameQuestion.createdAt,
+      updatedAt: foundedQuizGameQuestion.updatedAt,
+    };
+  }
 }

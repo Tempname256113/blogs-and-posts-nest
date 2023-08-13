@@ -1,6 +1,7 @@
 import {
   ArrayNotEmpty,
   IsArray,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -24,6 +25,18 @@ export class CreateQuizGameQuestionAdminApiDTO {
 
   @IsArray()
   @ArrayNotEmpty()
+  @ArrayContainsStringOrNumber()
+  correctAnswers: (string | number)[];
+}
+
+export class UpdateQuizGameQuestionAdminApiDTO {
+  @IsString()
+  @MinLength(10)
+  @MaxLength(500)
+  body: string;
+
+  @IsArray()
+  @IsOptional()
   @ArrayContainsStringOrNumber()
   correctAnswers: (string | number)[];
 }

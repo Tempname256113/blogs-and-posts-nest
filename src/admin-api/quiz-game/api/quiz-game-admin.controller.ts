@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-bas
 import {
   CreateQuizGameQuestionAdminApiDTO,
   QuizGameAdminApiQueryDTO,
+  UpdateQuizGameQuestionAdminApiDTO,
 } from './models/quiz-game-admin-api.dto';
 import {
   QuizGameAdminApiPaginationViewModel,
@@ -23,6 +25,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateQuestionCommand } from '../application/use-cases/create-question.use-case';
 import { AdminQuizGameQueryRepositorySQL } from '../infrastructure/repositories/quiz-game-admin.query-repository';
 import { DeleteQuizGameQuestionCommand } from '../application/use-cases/delete-question.use-case';
+import { UpdateQuizGameQuestionCommand } from '../application/use-cases/update-question.use-case';
 
 @Controller('sa/quiz/questions')
 export class QuizGameAdminController {
@@ -59,6 +62,22 @@ export class QuizGameAdminController {
     };
     return this.quizGameQueryRepositorySQL.getAllQuestionsWithPagination(
       paginationQuery,
+    );
+  }
+
+  @Put(':questionId')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateQuestion(
+    @Param('questionId') questionId: string,
+    @Body() updateQuizQuestionDTO: UpdateQuizGameQuestionAdminApiDTO,
+  ): Promise<void> {
+    await this.commandBus.execute<UpdateQuizGameQuestionCommand, void>(
+      new UpdateQuizGameQuestionCommand({
+        questionId,
+        body: updateQuizQuestionDTO.body,
+        correctAnswers: updateQuizQuestionDTO?.correctAnswers,
+      }),
     );
   }
 

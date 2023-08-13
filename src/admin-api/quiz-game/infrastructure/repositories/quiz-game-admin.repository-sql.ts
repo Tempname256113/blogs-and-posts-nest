@@ -54,4 +54,35 @@ export class AdminQuizGameRepositorySQL {
     );
     return deleteResult.affected > 0;
   }
+
+  async updateQuestion({
+    body,
+    correctAnswers,
+    questionId,
+  }: {
+    body: string;
+    correctAnswers?: (string | number)[];
+    questionId: string;
+  }): Promise<void> {
+    await this.dataSource.manager.transaction(
+      async (transactionEntityManager) => {
+        const quizGameQuestionEntity: Repository<QuizGameQuestionSQLEntity> =
+          transactionEntityManager.getRepository<QuizGameQuestionSQLEntity>(
+            QuizGameQuestionSQLEntity,
+          );
+        const quizGameAnswerEntity: Repository<QuizGameAnswerSQLEntity> =
+          transactionEntityManager.getRepository<QuizGameAnswerSQLEntity>(
+            QuizGameAnswerSQLEntity,
+          );
+        await quizGameQuestionEntity.update(questionId, {
+          body,
+          updatedAt: new Date().toISOString(),
+        });
+        await quizGameAnswerEntity.update(
+          { questionId: Number(questionId) },
+          { answers: correctAnswers ? correctAnswers : [] },
+        );
+      },
+    );
+  }
 }

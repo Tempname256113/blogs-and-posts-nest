@@ -8,8 +8,13 @@ import { AdminQuizGameRepositorySQL } from '../../admin-api/quiz-game/infrastruc
 import { CreateQuestionUseCase } from '../../admin-api/quiz-game/application/use-cases/create-question.use-case';
 import { AdminQuizGameQueryRepositorySQL } from '../../admin-api/quiz-game/infrastructure/repositories/quiz-game-admin.query-repository';
 import { DeleteQuizGameQuestionUseCase } from '../../admin-api/quiz-game/application/use-cases/delete-question.use-case';
+import { UpdateQuizGameQuestionUseCase } from '../../admin-api/quiz-game/application/use-cases/update-question.use-case';
 
-const useCases = [CreateQuestionUseCase, DeleteQuizGameQuestionUseCase];
+const useCases = [
+  CreateQuestionUseCase,
+  DeleteQuizGameQuestionUseCase,
+  UpdateQuizGameQuestionUseCase,
+];
 
 @Module({
   imports: [TypeormEntitiesModule, CqrsModule],
