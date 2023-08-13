@@ -15,6 +15,7 @@ export class DeleteQuizGameQuestionUseCase
   ) {}
 
   async execute({ questionId }: DeleteQuizGameQuestionCommand): Promise<void> {
+    if (!Number(questionId)) throw new NotFoundException();
     const deleteQuizQuestionStatus: boolean =
       await this.quizGameRepositorySQL.deleteQuestion(questionId);
     if (!deleteQuizQuestionStatus) throw new NotFoundException();
