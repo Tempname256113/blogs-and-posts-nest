@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -20,6 +22,7 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateQuestionCommand } from '../application/use-cases/create-question.use-case';
 import { AdminQuizGameQueryRepositorySQL } from '../infrastructure/repositories/quiz-game-admin.query-repository';
+import { DeleteQuizGameQuestionCommand } from '../application/use-cases/delete-question.use-case';
 
 @Controller('sa/quiz/questions')
 export class QuizGameAdminController {
@@ -27,6 +30,19 @@ export class QuizGameAdminController {
     private readonly commandBus: CommandBus,
     private readonly quizGameQueryRepositorySQL: AdminQuizGameQueryRepositorySQL,
   ) {}
+
+  @Post()
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async createNewQuestion(
+    @Body() createQuizGameQuestionDTO: CreateQuizGameQuestionAdminApiDTO,
+  ): Promise<QuizGameAdminApiViewModel> {
+    return this.commandBus.execute<
+      CreateQuestionCommand,
+      QuizGameAdminApiViewModel
+    >(new CreateQuestionCommand(createQuizGameQuestionDTO));
+  }
+
   @Get()
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -46,15 +62,12 @@ export class QuizGameAdminController {
     );
   }
 
-  @Post()
+  @Delete(':questionId')
   @UseGuards(BasicAuthGuard)
-  @HttpCode(HttpStatus.CREATED)
-  async createNewQuestion(
-    @Body() createQuizGameQuestionDTO: CreateQuizGameQuestionAdminApiDTO,
-  ): Promise<QuizGameAdminApiViewModel> {
-    return this.commandBus.execute<
-      CreateQuestionCommand,
-      QuizGameAdminApiViewModel
-    >(new CreateQuestionCommand(createQuizGameQuestionDTO));
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteQuestion(@Param('questionId') questionId: string): Promise<void> {
+    await this.commandBus.execute<DeleteQuizGameQuestionCommand, void>(
+      new DeleteQuizGameQuestionCommand(questionId),
+    );
   }
 }
