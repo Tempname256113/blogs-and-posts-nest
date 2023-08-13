@@ -97,6 +97,7 @@ export class AdminQuizGameRepositorySQL {
       questionId,
       {
         published: publish,
+        updatedAt: new Date().toISOString(),
       },
     );
     return updateResult.affected === 1;
