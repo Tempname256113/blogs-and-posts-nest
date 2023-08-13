@@ -1,6 +1,7 @@
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsOptional,
   IsString,
   MaxLength,
@@ -39,4 +40,9 @@ export class UpdateQuizGameQuestionAdminApiDTO {
   @IsOptional()
   @ArrayContainsStringOrNumber()
   correctAnswers: (string | number)[];
+}
+
+export class PublishQuizGameQuestionAdminApiDTO {
+  @IsBoolean()
+  published: boolean;
 }

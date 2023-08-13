@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
-import { DataSource, DeleteResult, Repository } from 'typeorm';
+import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { QuizGameAnswerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-answer.entity';
 import { QuizGameAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
 import { CreateQuizGameQuestionAdminApiDTO } from '../../api/models/quiz-game-admin-api.dto';
@@ -84,5 +84,21 @@ export class AdminQuizGameRepositorySQL {
         );
       },
     );
+  }
+
+  async publishQuestion({
+    questionId,
+    publish,
+  }: {
+    questionId: string;
+    publish: boolean;
+  }): Promise<boolean> {
+    const updateResult: UpdateResult = await this.quizGameQuestionEntity.update(
+      questionId,
+      {
+        published: publish,
+      },
+    );
+    return updateResult.affected === 1;
   }
 }

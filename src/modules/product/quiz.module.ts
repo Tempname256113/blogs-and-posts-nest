@@ -9,11 +9,13 @@ import { CreateQuestionUseCase } from '../../admin-api/quiz-game/application/use
 import { AdminQuizGameQueryRepositorySQL } from '../../admin-api/quiz-game/infrastructure/repositories/quiz-game-admin.query-repository';
 import { DeleteQuizGameQuestionUseCase } from '../../admin-api/quiz-game/application/use-cases/delete-question.use-case';
 import { UpdateQuizGameQuestionUseCase } from '../../admin-api/quiz-game/application/use-cases/update-question.use-case';
+import { PublishQuizGameQuestionUseCase } from '../../admin-api/quiz-game/application/use-cases/publish-question.use-case';
 
 const useCases = [
   CreateQuestionUseCase,
   DeleteQuizGameQuestionUseCase,
   UpdateQuizGameQuestionUseCase,
+  PublishQuizGameQuestionUseCase,
 ];
 
 @Module({
