@@ -26,6 +26,7 @@ export class UpdateQuizGameQuestionUseCase
   async execute({
     data: { questionId, body, correctAnswers },
   }: UpdateQuizGameQuestionCommand): Promise<void> {
+    if (!Number(questionId)) throw new NotFoundException();
     const foundedQuestion: QuizGameAdminApiViewModel | null =
       await this.quizGameQueryRepositorySQL.getQuestionById(questionId);
     if (!foundedQuestion) throw new NotFoundException();

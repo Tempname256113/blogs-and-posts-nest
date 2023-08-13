@@ -22,6 +22,7 @@ export class PublishQuizGameQuestionUseCase
   async execute({
     data: { questionId, publishQuestionStatus },
   }: PublishQuizGameQuestionCommand): Promise<void> {
+    if (!Number(questionId)) throw new NotFoundException();
     const updateResult: boolean =
       await this.quizGameRepositorySQL.publishQuestion({
         questionId,
