@@ -1,8 +1,8 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   DataSource,
-  FindOperator,
   FindOptionsOrder,
+  FindOptionsWhere,
   ILike,
   Repository,
 } from 'typeorm';
@@ -46,10 +46,7 @@ export class PublicBlogQueryRepositorySQL {
   async getBlogsWithPagination(
     paginationQuery: BlogPublicApiPaginationQueryDTO,
   ): Promise<BlogPublicApiPaginationModel> {
-    const filter: Pick<
-      Partial<BlogSQLEntity>,
-      Exclude<keyof BlogSQLEntity, 'name'>
-    > & { name?: FindOperator<string> } = {};
+    const filter: FindOptionsWhere<BlogSQLEntity> = {};
     const getCorrectFilter = (): void => {
       filter.hidden = false;
       if (paginationQuery.searchNameTerm) {

@@ -11,6 +11,9 @@ import { CommentSQLEntity } from './entities/comment-sql.entity';
 import { LikeSQLEntity } from './entities/like-sql.entity';
 import { QuizGameQuestionSQLEntity } from './entities/quiz-game/quiz-game-question.entity';
 import { QuizGameAnswerSQLEntity } from './entities/quiz-game/quiz-game-answer.entity';
+import { QuizGamePairSQLEntity } from './entities/quiz-game/quiz-game-pair.entity';
+import { QuizGamePairQuestionsSQLEntity } from './entities/quiz-game/quiz-game-pair-questions.entity';
+import { QuizGamePairAnswersSQLEntity } from './entities/quiz-game/quiz-game-pair-answers.entity';
 
 @Module({
   imports: [
@@ -26,6 +29,9 @@ import { QuizGameAnswerSQLEntity } from './entities/quiz-game/quiz-game-answer.e
       LikeSQLEntity,
       QuizGameQuestionSQLEntity,
       QuizGameAnswerSQLEntity,
+      QuizGamePairSQLEntity,
+      QuizGamePairQuestionsSQLEntity,
+      QuizGamePairAnswersSQLEntity,
     ]),
   ],
   exports: [TypeOrmModule],
