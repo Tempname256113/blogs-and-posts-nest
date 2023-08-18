@@ -14,6 +14,8 @@ import { SessionSQLEntity } from './session-sql.entity';
 import { BlogSQLEntity } from '../blog-sql.entity';
 import { CommentSQLEntity } from '../comment-sql.entity';
 import { LikeSQLEntity } from '../like-sql.entity';
+import { QuizGamePairSQLEntity } from '../quiz-game/quiz-game-pair.entity';
+import { QuizGamePairAnswersSQLEntity } from '../quiz-game/quiz-game-pair-answers.entity';
 
 @Entity({ name: 'users_typeorm' })
 export class UserSQLEntity {
@@ -69,4 +71,13 @@ export class UserSQLEntity {
 
   @OneToMany(() => LikeSQLEntity, (like) => like.user)
   likes: Relation<LikeSQLEntity[]>;
+
+  @OneToMany(() => QuizGamePairSQLEntity, (game) => game.player1)
+  quizGamesAsPlayer1: Relation<QuizGamePairSQLEntity[]>;
+
+  @OneToMany(() => QuizGamePairSQLEntity, (game) => game.player2)
+  quizGamesAsPlayer2: Relation<QuizGamePairSQLEntity[]>;
+
+  @OneToMany(() => QuizGamePairAnswersSQLEntity, (answers) => answers.user)
+  quizGameAnswers: Relation<QuizGamePairAnswersSQLEntity[]>;
 }

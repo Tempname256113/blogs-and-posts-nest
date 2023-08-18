@@ -1,5 +1,15 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { QuizGameAnswerSQLEntity } from './quiz-game-answer.entity';
+import { QuizGamePairSQLEntity } from './quiz-game-pair.entity';
+import { QuizGamePairAnswersSQLEntity } from './quiz-game-pair-answers.entity';
 
 @Entity({ name: 'quiz_game_question_typeorm' })
 export class QuizGameQuestionSQLEntity {
@@ -19,5 +29,13 @@ export class QuizGameQuestionSQLEntity {
   updatedAt: string | null;
 
   @OneToOne(() => QuizGameAnswerSQLEntity, (answer) => answer.question)
-  answer: QuizGameAnswerSQLEntity;
+  answer: Relation<QuizGameAnswerSQLEntity>;
+
+  @ManyToMany(() => QuizGamePairSQLEntity, (quizPair) => quizPair.questions, {
+    onDelete: 'CASCADE',
+  })
+  quizGamePairsWithQuestion: Relation<QuizGamePairSQLEntity[]>;
+
+  @OneToMany(() => QuizGamePairAnswersSQLEntity, (answers) => answers.question)
+  quizGamePairAnswers: Relation<QuizGamePairAnswersSQLEntity[]>;
 }
