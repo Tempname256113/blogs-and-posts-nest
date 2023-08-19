@@ -6,8 +6,6 @@ import {
   PrimaryColumn,
   Relation,
 } from 'typeorm';
-import { QuizGamePairSQLEntity } from './quiz-game-pair.entity';
-import { QuizGameQuestionSQLEntity } from './quiz-game-question.entity';
 import { UserSQLEntity } from '../users/user-sql.entity';
 
 @Entity({ name: 'quiz_game_pair_answers_typeorm' })
@@ -16,7 +14,7 @@ export class QuizGamePairAnswersSQLEntity {
   quizGamePairId: number;
 
   @PrimaryColumn({ type: 'integer' })
-  questionId: number;
+  answerId: number;
 
   @PrimaryColumn({ type: 'integer' })
   userId: number;
@@ -26,21 +24,6 @@ export class QuizGamePairAnswersSQLEntity {
 
   @Column({ type: 'timestamp' })
   addedAt: string;
-
-  @ManyToOne(() => QuizGamePairSQLEntity, (quizPair) => quizPair.answers, {
-    onDelete: 'CASCADE',
-    cascade: true,
-  })
-  @JoinColumn({ name: 'quizGamePairId' })
-  quizGamePair: Relation<QuizGamePairSQLEntity>;
-
-  @ManyToOne(
-    () => QuizGameQuestionSQLEntity,
-    (question) => question.quizGamePairAnswers,
-    { onDelete: 'CASCADE', cascade: true },
-  )
-  @JoinColumn({ name: 'questionId' })
-  question: Relation<QuizGameQuestionSQLEntity>;
 
   @ManyToOne(() => UserSQLEntity, (user) => user.quizGameAnswers, {
     onDelete: 'CASCADE',

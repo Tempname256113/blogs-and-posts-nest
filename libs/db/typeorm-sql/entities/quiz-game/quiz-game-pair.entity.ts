@@ -5,23 +5,22 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 import { UserSQLEntity } from '../users/user-sql.entity';
 import { QuizGameQuestionSQLEntity } from './quiz-game-question.entity';
-import { QuizGamePairAnswersSQLEntity } from './quiz-game-pair-answers.entity';
+import { QuizGameAnswerSQLEntity } from './quiz-game-answer.entity';
 
 @Entity({ name: 'quiz_game_pair_typeorm' })
 export class QuizGamePairSQLEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'integer' })
   player1Id: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'integer' })
   player2Id: number | null;
 
   @Column({ type: 'integer' })
@@ -31,7 +30,7 @@ export class QuizGamePairSQLEntity {
   player2Score: number;
 
   @Column({ type: 'varchar', length: 19 })
-  status: 'PendingSecondPlayer' | 'Active' | 'Finished ';
+  status: 'PendingSecondPlayer' | 'Active' | 'Finished';
 
   @Column({ type: 'timestamp' })
   pairCreatedDate: string;
@@ -62,9 +61,15 @@ export class QuizGamePairSQLEntity {
   })
   questions: Relation<QuizGameQuestionSQLEntity[]>;
 
-  @OneToMany(
-    () => QuizGamePairAnswersSQLEntity,
-    (answers) => answers.quizGamePair,
+  @ManyToMany(
+    () => QuizGameAnswerSQLEntity,
+    (answer) => answer.quizGamePairsWithAnswer,
+    { onDelete: 'CASCADE', cascade: true },
   )
-  answers: Relation<QuizGamePairAnswersSQLEntity[]>;
+  @JoinTable({
+    name: 'quiz_game_pair_answers_typeorm',
+    joinColumn: { name: 'quizGamePairId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'answerId', referencedColumnName: 'id' },
+  })
+  answers: Relation<QuizGameAnswerSQLEntity[]>;
 }

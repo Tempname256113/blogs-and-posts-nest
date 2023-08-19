@@ -2,10 +2,13 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { QuizGameQuestionSQLEntity } from './quiz-game-question.entity';
+import { QuizGamePairSQLEntity } from './quiz-game-pair.entity';
 
 @Entity({ name: 'quiz_game_answer_typeorm' })
 export class QuizGameAnswerSQLEntity {
@@ -24,4 +27,7 @@ export class QuizGameAnswerSQLEntity {
   })
   @JoinColumn({ name: 'questionId' })
   question: QuizGameQuestionSQLEntity;
+
+  @ManyToMany(() => QuizGamePairSQLEntity, (quizPair) => quizPair.answers)
+  quizGamePairsWithAnswer: Relation<QuizGamePairSQLEntity[]>;
 }
