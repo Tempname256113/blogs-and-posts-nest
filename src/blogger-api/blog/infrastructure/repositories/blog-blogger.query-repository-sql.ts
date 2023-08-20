@@ -4,6 +4,7 @@ import {
   DataSource,
   FindOperator,
   FindOptionsOrder,
+  FindOptionsWhere,
   ILike,
   In,
   Repository,
@@ -77,10 +78,7 @@ export class BloggerBlogQueryRepositorySQL {
       this.jwtUtils.verifyAccessToken(accessToken);
     if (!accessTokenPayload) throw new UnauthorizedException();
     const bloggerId: string = accessTokenPayload.userId;
-    const filter: Pick<
-      Partial<BlogSQLEntity>,
-      Exclude<keyof BlogSQLEntity, 'name'>
-    > & { name?: FindOperator<string> } = {};
+    const filter: FindOptionsWhere<BlogSQLEntity> = {};
     const getCorrectBlogsFilter = (): void => {
       filter.bloggerId = Number(bloggerId);
       if (paginationQuery.searchNameTerm) {

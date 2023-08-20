@@ -11,6 +11,6 @@ export class QuizGamePairQuestionsSQLEntity {
   /* позиция вопроса в массиве вопросов к квиз паре.
    * нужно чтобы знать очередность вопросов в игре
    * и в случае чего восстановить ее заново */
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', default: 0 })
   questionPosition: number;
 }
