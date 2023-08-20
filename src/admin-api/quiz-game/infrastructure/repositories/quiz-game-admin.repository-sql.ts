@@ -3,7 +3,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { QuizGameAnswerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-answer.entity';
-import { QuizGameAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
+import { QuizGameQuestionAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
 import { CreateQuizGameQuestionAdminApiDTO } from '../../api/models/quiz-game-admin-api.dto';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class AdminQuizGameRepositorySQL {
   async createQuestion({
     body: newQuestionBody,
     correctAnswers: newQuestionAnswers,
-  }: CreateQuizGameQuestionAdminApiDTO): Promise<QuizGameAdminApiViewModel> {
+  }: CreateQuizGameQuestionAdminApiDTO): Promise<QuizGameQuestionAdminApiViewModel> {
     const newQuestion: QuizGameQuestionSQLEntity =
       new QuizGameQuestionSQLEntity();
     newQuestion.body = newQuestionBody;
@@ -61,7 +61,7 @@ export class AdminQuizGameRepositorySQL {
     questionId,
   }: {
     body: string;
-    correctAnswers?: (string | number)[];
+    correctAnswers?: string[];
     questionId: string;
   }): Promise<void> {
     await this.dataSource.manager.transaction(

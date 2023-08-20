@@ -4,7 +4,7 @@ import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/en
 import { FindOptionsOrder, FindOptionsWhere, ILike, Repository } from 'typeorm';
 import {
   QuizGameAdminApiPaginationViewModel,
-  QuizGameAdminApiViewModel,
+  QuizGameQuestionAdminApiViewModel,
 } from '../../api/models/quiz-game-admin-api.models';
 import { QuizGameAdminApiQueryDTO } from '../../api/models/quiz-game-admin-api.dto';
 
@@ -57,8 +57,8 @@ export class AdminQuizGameQueryRepositorySQL {
         skip: howMuchToSkip,
         relations: ['answer'],
       });
-    const mappedQuestions: QuizGameAdminApiViewModel[] = foundedQuestions.map(
-      (question) => {
+    const mappedQuestions: QuizGameQuestionAdminApiViewModel[] =
+      foundedQuestions.map((question) => {
         return {
           id: String(question.id),
           body: question.body,
@@ -67,8 +67,7 @@ export class AdminQuizGameQueryRepositorySQL {
           createdAt: question.createdAt,
           updatedAt: question.updatedAt,
         };
-      },
-    );
+      });
     return {
       pagesCount: Number(pagesCount),
       page: Number(paginationQuery.pageNumber),
@@ -80,7 +79,7 @@ export class AdminQuizGameQueryRepositorySQL {
 
   async getQuestionById(
     questionId: string,
-  ): Promise<QuizGameAdminApiViewModel | null> {
+  ): Promise<QuizGameQuestionAdminApiViewModel | null> {
     const foundedQuizGameQuestion: QuizGameQuestionSQLEntity | null =
       await this.quizGameQuestionEntity.findOne({
         where: { id: Number(questionId) },

@@ -7,7 +7,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ArrayContainsStringOrNumber } from '../../../../../libs/validation/class-validator/array-contains-string-or-number.validation-decorator';
 
 export type QuizGameAdminApiQueryDTO = {
   bodySearchTerm: string | undefined;
@@ -26,8 +25,8 @@ export class CreateQuizGameQuestionAdminApiDTO {
 
   @IsArray()
   @ArrayNotEmpty()
-  @ArrayContainsStringOrNumber()
-  correctAnswers: (string | number)[];
+  @IsString({ each: true })
+  correctAnswers: string[];
 }
 
 export class UpdateQuizGameQuestionAdminApiDTO {
@@ -38,8 +37,8 @@ export class UpdateQuizGameQuestionAdminApiDTO {
 
   @IsArray()
   @IsOptional()
-  @ArrayContainsStringOrNumber()
-  correctAnswers: (string | number)[];
+  @IsString({ each: true })
+  correctAnswers: string[];
 }
 
 export class PublishQuizGameQuestionAdminApiDTO {

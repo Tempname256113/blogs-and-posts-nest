@@ -1,7 +1,7 @@
-export type QuizGameAdminApiViewModel = {
+export type QuizGameQuestionAdminApiViewModel = {
   id: string;
   body: string;
-  correctAnswers: (string | number)[] | null;
+  correctAnswers: string[] | null;
   published: boolean;
   createdAt: string;
   updatedAt: string | null;
@@ -12,5 +12,5 @@ export type QuizGameAdminApiPaginationViewModel = {
   page: number;
   pageSize: number;
   totalCount: number;
-  items: QuizGameAdminApiViewModel[];
+  items: QuizGameQuestionAdminApiViewModel[];
 };

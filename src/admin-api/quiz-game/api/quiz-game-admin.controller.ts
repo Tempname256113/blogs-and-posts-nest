@@ -20,7 +20,7 @@ import {
 } from './models/quiz-game-admin-api.dto';
 import {
   QuizGameAdminApiPaginationViewModel,
-  QuizGameAdminApiViewModel,
+  QuizGameQuestionAdminApiViewModel,
 } from './models/quiz-game-admin-api.models';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateQuestionCommand } from '../application/use-cases/create-question.use-case';
@@ -41,10 +41,10 @@ export class QuizGameAdminController {
   @HttpCode(HttpStatus.CREATED)
   async createNewQuestion(
     @Body() createQuizGameQuestionDTO: CreateQuizGameQuestionAdminApiDTO,
-  ): Promise<QuizGameAdminApiViewModel> {
+  ): Promise<QuizGameQuestionAdminApiViewModel> {
     return this.commandBus.execute<
       CreateQuestionCommand,
-      QuizGameAdminApiViewModel
+      QuizGameQuestionAdminApiViewModel
     >(new CreateQuestionCommand(createQuizGameQuestionDTO));
   }
 

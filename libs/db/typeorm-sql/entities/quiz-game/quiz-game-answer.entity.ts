@@ -19,7 +19,7 @@ export class QuizGameAnswerSQLEntity {
   questionId: number;
 
   @Column({ type: 'jsonb', nullable: true })
-  answers: (string | number)[] | null;
+  answers: string[] | null;
 
   @OneToOne(() => QuizGameQuestionSQLEntity, (question) => question.answer, {
     onDelete: 'CASCADE',

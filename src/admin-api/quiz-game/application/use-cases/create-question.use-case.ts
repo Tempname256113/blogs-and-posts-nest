@@ -1,6 +1,6 @@
 import { CreateQuizGameQuestionAdminApiDTO } from '../../api/models/quiz-game-admin-api.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { QuizGameAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
+import { QuizGameQuestionAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
 import { AdminQuizGameRepositorySQL } from '../../infrastructure/repositories/quiz-game-admin.repository-sql';
 
 export class CreateQuestionCommand {
@@ -17,7 +17,7 @@ export class CreateQuestionUseCase
   ) {}
   async execute({
     data,
-  }: CreateQuestionCommand): Promise<QuizGameAdminApiViewModel> {
+  }: CreateQuestionCommand): Promise<QuizGameQuestionAdminApiViewModel> {
     return this.quizGameRepositorySQL.createQuestion(data);
   }
 }

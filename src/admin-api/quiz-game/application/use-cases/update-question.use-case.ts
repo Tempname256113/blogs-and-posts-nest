@@ -2,7 +2,7 @@ import { UpdateQuizGameQuestionAdminApiDTO } from '../../api/models/quiz-game-ad
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AdminQuizGameQueryRepositorySQL } from '../../infrastructure/repositories/quiz-game-admin.query-repository';
 import { AdminQuizGameRepositorySQL } from '../../infrastructure/repositories/quiz-game-admin.repository-sql';
-import { QuizGameAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
+import { QuizGameQuestionAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 
@@ -27,7 +27,7 @@ export class UpdateQuizGameQuestionUseCase
     data: { questionId, body, correctAnswers },
   }: UpdateQuizGameQuestionCommand): Promise<void> {
     if (!Number(questionId)) throw new NotFoundException();
-    const foundedQuestion: QuizGameAdminApiViewModel | null =
+    const foundedQuestion: QuizGameQuestionAdminApiViewModel | null =
       await this.quizGameQueryRepositorySQL.getQuestionById(questionId);
     if (!foundedQuestion) throw new NotFoundException();
     if (
