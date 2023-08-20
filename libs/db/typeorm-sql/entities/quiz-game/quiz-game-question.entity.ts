@@ -2,11 +2,9 @@ import {
   Column,
   Entity,
   ManyToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { QuizGameAnswerSQLEntity } from './quiz-game-answer.entity';
 import { QuizGamePairSQLEntity } from './quiz-game-pair.entity';
 
 @Entity({ name: 'quiz_game_question_typeorm' })
@@ -26,8 +24,8 @@ export class QuizGameQuestionSQLEntity {
   @Column({ type: 'timestamp', nullable: true, default: null })
   updatedAt: string | null;
 
-  @OneToOne(() => QuizGameAnswerSQLEntity, (answer) => answer.question)
-  answer: Relation<QuizGameAnswerSQLEntity>;
+  @Column({ type: 'jsonb', nullable: true })
+  answers: string[] | null;
 
   @ManyToMany(() => QuizGamePairSQLEntity, (quizPair) => quizPair.questions, {
     onDelete: 'CASCADE',

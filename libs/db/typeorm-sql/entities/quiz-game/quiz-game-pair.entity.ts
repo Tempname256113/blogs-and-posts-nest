@@ -5,12 +5,13 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 import { UserSQLEntity } from '../users/user-sql.entity';
 import { QuizGameQuestionSQLEntity } from './quiz-game-question.entity';
-import { QuizGameAnswerSQLEntity } from './quiz-game-answer.entity';
+import { QuizGamePairAnswerSQLEntity } from './quiz-game-pair-answer.entity';
 
 @Entity({ name: 'quiz_game_pair_typeorm' })
 export class QuizGamePairSQLEntity {
@@ -61,15 +62,6 @@ export class QuizGamePairSQLEntity {
   })
   questions: Relation<QuizGameQuestionSQLEntity[]>;
 
-  @ManyToMany(
-    () => QuizGameAnswerSQLEntity,
-    (answer) => answer.quizGamePairsWithAnswer,
-    { onDelete: 'CASCADE', cascade: true },
-  )
-  @JoinTable({
-    name: 'quiz_game_pair_answers_typeorm',
-    joinColumn: { name: 'quizGamePairId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'answerId', referencedColumnName: 'id' },
-  })
-  answers: Relation<QuizGameAnswerSQLEntity[]>;
+  @OneToMany(() => QuizGamePairAnswerSQLEntity, (answer) => answer.quizGamePair)
+  answers: Relation<QuizGamePairAnswerSQLEntity[]>;
 }

@@ -7,14 +7,12 @@ import {
   Relation,
 } from 'typeorm';
 import { UserSQLEntity } from '../users/user-sql.entity';
+import { QuizGamePairSQLEntity } from './quiz-game-pair.entity';
 
 @Entity({ name: 'quiz_game_pair_answers_typeorm' })
-export class QuizGamePairAnswersSQLEntity {
+export class QuizGamePairAnswerSQLEntity {
   @PrimaryColumn({ type: 'integer' })
   quizGamePairId: number;
-
-  @PrimaryColumn({ type: 'integer' })
-  answerId: number;
 
   @PrimaryColumn({ type: 'integer' })
   userId: number;
@@ -31,4 +29,11 @@ export class QuizGamePairAnswersSQLEntity {
   })
   @JoinColumn({ name: 'userId' })
   user: Relation<UserSQLEntity>;
+
+  @ManyToOne(() => QuizGamePairSQLEntity, (quizPair) => quizPair.answers, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
+  @JoinColumn({ name: 'quizGamePairId' })
+  quizGamePair: Relation<QuizGamePairSQLEntity>;
 }

@@ -55,14 +55,13 @@ export class AdminQuizGameQueryRepositorySQL {
         order: correctOrderBy,
         take: paginationQuery.pageSize,
         skip: howMuchToSkip,
-        relations: ['answer'],
       });
     const mappedQuestions: QuizGameQuestionAdminApiViewModel[] =
       foundedQuestions.map((question) => {
         return {
           id: String(question.id),
           body: question.body,
-          correctAnswers: question.answer.answers,
+          correctAnswers: question.answers,
           published: question.published,
           createdAt: question.createdAt,
           updatedAt: question.updatedAt,
@@ -90,7 +89,7 @@ export class AdminQuizGameQueryRepositorySQL {
       id: String(foundedQuizGameQuestion.id),
       body: foundedQuizGameQuestion.body,
       published: foundedQuizGameQuestion.published,
-      correctAnswers: foundedQuizGameQuestion.answer.answers,
+      correctAnswers: foundedQuizGameQuestion.answers,
       createdAt: foundedQuizGameQuestion.createdAt,
       updatedAt: foundedQuizGameQuestion.updatedAt,
     };

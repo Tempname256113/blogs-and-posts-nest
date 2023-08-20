@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
-import { QuizGameAnswerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-answer.entity';
 import { QuizGameQuestionAdminApiViewModel } from '../../api/models/quiz-game-admin-api.models';
 import { CreateQuizGameQuestionAdminApiDTO } from '../../api/models/quiz-game-admin-api.dto';
 
@@ -11,8 +10,6 @@ export class AdminQuizGameRepositorySQL {
   constructor(
     @InjectRepository(QuizGameQuestionSQLEntity)
     private readonly quizGameQuestionEntity: Repository<QuizGameQuestionSQLEntity>,
-    @InjectRepository(QuizGameAnswerSQLEntity)
-    private readonly quizGameAnswerEntity: Repository<QuizGameAnswerSQLEntity>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
@@ -26,17 +23,10 @@ export class AdminQuizGameRepositorySQL {
     newQuestion.published = false;
     newQuestion.createdAt = new Date().toISOString();
     newQuestion.updatedAt = null;
+    newQuestion.answers = newQuestionAnswers;
 
-    const newAnswer: QuizGameAnswerSQLEntity = new QuizGameAnswerSQLEntity();
-    newAnswer.question = newQuestion;
-    newAnswer.answers = newQuestionAnswers;
-
-    let newCreatedQuestion: QuizGameQuestionSQLEntity;
-
-    await this.dataSource.manager.transaction(async (entityManager) => {
-      newCreatedQuestion = await entityManager.save(newQuestion);
-      await entityManager.save(newAnswer);
-    });
+    const newCreatedQuestion: QuizGameQuestionSQLEntity =
+      await this.quizGameQuestionEntity.save(newQuestion);
 
     return {
       id: String(newCreatedQuestion.id),
@@ -57,33 +47,18 @@ export class AdminQuizGameRepositorySQL {
 
   async updateQuestion({
     body,
-    correctAnswers,
+    correctAnswers: newAnswers,
     questionId,
   }: {
     body: string;
     correctAnswers?: string[];
     questionId: string;
   }): Promise<void> {
-    await this.dataSource.manager.transaction(
-      async (transactionEntityManager) => {
-        const quizGameQuestionEntity: Repository<QuizGameQuestionSQLEntity> =
-          transactionEntityManager.getRepository<QuizGameQuestionSQLEntity>(
-            QuizGameQuestionSQLEntity,
-          );
-        const quizGameAnswerEntity: Repository<QuizGameAnswerSQLEntity> =
-          transactionEntityManager.getRepository<QuizGameAnswerSQLEntity>(
-            QuizGameAnswerSQLEntity,
-          );
-        await quizGameQuestionEntity.update(questionId, {
-          body,
-          updatedAt: new Date().toISOString(),
-        });
-        await quizGameAnswerEntity.update(
-          { questionId: Number(questionId) },
-          { answers: correctAnswers ? correctAnswers : [] },
-        );
-      },
-    );
+    await this.quizGameQuestionEntity.update(questionId, {
+      body,
+      updatedAt: new Date().toISOString(),
+      answers: newAnswers ? newAnswers : [],
+    });
   }
 
   async publishQuestion({

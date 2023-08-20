@@ -1,4 +1,4 @@
-export type QuizGamePublicApiPlayerAnswersViewModel = {
+export type QuizGamePublicApiPlayerAnswerViewModel = {
   questionId: string;
   answerStatus: 'Correct' | 'Incorrect ';
   addedAt: string;
@@ -12,12 +12,12 @@ export type QuizGamePublicApiPlayerViewModel = {
 export type QuizGamePublicApiViewModel = {
   id: string;
   firstPlayerProgress: {
-    answers: QuizGamePublicApiPlayerAnswersViewModel[];
+    answers: QuizGamePublicApiPlayerAnswerViewModel[];
     player: QuizGamePublicApiPlayerViewModel;
     score: number;
   };
   secondPlayerProgress: {
-    answers: QuizGamePublicApiPlayerAnswersViewModel[];
+    answers: QuizGamePublicApiPlayerAnswerViewModel[];
     player: QuizGamePublicApiPlayerViewModel;
     score: number;
   } | null;
