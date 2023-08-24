@@ -22,7 +22,7 @@ import {
   CommentPaginationViewModel,
 } from '../../comment/api/models/comment-api.models';
 import { CommentApiPaginationQueryDto } from '../../comment/api/models/comment-api.query-dto';
-import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
+import { ReqAccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewCommentCommand } from '../application/use-cases/create-new-comment.use-case';
 import { ChangePostLikeStatusCommand } from '../application/use-cases/change-post-like-status.use-case';
@@ -44,7 +44,7 @@ export class PostController {
   async getPostsWithPagination(
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<PostPaginationViewModel> {
     const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -64,7 +64,7 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   async getPostById(
     @Param('postId') postId: string,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<PostViewModel> {
     const foundedPost: PostViewModel | null =
       await this.postsQueryRepositorySQL.getPostById({ postId, accessToken });
@@ -76,7 +76,7 @@ export class PostController {
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
   async createNewComment(
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
     @Param('postId') postId: string,
     @Body() { content }: CommentApiCreateDto,
   ): Promise<CommentViewModel> {
@@ -99,7 +99,7 @@ export class PostController {
     @Param('postId') postId: string,
     @Query()
     rawPaginationQuery: CommentApiPaginationQueryDto,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<CommentPaginationViewModel> {
     const paginationQuery: CommentApiPaginationQueryDto = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -128,7 +128,7 @@ export class PostController {
   async changeLikeStatus(
     @Param('postId') postId: string,
     @Body() { likeStatus }: LikeDto,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<void> {
     await this.commandBus.execute<ChangePostLikeStatusCommand, void>(
       new ChangePostLikeStatusCommand({

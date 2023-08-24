@@ -1,6 +1,6 @@
 export type QuizGamePublicApiPlayerAnswerViewModel = {
   questionId: string;
-  answerStatus: 'Correct' | 'Incorrect ';
+  answerStatus: 'Correct' | 'Incorrect';
   addedAt: string;
 };
 

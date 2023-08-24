@@ -4,7 +4,7 @@ import { Request } from 'express';
 /*декоратор для извлечения access token из request.headers
  * при успешном извлечении возвращает токен (отделяет строку Bearer от токена)
  * если поле authorization пустое или там нет строки Bearer то возвращает null*/
-export const AccessToken = createParamDecorator(
+export const ReqAccessToken = createParamDecorator(
   (data: any, ctx: ExecutionContext): string | null => {
     const request: Request = ctx.switchToHttp().getRequest();
     if (!request.headers.authorization) return null;

@@ -32,7 +32,7 @@ import {
   CommentBloggerApiPaginationQueryDTO,
 } from './models/blog-blogger-api.query-dto';
 import { PostApiCreateUpdateDTO } from '../../../public-api/post/api/models/post-api.dto';
-import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
+import { ReqAccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case';
 import { CreatePostByBlogCommand } from '../application/use-cases/create-post-by-blog.use-case';
@@ -61,7 +61,7 @@ export class BlogBloggerController {
   @HttpCode(HttpStatus.CREATED)
   async createBlog(
     @Body() blogCreateDTO: BlogBloggerApiCreateUpdateDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<BlogBloggerApiViewModel> {
     const createdBlog: BlogBloggerApiViewModel = await this.commandBus.execute<
       CreateBlogCommand,
@@ -81,7 +81,7 @@ export class BlogBloggerController {
   async createPostForSpecificBlog(
     @Param('blogId') blogId: string,
     @Body() postCreateDTO: PostCreateUpdateBloggerApiDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<PostViewModel> {
     const mappedCreatePostDTO: PostApiCreateUpdateDTO = {
       title: postCreateDTO.title,
@@ -108,7 +108,7 @@ export class BlogBloggerController {
   async getBlogsWithPaginationForCurrentUser(
     @Query()
     rawPaginationQuery: BlogBloggerApiPaginationQueryDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<BlogBloggerApiPaginationViewModel> {
     const paginationQuery: BlogBloggerApiPaginationQueryDTO = {
       searchNameTerm: rawPaginationQuery.searchNameTerm ?? null,
@@ -132,7 +132,7 @@ export class BlogBloggerController {
     @Param('blogId') blogId: string,
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<PostPaginationViewModel> {
     const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -154,7 +154,7 @@ export class BlogBloggerController {
   @HttpCode(HttpStatus.OK)
   async getAllCommentsFromAllMyPosts(
     @Query() rawPaginationQuery: CommentBloggerApiPaginationQueryDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<CommentBloggerApiPaginationViewModel> {
     const paginationQuery: CommentBloggerApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,
@@ -176,7 +176,7 @@ export class BlogBloggerController {
   async getAllBannedUsersForBlog(
     @Query() rawPaginationQuery: BannedUsersBloggerApiPaginationQueryDTO,
     @Param('blogId') blogId: string,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<BannedUsersBloggerApiPaginationViewModel> {
     const paginationQuery: BannedUsersBloggerApiPaginationQueryDTO = {
       searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
@@ -200,7 +200,7 @@ export class BlogBloggerController {
   async updateBlogById(
     @Param('blogId') blogId: string,
     @Body() blogUpdateDTO: BlogBloggerApiCreateUpdateDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<void> {
     await this.commandBus.execute<UpdateBlogCommand, void>(
       new UpdateBlogCommand({
@@ -218,7 +218,7 @@ export class BlogBloggerController {
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
     @Body() postUpdateDTO: PostCreateUpdateBloggerApiDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<void> {
     await this.commandBus.execute<UpdatePostByBlogIdCommand, void>(
       new UpdatePostByBlogIdCommand({
@@ -236,7 +236,7 @@ export class BlogBloggerController {
   async banUser(
     @Param('userId') bannedUserId: string,
     @Body() banUserBloggerApiDTO: BanUserBloggerApiDTO,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<void> {
     await this.commandBus.execute<BanUserBloggerApiCommand, void>(
       new BanUserBloggerApiCommand({
@@ -254,7 +254,7 @@ export class BlogBloggerController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlogById(
     @Param('blogId') blogId: string,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<void> {
     await this.commandBus.execute<DeleteBlogCommand, void>(
       new DeleteBlogCommand({ blogId, accessToken }),
@@ -267,7 +267,7 @@ export class BlogBloggerController {
   async deletePostById(
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<void> {
     await this.commandBus.execute<DeletePostByBlogIdCommand, void>(
       new DeletePostByBlogIdCommand({ postId, blogId, accessToken }),

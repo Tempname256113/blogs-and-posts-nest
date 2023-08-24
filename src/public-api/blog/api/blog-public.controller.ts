@@ -8,7 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { PostApiPaginationQueryDTO } from '../../post/api/models/post-api.query-dto';
-import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
+import { ReqAccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { PostPaginationViewModel } from '../../post/api/models/post-api.models';
 import {
   BlogPublicApiViewModel,
@@ -49,7 +49,7 @@ export class BlogPublicController {
     @Query()
     rawPaginationQuery: PostApiPaginationQueryDTO,
     @Param('blogId') blogId: string,
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<PostPaginationViewModel> {
     const paginationQuery: PostApiPaginationQueryDTO = {
       pageNumber: rawPaginationQuery.pageNumber ?? 1,

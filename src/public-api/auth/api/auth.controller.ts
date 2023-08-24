@@ -26,7 +26,7 @@ import { AuthApiUserInfoType } from './models/auth-api.models';
 import { ClientDeviceTitle } from '../../../../generic-decorators/client-device-title.decorator';
 import { JwtAuthRefreshTokenGuard } from '../../../../libs/auth/passport-strategy/auth-jwt-refresh-token.strategy';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AccessToken } from '../../../../generic-decorators/access-token.decorator';
+import { ReqAccessToken } from '../../../../generic-decorators/access-token.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { RegistrationUserCommand } from '../application/use-cases/registration-user.use-case';
 import { LoginUserCommand } from '../application/use-cases/login-user.use-case';
@@ -177,7 +177,7 @@ export class AuthController {
   @Get('me')
   @HttpCode(HttpStatus.OK)
   async getInfoAboutUser(
-    @AccessToken() accessToken: string | null,
+    @ReqAccessToken() accessToken: string | null,
   ): Promise<AuthApiUserInfoType> {
     if (!accessToken) throw new UnauthorizedException();
     const foundedUserInfo: AuthApiUserInfoType | null =
