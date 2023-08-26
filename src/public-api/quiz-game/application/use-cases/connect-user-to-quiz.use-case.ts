@@ -106,14 +106,16 @@ export class ConnectUserToQuizUseCase
       .limit(5)
       .getMany();
     let currentQuestionPosition = 0;
+    const quizPairQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] = [];
     for (const question of questions) {
-      await this.quizGamePairQuestionsEntity.insert({
+      quizPairQuestionsWithPositions.push({
         quizGamePairId: quizGamePair.id,
         questionId: question.id,
         questionPosition: currentQuestionPosition,
       });
       currentQuestionPosition++;
     }
+    await this.quizGamePairQuestionsEntity.save(quizPairQuestionsWithPositions);
     await this.quizGamePairEntity.save(quizGamePair);
     return {
       id: String(quizGamePair.id),

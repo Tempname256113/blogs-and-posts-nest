@@ -38,58 +38,144 @@ export class SendAnswerToNextQuizQuestionUseCase
     const accessTokenPayload: JwtAccessTokenPayloadType =
       this.jwtUtils.verifyAccessToken(accessToken);
     const userId: string = accessTokenPayload.userId;
-    const foundedQuizGamePair: QuizGamePairSQLEntity =
+    const {
+      quizGamePair: foundedQuizGamePair,
+      playerPosition,
+    }: Awaited<ReturnType<typeof this.getQuizPairWithCurrentUser>> =
       await this.getQuizPairWithCurrentUser(userId);
     return this.sendAnswerToNextQuestion({
-      userId,
+      userId: Number(userId),
       answer,
       quizPair: foundedQuizGamePair,
+      playerPosition,
     });
   }
 
   async getQuizPairWithCurrentUser(
     userId: string,
-  ): Promise<QuizGamePairSQLEntity> {
+  ): Promise<{ quizGamePair: QuizGamePairSQLEntity; playerPosition: 1 | 2 }> {
     const foundedGameWithCurrentUser: QuizGamePairSQLEntity | null =
       await this.quizGamePairEntity.findOne({
         where: [
           { player1Id: Number(userId), status: 'Active' },
           { player2Id: Number(userId), status: 'Active' },
         ],
-        relations: ['questions'],
+        relations: ['questions', 'answers'],
       });
+    const playerPosition: 1 | 2 =
+      foundedGameWithCurrentUser.player1Id === Number(userId) ? 1 : 2;
     if (!foundedGameWithCurrentUser) {
       throw new ForbiddenException();
     }
-    return foundedGameWithCurrentUser;
+    return { quizGamePair: foundedGameWithCurrentUser, playerPosition };
   }
 
   async sendAnswerToNextQuestion({
     userId,
     quizPair,
+    playerPosition,
     answer,
   }: {
-    userId: string;
+    userId: number;
     quizPair: QuizGamePairSQLEntity;
+    playerPosition: 1 | 2;
     answer: string;
   }): Promise<QuizGamePublicApiPlayerAnswerViewModel> {
-    const userAnswers: QuizGamePairAnswerSQLEntity[] =
-      await this.quizGamePairAnswerEntity.findBy({
-        userId: Number(userId),
-        quizGamePairId: quizPair.id,
+    const currentUserAnswers: QuizGamePairAnswerSQLEntity[] =
+      quizPair.answers.filter((answer) => {
+        return answer.userId === userId;
       });
     const allQuestions: QuizGameQuestionSQLEntity[] = quizPair.questions;
-    const questionsWithPosition: QuizGamePairQuestionsSQLEntity[] =
+    const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
       await this.quizGamePairQuestionsEntity.findBy({
         quizGamePairId: quizPair.id,
       });
-    this.checkUserAnswersCount({
-      userAnswers,
+    this.checkCurrentUserAnswersCount({
+      userAnswers: currentUserAnswers,
       allQuestions,
     });
-    if (userAnswers.length === 0) {
+    const sendAnswer = async (
+      question: QuizGameQuestionSQLEntity,
+    ): Promise<QuizGamePublicApiPlayerAnswerViewModel> => {
+      const increasePlayerScore = (): void => {
+        const getPlayerAnswers = (
+          playerPosition: 1 | 2,
+        ): QuizGamePairAnswerSQLEntity[] => {
+          const userId: number =
+            playerPosition === 1 ? quizPair.player1Id : quizPair.player2Id;
+          const userAnswers: QuizGamePairAnswerSQLEntity[] =
+            quizPair.answers.filter((answer) => {
+              return answer.userId === userId;
+            });
+          return userAnswers;
+        };
+        const playersAnswers: {
+          firstPlayerAnswers: QuizGamePairAnswerSQLEntity[];
+          secondPlayerAnswers: QuizGamePairAnswerSQLEntity[];
+        } = {
+          firstPlayerAnswers: getPlayerAnswers(1),
+          secondPlayerAnswers: getPlayerAnswers(2),
+        };
+        if (playerPosition === 1) {
+          quizPair.player1Score += 1;
+          const { firstPlayerAnswers, secondPlayerAnswers } = playersAnswers;
+          // если новый ответ является последним для первого игрока
+          if (firstPlayerAnswers.length + 1 === allQuestions.length) {
+            // если оппонент уже ответил на все вопросы первым
+            if (secondPlayerAnswers.length === allQuestions.length) {
+              const foundedCorrectAnswer:
+                | QuizGamePairAnswerSQLEntity
+                | undefined = secondPlayerAnswers.find((answer) => {
+                return answer.answerStatus === 'Correct';
+              });
+              if (foundedCorrectAnswer) {
+                quizPair.player2Score += 1;
+              }
+            }
+          }
+        } else if (playerPosition === 2) {
+          quizPair.player2Score += 1;
+          const { firstPlayerAnswers, secondPlayerAnswers } = playersAnswers;
+          // если новый ответ является последним для второго игрока
+          if (secondPlayerAnswers.length + 1 === allQuestions.length) {
+            // если оппонент уже ответил на все вопросы первым
+            if (firstPlayerAnswers.length === allQuestions.length) {
+              const foundedCorrectAnswer:
+                | QuizGamePairAnswerSQLEntity
+                | undefined = firstPlayerAnswers.find((answer) => {
+                return answer.answerStatus === 'Correct';
+              });
+              if (foundedCorrectAnswer) {
+                quizPair.player1Score += 1;
+              }
+            }
+          }
+        }
+      };
+      const answerStatus: boolean = question.answers.includes(answer);
+      const newAnswer: QuizGamePairAnswerSQLEntity =
+        new QuizGamePairAnswerSQLEntity();
+      newAnswer.quizGamePairId = quizPair.id;
+      newAnswer.userId = userId;
+      newAnswer.questionId = question.id;
+      newAnswer.addedAt = new Date().toISOString();
+      if (answerStatus) {
+        newAnswer.answerStatus = 'Correct';
+        increasePlayerScore();
+      } else {
+        newAnswer.answerStatus = 'Incorrect';
+      }
+      await this.quizGamePairAnswerEntity.save(newAnswer);
+      await this.quizGamePairEntity.save(quizPair);
+      return {
+        questionId: String(newAnswer.questionId),
+        answerStatus: newAnswer.answerStatus,
+        addedAt: newAnswer.addedAt,
+      };
+    };
+    if (currentUserAnswers.length === 0) {
       const questionWithPosition: QuizGamePairQuestionsSQLEntity =
-        questionsWithPosition.find((question) => {
+        questionsWithPositions.find((question) => {
           return question.questionPosition === 0;
         });
       const question: QuizGameQuestionSQLEntity = allQuestions.find(
@@ -97,18 +183,15 @@ export class SendAnswerToNextQuizQuestionUseCase
           return question.id === questionWithPosition.questionId;
         },
       );
-      return this.sendAnswer({
-        userId: Number(userId),
-        quizGamePairId: quizPair.id,
-        question,
-        answer,
-      });
-    } else if (userAnswers.length > 0) {
-      const questionsIdWithAnswers: number[] = userAnswers.map((answer) => {
-        return answer.questionId;
-      });
+      return sendAnswer(question);
+    } else if (currentUserAnswers.length > 0) {
+      const questionsIdWithAnswers: number[] = currentUserAnswers.map(
+        (answer) => {
+          return answer.questionId;
+        },
+      );
       const questionsWithoutAnswers: QuizGamePairQuestionsSQLEntity[] =
-        questionsWithPosition.filter((question) => {
+        questionsWithPositions.filter((question) => {
           return !questionsIdWithAnswers.includes(question.questionId);
         });
       const questionPosition: number = Math.min(
@@ -116,7 +199,7 @@ export class SendAnswerToNextQuizQuestionUseCase
           return question.questionPosition;
         }),
       );
-      const questionId: number = questionsWithPosition.find((question) => {
+      const questionId: number = questionsWithPositions.find((question) => {
         return question.questionPosition === questionPosition;
       }).questionId;
       const question: QuizGameQuestionSQLEntity = allQuestions.find(
@@ -124,16 +207,11 @@ export class SendAnswerToNextQuizQuestionUseCase
           return question.id === questionId;
         },
       );
-      return this.sendAnswer({
-        userId: Number(userId),
-        quizGamePairId: quizPair.id,
-        question,
-        answer,
-      });
+      return sendAnswer(question);
     }
   }
 
-  checkUserAnswersCount({
+  checkCurrentUserAnswersCount({
     userAnswers,
     allQuestions,
   }: {
@@ -143,36 +221,5 @@ export class SendAnswerToNextQuizQuestionUseCase
     if (allQuestions.length === userAnswers.length) {
       throw new ForbiddenException();
     }
-  }
-
-  async sendAnswer({
-    userId,
-    quizGamePairId,
-    question,
-    answer,
-  }: {
-    userId: number;
-    quizGamePairId: number;
-    question: QuizGameQuestionSQLEntity;
-    answer: string;
-  }): Promise<QuizGamePublicApiPlayerAnswerViewModel> {
-    const answerStatus: boolean = question.answers.includes(answer);
-    const newAnswer: QuizGamePairAnswerSQLEntity =
-      new QuizGamePairAnswerSQLEntity();
-    newAnswer.quizGamePairId = quizGamePairId;
-    newAnswer.userId = userId;
-    newAnswer.questionId = question.id;
-    newAnswer.addedAt = new Date().toISOString();
-    if (answerStatus) {
-      newAnswer.answerStatus = 'Correct';
-    } else {
-      newAnswer.answerStatus = 'Incorrect';
-    }
-    await this.quizGamePairAnswerEntity.save(newAnswer);
-    return {
-      questionId: String(newAnswer.questionId),
-      answerStatus: newAnswer.answerStatus,
-      addedAt: newAnswer.addedAt,
-    };
   }
 }
