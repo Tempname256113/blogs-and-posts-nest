@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -54,11 +55,24 @@ export class QuizGamePublicController {
   @Get('my-current')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AccessTokenGuard)
-  async getActivePair(
+  async getActiveQuizGamePair(
     @ReqAccessToken() accessToken: string | null,
   ): Promise<QuizGamePublicApiViewModel> {
     return this.quizGamePublicQueryRepositorySQL.getUserActiveQuizGame(
       accessToken,
     );
+  }
+
+  @Get(':quizGameId')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
+  async getQuizGameById(
+    @Param('quizGameId') quizGameId: string,
+    @ReqAccessToken() accessToken: string | null,
+  ): Promise<QuizGamePublicApiViewModel> {
+    return this.quizGamePublicQueryRepositorySQL.getQuizGameById({
+      accessToken,
+      quizGameId,
+    });
   }
 }
