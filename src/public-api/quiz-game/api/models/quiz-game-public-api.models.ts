@@ -9,6 +9,11 @@ export type QuizGamePublicApiPlayerViewModel = {
   login: string;
 };
 
+export type QuizGamePublicApiQuestionViewModel = {
+  id: string;
+  body: string;
+};
+
 export type QuizGamePublicApiViewModel = {
   id: string;
   firstPlayerProgress: {
@@ -21,7 +26,7 @@ export type QuizGamePublicApiViewModel = {
     player: QuizGamePublicApiPlayerViewModel;
     score: number;
   } | null;
-  questions: { id: string; body: string }[] | null;
+  questions: QuizGamePublicApiQuestionViewModel[] | null;
   status: 'PendingSecondPlayer' | 'Active' | 'Finished';
   pairCreatedDate: string;
   startGameDate: string | null;

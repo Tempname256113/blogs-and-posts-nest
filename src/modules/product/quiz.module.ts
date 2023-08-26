@@ -15,6 +15,7 @@ import { JwtModule } from '../../../libs/auth/jwt/jwt.module';
 import { ConnectUserToQuizUseCase } from '../../public-api/quiz-game/application/use-cases/connect-user-to-quiz.use-case';
 import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
+import { PublicQuizGameQueryRepositorySQL } from '../../public-api/quiz-game/infrastructure/repositories/quiz-game-public.query-repository-sql';
 
 const useCases = [
   CreateQuestionUseCase,
@@ -34,6 +35,7 @@ const accessTokenGuard = [AccessTokenGuard, UserQueryRepositorySQL];
     EnvConfiguration,
     AdminQuizGameRepositorySQL,
     AdminQuizGameQueryRepositorySQL,
+    PublicQuizGameQueryRepositorySQL,
     ...useCases,
     ...accessTokenGuard,
   ],
