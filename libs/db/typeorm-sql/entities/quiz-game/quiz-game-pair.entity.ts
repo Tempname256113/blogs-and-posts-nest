@@ -42,11 +42,17 @@ export class QuizGamePairSQLEntity {
   @Column({ type: 'timestamp', nullable: true })
   finishGameDate: string | null;
 
-  @ManyToOne(() => UserSQLEntity, (player1) => player1.quizGamesAsPlayer1)
+  @ManyToOne(() => UserSQLEntity, (player1) => player1.quizGamesAsPlayer1, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   @JoinColumn({ name: 'player1Id' })
   player1: Relation<UserSQLEntity>;
 
-  @ManyToOne(() => UserSQLEntity, (player2) => player2.quizGamesAsPlayer2)
+  @ManyToOne(() => UserSQLEntity, (player2) => player2.quizGamesAsPlayer2, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   @JoinColumn({ name: 'player2Id' })
   player2: Relation<UserSQLEntity>;
 

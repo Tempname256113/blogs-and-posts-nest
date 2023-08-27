@@ -16,6 +16,7 @@ import { ConnectUserToQuizUseCase } from '../../public-api/quiz-game/application
 import { AccessTokenGuard } from '../../../generic-guards/access-token.guard';
 import { UserQueryRepositorySQL } from '../../admin-api/user/infrastructure/repositories/user.query-repository-sql';
 import { PublicQuizGameQueryRepositorySQL } from '../../public-api/quiz-game/infrastructure/repositories/quiz-game-public.query-repository-sql';
+import { SendAnswerToNextQuizQuestionUseCase } from '../../public-api/quiz-game/application/use-cases/send-answer-to-next-quiz-question.use-case';
 
 const useCases = [
   CreateQuestionUseCase,
@@ -23,6 +24,7 @@ const useCases = [
   UpdateQuizGameQuestionUseCase,
   PublishQuizGameQuestionUseCase,
   ConnectUserToQuizUseCase,
+  SendAnswerToNextQuizQuestionUseCase,
 ];
 
 // в одном массиве потому что в нем зависимости гарда
