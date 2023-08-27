@@ -37,7 +37,7 @@ const postgresRemote: TypeOrmModuleOptions = {
   password: envVariables.POSTGRES_REMOTE_PASSWORD,
   database: 'incubator',
   autoLoadEntities: true,
-  synchronize: true,
+  synchronize: false,
   ssl: true,
 };
 
