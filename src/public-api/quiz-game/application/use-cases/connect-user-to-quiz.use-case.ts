@@ -106,7 +106,10 @@ export class ConnectUserToQuizUseCase
       .limit(5)
       .getMany();
     let currentQuestionPosition = 0;
-    const quizPairQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] = [];
+    const quizPairQuestionsWithPositions: Pick<
+      QuizGamePairQuestionsSQLEntity,
+      Exclude<keyof QuizGamePairQuestionsSQLEntity, 'id'>
+    >[] = [];
     for (const question of questions) {
       quizPairQuestionsWithPositions.push({
         quizGamePairId: quizGamePair.id,

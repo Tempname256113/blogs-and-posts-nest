@@ -3,7 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 import { UserSQLEntity } from '../users/user-sql.entity';
@@ -12,13 +12,16 @@ import { QuizGameQuestionSQLEntity } from './quiz-game-question.entity';
 
 @Entity({ name: 'quiz_game_pair_answers_typeorm' })
 export class QuizGamePairAnswerSQLEntity {
-  @PrimaryColumn({ type: 'integer' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ type: 'integer' })
   quizGamePairId: number;
 
-  @PrimaryColumn({ type: 'integer' })
+  @Column({ type: 'integer' })
   userId: number;
 
-  @PrimaryColumn({ type: 'integer' })
+  @Column({ type: 'integer' })
   questionId: number;
 
   @Column({ type: 'varchar', length: 10 })

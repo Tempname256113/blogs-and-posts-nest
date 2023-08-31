@@ -11,7 +11,6 @@ import { Repository } from 'typeorm';
 import { QuizGamePairQuestionsSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-questions.entity';
 import {
   QuizGamePublicApiPlayerAnswerViewModel,
-  QuizGamePublicApiPlayerViewModel,
   QuizGamePublicApiQuestionViewModel,
   QuizGamePublicApiViewModel,
 } from '../../api/models/quiz-game-public-api.models';
@@ -19,7 +18,6 @@ import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.pay
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
-import { QuizGamePairAnswerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-answer.entity';
 
 @Injectable()
 export class PublicQuizGameQueryRepositorySQL {

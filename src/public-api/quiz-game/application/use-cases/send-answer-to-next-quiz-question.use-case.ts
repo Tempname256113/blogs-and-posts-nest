@@ -97,7 +97,7 @@ export class SendAnswerToNextQuizQuestionUseCase
     const sendAnswer = async (
       question: QuizGameQuestionSQLEntity,
     ): Promise<QuizGamePublicApiPlayerAnswerViewModel> => {
-      const increasePlayerScore = (): void => {
+      const increasePlayerScore = async (): Promise<void> => {
         const getPlayerAnswers = (
           playerPosition: 1 | 2,
         ): QuizGamePairAnswerSQLEntity[] => {
@@ -151,6 +151,7 @@ export class SendAnswerToNextQuizQuestionUseCase
             }
           }
         }
+        await this.quizGamePairEntity.save(quizPair);
       };
       const answerStatus: boolean = question.answers.includes(answer);
       const newAnswer: QuizGamePairAnswerSQLEntity =
@@ -161,12 +162,11 @@ export class SendAnswerToNextQuizQuestionUseCase
       newAnswer.addedAt = new Date().toISOString();
       if (answerStatus) {
         newAnswer.answerStatus = 'Correct';
-        increasePlayerScore();
+        await increasePlayerScore();
       } else {
         newAnswer.answerStatus = 'Incorrect';
       }
       await this.quizGamePairAnswerEntity.save(newAnswer);
-      await this.quizGamePairEntity.save(quizPair);
       return {
         questionId: String(newAnswer.questionId),
         answerStatus: newAnswer.answerStatus,

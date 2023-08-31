@@ -1,16 +1,19 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'quiz_game_pair_questions_typeorm' })
 export class QuizGamePairQuestionsSQLEntity {
-  @PrimaryColumn({ type: 'integer' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ type: 'integer' })
   quizGamePairId: number;
 
-  @PrimaryColumn({ type: 'integer' })
+  @Column({ type: 'integer' })
   questionId: number;
 
   /* позиция вопроса в массиве вопросов к квиз паре.
    * нужно чтобы знать очередность вопросов в игре
    * и в случае чего восстановить ее заново */
-  @Column({ type: 'integer', default: 0 })
+  @Column({ type: 'integer' })
   questionPosition: number;
 }
