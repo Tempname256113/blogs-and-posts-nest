@@ -18,6 +18,7 @@ import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.pay
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
+import { validate } from 'uuid';
 
 @Injectable()
 export class PublicQuizGameQueryRepositorySQL {
@@ -142,7 +143,7 @@ export class PublicQuizGameQueryRepositorySQL {
     accessToken: string;
     quizGameId: string;
   }): Promise<QuizGamePublicApiViewModel> {
-    if (!Number(quizGameId)) {
+    if (!validate(quizGameId)) {
       throw new BadRequestException(exceptionFactoryFunction(['id']));
     }
     const accessTokenPayload: JwtAccessTokenPayloadType | null =
