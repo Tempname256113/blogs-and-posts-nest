@@ -62,11 +62,11 @@ export class SendAnswerToNextQuizQuestionUseCase
         ],
         relations: ['questions', 'answers'],
       });
-    const playerPosition: 1 | 2 =
-      foundedGameWithCurrentUser.player1Id === Number(userId) ? 1 : 2;
     if (!foundedGameWithCurrentUser) {
       throw new ForbiddenException();
     }
+    const playerPosition: 1 | 2 =
+      foundedGameWithCurrentUser.player1Id === Number(userId) ? 1 : 2;
     return { quizGamePair: foundedGameWithCurrentUser, playerPosition };
   }
 
