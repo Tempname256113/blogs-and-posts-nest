@@ -152,7 +152,7 @@ export class PublicQuizGameQueryRepositorySQL {
     const userId: string = accessTokenPayload.userId;
     const foundedQuizGame: QuizGamePairSQLEntity | null =
       await this.quizGamePairEntity.findOne({
-        where: { id: Number(quizGameId) },
+        where: { id: quizGameId },
         relations: ['player1', 'player2', 'questions', 'answers'],
       });
     if (!foundedQuizGame) {
@@ -185,7 +185,7 @@ export class PublicQuizGameQueryRepositorySQL {
     }
     const allQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
       await this.quizGamePairQuestionsEntity.findBy({
-        quizGamePairId: Number(quizGameId),
+        quizGamePairId: quizGameId,
       });
     const quizGameQuestions: QuizGamePublicApiQuestionViewModel[] = [];
     allQuestionsWithPositions.forEach((questionWithPosition) => {

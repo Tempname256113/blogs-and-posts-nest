@@ -16,7 +16,7 @@ import { QuizGamePairAnswerSQLEntity } from './quiz-game-pair-answer.entity';
 @Entity({ name: 'quiz_game_pair_typeorm' })
 export class QuizGamePairSQLEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({ type: 'integer' })
   player1Id: number;

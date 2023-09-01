@@ -5,8 +5,8 @@ export class QuizGamePairQuestionsSQLEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'integer' })
-  quizGamePairId: number;
+  @Column({ type: 'uuid' })
+  quizGamePairId: string;
 
   @Column({ type: 'integer' })
   questionId: number;
