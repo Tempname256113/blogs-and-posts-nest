@@ -131,6 +131,7 @@ export class SendAnswerToNextQuizQuestionUseCase
               if (foundedCorrectAnswer) {
                 quizPair.player2Score += 1;
               }
+              quizPair.status = 'Finished';
             }
           }
         } else if (playerPosition === 2) {
@@ -148,6 +149,7 @@ export class SendAnswerToNextQuizQuestionUseCase
               if (foundedCorrectAnswer) {
                 quizPair.player1Score += 1;
               }
+              quizPair.status = 'Finished';
             }
           }
         }
