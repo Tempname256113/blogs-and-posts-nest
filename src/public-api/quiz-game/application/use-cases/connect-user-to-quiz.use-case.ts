@@ -118,8 +118,8 @@ export class ConnectUserToQuizUseCase
       });
       currentQuestionPosition++;
     }
-    await this.quizGamePairQuestionsEntity.save(quizPairQuestionsWithPositions);
     await this.quizGamePairEntity.save(quizGamePair);
+    await this.quizGamePairQuestionsEntity.save(quizPairQuestionsWithPositions);
     return {
       id: String(quizGamePair.id),
       firstPlayerProgress: {
