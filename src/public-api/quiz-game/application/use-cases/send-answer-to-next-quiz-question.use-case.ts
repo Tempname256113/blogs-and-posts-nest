@@ -132,6 +132,7 @@ export class SendAnswerToNextQuizQuestionUseCase
                 quizPair.player2Score += 1;
               }
               quizPair.status = 'Finished';
+              quizPair.finishGameDate = new Date().toISOString();
             }
           }
         } else if (playerPosition === 2) {
@@ -150,6 +151,7 @@ export class SendAnswerToNextQuizQuestionUseCase
                 quizPair.player1Score += 1;
               }
               quizPair.status = 'Finished';
+              quizPair.finishGameDate = new Date().toISOString();
             }
           }
         }
