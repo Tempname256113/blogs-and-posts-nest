@@ -22,7 +22,7 @@ export class SessionSQLEntity {
   @Column({ type: 'varchar', length: 40 })
   userIpAddress: string;
 
-  @Column({ type: 'varchar', length: 300 })
+  @Column({ type: 'varchar', length: 300, default: 'unknown' })
   userDeviceTitle: string;
 
   @Column({ type: 'timestamp' })

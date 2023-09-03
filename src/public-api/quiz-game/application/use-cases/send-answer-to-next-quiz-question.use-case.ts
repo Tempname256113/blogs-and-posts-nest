@@ -97,28 +97,37 @@ export class SendAnswerToNextQuizQuestionUseCase
     const sendAnswer = async (
       question: QuizGameQuestionSQLEntity,
     ): Promise<QuizGamePublicApiPlayerAnswerViewModel> => {
+      const getPlayerAnswers = (
+        playerPosition: 1 | 2,
+      ): QuizGamePairAnswerSQLEntity[] => {
+        const userId: number =
+          playerPosition === 1 ? quizPair.player1Id : quizPair.player2Id;
+        const userAnswers: QuizGamePairAnswerSQLEntity[] =
+          quizPair.answers.filter((answer) => {
+            return answer.userId === userId;
+          });
+        return userAnswers;
+      };
+      const {
+        firstPlayerAnswers,
+        secondPlayerAnswers,
+      }: {
+        firstPlayerAnswers: QuizGamePairAnswerSQLEntity[];
+        secondPlayerAnswers: QuizGamePairAnswerSQLEntity[];
+      } = {
+        firstPlayerAnswers: getPlayerAnswers(1),
+        secondPlayerAnswers: getPlayerAnswers(2),
+      };
+      const playersAnswersQuantity: {
+        firstPlayerAnswersQuantity: number;
+        secondPlayerAnswersQuantity: number;
+      } = {
+        firstPlayerAnswersQuantity: firstPlayerAnswers.length,
+        secondPlayerAnswersQuantity: secondPlayerAnswers.length,
+      };
       const increasePlayerScore = async (): Promise<void> => {
-        const getPlayerAnswers = (
-          playerPosition: 1 | 2,
-        ): QuizGamePairAnswerSQLEntity[] => {
-          const userId: number =
-            playerPosition === 1 ? quizPair.player1Id : quizPair.player2Id;
-          const userAnswers: QuizGamePairAnswerSQLEntity[] =
-            quizPair.answers.filter((answer) => {
-              return answer.userId === userId;
-            });
-          return userAnswers;
-        };
-        const playersAnswers: {
-          firstPlayerAnswers: QuizGamePairAnswerSQLEntity[];
-          secondPlayerAnswers: QuizGamePairAnswerSQLEntity[];
-        } = {
-          firstPlayerAnswers: getPlayerAnswers(1),
-          secondPlayerAnswers: getPlayerAnswers(2),
-        };
         if (playerPosition === 1) {
           quizPair.player1Score += 1;
-          const { firstPlayerAnswers, secondPlayerAnswers } = playersAnswers;
           // если новый ответ является последним для первого игрока
           if (firstPlayerAnswers.length + 1 === allQuestions.length) {
             // если оппонент уже ответил на все вопросы первым
@@ -131,13 +140,10 @@ export class SendAnswerToNextQuizQuestionUseCase
               if (foundedCorrectAnswer) {
                 quizPair.player2Score += 1;
               }
-              quizPair.status = 'Finished';
-              quizPair.finishGameDate = new Date().toISOString();
             }
           }
         } else if (playerPosition === 2) {
           quizPair.player2Score += 1;
-          const { firstPlayerAnswers, secondPlayerAnswers } = playersAnswers;
           // если новый ответ является последним для второго игрока
           if (secondPlayerAnswers.length + 1 === allQuestions.length) {
             // если оппонент уже ответил на все вопросы первым
@@ -150,13 +156,24 @@ export class SendAnswerToNextQuizQuestionUseCase
               if (foundedCorrectAnswer) {
                 quizPair.player1Score += 1;
               }
-              quizPair.status = 'Finished';
-              quizPair.finishGameDate = new Date().toISOString();
             }
           }
         }
-        await this.quizGamePairEntity.save(quizPair);
       };
+      if (playerPosition === 1) {
+        playersAnswersQuantity.firstPlayerAnswersQuantity += 1;
+      } else if (playerPosition === 2) {
+        playersAnswersQuantity.secondPlayerAnswersQuantity += 1;
+      }
+      if (
+        playersAnswersQuantity.firstPlayerAnswersQuantity ===
+          allQuestions.length &&
+        playersAnswersQuantity.secondPlayerAnswersQuantity ===
+          allQuestions.length
+      ) {
+        quizPair.status = 'Finished';
+        quizPair.finishGameDate = new Date().toISOString();
+      }
       const answerStatus: boolean = question.answers.includes(answer);
       const newAnswer: QuizGamePairAnswerSQLEntity =
         new QuizGamePairAnswerSQLEntity();
@@ -170,6 +187,7 @@ export class SendAnswerToNextQuizQuestionUseCase
       } else {
         newAnswer.answerStatus = 'Incorrect';
       }
+      await this.quizGamePairEntity.save(quizPair);
       await this.quizGamePairAnswerEntity.save(newAnswer);
       return {
         questionId: String(newAnswer.questionId),
