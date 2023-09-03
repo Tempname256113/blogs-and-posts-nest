@@ -159,7 +159,7 @@ export class PublicQuizGameQueryRepositorySQL {
       throw new NotFoundException();
     }
     if (
-      foundedQuizGame.player1Id !== Number(userId) ||
+      foundedQuizGame.player1Id !== Number(userId) &&
       foundedQuizGame.player2Id !== Number(userId)
     ) {
       throw new ForbiddenException();
