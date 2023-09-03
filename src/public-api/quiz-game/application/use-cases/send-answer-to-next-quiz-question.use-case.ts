@@ -125,45 +125,50 @@ export class SendAnswerToNextQuizQuestionUseCase
         firstPlayerAnswersQuantity: firstPlayerAnswers.length,
         secondPlayerAnswersQuantity: secondPlayerAnswers.length,
       };
-      const increasePlayerScore = async (): Promise<void> => {
-        if (playerPosition === 1) {
-          quizPair.player1Score += 1;
-          // если новый ответ является последним для первого игрока
-          if (firstPlayerAnswers.length + 1 === allQuestions.length) {
-            // если оппонент уже ответил на все вопросы первым
-            if (secondPlayerAnswers.length === allQuestions.length) {
-              const foundedCorrectAnswer:
-                | QuizGamePairAnswerSQLEntity
-                | undefined = secondPlayerAnswers.find((answer) => {
-                return answer.answerStatus === 'Correct';
-              });
-              if (foundedCorrectAnswer) {
-                quizPair.player2Score += 1;
-              }
-            }
-          }
-        } else if (playerPosition === 2) {
-          quizPair.player2Score += 1;
-          // если новый ответ является последним для второго игрока
-          if (secondPlayerAnswers.length + 1 === allQuestions.length) {
-            // если оппонент уже ответил на все вопросы первым
-            if (firstPlayerAnswers.length === allQuestions.length) {
-              const foundedCorrectAnswer:
-                | QuizGamePairAnswerSQLEntity
-                | undefined = firstPlayerAnswers.find((answer) => {
-                return answer.answerStatus === 'Correct';
-              });
-              if (foundedCorrectAnswer) {
-                quizPair.player1Score += 1;
-              }
+      if (playerPosition === 1) {
+        playersAnswersQuantity.firstPlayerAnswersQuantity += 1;
+        // если новый ответ является последним для первого игрока
+        if (
+          playersAnswersQuantity.firstPlayerAnswersQuantity ===
+          allQuestions.length
+        ) {
+          // если оппонент уже ответил на все вопросы первым
+          if (
+            playersAnswersQuantity.secondPlayerAnswersQuantity ===
+            allQuestions.length
+          ) {
+            const foundedCorrectAnswer:
+              | QuizGamePairAnswerSQLEntity
+              | undefined = secondPlayerAnswers.find((answer) => {
+              return answer.answerStatus === 'Correct';
+            });
+            if (foundedCorrectAnswer) {
+              quizPair.player2Score += 1;
             }
           }
         }
-      };
-      if (playerPosition === 1) {
-        playersAnswersQuantity.firstPlayerAnswersQuantity += 1;
       } else if (playerPosition === 2) {
         playersAnswersQuantity.secondPlayerAnswersQuantity += 1;
+        // если новый ответ является последним для второго игрока
+        if (
+          playersAnswersQuantity.secondPlayerAnswersQuantity ===
+          allQuestions.length
+        ) {
+          // если оппонент уже ответил на все вопросы первым
+          if (
+            playersAnswersQuantity.firstPlayerAnswersQuantity ===
+            allQuestions.length
+          ) {
+            const foundedCorrectAnswer:
+              | QuizGamePairAnswerSQLEntity
+              | undefined = firstPlayerAnswers.find((answer) => {
+              return answer.answerStatus === 'Correct';
+            });
+            if (foundedCorrectAnswer) {
+              quizPair.player1Score += 1;
+            }
+          }
+        }
       }
       if (
         playersAnswersQuantity.firstPlayerAnswersQuantity ===
@@ -183,7 +188,11 @@ export class SendAnswerToNextQuizQuestionUseCase
       newAnswer.addedAt = new Date().toISOString();
       if (answerStatus) {
         newAnswer.answerStatus = 'Correct';
-        await increasePlayerScore();
+        if (playerPosition === 1) {
+          quizPair.player1Score += 1;
+        } else if (playerPosition === 2) {
+          quizPair.player2Score += 1;
+        }
       } else {
         newAnswer.answerStatus = 'Incorrect';
       }
