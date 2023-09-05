@@ -82,7 +82,6 @@ export class AdminQuizGameQueryRepositorySQL {
     const foundedQuizGameQuestion: QuizGameQuestionSQLEntity | null =
       await this.quizGameQuestionEntity.findOne({
         where: { id: Number(questionId) },
-        relations: ['answer'],
       });
     if (!foundedQuizGameQuestion) return null;
     return {
