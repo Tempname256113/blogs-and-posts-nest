@@ -5,13 +5,21 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { QuizGamePairSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair.entity';
-import { Repository } from 'typeorm';
+import {
+  DataSource,
+  FindOptionsOrder,
+  In,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { QuizGamePairQuestionsSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-questions.entity';
 import {
+  QuizGamePublicApiPaginationViewModel,
   QuizGamePublicApiPlayerAnswerViewModel,
   QuizGamePublicApiQuestionViewModel,
+  QuizGamePublicApiUserStatisticViewModel,
   QuizGamePublicApiViewModel,
 } from '../../api/models/quiz-game-public-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
@@ -19,6 +27,8 @@ import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { validate } from 'uuid';
+import { QuizGamePublicApiPaginationQueryDTO } from '../../api/models/quiz-game-public-api.dto';
+import { QuizGamePairAnswerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-answer.entity';
 
 @Injectable()
 export class PublicQuizGameQueryRepositorySQL {
@@ -28,6 +38,7 @@ export class PublicQuizGameQueryRepositorySQL {
     private readonly quizGamePairEntity: Repository<QuizGamePairSQLEntity>,
     @InjectRepository(QuizGamePairQuestionsSQLEntity)
     private readonly quizGamePairQuestionsEntity: Repository<QuizGamePairQuestionsSQLEntity>,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   async getUserActiveQuizGame(
@@ -248,6 +259,259 @@ export class PublicQuizGameQueryRepositorySQL {
       pairCreatedDate: foundedQuizGame.pairCreatedDate,
       startGameDate: foundedQuizGame.startGameDate,
       finishGameDate: foundedQuizGame.finishGameDate,
+    };
+  }
+
+  async getQuizGamesWithPagination({
+    accessToken,
+    paginationQuery,
+  }: {
+    accessToken: string;
+    paginationQuery: QuizGamePublicApiPaginationQueryDTO;
+  }): Promise<QuizGamePublicApiPaginationViewModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtUtils.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const userId: string = accessTokenPayload.userId;
+    const correctOrder: FindOptionsOrder<QuizGamePairSQLEntity> =
+      paginationQuery.sortBy === 'status'
+        ? { status: paginationQuery.sortDirection, pairCreatedDate: 'desc' }
+        : { [paginationQuery.sortBy]: paginationQuery.sortDirection };
+    const howMuchToSkip: number =
+      (paginationQuery.pageNumber - 1) * paginationQuery.pageSize;
+    const foundedQuizGames: QuizGamePairSQLEntity[] =
+      await this.quizGamePairEntity.find({
+        where: [{ player1Id: Number(userId) }, { player2Id: Number(userId) }],
+        relations: ['player1', 'player2', 'questions', 'answers'],
+        order: correctOrder,
+        skip: howMuchToSkip,
+        take: paginationQuery.pageSize,
+      });
+    // const foundedGamesIds: string[] = foundedQuizGames.map((quizGame) => {
+    //   return quizGame.id;
+    // });
+    // const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+    //   await this.quizGamePairQuestionsEntity.findBy({
+    //     quizGamePairId: In(foundedGamesIds),
+    //   });
+    const totalCount: number = foundedQuizGames.length;
+    const pagesCount: number = Math.ceil(totalCount / paginationQuery.pageSize);
+    const mappedQuizGames: QuizGamePublicApiViewModel[] = foundedQuizGames.map(
+      (quizGame) => {
+        if (quizGame.status === 'PendingSecondPlayer') {
+          return {
+            id: quizGame.id,
+            firstPlayerProgress: {
+              answers: [],
+              player: {
+                id: String(quizGame.player1.id),
+                login: quizGame.player1.login,
+              },
+              score: quizGame.player1Score,
+            },
+            secondPlayerProgress: null,
+            questions: null,
+            status: quizGame.status,
+            pairCreatedDate: quizGame.pairCreatedDate,
+            startGameDate: null,
+            finishGameDate: null,
+          };
+        }
+        const firstPlayerAnswers: QuizGamePublicApiPlayerAnswerViewModel[] =
+          quizGame.answers
+            .filter((answer) => {
+              return answer.userId === quizGame.player1Id;
+            })
+            .map((answer) => {
+              return {
+                questionId: String(answer.questionId),
+                answerStatus: answer.answerStatus,
+                addedAt: answer.addedAt,
+              };
+            });
+        const secondPlayerAnswers: QuizGamePublicApiPlayerAnswerViewModel[] =
+          quizGame.answers
+            .filter((answer) => {
+              return answer.userId === quizGame.player2Id;
+            })
+            .map((answer) => {
+              return {
+                questionId: String(answer.questionId),
+                answerStatus: answer.answerStatus,
+                addedAt: answer.addedAt,
+              };
+            });
+        // const quizGameQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+        //   questionsWithPositions.filter((question) => {
+        //     return question.quizGamePairId === quizGame.id;
+        //   });
+        // const questions: QuizGameQuestionSQLEntity[] = [];
+        // quizGameQuestionsWithPositions.forEach((questionWithPosition) => {
+        //   const foundedQuestion: QuizGameQuestionSQLEntity =
+        //     quizGame.questions.find((question) => {
+        //       return question.id === questionWithPosition.questionId;
+        //     });
+        //   questions[questionWithPosition.questionPosition] = foundedQuestion;
+        // });
+        const mappedQuestions: QuizGamePublicApiQuestionViewModel[] =
+          quizGame.questions.map((question) => {
+            return {
+              id: String(question.id),
+              body: question.body,
+            };
+          });
+        return {
+          id: quizGame.id,
+          firstPlayerProgress: {
+            answers: firstPlayerAnswers,
+            player: {
+              id: String(quizGame.player1.id),
+              login: quizGame.player1.login,
+            },
+            score: quizGame.player1Score,
+          },
+          secondPlayerProgress: {
+            answers: secondPlayerAnswers,
+            player: {
+              id: String(quizGame.player2.id),
+              login: quizGame.player2.login,
+            },
+            score: quizGame.player2Score,
+          },
+          questions: mappedQuestions,
+          status: quizGame.status,
+          pairCreatedDate: quizGame.pairCreatedDate,
+          startGameDate: quizGame.startGameDate,
+          finishGameDate: quizGame.finishGameDate,
+        };
+      },
+    );
+    return {
+      pagesCount,
+      page: paginationQuery.pageNumber,
+      pageSize: paginationQuery.pageSize,
+      totalCount,
+      items: mappedQuizGames,
+    };
+  }
+
+  async getQuizGamesUserStatistic(
+    accessToken: string,
+  ): Promise<QuizGamePublicApiUserStatisticViewModel> {
+    const accessTokenPayload: JwtAccessTokenPayloadType | null =
+      this.jwtUtils.verifyAccessToken(accessToken);
+    if (!accessTokenPayload) throw new UnauthorizedException();
+    const userId: string = accessTokenPayload.userId;
+    const queryBuilder: SelectQueryBuilder<QuizGamePairSQLEntity> =
+      await this.dataSource.createQueryBuilder(QuizGamePairSQLEntity, 'q');
+    const getSumScore = (
+      playerPosition: 1 | 2,
+    ): ((
+      qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+    ) => SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+      return (
+        qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+      ): SelectQueryBuilder<QuizGamePairSQLEntity> => {
+        return qb
+          .select(`SUM(q.player${playerPosition}Score)`)
+          .from(QuizGamePairSQLEntity, 'q')
+          .where(`q.player${playerPosition}Id = :playerId`, {
+            playerId: Number(userId),
+          });
+      };
+    };
+    const getWinsCount = (
+      playerPosition: 1 | 2,
+    ): ((
+      qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+    ) => SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+      return (qb: SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+        const opponentPosition: 1 | 2 = playerPosition === 1 ? 2 : 1;
+        return qb
+          .select('COUNT(*)')
+          .from(QuizGamePairSQLEntity, 'q')
+          .where(
+            `q.player${playerPosition}Id = :playerId AND q.player${playerPosition}Score > q.player${opponentPosition}Score`,
+            {
+              playerId: Number(userId),
+            },
+          );
+      };
+    };
+    const getLossesCount = (
+      playerPosition: 1 | 2,
+    ): ((
+      qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+    ) => SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+      return (qb: SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+        const opponentPosition: 1 | 2 = playerPosition === 1 ? 2 : 1;
+        return qb
+          .select('COUNT(*)')
+          .from(QuizGamePairSQLEntity, 'q')
+          .where(
+            `q.player${playerPosition}Id = :playerId AND q.player${playerPosition}Score < q.player${opponentPosition}Score`,
+            {
+              playerId: Number(userId),
+            },
+          );
+      };
+    };
+    const getDrawsCount = (
+      qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+    ): SelectQueryBuilder<QuizGamePairSQLEntity> => {
+      return qb
+        .select('COUNT(*)')
+        .from(QuizGamePairSQLEntity, 'q')
+        .where(
+          '(q.player1Id = :playerId OR q.player2Id = :playerId) AND (q.player1Score = q.player2Score)',
+          {
+            playerId: Number(userId),
+          },
+        );
+    };
+    const result: {
+      gamesCount: string;
+      sumScoreByP1: string;
+      sumScoreByP2: string;
+      winsCountByP1: string;
+      winsCountByP2: string;
+      lossesCountByP1: string;
+      lossesCountByP2: string;
+      drawsCount: string;
+    } = await queryBuilder
+      .select('COUNT(*) "gamesCount"')
+      .where('q.player1Id = :playerId OR q.player2Id = :playerId', {
+        playerId: Number(userId),
+      })
+      .addSelect(getSumScore(1), 'sumScoreByP1')
+      .addSelect(getSumScore(2), 'sumScoreByP2')
+      .addSelect(getWinsCount(1), 'winsCountByP1')
+      .addSelect(getWinsCount(2), 'winsCountByP2')
+      .addSelect(getLossesCount(1), 'lossesCountByP1')
+      .addSelect(getLossesCount(2), 'lossesCountByP2')
+      .addSelect(getDrawsCount, 'drawsCount')
+      .getRawOne();
+    const sumScore: number =
+      Number(result.sumScoreByP1) + Number(result.sumScoreByP2);
+    const gamesCount = Number(result.gamesCount);
+    const rawAvgScores: string = (sumScore / gamesCount).toFixed(2);
+    let avgScores: number;
+    if (
+      rawAvgScores.substring(rawAvgScores.length - 2, rawAvgScores.length) ===
+      '00'
+    ) {
+      avgScores = Math.round(Number(rawAvgScores));
+    } else {
+      avgScores = Number(rawAvgScores);
+    }
+    return {
+      sumScore,
+      avgScores,
+      gamesCount,
+      winsCount: Number(result.winsCountByP1) + Number(result.winsCountByP2),
+      lossesCount:
+        Number(result.lossesCountByP1) + Number(result.lossesCountByP2),
+      drawsCount: Number(result.drawsCount),
     };
   }
 }

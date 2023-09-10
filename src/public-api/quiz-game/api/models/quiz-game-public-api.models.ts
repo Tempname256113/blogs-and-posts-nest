@@ -32,3 +32,20 @@ export type QuizGamePublicApiViewModel = {
   startGameDate: string | null;
   finishGameDate: string | null;
 };
+
+export type QuizGamePublicApiPaginationViewModel = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: QuizGamePublicApiViewModel[];
+};
+
+export type QuizGamePublicApiUserStatisticViewModel = {
+  sumScore: number;
+  avgScores: number;
+  gamesCount: number;
+  winsCount: number;
+  lossesCount: number;
+  drawsCount: number;
+};
