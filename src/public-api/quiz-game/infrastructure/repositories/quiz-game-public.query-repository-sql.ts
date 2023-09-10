@@ -287,13 +287,13 @@ export class PublicQuizGameQueryRepositorySQL {
         skip: howMuchToSkip,
         take: paginationQuery.pageSize,
       });
-    const foundedGamesIds: string[] = foundedQuizGames.map((quizGame) => {
-      return quizGame.id;
-    });
-    const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
-      await this.quizGamePairQuestionsEntity.findBy({
-        quizGamePairId: In(foundedGamesIds),
-      });
+    // const foundedGamesIds: string[] = foundedQuizGames.map((quizGame) => {
+    //   return quizGame.id;
+    // });
+    // const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+    //   await this.quizGamePairQuestionsEntity.findBy({
+    //     quizGamePairId: In(foundedGamesIds),
+    //   });
     const totalCount: number = foundedQuizGames.length;
     const pagesCount: number = Math.ceil(totalCount / paginationQuery.pageSize);
     const mappedQuizGames: QuizGamePublicApiViewModel[] = foundedQuizGames.map(
@@ -341,29 +341,25 @@ export class PublicQuizGameQueryRepositorySQL {
                 addedAt: answer.addedAt,
               };
             });
-        const quizGameQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
-          questionsWithPositions.filter((question) => {
-            return question.quizGamePairId === quizGame.id;
-          });
-        const questions: QuizGameQuestionSQLEntity[] = [];
-        quizGameQuestionsWithPositions.forEach((questionWithPosition) => {
-          const foundedQuestion: QuizGameQuestionSQLEntity =
-            quizGame.questions.find((question) => {
-              return question.id === questionWithPosition.questionId;
-            });
-          questions[questionWithPosition.questionPosition] = foundedQuestion;
-        });
-        const mappedQuestions: QuizGamePublicApiQuestionViewModel[] =
-          questions.map((question) => {
-            return { id: String(question.id), body: question.body };
-          });
-        // const mappedQuestions: QuizGamePublicApiQuestionViewModel[] =
-        //   quizGame.questions.map((question) => {
-        //     return {
-        //       id: String(question.id),
-        //       body: question.body,
-        //     };
+        // const quizGameQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+        //   questionsWithPositions.filter((question) => {
+        //     return question.quizGamePairId === quizGame.id;
         //   });
+        // const questions: QuizGameQuestionSQLEntity[] = [];
+        // quizGameQuestionsWithPositions.forEach((questionWithPosition) => {
+        //   const foundedQuestion: QuizGameQuestionSQLEntity =
+        //     quizGame.questions.find((question) => {
+        //       return question.id === questionWithPosition.questionId;
+        //     });
+        //   questions[questionWithPosition.questionPosition] = foundedQuestion;
+        // });
+        const mappedQuestions: QuizGamePublicApiQuestionViewModel[] =
+          quizGame.questions.map((question) => {
+            return {
+              id: String(question.id),
+              body: question.body,
+            };
+          });
         return {
           id: quizGame.id,
           firstPlayerProgress: {
