@@ -28,7 +28,6 @@ import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/en
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { validate } from 'uuid';
 import { QuizGamePublicApiPaginationQueryDTO } from '../../api/models/quiz-game-public-api.dto';
-import { QuizGamePairAnswerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-answer.entity';
 
 @Injectable()
 export class PublicQuizGameQueryRepositorySQL {
@@ -287,13 +286,13 @@ export class PublicQuizGameQueryRepositorySQL {
         skip: howMuchToSkip,
         take: paginationQuery.pageSize,
       });
-    // const foundedGamesIds: string[] = foundedQuizGames.map((quizGame) => {
-    //   return quizGame.id;
-    // });
-    // const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
-    //   await this.quizGamePairQuestionsEntity.findBy({
-    //     quizGamePairId: In(foundedGamesIds),
-    //   });
+    const foundedGamesIds: string[] = foundedQuizGames.map((quizGame) => {
+      return quizGame.id;
+    });
+    const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+      await this.quizGamePairQuestionsEntity.findBy({
+        quizGamePairId: In(foundedGamesIds),
+      });
     const totalCount: number = foundedQuizGames.length;
     const pagesCount: number = Math.ceil(totalCount / paginationQuery.pageSize);
     const mappedQuizGames: QuizGamePublicApiViewModel[] = foundedQuizGames.map(
@@ -328,6 +327,11 @@ export class PublicQuizGameQueryRepositorySQL {
                 answerStatus: answer.answerStatus,
                 addedAt: answer.addedAt,
               };
+            })
+            .sort((a, b) => {
+              if (a.addedAt < b.addedAt) return -1;
+              if (a.addedAt > b.addedAt) return 1;
+              return 0;
             });
         const secondPlayerAnswers: QuizGamePublicApiPlayerAnswerViewModel[] =
           quizGame.answers
@@ -340,21 +344,26 @@ export class PublicQuizGameQueryRepositorySQL {
                 answerStatus: answer.answerStatus,
                 addedAt: answer.addedAt,
               };
+            })
+            .sort((a, b) => {
+              if (a.addedAt < b.addedAt) return -1;
+              if (a.addedAt > b.addedAt) return 1;
+              return 0;
             });
-        // const quizGameQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
-        //   questionsWithPositions.filter((question) => {
-        //     return question.quizGamePairId === quizGame.id;
-        //   });
-        // const questions: QuizGameQuestionSQLEntity[] = [];
-        // quizGameQuestionsWithPositions.forEach((questionWithPosition) => {
-        //   const foundedQuestion: QuizGameQuestionSQLEntity =
-        //     quizGame.questions.find((question) => {
-        //       return question.id === questionWithPosition.questionId;
-        //     });
-        //   questions[questionWithPosition.questionPosition] = foundedQuestion;
-        // });
+        const quizGameQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+          questionsWithPositions.filter((question) => {
+            return question.quizGamePairId === quizGame.id;
+          });
+        const questions: QuizGameQuestionSQLEntity[] = [];
+        quizGameQuestionsWithPositions.forEach((questionWithPosition) => {
+          const foundedQuestion: QuizGameQuestionSQLEntity =
+            quizGame.questions.find((question) => {
+              return question.id === questionWithPosition.questionId;
+            });
+          questions[questionWithPosition.questionPosition] = foundedQuestion;
+        });
         const mappedQuestions: QuizGamePublicApiQuestionViewModel[] =
-          quizGame.questions.map((question) => {
+          questions.map((question) => {
             return {
               id: String(question.id),
               body: question.body,
