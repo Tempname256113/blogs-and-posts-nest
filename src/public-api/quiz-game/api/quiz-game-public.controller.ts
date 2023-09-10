@@ -69,19 +69,6 @@ export class QuizGamePublicController {
     );
   }
 
-  @Get('pairs/:quizGameId')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AccessTokenGuard)
-  async getQuizGameById(
-    @Param('quizGameId') quizGameId: string,
-    @ReqAccessToken() accessToken: string | null,
-  ): Promise<QuizGamePublicApiViewModel> {
-    return this.quizGamePublicQueryRepositorySQL.getQuizGameById({
-      accessToken,
-      quizGameId,
-    });
-  }
-
   @Get('pairs/my')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AccessTokenGuard)
@@ -98,6 +85,19 @@ export class QuizGamePublicController {
     return this.quizGamePublicQueryRepositorySQL.getQuizGamesWithPagination({
       accessToken,
       paginationQuery,
+    });
+  }
+
+  @Get('pairs/:quizGameId')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
+  async getQuizGameById(
+    @Param('quizGameId') quizGameId: string,
+    @ReqAccessToken() accessToken: string | null,
+  ): Promise<QuizGamePublicApiViewModel> {
+    return this.quizGamePublicQueryRepositorySQL.getQuizGameById({
+      accessToken,
+      quizGameId,
     });
   }
 
