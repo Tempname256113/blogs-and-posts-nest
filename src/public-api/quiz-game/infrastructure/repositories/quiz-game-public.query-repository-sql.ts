@@ -20,6 +20,8 @@ import {
   QuizGamePublicApiPlayerAnswerViewModel,
   QuizGamePublicApiQuestionViewModel,
   QuizGamePublicApiUserStatisticViewModel,
+  QuizGamePublicApiUsersTopPaginationViewModel,
+  QuizGamePublicApiUsersTopViewModel,
   QuizGamePublicApiViewModel,
 } from '../../api/models/quiz-game-public-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
@@ -27,7 +29,11 @@ import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { exceptionFactoryFunction } from '../../../../../generic-factory-functions/exception-factory.function';
 import { validate } from 'uuid';
-import { QuizGamePublicApiPaginationQueryDTO } from '../../api/models/quiz-game-public-api.dto';
+import {
+  QuizGamePublicApiPaginationQueryDTO,
+  QuizGamePublicApiUsersTopQueryDTO,
+} from '../../api/models/quiz-game-public-api.dto';
+import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
 
 @Injectable()
 export class PublicQuizGameQueryRepositorySQL {
@@ -521,6 +527,230 @@ export class PublicQuizGameQueryRepositorySQL {
       lossesCount:
         Number(result.lossesCountByP1) + Number(result.lossesCountByP2),
       drawsCount: Number(result.drawsCount),
+    };
+  }
+
+  async getUsersTop(
+    paginationQuery: QuizGamePublicApiUsersTopQueryDTO,
+  ): Promise<QuizGamePublicApiUsersTopPaginationViewModel> {
+    const getWinsCount = (
+      playerPosition: 1 | 2,
+    ): ((
+      qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+    ) => SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+      return (
+        qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+      ): SelectQueryBuilder<QuizGamePairSQLEntity> => {
+        const opponentPosition: 1 | 2 = playerPosition === 1 ? 2 : 1;
+        return qb
+          .select('COUNT(*)')
+          .from(QuizGamePairSQLEntity, 'q1')
+          .where(
+            `(q1.player${playerPosition}Id = q.player${playerPosition}Id) AND (q1.player${playerPosition}Score > q1.player${opponentPosition}Score)`,
+          );
+      };
+    };
+    const getLossesCount = (
+      playerPosition: 1 | 2,
+    ): ((
+      qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+    ) => SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+      return (
+        qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+      ): SelectQueryBuilder<QuizGamePairSQLEntity> => {
+        const opponentPosition: 1 | 2 = playerPosition === 1 ? 2 : 1;
+        return qb
+          .select('COUNT(*)')
+          .from(QuizGamePairSQLEntity, 'q1')
+          .where(
+            `(q1.player${playerPosition}Id = q.player${playerPosition}Id) AND (q1.player${playerPosition}Score < q1.player${opponentPosition}Score)`,
+          );
+      };
+    };
+    const getDrawsCount = (
+      playerPosition: 1 | 2,
+    ): ((
+      qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+    ) => SelectQueryBuilder<QuizGamePairSQLEntity>) => {
+      return (
+        qb: SelectQueryBuilder<QuizGamePairSQLEntity>,
+      ): SelectQueryBuilder<QuizGamePairSQLEntity> => {
+        const opponentPosition: 1 | 2 = playerPosition === 1 ? 2 : 1;
+        return qb
+          .select('COUNT(*)')
+          .from(QuizGamePairSQLEntity, 'q1')
+          .where(
+            `(q1.player${playerPosition}Id = q.player${playerPosition}Id) AND (q1.player${playerPosition}Score = q1.player${opponentPosition}Score)`,
+          );
+      };
+    };
+    const getResult = async <T extends 1 | 2>(
+      pPos: 1 | 2,
+    ): Promise<
+      T extends 1
+        ? {
+            p1GamesCount: string;
+            p1Id: number;
+            p1Login: string;
+            p1SumScore: string;
+            p1WinsCount: string;
+            p1LossesCount: string;
+            p1DrawsCount: string;
+          }[]
+        : {
+            p2GamesCount: string;
+            p2Id: number;
+            p2Login: string;
+            p2SumScore: string;
+            p2WinsCount: string;
+            p2LossesCount: string;
+            p2DrawsCount: string;
+          }[]
+    > => {
+      const queryBuilder: SelectQueryBuilder<QuizGamePairSQLEntity> =
+        await this.dataSource.createQueryBuilder(QuizGamePairSQLEntity, 'q');
+      return queryBuilder
+        .select(
+          `COUNT(*) as "p${pPos}GamesCount",
+         q.player${pPos}Id as "p${pPos}Id",
+         u.login as "p${pPos}Login",
+         SUM(q.player${pPos}Score) as "p${pPos}SumScore"`,
+        )
+        .addSelect(getWinsCount(pPos), `p${pPos}WinsCount`)
+        .addSelect(getLossesCount(pPos), `p${pPos}LossesCount`)
+        .addSelect(getDrawsCount(pPos), `p${pPos}DrawsCount`)
+        .innerJoin(UserSQLEntity, 'u', `q.player${pPos}Id = u.id`)
+        .groupBy(`q.player${pPos}Id, u.login`)
+        .getRawMany();
+    };
+    type RawPlayerStatisticType = {
+      pGamesCount: number;
+      pId: number;
+      pLogin: string;
+      pSumScore: number;
+      pWinsCount: number;
+      pLossesCount: number;
+      pDrawsCount: number;
+    };
+    const mergeResults = async (): Promise<RawPlayerStatisticType[]> => {
+      const player1Result: Awaited<ReturnType<typeof getResult>> =
+        await getResult<1>(1);
+      const player2Result: Awaited<ReturnType<typeof getResult>> =
+        await getResult<2>(2);
+      const resultArray: RawPlayerStatisticType[] = [];
+      player1Result.forEach((p1Result, p1ArrIndex) => {
+        const firstPlayerStatistic: RawPlayerStatisticType = {
+          pGamesCount: Number(p1Result.p1GamesCount),
+          pId: p1Result.p1Id,
+          pLogin: p1Result.p1Login,
+          pSumScore: Number(p1Result.p1SumScore),
+          pWinsCount: Number(p1Result.p1WinsCount),
+          pLossesCount: Number(p1Result.p1LossesCount),
+          pDrawsCount: Number(p1Result.p1DrawsCount),
+        };
+        player2Result.forEach((p2Result, p2ArrIndex) => {
+          if (p2Result?.p2Id === p1Result.p1Id) {
+            firstPlayerStatistic.pGamesCount += Number(p2Result.p2GamesCount);
+            firstPlayerStatistic.pSumScore += Number(p2Result.p2SumScore);
+            firstPlayerStatistic.pWinsCount += Number(p2Result.p2WinsCount);
+            firstPlayerStatistic.pLossesCount += Number(p2Result.p2LossesCount);
+            firstPlayerStatistic.pDrawsCount += Number(p2Result.p2LossesCount);
+            delete player2Result[p2ArrIndex];
+          }
+        });
+        resultArray.push(firstPlayerStatistic);
+        delete player1Result[p1ArrIndex];
+      });
+      player2Result.forEach((p2Result, p2ArrIndex) => {
+        if (p2Result) {
+          const secondPlayerStatistic: RawPlayerStatisticType = {
+            pGamesCount: Number(p2Result.p2GamesCount),
+            pId: p2Result.p2Id,
+            pLogin: p2Result.p2Login,
+            pSumScore: Number(p2Result.p2SumScore),
+            pWinsCount: Number(p2Result.p2WinsCount),
+            pLossesCount: Number(p2Result.p2LossesCount),
+            pDrawsCount: Number(p2Result.p2DrawsCount),
+          };
+          resultArray.push(secondPlayerStatistic);
+          delete player2Result[p2ArrIndex];
+        }
+      });
+      return resultArray;
+    };
+    const rawPlayersStatistic: RawPlayerStatisticType[] = await mergeResults();
+    const mappedPlayersStatistic: QuizGamePublicApiUsersTopViewModel[] =
+      rawPlayersStatistic.map((rawPlayerStatistic) => {
+        const rawAvgScores: string = (
+          rawPlayerStatistic.pSumScore / rawPlayerStatistic.pGamesCount
+        ).toFixed(2);
+        let avgScores: number;
+        if (
+          rawAvgScores.substring(
+            rawAvgScores.length - 2,
+            rawAvgScores.length,
+          ) === '00'
+        ) {
+          avgScores = Math.round(Number(rawAvgScores));
+        } else {
+          avgScores = Number(rawAvgScores);
+        }
+        return {
+          sumScore: rawPlayerStatistic.pSumScore,
+          avgScores,
+          gamesCount: rawPlayerStatistic.pGamesCount,
+          winsCount: rawPlayerStatistic.pWinsCount,
+          lossesCount: rawPlayerStatistic.pLossesCount,
+          drawsCount: rawPlayerStatistic.pDrawsCount,
+          player: {
+            id: String(rawPlayerStatistic.pId),
+            login: rawPlayerStatistic.pLogin,
+          },
+        };
+      });
+    mappedPlayersStatistic.sort((a, b) => {
+      for (const sortData of paginationQuery.sort) {
+        const sortBy: string = sortData.split(' ')[0];
+        const sortDirection: 'asc' | 'desc' | string = sortData.split(' ')[1];
+        if (
+          sortData === paginationQuery.sort[paginationQuery.sort.length - 1]
+        ) {
+          if (sortDirection === 'asc') {
+            if (a[sortBy] < b[sortBy]) return -1;
+            if (a[sortBy] > b[sortBy]) return 1;
+            if (a[sortBy] === b[sortBy]) return 0;
+          } else if (sortDirection === 'desc') {
+            if (a[sortBy] > b[sortBy]) return -1;
+            if (a[sortBy] < b[sortBy]) return 1;
+            if (a[sortBy] === b[sortBy]) return 0;
+          }
+        } else {
+          if (sortDirection === 'asc') {
+            if (a[sortBy] < b[sortBy]) return -1;
+            if (a[sortBy] > b[sortBy]) return 1;
+            if (a[sortBy] === b[sortBy]) continue;
+          } else if (sortDirection === 'desc') {
+            if (a[sortBy] > b[sortBy]) return -1;
+            if (a[sortBy] < b[sortBy]) return 1;
+            if (a[sortBy] === b[sortBy]) continue;
+          }
+        }
+      }
+    });
+    const howMuchToSkip: number =
+      paginationQuery.pageSize * (paginationQuery.pageNumber - 1);
+    const pagesCount: number = Math.ceil(
+      mappedPlayersStatistic.length / paginationQuery.pageSize,
+    );
+    return {
+      pagesCount,
+      page: paginationQuery.pageNumber,
+      pageSize: paginationQuery.pageSize,
+      totalCount: mappedPlayersStatistic.length,
+      items: mappedPlayersStatistic.slice(
+        howMuchToSkip,
+        howMuchToSkip + paginationQuery.pageSize,
+      ),
     };
   }
 }

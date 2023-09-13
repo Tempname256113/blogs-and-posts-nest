@@ -11,3 +11,9 @@ export type QuizGamePublicApiPaginationQueryDTO = {
   pageNumber?: number;
   pageSize?: number;
 };
+
+export type QuizGamePublicApiUsersTopQueryDTO = {
+  sort: string[];
+  pageNumber: number;
+  pageSize: number;
+};

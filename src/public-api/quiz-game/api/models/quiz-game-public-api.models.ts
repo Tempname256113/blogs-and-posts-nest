@@ -49,3 +49,16 @@ export type QuizGamePublicApiUserStatisticViewModel = {
   lossesCount: number;
   drawsCount: number;
 };
+
+export type QuizGamePublicApiUsersTopViewModel =
+  QuizGamePublicApiUserStatisticViewModel & {
+    player: { id: string; login: string };
+  };
+
+export type QuizGamePublicApiUsersTopPaginationViewModel = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: QuizGamePublicApiUsersTopViewModel[];
+};

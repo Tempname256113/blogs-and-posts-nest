@@ -22,6 +22,7 @@ import { ConnectUserToQuizCommand } from '../application/use-cases/connect-user-
 import {
   QuizGamePublicApiCreateAnswerDTO,
   QuizGamePublicApiPaginationQueryDTO,
+  QuizGamePublicApiUsersTopQueryDTO,
 } from './models/quiz-game-public-api.dto';
 import { SendAnswerToNextQuizQuestionCommand } from '../application/use-cases/send-answer-to-next-quiz-question.use-case';
 import { PublicQuizGameQueryRepositorySQL } from '../infrastructure/repositories/quiz-game-public.query-repository-sql';
@@ -110,5 +111,16 @@ export class QuizGamePublicController {
     return this.quizGamePublicQueryRepositorySQL.getQuizGamesUserStatistic(
       accessToken,
     );
+  }
+
+  @Get('users/top')
+  @HttpCode(HttpStatus.OK)
+  async getUsersTop(@Query() rawQuery: QuizGamePublicApiUsersTopQueryDTO) {
+    const query: QuizGamePublicApiUsersTopQueryDTO = {
+      sort: rawQuery.sort ?? ['avgScores desc', 'sumScore desc'],
+      pageNumber: rawQuery.pageNumber ?? 2,
+      pageSize: rawQuery.pageSize ?? 1,
+    };
+    return this.quizGamePublicQueryRepositorySQL.getUsersTop(query);
   }
 }
