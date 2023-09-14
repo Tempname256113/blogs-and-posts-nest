@@ -118,8 +118,8 @@ export class QuizGamePublicController {
   async getUsersTop(@Query() rawQuery: QuizGamePublicApiUsersTopQueryDTO) {
     const query: QuizGamePublicApiUsersTopQueryDTO = {
       sort: rawQuery.sort ?? ['avgScores desc', 'sumScore desc'],
-      pageNumber: rawQuery.pageNumber ?? 2,
-      pageSize: rawQuery.pageSize ?? 1,
+      pageNumber: rawQuery.pageNumber ?? 1,
+      pageSize: rawQuery.pageSize ?? 10,
     };
     return this.quizGamePublicQueryRepositorySQL.getUsersTop(query);
   }

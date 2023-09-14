@@ -744,8 +744,8 @@ export class PublicQuizGameQueryRepositorySQL {
     );
     return {
       pagesCount,
-      page: paginationQuery.pageNumber,
-      pageSize: paginationQuery.pageSize,
+      page: Number(paginationQuery.pageNumber),
+      pageSize: Number(paginationQuery.pageSize),
       totalCount: mappedPlayersStatistic.length,
       items: mappedPlayersStatistic.slice(
         howMuchToSkip,
