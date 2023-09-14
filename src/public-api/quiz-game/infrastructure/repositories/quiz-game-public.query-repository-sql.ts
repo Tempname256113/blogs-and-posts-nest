@@ -637,6 +637,8 @@ export class PublicQuizGameQueryRepositorySQL {
         await getResult<1>(1);
       const player2Result: Awaited<ReturnType<typeof getResult>> =
         await getResult<2>(2);
+      console.log(player1Result);
+      console.log(player2Result);
       const resultArray: RawPlayerStatisticType[] = [];
       player1Result.forEach((p1Result, p1ArrIndex) => {
         const firstPlayerStatistic: RawPlayerStatisticType = {
@@ -654,7 +656,7 @@ export class PublicQuizGameQueryRepositorySQL {
             firstPlayerStatistic.pSumScore += Number(p2Result.p2SumScore);
             firstPlayerStatistic.pWinsCount += Number(p2Result.p2WinsCount);
             firstPlayerStatistic.pLossesCount += Number(p2Result.p2LossesCount);
-            firstPlayerStatistic.pDrawsCount += Number(p2Result.p2LossesCount);
+            firstPlayerStatistic.pDrawsCount += Number(p2Result.p2DrawsCount);
             delete player2Result[p2ArrIndex];
           }
         });
