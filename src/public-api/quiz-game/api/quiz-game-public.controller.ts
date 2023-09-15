@@ -116,8 +116,16 @@ export class QuizGamePublicController {
   @Get('users/top')
   @HttpCode(HttpStatus.OK)
   async getUsersTop(@Query() rawQuery: QuizGamePublicApiUsersTopQueryDTO) {
+    let sort: string[];
+    if (Array.isArray(rawQuery.sort)) {
+      sort = rawQuery.sort;
+    } else if (typeof rawQuery.sort === 'string') {
+      sort = [rawQuery.sort];
+    } else {
+      sort = ['avgScores desc', 'sumScore desc'];
+    }
     const query: QuizGamePublicApiUsersTopQueryDTO = {
-      sort: rawQuery.sort ?? ['avgScores desc', 'sumScore desc'],
+      sort,
       pageNumber: rawQuery.pageNumber ?? 1,
       pageSize: rawQuery.pageSize ?? 10,
     };

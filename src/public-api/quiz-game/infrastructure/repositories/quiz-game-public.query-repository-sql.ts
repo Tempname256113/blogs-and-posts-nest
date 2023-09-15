@@ -637,8 +637,6 @@ export class PublicQuizGameQueryRepositorySQL {
         await getResult<1>(1);
       const player2Result: Awaited<ReturnType<typeof getResult>> =
         await getResult<2>(2);
-      console.log(player1Result);
-      console.log(player2Result);
       const resultArray: RawPlayerStatisticType[] = [];
       player1Result.forEach((p1Result, p1ArrIndex) => {
         const firstPlayerStatistic: RawPlayerStatisticType = {
