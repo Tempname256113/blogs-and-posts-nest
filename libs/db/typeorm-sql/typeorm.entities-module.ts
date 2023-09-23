@@ -11,7 +11,7 @@ import { CommentSQLEntity } from './entities/comment-sql.entity';
 import { LikeSQLEntity } from './entities/like-sql.entity';
 import { QuizGameQuestionSQLEntity } from './entities/quiz-game/quiz-game-question.entity';
 import { QuizGamePairSQLEntity } from './entities/quiz-game/quiz-game-pair.entity';
-import { QuizGamePairQuestionsSQLEntity } from './entities/quiz-game/quiz-game-pair-questions.entity';
+import { QuizGamePairQuestionWithPositionSQLEntity } from './entities/quiz-game/quiz-game-pair-question-with-position.entity';
 import { QuizGamePairAnswerSQLEntity } from './entities/quiz-game/quiz-game-pair-answer.entity';
 
 @Module({
@@ -28,7 +28,7 @@ import { QuizGamePairAnswerSQLEntity } from './entities/quiz-game/quiz-game-pair
       LikeSQLEntity,
       QuizGameQuestionSQLEntity,
       QuizGamePairSQLEntity,
-      QuizGamePairQuestionsSQLEntity,
+      QuizGamePairQuestionWithPositionSQLEntity,
       QuizGamePairAnswerSQLEntity,
     ]),
   ],

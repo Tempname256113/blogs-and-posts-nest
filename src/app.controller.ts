@@ -20,7 +20,7 @@ import { CommentSQLEntity } from '../libs/db/typeorm-sql/entities/comment-sql.en
 import { LikeSQLEntity } from '../libs/db/typeorm-sql/entities/like-sql.entity';
 import { QuizGameQuestionSQLEntity } from '../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { QuizGamePairSQLEntity } from '../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair.entity';
-import { QuizGamePairQuestionsSQLEntity } from '../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-questions.entity';
+import { QuizGamePairQuestionWithPositionSQLEntity } from '../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-question-with-position.entity';
 import { QuizGamePairAnswerSQLEntity } from '../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-answer.entity';
 
 @Controller('testing')
@@ -54,8 +54,8 @@ export class AppController {
     private readonly quizGameQuestionEntity: Repository<QuizGameQuestionSQLEntity>,
     @InjectRepository(QuizGamePairSQLEntity)
     private readonly quizGamePairEntity: Repository<QuizGamePairSQLEntity>,
-    @InjectRepository(QuizGamePairQuestionsSQLEntity)
-    private readonly quizGameQuestionsEntity: Repository<QuizGamePairQuestionsSQLEntity>,
+    @InjectRepository(QuizGamePairQuestionWithPositionSQLEntity)
+    private readonly quizGameQuestionsEntity: Repository<QuizGamePairQuestionWithPositionSQLEntity>,
     @InjectRepository(QuizGamePairAnswerSQLEntity)
     private readonly quizGameAnswerEntity: Repository<QuizGamePairAnswerSQLEntity>,
   ) {}

@@ -6,7 +6,7 @@ import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { QuizGamePairSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository, SelectQueryBuilder } from 'typeorm';
-import { QuizGamePairQuestionsSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-questions.entity';
+import { QuizGamePairQuestionWithPositionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-question-with-position.entity';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 
 export class ConnectUserToQuizCommand {
@@ -26,8 +26,8 @@ export class ConnectUserToQuizUseCase
     private readonly jwtUtils: JwtUtils,
     @InjectRepository(QuizGamePairSQLEntity)
     private readonly quizGamePairEntity: Repository<QuizGamePairSQLEntity>,
-    @InjectRepository(QuizGamePairQuestionsSQLEntity)
-    private readonly quizGamePairQuestionsEntity: Repository<QuizGamePairQuestionsSQLEntity>,
+    @InjectRepository(QuizGamePairQuestionWithPositionSQLEntity)
+    private readonly quizGamePairQuestionsEntity: Repository<QuizGamePairQuestionWithPositionSQLEntity>,
     @InjectRepository(QuizGameQuestionSQLEntity)
     private readonly quizGameQuestionEntity: Repository<QuizGameQuestionSQLEntity>,
     private readonly dataSource: DataSource,
@@ -107,8 +107,8 @@ export class ConnectUserToQuizUseCase
       .getMany();
     let currentQuestionPosition = 0;
     const quizPairQuestionsWithPositions: Pick<
-      QuizGamePairQuestionsSQLEntity,
-      Exclude<keyof QuizGamePairQuestionsSQLEntity, 'id'>
+      QuizGamePairQuestionWithPositionSQLEntity,
+      Exclude<keyof QuizGamePairQuestionWithPositionSQLEntity, 'id'>
     >[] = [];
     for (const question of questions) {
       quizPairQuestionsWithPositions.push({

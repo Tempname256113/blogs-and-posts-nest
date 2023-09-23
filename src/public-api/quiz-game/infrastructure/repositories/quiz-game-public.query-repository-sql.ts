@@ -14,7 +14,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { QuizGamePairQuestionsSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-questions.entity';
+import { QuizGamePairQuestionWithPositionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-question-with-position.entity';
 import {
   QuizGamePublicApiPaginationViewModel,
   QuizGamePublicApiPlayerAnswerViewModel,
@@ -41,8 +41,8 @@ export class PublicQuizGameQueryRepositorySQL {
     private readonly jwtUtils: JwtUtils,
     @InjectRepository(QuizGamePairSQLEntity)
     private readonly quizGamePairEntity: Repository<QuizGamePairSQLEntity>,
-    @InjectRepository(QuizGamePairQuestionsSQLEntity)
-    private readonly quizGamePairQuestionsEntity: Repository<QuizGamePairQuestionsSQLEntity>,
+    @InjectRepository(QuizGamePairQuestionWithPositionSQLEntity)
+    private readonly quizGamePairQuestionsEntity: Repository<QuizGamePairQuestionWithPositionSQLEntity>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
@@ -81,7 +81,7 @@ export class PublicQuizGameQueryRepositorySQL {
         finishGameDate: null,
       };
     }
-    const quizPairQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+    const quizPairQuestionsWithPositions: QuizGamePairQuestionWithPositionSQLEntity[] =
       await this.quizGamePairQuestionsEntity.findBy({
         quizGamePairId: foundedQuizPair.id,
       });
@@ -199,7 +199,7 @@ export class PublicQuizGameQueryRepositorySQL {
         finishGameDate: null,
       };
     }
-    const allQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+    const allQuestionsWithPositions: QuizGamePairQuestionWithPositionSQLEntity[] =
       await this.quizGamePairQuestionsEntity.findBy({
         quizGamePairId: quizGameId,
       });
@@ -295,7 +295,7 @@ export class PublicQuizGameQueryRepositorySQL {
     const foundedGamesIds: string[] = foundedQuizGames.map((quizGame) => {
       return quizGame.id;
     });
-    const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+    const questionsWithPositions: QuizGamePairQuestionWithPositionSQLEntity[] =
       await this.quizGamePairQuestionsEntity.findBy({
         quizGamePairId: In(foundedGamesIds),
       });
@@ -356,7 +356,7 @@ export class PublicQuizGameQueryRepositorySQL {
               if (a.addedAt > b.addedAt) return 1;
               return 0;
             });
-        const quizGameQuestionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
+        const quizGameQuestionsWithPositions: QuizGamePairQuestionWithPositionSQLEntity[] =
           questionsWithPositions.filter((question) => {
             return question.quizGamePairId === quizGame.id;
           });
@@ -709,9 +709,11 @@ export class PublicQuizGameQueryRepositorySQL {
         };
       });
     mappedPlayersStatistic.sort((a, b) => {
+      // перебирает все условия заданной сортировки (критерий сортировки и направление)
       for (const sortData of paginationQuery.sort) {
         const sortBy: string = sortData.split(' ')[0];
         const sortDirection: 'asc' | 'desc' | string = sortData.split(' ')[1];
+        // если это последний элемент массива из условий сортировки
         if (
           sortData === paginationQuery.sort[paginationQuery.sort.length - 1]
         ) {
@@ -724,6 +726,8 @@ export class PublicQuizGameQueryRepositorySQL {
             if (a[sortBy] < b[sortBy]) return 1;
             if (a[sortBy] === b[sortBy]) return 0;
           }
+          // если это не последний элемент массива из условий сортировки то
+          // при равенстве элементов между собой переходит на следующее условие и сортирует по следующему условию
         } else {
           if (sortDirection === 'asc') {
             if (a[sortBy] < b[sortBy]) return -1;

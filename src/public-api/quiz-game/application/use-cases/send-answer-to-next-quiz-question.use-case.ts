@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { ForbiddenException } from '@nestjs/common';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
 import { QuizGamePairAnswerSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-answer.entity';
-import { QuizGamePairQuestionsSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-questions.entity';
+import { QuizGamePairQuestionWithPositionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-pair-question-with-position.entity';
 import { QuizGameQuestionSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/quiz-game/quiz-game-question.entity';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 
@@ -28,8 +28,8 @@ export class SendAnswerToNextQuizQuestionUseCase
     private readonly quizGamePairEntity: Repository<QuizGamePairSQLEntity>,
     @InjectRepository(QuizGamePairAnswerSQLEntity)
     private readonly quizGamePairAnswerEntity: Repository<QuizGamePairAnswerSQLEntity>,
-    @InjectRepository(QuizGamePairQuestionsSQLEntity)
-    private readonly quizGamePairQuestionsEntity: Repository<QuizGamePairQuestionsSQLEntity>,
+    @InjectRepository(QuizGamePairQuestionWithPositionSQLEntity)
+    private readonly quizGamePairQuestionWithPositionEntity: Repository<QuizGamePairQuestionWithPositionSQLEntity>,
   ) {}
 
   async execute({
@@ -37,22 +37,30 @@ export class SendAnswerToNextQuizQuestionUseCase
   }: SendAnswerToNextQuizQuestionCommand): Promise<QuizGamePublicApiPlayerAnswerViewModel> {
     const accessTokenPayload: JwtAccessTokenPayloadType =
       this.jwtUtils.verifyAccessToken(accessToken);
-    const userId: string = accessTokenPayload.userId;
+    const userId = Number(accessTokenPayload.userId);
     const {
       quizGamePair: foundedQuizGamePair,
       playerPosition,
     }: Awaited<ReturnType<typeof this.getQuizPairWithCurrentUser>> =
       await this.getQuizPairWithCurrentUser(userId);
+    const currentUserAnswers: QuizGamePairAnswerSQLEntity[] =
+      foundedQuizGamePair.answers.filter((answer) => {
+        return answer.userId === userId;
+      });
+    await this.checkCurrentUserAnswersCount({
+      currentUserAnswersQuantity: currentUserAnswers.length,
+      allQuizGameQuestionsQuantity: foundedQuizGamePair.questions.length,
+    });
     return this.sendAnswerToNextQuestion({
-      userId: Number(userId),
+      userId,
       answer,
       quizPair: foundedQuizGamePair,
-      playerPosition,
+      currentPlayerPosition: playerPosition,
     });
   }
 
   async getQuizPairWithCurrentUser(
-    userId: string,
+    userId: number,
   ): Promise<{ quizGamePair: QuizGamePairSQLEntity; playerPosition: 1 | 2 }> {
     const foundedGameWithCurrentUser: QuizGamePairSQLEntity | null =
       await this.quizGamePairEntity.findOne({
@@ -73,27 +81,15 @@ export class SendAnswerToNextQuizQuestionUseCase
   async sendAnswerToNextQuestion({
     userId,
     quizPair,
-    playerPosition,
+    currentPlayerPosition,
     answer,
   }: {
     userId: number;
     quizPair: QuizGamePairSQLEntity;
-    playerPosition: 1 | 2;
+    currentPlayerPosition: 1 | 2;
     answer: string;
   }): Promise<QuizGamePublicApiPlayerAnswerViewModel> {
-    const currentUserAnswers: QuizGamePairAnswerSQLEntity[] =
-      quizPair.answers.filter((answer) => {
-        return answer.userId === userId;
-      });
     const allQuestions: QuizGameQuestionSQLEntity[] = quizPair.questions;
-    const questionsWithPositions: QuizGamePairQuestionsSQLEntity[] =
-      await this.quizGamePairQuestionsEntity.findBy({
-        quizGamePairId: quizPair.id,
-      });
-    this.checkCurrentUserAnswersCount({
-      userAnswers: currentUserAnswers,
-      allQuestions,
-    });
     const sendAnswer = async (
       question: QuizGameQuestionSQLEntity,
     ): Promise<QuizGamePublicApiPlayerAnswerViewModel> => {
@@ -108,77 +104,52 @@ export class SendAnswerToNextQuizQuestionUseCase
           });
         return userAnswers;
       };
-      const {
-        firstPlayerAnswers,
-        secondPlayerAnswers,
-      }: {
-        firstPlayerAnswers: QuizGamePairAnswerSQLEntity[];
-        secondPlayerAnswers: QuizGamePairAnswerSQLEntity[];
+      const playersAnswers: {
+        player1: QuizGamePairAnswerSQLEntity[];
+        player2: QuizGamePairAnswerSQLEntity[];
       } = {
-        firstPlayerAnswers: getPlayerAnswers(1),
-        secondPlayerAnswers: getPlayerAnswers(2),
+        player1: getPlayerAnswers(1),
+        player2: getPlayerAnswers(2),
       };
       const playersAnswersQuantity: {
-        firstPlayerAnswersQuantity: number;
-        secondPlayerAnswersQuantity: number;
+        player1: number;
+        player2: number;
       } = {
-        firstPlayerAnswersQuantity: firstPlayerAnswers.length,
-        secondPlayerAnswersQuantity: secondPlayerAnswers.length,
+        player1: playersAnswers.player1.length,
+        player2: playersAnswers.player2.length,
       };
-      if (playerPosition === 1) {
-        playersAnswersQuantity.firstPlayerAnswersQuantity += 1;
-        // если новый ответ является последним для первого игрока
+      const opponentPlayerPosition: 1 | 2 = currentPlayerPosition === 1 ? 2 : 1;
+      const currentPlayerProp = `player${currentPlayerPosition}`;
+      const opponentPlayerProp = `player${opponentPlayerPosition}`;
+      // прибавляется к количеству ответов текущего игрока 1 потому что сейчас запишется 1 ответ в базу данных
+      playersAnswersQuantity[currentPlayerProp] += 1;
+      // если новый ответ является последним для текущего игрока
+      if (playersAnswersQuantity[currentPlayerProp] === allQuestions.length) {
+        // если оппонент уже ответил на все вопросы первым
         if (
-          playersAnswersQuantity.firstPlayerAnswersQuantity ===
-          allQuestions.length
+          playersAnswersQuantity[opponentPlayerProp] === allQuestions.length
         ) {
-          // если оппонент уже ответил на все вопросы первым
-          if (
-            playersAnswersQuantity.secondPlayerAnswersQuantity ===
-            allQuestions.length
-          ) {
-            const foundedCorrectAnswer:
-              | QuizGamePairAnswerSQLEntity
-              | undefined = secondPlayerAnswers.find((answer) => {
+          // поиск хотя бы одного правильного ответа у уже ответившего на все вопросы оппонента
+          // если хотя бы один правильный ответ будет найден то за то что оппонент ответил первым на все вопросы
+          // ему добавляется 1 бонусный балл
+          const foundedCorrectAnswer: QuizGamePairAnswerSQLEntity | undefined =
+            playersAnswers[opponentPlayerProp].find((answer) => {
               return answer.answerStatus === 'Correct';
             });
-            if (foundedCorrectAnswer) {
-              quizPair.player2Score += 1;
-            }
-          }
-        }
-      } else if (playerPosition === 2) {
-        playersAnswersQuantity.secondPlayerAnswersQuantity += 1;
-        // если новый ответ является последним для второго игрока
-        if (
-          playersAnswersQuantity.secondPlayerAnswersQuantity ===
-          allQuestions.length
-        ) {
-          // если оппонент уже ответил на все вопросы первым
-          if (
-            playersAnswersQuantity.firstPlayerAnswersQuantity ===
-            allQuestions.length
-          ) {
-            const foundedCorrectAnswer:
-              | QuizGamePairAnswerSQLEntity
-              | undefined = firstPlayerAnswers.find((answer) => {
-              return answer.answerStatus === 'Correct';
-            });
-            if (foundedCorrectAnswer) {
-              quizPair.player1Score += 1;
-            }
+          if (foundedCorrectAnswer) {
+            quizPair[`player${opponentPlayerPosition}Score`] += 1;
           }
         }
       }
       if (
-        playersAnswersQuantity.firstPlayerAnswersQuantity ===
-          allQuestions.length &&
-        playersAnswersQuantity.secondPlayerAnswersQuantity ===
-          allQuestions.length
+        playersAnswersQuantity.player1 === allQuestions.length &&
+        playersAnswersQuantity.player2 === allQuestions.length
       ) {
         quizPair.status = 'Finished';
         quizPair.finishGameDate = new Date().toISOString();
       }
+      // у question entity есть jsonb столбец с массивом правильных ответов на конкретный вопрос
+      // если ответ игрока есть в этом массиве с ответами то игрок ответил верно. если нет то неверно
       const answerStatus: boolean = question.answers.includes(answer);
       const newAnswer: QuizGamePairAnswerSQLEntity =
         new QuizGamePairAnswerSQLEntity();
@@ -188,9 +159,9 @@ export class SendAnswerToNextQuizQuestionUseCase
       newAnswer.addedAt = new Date().toISOString();
       if (answerStatus) {
         newAnswer.answerStatus = 'Correct';
-        if (playerPosition === 1) {
+        if (currentPlayerPosition === 1) {
           quizPair.player1Score += 1;
-        } else if (playerPosition === 2) {
+        } else if (currentPlayerPosition === 2) {
           quizPair.player2Score += 1;
         }
       } else {
@@ -204,8 +175,17 @@ export class SendAnswerToNextQuizQuestionUseCase
         addedAt: newAnswer.addedAt,
       };
     };
+    const currentUserAnswers: QuizGamePairAnswerSQLEntity[] =
+      quizPair.answers.filter((answer) => {
+        return answer.userId === userId;
+      });
+    const questionsWithPositions: QuizGamePairQuestionWithPositionSQLEntity[] =
+      await this.quizGamePairQuestionWithPositionEntity.findBy({
+        quizGamePairId: quizPair.id,
+      });
+    // если игрок еще не ответил ни на один вопрос
     if (currentUserAnswers.length === 0) {
-      const questionWithPosition: QuizGamePairQuestionsSQLEntity =
+      const questionWithPosition: QuizGamePairQuestionWithPositionSQLEntity =
         questionsWithPositions.find((question) => {
           return question.questionPosition === 0;
         });
@@ -215,13 +195,14 @@ export class SendAnswerToNextQuizQuestionUseCase
         },
       );
       return sendAnswer(question);
+      // если у игрока уже есть ответы на вопросы, но не на все
     } else if (currentUserAnswers.length > 0) {
       const questionsIdWithAnswers: number[] = currentUserAnswers.map(
         (answer) => {
           return answer.questionId;
         },
       );
-      const questionsWithoutAnswers: QuizGamePairQuestionsSQLEntity[] =
+      const questionsWithoutAnswers: QuizGamePairQuestionWithPositionSQLEntity[] =
         questionsWithPositions.filter((question) => {
           return !questionsIdWithAnswers.includes(question.questionId);
         });
@@ -243,13 +224,13 @@ export class SendAnswerToNextQuizQuestionUseCase
   }
 
   checkCurrentUserAnswersCount({
-    userAnswers,
-    allQuestions,
+    currentUserAnswersQuantity,
+    allQuizGameQuestionsQuantity,
   }: {
-    userAnswers: QuizGamePairAnswerSQLEntity[];
-    allQuestions: QuizGameQuestionSQLEntity[];
+    currentUserAnswersQuantity: number;
+    allQuizGameQuestionsQuantity: number;
   }): void {
-    if (allQuestions.length === userAnswers.length) {
+    if (allQuizGameQuestionsQuantity === currentUserAnswersQuantity) {
       throw new ForbiddenException();
     }
   }

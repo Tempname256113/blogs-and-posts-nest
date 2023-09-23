@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'quiz_game_pair_questions_typeorm' })
-export class QuizGamePairQuestionsSQLEntity {
+export class QuizGamePairQuestionWithPositionSQLEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
