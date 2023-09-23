@@ -139,6 +139,62 @@ export class SendAnswerToNextQuizQuestionUseCase
           if (foundedCorrectAnswer) {
             quizPair[`player${opponentPlayerPosition}Score`] += 1;
           }
+          // если оппонент не ответил на все вопросы, но текущий игрок на все вопросы ответил
+          // нужно через 10 секунд закончить игру самому если оппонент так и не ответит на все вопросы
+        } else {
+          setTimeout(async () => {
+            const opponentPlayerId: number =
+              quizPair[`player${opponentPlayerPosition}Id`];
+            const quizGameQuestions: QuizGamePairQuestionWithPositionSQLEntity[] =
+              await this.quizGamePairQuestionWithPositionEntity.findBy({
+                quizGamePairId: quizPair.id,
+              });
+            const opponentAnswersQuantity: number =
+              await this.quizGamePairAnswerEntity.countBy({
+                quizGamePairId: quizPair.id,
+                userId: opponentPlayerId,
+              });
+            if (opponentAnswersQuantity < quizGameQuestions.length) {
+              const arrayWithAnswers: QuizGamePairAnswerSQLEntity[] = [];
+              for (
+                let i: number = opponentAnswersQuantity;
+                i < quizGameQuestions.length;
+                i++
+              ) {
+                const questionId: number = quizGameQuestions.find(
+                  (question) => {
+                    return question.questionPosition === i;
+                  },
+                ).questionId;
+                const newAnswer: QuizGamePairAnswerSQLEntity =
+                  new QuizGamePairAnswerSQLEntity();
+                newAnswer.quizGamePairId = quizPair.id;
+                newAnswer.userId = opponentPlayerId;
+                newAnswer.questionId = questionId;
+                newAnswer.answerStatus = 'Incorrect';
+                newAnswer.addedAt = new Date().toISOString();
+                arrayWithAnswers.push(newAnswer);
+              }
+              const foundedCorrectAnswer:
+                | QuizGamePairAnswerSQLEntity
+                | undefined = playersAnswers[currentPlayerProp].find(
+                (answer) => {
+                  return answer.answerStatus === 'Correct';
+                },
+              );
+              let currentPlayerScore: number =
+                quizPair[`player${currentPlayerPosition}Score`];
+              if (foundedCorrectAnswer) {
+                currentPlayerScore += 1;
+              }
+              await this.quizGamePairAnswerEntity.save(arrayWithAnswers);
+              await this.quizGamePairEntity.update(quizPair.id, {
+                [`player${currentPlayerPosition}Score`]: currentPlayerScore,
+                status: 'Finished',
+                finishGameDate: new Date().toISOString(),
+              });
+            }
+          }, 10000);
         }
       }
       if (
