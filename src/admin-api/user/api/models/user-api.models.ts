@@ -1,21 +1,21 @@
-export type UserViewModel = {
+export type AdminApiUserViewModel = {
   id: string;
   login: string;
   email: string;
   createdAt: string;
-  banInfo: {
-    isBanned: boolean;
-    banDate: string | null;
-    banReason: string | null;
-  };
+  // banInfo: {
+  //   isBanned: boolean;
+  //   banDate: string | null;
+  //   banReason: string | null;
+  // };
 };
 
-export type UserPaginationViewModel = {
+export type AdminApiUserPaginationViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: UserViewModel[];
+  items: AdminApiUserViewModel[];
 };
 
 export type UserEmailInfoType = {

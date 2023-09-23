@@ -10,9 +10,9 @@ import {
 import { User } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import {
   UserEmailInfoType,
-  UserPaginationViewModel,
+  AdminApiUserPaginationViewModel,
   UserPasswordRecoveryInfoType,
-  UserViewModel,
+  AdminApiUserViewModel,
 } from '../../api/models/user-api.models';
 import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
@@ -152,7 +152,7 @@ export class UserQueryRepositorySQL {
 
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<UserPaginationViewModel> {
+  ): Promise<AdminApiUserPaginationViewModel> {
     const queryBuilder: SelectQueryBuilder<UserSQLEntity> =
       await this.dataSource.createQueryBuilder(UserSQLEntity, 'u');
     queryBuilder.select();
@@ -208,21 +208,21 @@ export class UserQueryRepositorySQL {
     const pagesCount: number = Math.ceil(
       allUsersCount / rawPaginationQuery.pageSize,
     );
-    const mappedUsers: UserViewModel[] = foundedUsers.map((rawUser) => {
-      const mappedUser: UserViewModel = {
+    const mappedUsers: AdminApiUserViewModel[] = foundedUsers.map((rawUser) => {
+      const mappedUser: AdminApiUserViewModel = {
         id: String(rawUser.id),
         login: rawUser.login,
         email: rawUser.email,
         createdAt: rawUser.createdAt,
-        banInfo: {
-          isBanned: rawUser.isBanned,
-          banDate: rawUser.banDate,
-          banReason: rawUser.banReason,
-        },
+        // banInfo: {
+        //   isBanned: rawUser.isBanned,
+        //   banDate: rawUser.banDate,
+        //   banReason: rawUser.banReason,
+        // },
       };
       return mappedUser;
     });
-    const usersPaginationResult: UserPaginationViewModel = {
+    const usersPaginationResult: AdminApiUserPaginationViewModel = {
       pagesCount: pagesCount,
       page: Number(rawPaginationQuery.pageNumber),
       pageSize: Number(rawPaginationQuery.pageSize),

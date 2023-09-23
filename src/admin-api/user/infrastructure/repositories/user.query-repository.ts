@@ -7,8 +7,8 @@ import {
 import { FilterQuery, Model } from 'mongoose';
 import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import {
-  UserViewModel,
-  UserPaginationViewModel,
+  AdminApiUserViewModel,
+  AdminApiUserPaginationViewModel,
 } from '../../api/models/user-api.models';
 import {
   getPaginationUtils,
@@ -26,7 +26,7 @@ export class UserQueryRepository {
   ) {}
   async getUsersWithPagination(
     rawPaginationQuery: IUserApiPaginationQueryDto,
-  ): Promise<UserPaginationViewModel> {
+  ): Promise<AdminApiUserPaginationViewModel> {
     let correctSortBy: string = rawPaginationQuery.sortBy;
     switch (rawPaginationQuery.sortBy) {
       case 'login':
@@ -92,21 +92,21 @@ export class UserQueryRepository {
         sort: additionalPaginationData.sortQuery,
       },
     ).lean();
-    const mappedUsers: UserViewModel[] = foundedUsers.map((rawUser) => {
-      const mappedUser: UserViewModel = {
+    const mappedUsers: AdminApiUserViewModel[] = foundedUsers.map((rawUser) => {
+      const mappedUser: AdminApiUserViewModel = {
         id: String(rawUser.id),
         login: rawUser.accountData.login,
         email: rawUser.accountData.email,
         createdAt: rawUser.accountData.createdAt,
-        banInfo: {
-          isBanned: rawUser.banInfo.isBanned,
-          banDate: rawUser.banInfo.banDate,
-          banReason: rawUser.banInfo.banReason,
-        },
+        // banInfo: {
+        //   isBanned: rawUser.banInfo.isBanned,
+        //   banDate: rawUser.banInfo.banDate,
+        //   banReason: rawUser.banInfo.banReason,
+        // },
       };
       return mappedUser;
     });
-    const usersPaginationResult: UserPaginationViewModel = {
+    const usersPaginationResult: AdminApiUserPaginationViewModel = {
       pagesCount: Number(additionalPaginationData.pagesCount),
       page: Number(rawPaginationQuery.pageNumber),
       pageSize: Number(rawPaginationQuery.pageSize),

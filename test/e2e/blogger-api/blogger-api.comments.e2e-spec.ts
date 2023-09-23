@@ -15,7 +15,7 @@ import {
   newTestUsersCreateDTO,
 } from '../../../test-utils/create-user.test-factory-function';
 import { loginUserTestFunction } from '../../../test-utils/login-user.test-function';
-import { UserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
+import { AdminApiUserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
 import { createBlogTestFactoryFunction } from '../../../test-utils/create-blog.test-factory-function';
 import { createPostTestFactoryFunction } from '../../../test-utils/create-post.test-factory-function';
 import { createCommentTestFactoryFunction } from '../../../test-utils/create-comment.test-factory-function';
@@ -39,7 +39,7 @@ type BlogTestType = Partial<{
 type UserTestType = Partial<{
   accessToken: string;
   credentials: UserCreateDto;
-  createdUserResponse: UserViewModel;
+  createdUserResponse: AdminApiUserViewModel;
   blogs: Partial<{
     blog1: BlogTestType;
     blog2: BlogTestType;
@@ -70,7 +70,7 @@ describe('blogger api e2e comments tests', () => {
         httpServer,
         userCreateDTO: user.credentials,
       });
-      const createdUser: UserViewModel = response.body;
+      const createdUser: AdminApiUserViewModel = response.body;
       user.createdUserResponse = createdUser;
     };
     const loginUser = async (user: UserTestType): Promise<void> => {

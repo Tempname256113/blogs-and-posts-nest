@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
 import { UserCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
-import { UserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
+import { AdminApiUserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
 import {
   BannedUsersBloggerApiPaginationViewModel,
   BannedUserBloggerApiViewModel,
@@ -24,7 +24,7 @@ import { BanUserBloggerApiDTO } from '../../../src/blogger-api/blog/api/models/b
 type UserTestType = Partial<{
   accessToken: string;
   credentials: UserCreateDto;
-  createdUserResponse: UserViewModel;
+  createdUserResponse: AdminApiUserViewModel;
 }>;
 
 describe('blogger api ban functionality tests', () => {
@@ -54,7 +54,7 @@ describe('blogger api ban functionality tests', () => {
           httpServer,
           userCreateDTO: allUsersArray[i].credentials,
         });
-        const createdUser: UserViewModel = response.body;
+        const createdUser: AdminApiUserViewModel = response.body;
         allUsersArray[i].createdUserResponse = createdUser;
       }
     };

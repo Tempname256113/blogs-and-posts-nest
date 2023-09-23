@@ -1,5 +1,5 @@
 import { UserCreateDto } from '../../../src/admin-api/user/api/models/user-api.dto';
-import { UserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
+import { AdminApiUserViewModel } from '../../../src/admin-api/user/api/models/user-api.models';
 import { INestApplication } from '@nestjs/common';
 import {
   createUserTestFactoryFunction,
@@ -20,7 +20,7 @@ import { AppModule } from '../../../src/app.module';
 type UserTestType = Partial<{
   accessToken: string;
   credentials: UserCreateDto;
-  createdUserResponse: UserViewModel;
+  createdUserResponse: AdminApiUserViewModel;
 }>;
 
 describe('admin api blog ban functionality test', () => {
@@ -46,7 +46,7 @@ describe('admin api blog ban functionality test', () => {
         httpServer,
         userCreateDTO: blogger.credentials,
       });
-      const createdUser: UserViewModel = response.body;
+      const createdUser: AdminApiUserViewModel = response.body;
       blogger.createdUserResponse = createdUser;
     };
     const userLogin = async () => {
