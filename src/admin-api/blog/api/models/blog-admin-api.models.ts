@@ -9,10 +9,10 @@ export type AdminApiBlogViewModel = {
     userId: string | null;
     userLogin: string | null;
   };
-  banInfo: {
-    isBanned: boolean;
-    banDate: string | null;
-  };
+  // banInfo: {
+  //   isBanned: boolean;
+  //   banDate: string | null;
+  // };
 };
 
 export type AdminApiBlogsPaginationModel = {
