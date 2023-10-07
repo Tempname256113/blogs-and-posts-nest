@@ -16,7 +16,7 @@ import {
   AdminApiUserViewModel,
   AdminApiUserPaginationViewModel,
 } from './models/user-api.models';
-import { IUserApiPaginationQueryDto } from './models/user-api.query-dto';
+import { UserPaginationQueryDto } from './models/user-api.query-dto';
 import { BasicAuthGuard } from '../../../../libs/auth/passport-strategy/auth-basic.strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/use-cases/create-user.use-case';
@@ -59,9 +59,9 @@ export class UserAdminController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getUsersWithPagination(
-    @Query() rawPaginationQuery: IUserApiPaginationQueryDto,
+    @Query() rawPaginationQuery: UserPaginationQueryDto,
   ): Promise<AdminApiUserPaginationViewModel> {
-    const paginationQuery: IUserApiPaginationQueryDto = {
+    const paginationQuery: UserPaginationQueryDto = {
       searchLoginTerm: rawPaginationQuery.searchLoginTerm ?? null,
       searchEmailTerm: rawPaginationQuery.searchEmailTerm ?? null,
       pageNumber: rawPaginationQuery.pageNumber ?? 1,

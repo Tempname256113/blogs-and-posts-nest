@@ -5,7 +5,7 @@ import {
   UserSchema,
 } from '../../../../../libs/db/mongoose/schemes/user.entity';
 import { FilterQuery, Model } from 'mongoose';
-import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
+import { UserPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import {
   AdminApiUserViewModel,
   AdminApiUserPaginationViewModel,
@@ -25,7 +25,7 @@ export class UserQueryRepository {
     private jwtHelpers: JwtUtils,
   ) {}
   async getUsersWithPagination(
-    rawPaginationQuery: IUserApiPaginationQueryDto,
+    rawPaginationQuery: UserPaginationQueryDto,
   ): Promise<AdminApiUserPaginationViewModel> {
     let correctSortBy: string = rawPaginationQuery.sortBy;
     switch (rawPaginationQuery.sortBy) {
@@ -98,11 +98,11 @@ export class UserQueryRepository {
         login: rawUser.accountData.login,
         email: rawUser.accountData.email,
         createdAt: rawUser.accountData.createdAt,
-        // banInfo: {
-        //   isBanned: rawUser.banInfo.isBanned,
-        //   banDate: rawUser.banInfo.banDate,
-        //   banReason: rawUser.banInfo.banReason,
-        // },
+        banInfo: {
+          isBanned: rawUser.banInfo.isBanned,
+          banDate: rawUser.banInfo.banDate,
+          banReason: rawUser.banInfo.banReason,
+        },
       };
       return mappedUser;
     });

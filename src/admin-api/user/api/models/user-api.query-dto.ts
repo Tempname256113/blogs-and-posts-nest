@@ -1,4 +1,4 @@
-export interface IUserApiPaginationQueryDto {
+export type UserPaginationQueryDto = {
   searchLoginTerm: string | null;
   searchEmailTerm: string | null;
   pageNumber: number;
@@ -6,4 +6,4 @@ export interface IUserApiPaginationQueryDto {
   sortBy: string;
   sortDirection: 'asc' | 'desc';
   banStatus: 'all' | 'banned' | 'notBanned';
-}
+};

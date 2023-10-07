@@ -117,10 +117,10 @@ export class AdminBlogQueryRepositorySQL {
             userId: blogFromDB.u_id ? String(blogFromDB.u_id) : null,
             userLogin: blogFromDB.u_login,
           },
-          // banInfo: {
-          //   isBanned: blogFromDB.b_isBanned,
-          //   banDate: blogFromDB.b_banDate,
-          // },
+          banInfo: {
+            isBanned: blogFromDB.b_isBanned,
+            banDate: blogFromDB.b_banDate,
+          },
         };
         return mappedBlog;
       },

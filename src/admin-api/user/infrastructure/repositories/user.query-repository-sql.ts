@@ -17,7 +17,7 @@ import {
 import { AuthApiUserInfoType } from '../../../../public-api/auth/api/models/auth-api.models';
 import { JwtAccessTokenPayloadType } from '../../../../../generic-models/jwt.payload.model';
 import { JwtUtils } from '../../../../../libs/auth/jwt/jwt-utils.service';
-import { IUserApiPaginationQueryDto } from '../../api/models/user-api.query-dto';
+import { UserPaginationQueryDto } from '../../api/models/user-api.query-dto';
 import { UserEmailConfirmInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-email-confirm-info-sql.entity';
 import { UserPasswordRecoveryInfoSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-password-recovery-info-sql.entity';
 import { UserSQLEntity } from '../../../../../libs/db/typeorm-sql/entities/users/user-sql.entity';
@@ -151,7 +151,7 @@ export class UserQueryRepositorySQL {
   }
 
   async getUsersWithPagination(
-    rawPaginationQuery: IUserApiPaginationQueryDto,
+    rawPaginationQuery: UserPaginationQueryDto,
   ): Promise<AdminApiUserPaginationViewModel> {
     const queryBuilder: SelectQueryBuilder<UserSQLEntity> =
       await this.dataSource.createQueryBuilder(UserSQLEntity, 'u');
@@ -214,11 +214,11 @@ export class UserQueryRepositorySQL {
         login: rawUser.login,
         email: rawUser.email,
         createdAt: rawUser.createdAt,
-        // banInfo: {
-        //   isBanned: rawUser.isBanned,
-        //   banDate: rawUser.banDate,
-        //   banReason: rawUser.banReason,
-        // },
+        banInfo: {
+          isBanned: rawUser.isBanned,
+          banDate: rawUser.banDate,
+          banReason: rawUser.banReason,
+        },
       };
       return mappedUser;
     });

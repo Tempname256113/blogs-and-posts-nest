@@ -29,11 +29,11 @@ export class CreateUserUseCase
       login: createUserDTO.login,
       email: createUserDTO.email,
       createdAt: newUserData.createdAt,
-      // banInfo: {
-      //   isBanned: false,
-      //   banReason: null,
-      //   banDate: null,
-      // },
+      banInfo: {
+        isBanned: false,
+        banReason: null,
+        banDate: null,
+      },
     };
     return userApiModel;
   }
